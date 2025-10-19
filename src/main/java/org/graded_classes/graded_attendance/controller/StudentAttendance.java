@@ -9,10 +9,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -38,6 +35,8 @@ public class StudentAttendance implements Initializable {
     public ImageView searchCrossIcon;
     @FXML
     TextField inputField;
+    @FXML
+    ComboBox<String> choiceBox;
     VBox box;
     ObservableList<HBox> observableList;
     FilteredList<HBox> filteredData;
@@ -58,6 +57,7 @@ public class StudentAttendance implements Initializable {
     }
 
     ArrayList<HBox> boxes = new ArrayList<>();
+
     public StudentAttendance(MainController mainController,
                              GradedFxmlLoader gradedFxmlLoader,
                              VBox outer_main_box, String id) {
@@ -101,9 +101,9 @@ public class StudentAttendance implements Initializable {
     @FXML
     void show_search() {
         if (search_box.getChildren().size() == 1) {
-            if (mainController.gradedDataLoader.getStudentData().size()>boxes.size()) {
-                var entry=mainController.gradedDataLoader.getStudentData().lastEntry();
-                boxes.add(makeStudent(entry.getKey(),entry.getValue().name()));
+            if (mainController.gradedDataLoader.getStudentData().size() > boxes.size()) {
+                var entry = mainController.gradedDataLoader.getStudentData().lastEntry();
+                boxes.add(makeStudent(entry.getKey(), entry.getValue().name()));
             }
             search_box.getChildren().add(box);
         }
@@ -133,7 +133,11 @@ public class StudentAttendance implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
-
+            if (choiceBox != null) {
+                choiceBox.setItems(FXCollections.observableArrayList(List.of(
+                        "Eng", "Math", "Comp", "Phy", "Chem", "Bio", "SST"
+                )));
+            }
             var x = new FXMLLoader(loadURL("fxml/list-for-search.fxml"));
             observableList = generate();
             filteredData = new FilteredList<>(observableList, s -> true);
@@ -168,17 +172,8 @@ public class StudentAttendance implements Initializable {
     public void doAction(ActionEvent event) {
         Button source = (Button) event.getSource();
         if (!inputField.getText().isEmpty()) {
-            updateAttendance(source,true,null);
+            updateAttendance(source, true, null);
         }
-
-    }
-
-    private String[] getFromArray(String string) {
-        if (string == null) {
-            return new String[3];
-        }
-        string = string.replace("[", "").replace("]", "");
-        return string.split(",");
 
     }
 
@@ -212,8 +207,8 @@ public class StudentAttendance implements Initializable {
         }
     }
 
-    public void updateAttendance(Button source,boolean shouldMessageBeSend,String updatedTime) {
-        String timeStamp = updatedTime==null?LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a")):updatedTime;
+    public void updateAttendance(Button source, boolean shouldMessageBeSend, String updatedTime) {
+        String timeStamp = updatedTime == null ? LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a")) : updatedTime;
         Connection conn = mainController.gradedDataLoader.databaseLoader.getConnection();
         String edNo = listViewStudents.ed;
         String date = LocalDate.now().toString();

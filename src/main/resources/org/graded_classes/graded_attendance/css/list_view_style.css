@@ -78,3 +78,7 @@
 #search-helper-list .list-cell .hbox:hover {
     -fx-background-color: #1C75BC20;
 }
+.combo-box-base
+{
+    -fx-background-color: transparent;
+}

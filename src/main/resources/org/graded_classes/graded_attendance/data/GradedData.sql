@@ -22,11 +22,6 @@ CREATE TABLE IF NOT EXISTS "StudentData"
     subjects TEXT,
     telegram_id TEXT
 );
-SELECT * FROM "StudentData"
-ORDER BY CAST(SUBSTR(ed_no, 3) AS INTEGER);
 
-
-SELECT * FROM StudentData
-ORDER BY ed_no;
 
 

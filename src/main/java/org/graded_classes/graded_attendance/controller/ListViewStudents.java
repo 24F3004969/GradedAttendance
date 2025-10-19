@@ -46,22 +46,31 @@ public class ListViewStudents implements Initializable {
     }
 
     private void createCustomDataView(String ed) {
-        if (studentAttendance.id.equals("stu_atten")) {
-            attendanceDataView = new AttendanceDataView(this.studentAttendance, ed);
-            var attendance = studentAttendance.gradedFxmlLoader.createView(R.data_view, attendanceDataView);
-            if (studentAttendance.outer_main_box.getChildren().size() > 3)
-                studentAttendance.outer_main_box.getChildren().set(studentAttendance.outer_main_box.getChildren().size() - 1, attendance);
-            else
-                studentAttendance.outer_main_box.getChildren().add(attendance);
-            VBox.setVgrow(attendance, Priority.ALWAYS);
-        } else if (studentAttendance.id.equals("st_fee")) {
-            var feeReport = studentAttendance.gradedFxmlLoader.createView(R.student_fee_layout,
-                    new StudentFeeLayout(studentAttendance.mainController, ed, name));
-            if (studentAttendance.outer_main_box.getChildren().size() > 3)
-                studentAttendance.outer_main_box.getChildren().set(studentAttendance.outer_main_box.getChildren().size() - 1, feeReport);
-            else
-                studentAttendance.outer_main_box.getChildren().add(feeReport);
-
+        switch (studentAttendance.id) {
+            case "stu_atten" -> {
+                attendanceDataView = new AttendanceDataView(this.studentAttendance, ed);
+                var attendance = studentAttendance.gradedFxmlLoader.createView(R.data_view, attendanceDataView);
+                if (studentAttendance.outer_main_box.getChildren().size() > 3)
+                    studentAttendance.outer_main_box.getChildren().set(studentAttendance.outer_main_box.getChildren().size() - 1, attendance);
+                else
+                    studentAttendance.outer_main_box.getChildren().add(attendance);
+                VBox.setVgrow(attendance, Priority.ALWAYS);
+            }
+            case "st_fee" -> {
+                var feeReport = studentAttendance.gradedFxmlLoader.createView(R.student_fee_layout,
+                        new StudentFeeLayout(studentAttendance.mainController, ed, name));
+                if (studentAttendance.outer_main_box.getChildren().size() > 3)
+                    studentAttendance.outer_main_box.getChildren().set(studentAttendance.outer_main_box.getChildren().size() - 1, feeReport);
+                else
+                    studentAttendance.outer_main_box.getChildren().add(feeReport);
+            }
+            case "tea_prog" -> {
+                var teaching = studentAttendance.gradedFxmlLoader.createView(R.teaching_progress_report);
+                if (studentAttendance.outer_main_box.getChildren().size() > 3)
+                    studentAttendance.outer_main_box.getChildren().set(studentAttendance.outer_main_box.getChildren().size() - 1, teaching);
+                else
+                    studentAttendance.outer_main_box.getChildren().add(teaching);
+            }
         }
     }
 }

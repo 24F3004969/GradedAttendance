@@ -96,7 +96,9 @@ public class HomeController implements Initializable {
 
     private Node getSearchView(VBox vBox) {
         return switch (vBox.getId()) {
-            case "stu_atten", "st_fee", "tea_prog" -> gradedFxmlLoader.createView(R.student_attendance_layout,
+            case "stu_atten", "st_fee"-> gradedFxmlLoader.createView(R.student_attendance_layout,
+                    new StudentAttendance(mainController, gradedFxmlLoader, outer_main_box, vBox.getId()));
+            case "tea_prog"-> gradedFxmlLoader.createView(R.teaching_progress_search,
                     new StudentAttendance(mainController, gradedFxmlLoader, outer_main_box, vBox.getId()));
             case "tea_atten", "tea_fee" -> gradedFxmlLoader.createView(R.teacher_attendance_layout);
             default -> null;
@@ -153,7 +155,7 @@ public class HomeController implements Initializable {
     public void onButtonPressed(ActionEvent actionEvent) {
         BorderPane dialog = null;
         try {
-            javafx.fxml.FXMLLoader fxmlLoader = new FXMLLoader(loadURL("fxml/time_table_classes.fxml"));
+           FXMLLoader fxmlLoader = new FXMLLoader(loadURL("fxml/time_table_classes.fxml"));
             var time=new TimeTableClass(this);
             fxmlLoader.setControllerFactory(c -> time);
             dialog = fxmlLoader.load();

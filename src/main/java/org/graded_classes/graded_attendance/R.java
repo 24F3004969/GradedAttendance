@@ -8,7 +8,7 @@ public enum R {
     data_view("fxml/attendance_data_view.fxml"),
     teacher_attendance_layout("fxml/teacher_attendance_layout.fxml"),
     teacher_payment_layout("fxml/teachers_payment_layout.fxml"),
-    teaching_progress_layout("fxml/teaching_progress_layout.fxml"),
+    teaching_progress_report("fxml/teaching_progress_report.fxml"),
     database_layout("fxml/database_edit.fxml"),
     chat_layout("fxml/chat_bot.fxml"),
     payment_done_animation("fxml/payment_done_animation.fxml"),
@@ -21,7 +21,8 @@ public enum R {
     create_topic("fxml/topics_creator.fxml"),
     notification("fxml/notifications.fxml"),
     edit_time("fxml/editTime.fxml"),
-    attendance_report("fxml/attendance_report.fxml");
+    attendance_report("fxml/attendance_report.fxml"),
+    teaching_progress_search("fxml/teaching_progress_layout_search.fxml"),;
     private final String path;
 
     R(String path) {

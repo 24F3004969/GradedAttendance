@@ -13,6 +13,7 @@ import javafx.scene.control.Label;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -42,98 +43,55 @@ public class AttendanceReportController implements Initializable {
     private CategoryAxis xAxis;
     @FXML
     private NumberAxis yAxis;
+    LocalDate startDate = LocalDate.of(2025, 9, 6);
+    LocalDate endDate = LocalDate.now();
+
+    long totalWokingDays = ChronoUnit.DAYS.between(startDate, endDate);
 
     @FXML
     public void initialize() {
-        // Ensure x-axis shows our two categories
-        xAxis.setLabel("Status");
+        xAxis.setLabel("Attendance Status");
         xAxis.setTickLabelsVisible(true);
-        xAxis.setCategories(FXCollections.observableArrayList("Present", "Absent"));
-
-        // Configure y-axis
         yAxis.setLabel("Days");
         yAxis.setForceZeroInRange(true);
-        yAxis.setAutoRanging(true); // Will be set to false when you pass data
-
-        // Hide legend if you only show one series
-        attendanceChart.setLegendVisible(false);
+        yAxis.setAutoRanging(true);
         nameLabel.setText(name);
+
         int missingDay = Integer.parseInt(view.get("Missing Dates").trim());
         int present = Integer.parseInt(view.get(edNo).trim());
-        System.out.println("Missing Dates: " + missingDay);
+        System.out.println("Missing Dates: " + (totalWokingDays - missingDay - present));
         System.out.println("Present Dates: " + present);
-
-        List<Boolean> daily = java.util.Arrays.asList(
-                true, true, false, true, true, true, true,  // week 1
-                true, false, true, true, true, true, false, // week 2
-                true, true, true, false, true, true, true,  // week 3
-                true, true, false, true, true, true, false  // week 4
-        );
-
-        setAttendanceData(present,missingDay);
+        setAttendanceData(present, (int) (totalWokingDays - missingDay - present));
     }
 
-    /**
-     * Set the student name displayed above the chart.
-     */
     public void setStudentName(String name) {
         nameLabel.setText(name != null ? name : "Name");
     }
 
-    /**
-     * Populate chart with present/absent totals.
-     */
     public void setAttendanceData(int presentDays, int absentDays) {
-        int total = Math.max(0, presentDays) + Math.max(0, absentDays);
-
-        // Configure y-axis bounds based on total days (or month length)
-        if (total > 0) {
+        if (totalWokingDays > 0) {
             yAxis.setAutoRanging(false);
             yAxis.setLowerBound(0);
-
-            // Option A: bound by total days passed in
-            int upper = Math.max(total, 5);
-
-            // Option B (monthly): uncomment to bound by current month length
-            upper = Math.max(LocalDate.now().lengthOfMonth(), upper);
-
-            yAxis.setUpperBound(upper);
-            yAxis.setTickUnit(Math.max(1, Math.ceil(upper / 5.0)));
+            yAxis.setUpperBound(totalWokingDays);
+            yAxis.setTickUnit(5);
         } else {
             yAxis.setAutoRanging(true);
         }
-
-        // Build series
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Attendance");
-        XYChart.Data<String, Number> present = new XYChart.Data<>("Present", presentDays);
-        series.getData().add(present);
-        series.getData().add(new XYChart.Data<>("Absent", absentDays));
-
-        // Apply to chart
-        attendanceChart.getData().setAll(series);
-        attendanceChart.setCategoryGap(50);
-        // Color the bars (green for present, red for absent)
+        XYChart.Series<String, Number> present = new XYChart.Series<>();
+        present.setName("Present");
+        XYChart.Series<String, Number> absent = new XYChart.Series<>();
+        absent.setName("Absent");
+        present.getData().add(new XYChart.Data<>("Present", presentDays));
+        absent.getData().add(new XYChart.Data<>("Absent", absentDays));
+        attendanceChart.getData().setAll(present, absent);
         Platform.runLater(() -> {
-            for (XYChart.Data<String, Number> d : series.getData()) {
+          /*  for (XYChart.Data<String, Number> d : series.getData()) {
                 String category = d.getXValue();
-                String color = "Present".equals(category) ? "#2ecc71" : "#e74c3c"; // green / red
+                String color = "Present".equals(category) ? "#1C75BC" : "#e74c3c"; // green / red
                 if (d.getNode() != null) {
                     d.getNode().setStyle("-fx-bar-fill: " + color + ";");
                 }
-            }
+            }*/
         });
-    }
-
-    /**
-     * Convenience: if you store daily attendance as booleans (true=present, false=absent).
-     */
-    public void setAttendanceFromBooleans(List<Boolean> dailyPresence) {
-        if (dailyPresence == null || dailyPresence.isEmpty()) {
-            setAttendanceData(0, 0);
-            return;
-        }
-        int present = (int) dailyPresence.stream().filter(Boolean::booleanValue).count();
-        setAttendanceData(present, dailyPresence.size() - present);
     }
 }

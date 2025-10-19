@@ -1,0 +1,10 @@
+@import '../fonts/Fonts.css';
+.data_viewer {
+    -fx-background-color: #fafafa;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.12, -1.0, 2.0);
+}
+.ring-progress-indicator {
+    -fx-font-size: 20px;
+}

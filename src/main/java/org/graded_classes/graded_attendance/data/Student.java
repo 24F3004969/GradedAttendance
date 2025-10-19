@@ -153,7 +153,8 @@ public class Student {
     }
 
     public void insertIntoDatabase(Connection connection) throws SQLException {
-        String sql = "INSERT INTO \"StudentData\"(ed_no, name,email, bloodGroup, guardian_phone, aadhaar_no, father_name, mother_name, class, gender, dob, address, father_occ, mother_occ, previous_ins_name, reason_leaving, school_n, suggestions, subjects, telegram_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        System.out.println("inside insertIntoDatabase");
+        String sql = "INSERT INTO StudentData(ed_no, name,email, bloodGroup, guardian_phone, aadhaar_no, father_name, mother_name, class, gender, dob, address, father_occ, mother_occ, previous_ins_name, reason_leaving, school_n, suggestions, subjects, telegram_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, ed_no);
             stmt.setString(2, name);

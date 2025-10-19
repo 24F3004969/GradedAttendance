@@ -65,7 +65,7 @@ public class Demo extends Application {
         // Get a single text string with all unicode characters for all emojis
         String text = getAllEmojisAsUnicodeString();
         // Convert text to Text (if delimiter is not empty) and Image nodes (all emojis)
-        List<Node> emojiNodes = TextUtils.convertToTextAndImageNodes(text,32);
+        List<Node> emojiNodes = TextUtils.convertToTextAndImageNodes(text,24);
         emojiNodes.stream()
                 .filter(ImageView.class::isInstance)
                 .forEach(node -> {
