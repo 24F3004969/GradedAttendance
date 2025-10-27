@@ -1,4 +1,4 @@
-package org.graded_classes.graded_attendance;
+package org.graded_classes.graded_attendance.test;
 
 import atlantafx.base.theme.PrimerLight;
 import com.gluonhq.emoji.Emoji;

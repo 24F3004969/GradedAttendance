@@ -1,4 +1,4 @@
-package org.graded_classes.graded_attendance;
+package org.graded_classes.graded_attendance.test;
 
 import javafx.application.Application;
 import javafx.scene.Scene;

@@ -18,11 +18,13 @@ import javafx.scene.layout.VBox;
 import org.graded_classes.graded_attendance.GradedFxmlLoader;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.data.Attendance;
-import org.graded_classes.graded_attendance.data.Student;
 
 import java.io.IOException;
 import java.net.URL;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -38,6 +40,7 @@ public class StudentAttendance implements Initializable {
     @FXML
     ComboBox<String> choiceBox;
     VBox box;
+    private String msg;
     ObservableList<HBox> observableList;
     FilteredList<HBox> filteredData;
     @FXML
@@ -49,7 +52,18 @@ public class StudentAttendance implements Initializable {
     GradedFxmlLoader gradedFxmlLoader;
     VBox outer_main_box;
     String id;
+    String todayTopicList = "";
     ListViewStudents listViewStudents;
+    final String submit = """
+             Dear Parent,
+            We are pleased to inform you that your child has brought the assigned homework to the coaching class today.
+            Thank you for your support in ensuring timely completion.
+            """;
+    final String not_submit = """
+            Dear Parent,
+            We wanted to inform you that your child did not bring the assigned homework today.
+            Kindly ensure that the homework is completed and brought to coaching tomorrow. 
+            """;
     LinkedHashMap<String, Attendance> attendanceMap = new LinkedHashMap<>();
 
     public ArrayList<HBox> getBoxes() {
@@ -81,13 +95,17 @@ public class StudentAttendance implements Initializable {
                 attendanceMap.put(r.getString("ed_no"),
                         new Attendance(r.getString("check_in"),
                                 r.getString("check_out"),
-                                r.getString("homework")));
+                                getAsRequired(r.getString("homework")), r.getString("topic_taught")));
             }
             System.out.println(attendanceMap);
 
         } catch (SQLException _) {
 
         }
+    }
+
+    private Boolean getAsRequired(String homework) {
+        return homework != null ? homework.equals("Submitted") : null;
     }
 
     @FXML
@@ -177,36 +195,6 @@ public class StudentAttendance implements Initializable {
 
     }
 
-    public void updateHomeWorkStatus(String val) {
-        String edNo = listViewStudents.ed;
-        String date = LocalDate.now().toString();
-        try (
-                Connection conn = mainController.gradedDataLoader.databaseLoader.getConnection();
-                PreparedStatement updateStmt = conn.prepareStatement("UPDATE Attendance SET homework = ? WHERE ed_no = ? and date = ?")) {
-            updateStmt.setString(1, val);
-            updateStmt.setString(2, edNo);
-            updateStmt.setString(3, date);
-            updateStmt.executeUpdate();
-            String msg = """
-                    🎉 Homework Completed!
-                    Dear Parent,
-                    Great news! Your child %s has successfully completed their homework for today.
-                    We’re proud of their effort and commitment to learning. Keep up the great work! 🌟
-                    """.formatted(mainController.gradedDataLoader.getStudentData().get(edNo).name());
-            if (mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id() != null) {
-                try {
-                    mainController.messageSender.sendMessage(msg, Long.parseLong(mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id()));
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                    System.out.println("Message was not sent to the server.");
-                }
-
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public void updateAttendance(Button source, boolean shouldMessageBeSend, String updatedTime) {
         String timeStamp = updatedTime == null ? LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a")) : updatedTime;
         Connection conn = mainController.gradedDataLoader.databaseLoader.getConnection();
@@ -214,11 +202,13 @@ public class StudentAttendance implements Initializable {
         String date = LocalDate.now().toString();
         try {
             if (source.getText().equals("Check In")) {
+                todayTopicList = "";
                 PreparedStatement updateStmt = conn.prepareStatement("UPDATE Attendance SET check_in = ?  WHERE ed_no = ? and date= ?");
                 updateStmt.setString(2, edNo);
                 updateStmt.setString(3, date);
                 updateStmt.setString(1, timeStamp);
                 attendanceMap.get(edNo).setCheck_in(timeStamp);
+                attendanceMap.get(edNo).setTopics("UNKNOWN");
                 listViewStudents.attendanceDataView.update();
                 String msg = """
                         Arrival Alert
@@ -246,20 +236,59 @@ public class StudentAttendance implements Initializable {
                 source.setText("Check Out");
                 inputField.setText("");
                 updateStmt.executeUpdate();
-            } else if (source.getText().equals("Check Out")) {
-                PreparedStatement updateStmt = conn.prepareStatement("UPDATE Attendance SET check_out = ?  WHERE ed_no = ? and date= ?");
-                updateStmt.setString(2, edNo);
-                updateStmt.setString(3, date);
+            } else if (source.getText().equals("Check Out") && !todayTopicList.isEmpty() && (listViewStudents.attendanceDataView.Submitted.isSelected() || listViewStudents.attendanceDataView.NotSubmitted.isSelected())) {
+
+                PreparedStatement updateStmt = conn.prepareStatement(
+                        "UPDATE Attendance SET check_out = ?, homework = ? WHERE ed_no = ? AND date = ?"
+                );
                 updateStmt.setString(1, timeStamp);
+                updateStmt.setString(2, listViewStudents.attendanceDataView.Submitted.isSelected() ? "Submitted" : "NotSubmitted");
+                updateStmt.setString(3, edNo);
+                updateStmt.setString(4, date);
+
                 attendanceMap.get(edNo).setCheck_out(timeStamp);
                 source.setVisible(false);
+                attendanceMap.get(edNo).setHomework_status(listViewStudents.attendanceDataView.Submitted.isSelected());
                 listViewStudents.attendanceDataView.update();
-                String msg = """
-                        Departure Alert
-                        Dear Parent,
-                        Your child %s has just left the tuition center at %s.
-                        We hope they had a great learning experience today. See you next time!
-                        """.formatted(mainController.gradedDataLoader.getStudentData().get(edNo).name(), timeStamp);
+                String[] list = todayTopicList.contains(",") ? todayTopicList.split("[,:]") : todayTopicList.split(":");
+                System.out.println(Arrays.toString(list));
+                if (todayTopicList.contains(","))
+                    msg = """
+                            Departure Alert
+                            Dear Parent,
+                            Your child %s has just left the tuition center at %s.
+                            
+                            Topic Taught Today
+                            1.%s : %s
+                            2.%s : %s
+                            3.Homework : %s
+                            
+                            %s
+                            
+                            We hope they had a great learning experience today. See you next time!
+                            
+                            """.formatted(mainController.gradedDataLoader.getStudentData().get(edNo).name(), timeStamp,
+                            list[0], list[1], list[2],
+                            list[3], listViewStudents.attendanceDataView.Submitted.isSelected() ? "Submitted" : "Not Submitted",
+                            listViewStudents.attendanceDataView.Submitted.isSelected() ? submit : not_submit);
+                else {
+                    msg = """
+                            Departure Alert
+                            Dear Parent,
+                            Your child %s has just left the tuition center at %s.
+                            
+                            
+                            Topic Taught Today
+                            1.%s : %s
+                            2.Homework : %s
+                            %s
+                            
+                            We hope they had a great learning experience today. See you next time!
+                            """.formatted(mainController.gradedDataLoader.getStudentData().
+                                    get(edNo).name(), timeStamp,
+                            list[0], list[1], listViewStudents.attendanceDataView.Submitted.isSelected() ? "Submitted" : "Not Submitted",
+                            listViewStudents.attendanceDataView.Submitted.isSelected() ? submit : not_submit);
+                }
                 Platform.runLater(() -> {
                     try {
                         if (mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id() != null && shouldMessageBeSend) {
@@ -286,5 +315,33 @@ public class StudentAttendance implements Initializable {
     public void onCutOrSearch(MouseEvent mouseEvent) {
         searchCrossIcon.setImage(new Image(GradedResourceLoader.load("icons/search.svg")));
         inputField.setText("");
+    }
+
+    public void topicTaughtTodayUpdate(String subject1, String topic1, String subject2, String topic2) {
+        Connection conn = mainController.gradedDataLoader.databaseLoader.getConnection();
+        String edNo = listViewStudents.ed;
+        String date = LocalDate.now().toString();
+        PreparedStatement updateStmt = null;
+        try {
+
+            updateStmt = conn.prepareStatement("UPDATE Attendance SET topic_taught = ?  WHERE ed_no = ? and date= ?");
+            updateStmt.setString(2, edNo);
+            updateStmt.setString(3, date);
+            if (!subject1.isEmpty() && !topic1.isEmpty() && !subject2.isEmpty() && !topic2.isEmpty())
+                todayTopicList = subject1 + ":" + topic1 + "," + subject2 + ":" + topic2;
+            else if (!subject2.isEmpty() && !topic2.isEmpty()) {
+                todayTopicList = subject2 + ":" + topic2;
+
+            } else if (!subject1.isEmpty() && !topic1.isEmpty()) {
+                todayTopicList = subject1 + ":" + topic1;
+            }
+            attendanceMap.get(edNo).setTopics(todayTopicList);
+            updateStmt.setString(1, todayTopicList);
+            updateStmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 }

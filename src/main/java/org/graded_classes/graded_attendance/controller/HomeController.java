@@ -159,7 +159,7 @@ public class HomeController implements Initializable {
             var time=new TimeTableClass(this);
             fxmlLoader.setControllerFactory(c -> time);
             dialog = fxmlLoader.load();
-            dialog.setStyle("-fx-background-color: #fafafa;");
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

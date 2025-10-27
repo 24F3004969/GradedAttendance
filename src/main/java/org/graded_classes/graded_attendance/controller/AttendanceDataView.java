@@ -8,10 +8,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
@@ -39,6 +36,10 @@ import static org.graded_classes.graded_attendance.GradedResourceLoader.loadURL;
 
 public class AttendanceDataView implements Initializable {
     @FXML
+    public ToggleGroup optionsGroup;
+    public RadioButton Submitted;
+    public RadioButton NotSubmitted;
+    @FXML
     private Label c_in_status;
 
     @FXML
@@ -55,11 +56,9 @@ public class AttendanceDataView implements Initializable {
     @FXML
     private Tab edit, info;
     @FXML
-    public ToggleSwitch homeworkSwitch;
-    @FXML
     TabPane tabPane;
     @FXML
-    private Label lastPayment;
+    Label todayTopic;
 
     @FXML
     private Label status;
@@ -119,7 +118,7 @@ public class AttendanceDataView implements Initializable {
                 throw new RuntimeException("Database error: " + e.getMessage(), e);
             }
 
-            studentAttendance.attendanceMap.put(ed_no, new Attendance(null, null, null));
+            studentAttendance.attendanceMap.put(ed_no, new Attendance(null, null, null, null));
         }
     }
 
@@ -165,24 +164,15 @@ public class AttendanceDataView implements Initializable {
                 status.setText("Present");
                 status.setStyle("-fx-text-fill: #1C75BC;");
             }
-            if (x.getHomework_status() != null) {
-                homeworkSwitch.setSelected(true);
-                homeworkSwitch.setText("Submitted");
+            if (x.getHomework_status() != null && x.getHomework_status()) {
+                Submitted.setSelected(true);
             }
+            if (x.getHomework_status() != null && !x.getHomework_status()) {
+                NotSubmitted.setSelected(true);
+            }
+            todayTopic.setText(x.getTopics());
         }
 
-    }
-
-    @FXML
-    void whenClicked(MouseEvent event) {
-        if (homeworkSwitch.isSelected()) {
-            homeworkSwitch.setText("Submitted");
-            studentAttendance.attendanceMap.get(ed_no).setHomework_status("Submitted");
-        } else {
-            homeworkSwitch.setText("Not Submitted");
-            studentAttendance.attendanceMap.get(ed_no).setHomework_status("Not Submitted");
-
-        }
     }
 
     @FXML
@@ -193,21 +183,6 @@ public class AttendanceDataView implements Initializable {
 
     }
 
-    @FXML
-    void onOK() {
-        if (info.isSelected()) {
-            if (!edit.isSelected()) {
-                if (homeworkSwitch.isSelected())
-                    studentAttendance.updateHomeWorkStatus("Submitted");
-                else
-                    studentAttendance.updateHomeWorkStatus("Not Submitted");
-            } else {
-                editStudentData.update(studentAttendance.mainController.gradedDataLoader.databaseLoader.getConnection());
-            }
-        } else if (edit.isSelected()) {
-            editStudentData.update(studentAttendance.mainController.gradedDataLoader.databaseLoader.getConnection());
-        }
-    }
 
     @FXML
     void viewReport(ActionEvent event) {
@@ -219,7 +194,7 @@ public class AttendanceDataView implements Initializable {
         studentAttendance.mainController.
                 modalPane.show(studentAttendance.mainController.
                         gradedFxmlLoader.createView(R.attendance_report,
-                                new AttendanceReportController(firstLetterToUpperCase(student.name()),ed_no,view)));
+                                new AttendanceReportController(firstLetterToUpperCase(student.name()), ed_no, view)));
     }
 
     @FXML
@@ -259,4 +234,15 @@ public class AttendanceDataView implements Initializable {
         }
     }
 
+    public void addTopic(MouseEvent mouseEvent) {
+        TodayTopic todayTopic = new TodayTopic(this);
+        studentAttendance.
+                mainController.
+                modalPane.show(studentAttendance.
+                        mainController.
+                        gradedFxmlLoader.
+                        createView(R.topic_taught_today, todayTopic));
+
+
+    }
 }

@@ -8,15 +8,8 @@
     -fx-font-family: 'Helvetica Rounded';
     -fx-font-size: 14px;
 }
-.toggle-switch > .label-container > .label {
+.radio-button  {
     -fx-font-family: 'Helvetica Rounded';
     -fx-font-size: 14px;
-    -fx-text-fill: red;
-
-}
-.toggle-switch:selected > .label-container > .label {
-    -fx-font-family: 'Helvetica Rounded';
-    -fx-font-size: 14px;
-    -fx-text-fill: #1C75BC;
 
 }

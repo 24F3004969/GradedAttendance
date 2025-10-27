@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 
-<BorderPane maxHeight="650.0" maxWidth="916.0" minHeight="650.0" minWidth="916.0" stylesheets="@../css/time_table.css" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.TimeTableClass">
+<BorderPane maxHeight="650.0" maxWidth="916.0" minHeight="-Infinity" minWidth="-Infinity" style="-fx-background-radius: 5; -fx-background-color: #fafafa; -fx-border-radius: 5;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.TimeTableClass">
    <right>
        <HBox fx:id="right_button" alignment="CENTER_LEFT" BorderPane.alignment="CENTER">
            <ImageView fitHeight="48.0" fitWidth="48.0" nodeOrientation="RIGHT_TO_LEFT" onMouseClicked="#right" pickOnBounds="true" preserveRatio="true">
@@ -29,6 +29,6 @@
        </HBox>
    </left>
    <center>
-      <DeckPane fx:id="deckPane" animationDuration="500.0ms" maxHeight="630.0" maxWidth="820.0" minHeight="630.0" minWidth="820.0" BorderPane.alignment="CENTER" />
+      <DeckPane fx:id="deckPane" animationDuration="200.0ms" BorderPane.alignment="CENTER" />
    </center>
 </BorderPane>

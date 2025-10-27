@@ -31,4 +31,6 @@ module org.graded_classes.graded_attendance {
     opens org.graded_classes.graded_attendance.calender;
     exports org.graded_classes.graded_attendance.components;
     opens org.graded_classes.graded_attendance.components;
+    exports org.graded_classes.graded_attendance.test;
+    opens org.graded_classes.graded_attendance.test;
 }

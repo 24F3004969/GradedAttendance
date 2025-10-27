@@ -152,7 +152,7 @@
                                                 <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                                              </VBox.margin>
                                              <children>
-                                                <RingProgressIndicator maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.8" />
+                                                <RingProgressIndicator maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.81" />
                                              </children>
                                           </StackPane>
                                           <HBox>

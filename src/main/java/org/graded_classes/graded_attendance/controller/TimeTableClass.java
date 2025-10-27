@@ -8,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -28,15 +29,17 @@ public class TimeTableClass implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        AnchorPane[] dialog = new AnchorPane[7];
+        VBox[] dialog = new VBox[7];
         for (int i = 0; i <= 6; i++) {
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader(loadURL("fxml/time_table_view.fxml"));
                 var timeTableView = new TimeTableView("" + (i + 4), homeController.gradedDataLoader.databaseLoader.getConnection());
                 fxmlLoader.setControllerFactory(c -> timeTableView);
                 dialog[i] = fxmlLoader.load();
-                dialog[i].setMinWidth(deckPane.getMaxWidth());
-                dialog[i].setMinHeight(630);
+                DeckPane.setLeftAnchor( dialog[i], 0d);
+                DeckPane.setRightAnchor( dialog[i], 0d);
+                DeckPane.setTopAnchor( dialog[i], 0d);
+                DeckPane.setBottomAnchor( dialog[i], 0d);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

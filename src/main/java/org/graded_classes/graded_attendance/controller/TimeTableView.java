@@ -1,5 +1,7 @@
 package org.graded_classes.graded_attendance.controller;
 
+import atlantafx.base.theme.Styles;
+import atlantafx.base.theme.Tweaks;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -32,7 +34,6 @@ public class TimeTableView extends TimeTable implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         heading.setText(heading.getText() + " " + getGrade());
         day.setCellValueFactory(map -> getValues(map, "Day"));
-        //day.setCellFactory(TextFieldTableCell.forTableColumn());
         three.setCellValueFactory(map -> getValues(map, "3:00 PM"));
         three.setCellFactory(TextFieldTableCell.forTableColumn());
         four.setCellValueFactory(map -> getValues(map, "4:00 PM"));
@@ -56,6 +57,8 @@ public class TimeTableView extends TimeTable implements Initializable {
             items.add(item1);
         }
         table_view.setItems(items);
+        Styles.toggleStyleClass(table_view,Styles.BORDERED);
+        Styles.toggleStyleClass(table_view,Styles.STRIPED);
     }
 
     private void eventResolver(TableColumn.CellEditEvent<Map<String, Object>, String> event, String key) {

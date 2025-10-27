@@ -1,13 +1,13 @@
 
 #customList {
     -fx-font-size: 14px;
-    -fx-background-color: #fafafa;
+    -fx-background-color: rgba(250, 250, 250, 0.7);
     -fx-font-family: 'Gilroy-Bold';
     -fx-background-radius: 5;
     -fx-border-radius: 5;
 }
 #listViewHolder{
-     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.12, -1.0, 2.0);
+
     -fx-font-size: 14px;
     -fx-font-family: 'Gilroy-Bold';
     -fx-border-color: transparent;
@@ -49,7 +49,9 @@
     -fx-text-fill: black;
     -fx-alignment: center;
 }
-
+#customList .list-cell{
+    -fx-alignment: center;
+}
 #customList .list-cell .hbox {
     -fx-background-radius: 10;
     -fx-padding: 10;

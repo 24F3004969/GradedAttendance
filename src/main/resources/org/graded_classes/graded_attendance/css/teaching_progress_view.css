@@ -6,5 +6,9 @@
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.12, -1.0, 2.0);
 }
 .ring-progress-indicator {
+    -fx-font-weight: bold;
     -fx-font-size: 20px;
+}
+.ring-progress-indicator > .container > .ring {
+    -fx-stroke-width: 20px;
 }

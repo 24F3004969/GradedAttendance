@@ -5,10 +5,13 @@ import org.graded_classes.graded_attendance.data.MessageData;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.io.File;
 import java.util.List;
 
 public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
@@ -25,10 +28,16 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
 
     public void sendText(Long who, String what) {
         SendMessage sm = SendMessage.builder()
-                .chatId(who.toString()) //Who are we sending a message to
+                .chatId(who.toString())//Who are we sending a message to
                 .text(what).build();    //Message content
+     /*   SendPhoto myPhoto = SendPhoto.builder().
+                chatId("6749377036").
+                photo(new InputFile(new File("C:\\Users\\hilal\\GradedAttendance\\icon.png"))).caption("Graded Icon")
+                .build();*/
+        ;
         try {
-            telegramClient.execute(sm);                        //Actually sending the message
+            telegramClient.execute(sm);
+           // telegramClient.execute(myPhoto);//Actually sending the message
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);      //Any error will be printed here
         }
@@ -52,6 +61,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
             }
             boolean c = this.messageData.updateTelegramId(test[0], test[1], test[2], String.valueOf(user.getId()));
             if (c) {
+
                 sendText(user.getId(), "🎉🎉🎊🎊Congratulations! " + test[0] + "\nName:" + test[1] + "\nClass:" + test[2] +
                         "\nYou have been successfully added to the Graded Coaching Classes Messaging System.\n" +
                         "We’re excited to have you on board—get ready to achieve great things!");
