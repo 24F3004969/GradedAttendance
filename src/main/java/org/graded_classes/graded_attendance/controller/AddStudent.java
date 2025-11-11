@@ -14,7 +14,9 @@ import javafx.scene.layout.VBox;
 import org.graded_classes.graded_attendance.data.Student;
 
 import java.net.URL;
+import java.time.LocalTime;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class AddStudent implements Initializable {
@@ -93,15 +95,15 @@ public class AddStudent implements Initializable {
                     }
             }
         }
-        if (_class.getSelectionModel().getSelectedItem()==null) {
+        if (_class.getSelectionModel().getSelectedItem() == null) {
             _class.pseudoClassStateChanged(Styles.STATE_DANGER, true);
             counter++;
         }
-        if (blood_group.getSelectionModel().getSelectedItem()==null) {
+        if (blood_group.getSelectionModel().getSelectedItem() == null) {
             blood_group.pseudoClassStateChanged(Styles.STATE_DANGER, true);
             counter++;
         }
-        if (gender.getSelectionModel().getSelectedItem()==null) {
+        if (gender.getSelectionModel().getSelectedItem() == null) {
             gender.pseudoClassStateChanged(Styles.STATE_DANGER, true);
             counter++;
         }
@@ -118,7 +120,7 @@ public class AddStudent implements Initializable {
         return new Student(
                 str,
                 first_name.getText() + " " + last_name.getText(),
-                email_id.getText(),
+                email_id.getText(), LocalTime.now().toString(),
                 blood_group.getSelectionModel().getSelectedItem(),
                 g_num.getText(),
                 aadhaar_no.getText(),
@@ -135,8 +137,9 @@ public class AddStudent implements Initializable {
                 school_n.getText(),
                 suggestions.getText(),
                 list_of_subjects.toArray(new String[0]),
-                telegram_id.getText()
-        );
+                telegram_id.getText(),
+                ""
+                );
     }
 
     @FXML
@@ -154,7 +157,7 @@ public class AddStudent implements Initializable {
     void onClicked(MouseEvent event) {
         Node source = (Node) event.getSource();
         source.pseudoClassStateChanged(Styles.STATE_DANGER, false);
-        if ( source instanceof DatePicker datePicker){
+        if (source instanceof DatePicker datePicker) {
             datePicker.pseudoClassStateChanged(Styles.STATE_DANGER, false);
             datePicker.getEditor().pseudoClassStateChanged(Styles.STATE_DANGER, false);
         }

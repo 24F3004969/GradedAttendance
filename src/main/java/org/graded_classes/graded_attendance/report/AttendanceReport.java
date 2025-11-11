@@ -1,12 +1,10 @@
 package org.graded_classes.graded_attendance.report;
 
-import org.graded_classes.graded_attendance.data.Attendance;
 import org.graded_classes.graded_attendance.data.DatabaseLoader;
 import org.graded_classes.graded_attendance.data.SqlFileReader;
 
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
-import java.util.TreeMap;
 
 public class AttendanceReport {
     public LinkedHashMap<String, String> getStudentAttendanceReport() {

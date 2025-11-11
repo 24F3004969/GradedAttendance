@@ -13,6 +13,4 @@
     -fx-font-size: 25px;
     -fx-font-family: 'Helvetica Rounded';
 }
-.table-view .scroll-bar{
-    -fx-opacity: 0;
-}
+

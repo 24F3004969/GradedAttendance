@@ -26,5 +26,4 @@ public class Main extends Application {
         stage.show();
         stage.setOnCloseRequest(_ -> System.exit(1));
     }
-
 }

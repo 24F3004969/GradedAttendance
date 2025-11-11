@@ -19,6 +19,8 @@ module org.graded_classes.graded_attendance {
     requires org.kordamp.ikonli.material2;
     requires java.desktop;
     requires com.gluonhq.emoji;
+    requires org.jetbrains.annotations;
+    requires org.checkerframework.checker.qual;
 
 
     opens org.graded_classes.graded_attendance.controller to javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc, java.sql;

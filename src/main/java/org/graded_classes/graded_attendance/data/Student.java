@@ -98,6 +98,7 @@ public class Student {
     private String mother_name;
     private String _class;
     private String gender;
+    private final String doa;
     private String dob;
     private String address;
     private String father_occ;
@@ -108,10 +109,12 @@ public class Student {
     private String suggestions;
     private String[] subjects;
     private String telegram_id;
+    private String lastPaymentDate;
 
     public Student(String ed_no,
                    String name,
                    String email,
+                   String doa,
                    String bloodGroup,
                    String guardian_phone,
                    String aadhaar_no,
@@ -128,7 +131,8 @@ public class Student {
                    String school_n,
                    String suggestions,
                    String[] subjects,
-                   String telegram_id) {
+                   String telegram_id,
+                   String last_payment_date) {
         this.ed_no = ed_no;
         this.name = name;
         this.email = email;
@@ -139,6 +143,7 @@ public class Student {
         this.mother_name = mother_name;
         this._class = _class;
         this.gender = gender;
+        this.doa = doa;
         this.dob = dob;
         this.address = address;
         this.father_occ = father_occ;
@@ -150,32 +155,39 @@ public class Student {
         this.subjects = subjects;
         this.telegram_id = telegram_id;
 
+        lastPaymentDate = last_payment_date;
     }
 
     public void insertIntoDatabase(Connection connection) throws SQLException {
         System.out.println("inside insertIntoDatabase");
-        String sql = "INSERT INTO StudentData(ed_no, name,email, bloodGroup, guardian_phone, aadhaar_no, father_name, mother_name, class, gender, dob, address, father_occ, mother_occ, previous_ins_name, reason_leaving, school_n, suggestions, subjects, telegram_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO StudentData(ed_no, name,date_of_add,email, " +
+                "bloodGroup, guardian_phone, aadhaar_no, father_name, mother_name, " +
+                "class, gender, dob, address, father_occ, mother_occ, " +
+                "previous_ins_name, reason_leaving, school_n, suggestions, " +
+                "subjects, telegram_id,last_payment_date) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, ed_no);
             stmt.setString(2, name);
-            stmt.setString(3, email);
-            stmt.setString(4, bloodGroup);
-            stmt.setString(5, guardian_phone);
-            stmt.setString(6, aadhaar_no);
-            stmt.setString(7, father_name);
-            stmt.setString(8, mother_name);
-            stmt.setString(9, _class);
-            stmt.setString(10, gender);
-            stmt.setString(11, dob);
-            stmt.setString(12, address);
-            stmt.setString(13, father_occ);
-            stmt.setString(14, mother_occ);
-            stmt.setString(15, previous_ins_name);
-            stmt.setString(16, reason_leaving);
-            stmt.setString(17, school_n);
-            stmt.setString(18, suggestions);
-            stmt.setString(19, String.join(", ", subjects)); // Convert list to comma-separated string
-            stmt.setString(20, telegram_id);
+            stmt.setString(3, dob);
+            stmt.setString(4, email);
+            stmt.setString(5, bloodGroup);
+            stmt.setString(6, guardian_phone);
+            stmt.setString(7, aadhaar_no);
+            stmt.setString(8, father_name);
+            stmt.setString(9, mother_name);
+            stmt.setString(10, _class);
+            stmt.setString(11, gender);
+            stmt.setString(12, dob);
+            stmt.setString(13, address);
+            stmt.setString(14, father_occ);
+            stmt.setString(15, mother_occ);
+            stmt.setString(16, previous_ins_name);
+            stmt.setString(17, reason_leaving);
+            stmt.setString(18, school_n);
+            stmt.setString(19, suggestions);
+            stmt.setString(20, String.join(", ", subjects));
+            stmt.setString(21, telegram_id);
+            stmt.setString(22, lastPaymentDate);
 
             stmt.executeUpdate();
         }
@@ -383,4 +395,15 @@ public class Student {
     }
 
 
+    public String getDoa() {
+        return doa;
+    }
+
+    public void setLastPaymentDate(String lastPaymentDate) {
+        this.lastPaymentDate = lastPaymentDate;
+    }
+
+    public String getLastPaymentDate() {
+        return lastPaymentDate;
+    }
 }

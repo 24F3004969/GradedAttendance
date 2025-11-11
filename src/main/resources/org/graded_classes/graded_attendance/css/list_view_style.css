@@ -29,6 +29,14 @@
     -fx-background-radius: 10;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.12, -1.0, 2.0);
 }
+#search1 {
+    -fx-font-size: 14px;
+    -fx-font-family: 'Gilroy-Bold';
+    -fx-background-color: #fafafa;
+    -fx-border-color: rgba(0, 0, 0, 0.2);
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
 
 #customList .list-cell {
     -fx-padding: 1.5;

@@ -22,7 +22,9 @@ public enum R {
     notification("fxml/notifications.fxml"),
     edit_time("fxml/editTime.fxml"),
     attendance_report("fxml/attendance_report.fxml"),
-    teaching_progress_search("fxml/teaching_progress_layout_search.fxml"), topic_taught_today("fxml/todays_topics.fxml");
+    teaching_progress_search("fxml/teaching_progress_layout_search.fxml"),
+    topic_taught_today("fxml/todays_topics.fxml"),
+    message_view("fxml/message_view.fxml"),;
     private final String path;
 
     R(String path) {

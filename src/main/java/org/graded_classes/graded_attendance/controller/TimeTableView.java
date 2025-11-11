@@ -52,13 +52,11 @@ public class TimeTableView extends TimeTable implements Initializable {
         six.setOnEditCommit(event -> eventResolver(event, "6:00 PM"));
         seven.setOnEditCommit(event -> eventResolver(event, "7:00 PM"));
         eight.setOnEditCommit(event -> eventResolver(event, "8:00 PM"));
-        for (var da : table.keySet()) {
-            Map<String, Object> item1 = table.get(da);
-            items.add(item1);
-        }
+        for (var da : table.keySet())
+            items.add(table.get(da));
         table_view.setItems(items);
-        Styles.toggleStyleClass(table_view,Styles.BORDERED);
-        Styles.toggleStyleClass(table_view,Styles.STRIPED);
+        Styles.toggleStyleClass(table_view, Styles.BORDERED);
+        Styles.toggleStyleClass(table_view, Styles.STRIPED);
     }
 
     private void eventResolver(TableColumn.CellEditEvent<Map<String, Object>, String> event, String key) {

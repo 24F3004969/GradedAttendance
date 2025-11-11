@@ -50,7 +50,6 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
 
     @Override
     public void consume(Update update) {
-        System.out.println(update);
         var msg = update.getMessage();
         var user = msg.getFrom();
         String[] test = msg.getText().split(",");

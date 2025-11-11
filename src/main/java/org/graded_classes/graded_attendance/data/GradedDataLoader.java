@@ -34,8 +34,8 @@ public class GradedDataLoader {
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/Fee.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/LessonPlanner.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/TopicAndSubtopic.sql").getQuery());
-            for (int i = 4; i <=10 ; i++) {
-                databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/TimeTable.sql").getQuery().formatted(i,i));
+            for (int i = 4; i <= 10; i++) {
+                databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/TimeTable.sql").getQuery().formatted(i, i));
 
             }
             loadData();
@@ -45,33 +45,28 @@ public class GradedDataLoader {
         }
     }
 
-    public boolean removeStudent(Student student) {
+    public void removeStudent(Student... students) {
         String sql = "DELETE FROM StudentData WHERE ed_no = ?";
 
         try (PreparedStatement preparedStatement = databaseLoader.getConnection().prepareStatement(sql)) {
-            var alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Warning");
-            alert.setHeaderText("Are you sure ?\nStudent with ED_NO " + student.ed_no()+" will be deleted.");
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) {
+            for (var s : students) {
                 System.out.println("OK button clicked.");
-                preparedStatement.setString(1, student.ed_no());
-                addEdToAbandonedEd(student.ed_no());
+                preparedStatement.setString(1, s.ed_no());
+                addEdToAbandonedEd(s.ed_no());
                 int affectedRows = preparedStatement.executeUpdate();
 
                 if (affectedRows > 0) {
-                    System.out.println("Student with ed_no " + student.ed_no() + " removed successfully.");
+                    System.out.println("Student with ed_no " + s.ed_no() + " removed successfully.");
                 } else {
-                    System.out.println("No student found with ed_no " + student.ed_no());
+                    System.out.println("No student found with ed_no " + s.ed_no());
                 }
-                return true;
             }
-            return false;
         } catch (SQLException e) {
             System.err.println("Error removing student: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }
+
 
     public void addEdToAbandonedEd(String s) {
         String sql = "INSERT INTO abandonedEd (ed_no) VALUES (?)";
@@ -85,6 +80,7 @@ public class GradedDataLoader {
             throw new RuntimeException(e);
         }
     }
+
     public void removeEdFromAbandonedEd(String edNo) {
         String sql = "DELETE FROM abandonedEd WHERE ed_no = ?";
 
@@ -143,6 +139,7 @@ public class GradedDataLoader {
                         rs.getString("ed_no"),
                         rs.getString("name"),
                         rs.getString("email"),
+                        Objects.requireNonNullElse(rs.getString("date_of_add"), ""),
                         rs.getString("bloodGroup"),
                         rs.getString("guardian_phone"),
                         rs.getString("aadhaar_no"),
@@ -159,7 +156,7 @@ public class GradedDataLoader {
                         rs.getString("school_n"),
                         rs.getString("suggestions"),
                         rs.getString("subjects").split(", "), // Assuming subjects are stored as a comma-separated string
-                        rs.getString("telegram_id")
+                        rs.getString("telegram_id"), Objects.requireNonNullElse(rs.getString("last_payment_date"), "")
                 ));
             }
         }

@@ -75,7 +75,7 @@ public class MainController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         home = gradedFxmlLoader.createView(R.home_layout, new HomeController(modalPane,
                 gradedDataLoader, this));
-        chat = gradedFxmlLoader.createView(R.chat_layout, new ChatController());
+        chat = gradedFxmlLoader.createView(R.chat_layout, new ChatController(this));
         calendar = new CalendarApp().createCalenderView();
         main_view.setCenter(navigateView("home"));
         tooltip = new Tooltip(Formatter.format(selectedTab.getId()));

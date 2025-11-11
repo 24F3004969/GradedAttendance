@@ -1,18 +1,5 @@
-.button {
-    -fx-background-color: #1C75BC;
-    -fx-border-color: rgba(0, 0, 0, 0.2);
-    -fx-border-radius: 50;
-    -fx-padding: 8px;
-    -fx-content-display: graphic-only;
-    -fx-background-radius: 50;
-    -fx-text-fill: #fafafa;
-}
-.button:hover {
-    -fx-opacity: 0.9;
-}
-.button:selected {
-    -fx-opacity: 0.1;
-}
+
+
 .text-field{
     -fx-background-radius: 50;
 }
@@ -21,4 +8,12 @@
 }
 #message-box{
     -fx-background-color: white;
+}
+#message_box{
+    -fx-border-color: rgba(0, 0, 0, 0.2);
+    -fx-border-style: hidden hidden hidden solid;
+}
+.list-view .list-cell {
+   -fx-border-radius: 10;
+    -fx-background-radius: 10;
 }
