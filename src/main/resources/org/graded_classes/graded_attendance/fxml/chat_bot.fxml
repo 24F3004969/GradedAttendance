@@ -12,219 +12,28 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
-<BorderPane stylesheets="@../css/chat_bot.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.ChatController">
+<BorderPane fx:id="root_box" stylesheets="@../css/chat_bot.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.ChatController">
    <center>
-      <VBox id="message_box">
+      <VBox id="message_box" alignment="CENTER" BorderPane.alignment="CENTER">
          <children>
-            <VBox id="main" spacing="10.0" stylesheets="@../css/chat_bubble.css" VBox.vgrow="ALWAYS">
-               <children>
-                  <HBox>
-                     <children>
-                        <VBox maxWidth="150.0" prefWidth="200.0" stylesheets="@../css/chat_bubble.css">
-                           <children>
-                              <HBox alignment="TOP_RIGHT" maxHeight="20.0" minHeight="20.0">
-                                 <children>
-                                    <HBox id="box" alignment="CENTER" maxHeight="20.0" maxWidth="12.0" minHeight="20.0" minWidth="8.0" prefHeight="28.0" prefWidth="12.0" HBox.hgrow="NEVER">
-                                       <HBox.margin>
-                                          <Insets />
-                                       </HBox.margin>
-                                    </HBox>
-                                    <HBox id="chatBubbleInfo" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
-                                       <children>
-                                          <Label text="ED22" textFill="#6c1dcc">
-                                             <HBox.margin>
-                                                <Insets left="5.0" />
-                                             </HBox.margin>
-                                          </Label>
-                                       </children>
-                                       <HBox.margin>
-                                          <Insets />
-                                       </HBox.margin>
-                                    </HBox>
-                                 </children>
-                                 <VBox.margin>
-                                    <Insets />
-                                 </VBox.margin>
-                              </HBox>
-                              <HBox id="chatBubble" maxHeight="1.7976931348623157E308" minHeight="20.0" VBox.vgrow="ALWAYS">
-                                 <children>
-                                    <Label alignment="TOP_LEFT" text="Hii" wrapText="true">
-                                       <HBox.margin>
-                                          <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-                                       </HBox.margin>
-                                    </Label>
-                                 </children>
-                                 <VBox.margin>
-                                    <Insets left="12.0" />
-                                 </VBox.margin>
-                              </HBox>
-                           </children>
-                        </VBox>
-                     </children>
-                  </HBox>
-                  <HBox alignment="TOP_RIGHT">
-                     <children>
-                        <VBox maxWidth="150.0" prefWidth="200.0" stylesheets="@../css/chat_bubble.css">
-                           <children>
-                              <HBox maxHeight="20.0" minHeight="20.0">
-                                 <children>
-                                    <HBox id="rev_chatBubbleInfo" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
-                                       <children>
-                                          <Label text="Graded">
-                                             <HBox.margin>
-                                                <Insets left="5.0" />
-                                             </HBox.margin>
-                                          </Label>
-                                       </children>
-                                       <HBox.margin>
-                                          <Insets />
-                                       </HBox.margin>
-                                    </HBox>
-                                    <HBox id="reverse_thumb" alignment="CENTER" maxHeight="20.0" maxWidth="12.0" minHeight="20.0" minWidth="8.0" prefHeight="28.0" prefWidth="12.0" />
-                                 </children>
-                                 <VBox.margin>
-                                    <Insets />
-                                 </VBox.margin>
-                              </HBox>
-                              <HBox id="rev_chatBubble" maxHeight="1.7976931348623157E308" minHeight="20.0" VBox.vgrow="ALWAYS">
-                                 <children>
-                                    <Label alignment="TOP_LEFT" text="Hello" wrapText="true">
-                                       <HBox.margin>
-                                          <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-                                       </HBox.margin>
-                                    </Label>
-                                 </children>
-                                 <VBox.margin>
-                                    <Insets right="12.0" />
-                                 </VBox.margin>
-                              </HBox>
-                           </children>
-                        </VBox>
-                     </children>
-                  </HBox>
-                  <HBox>
-                     <children>
-                        <VBox maxWidth="150.0" prefWidth="200.0" stylesheets="@../css/chat_bubble.css">
-                           <children>
-                              <HBox alignment="TOP_RIGHT" maxHeight="20.0" minHeight="20.0">
-                                 <children>
-                                    <HBox id="box" alignment="CENTER" maxHeight="20.0" maxWidth="12.0" minHeight="20.0" minWidth="8.0" prefHeight="28.0" prefWidth="12.0" HBox.hgrow="NEVER">
-                                       <HBox.margin>
-                                          <Insets />
-                                       </HBox.margin>
-                                    </HBox>
-                                    <HBox id="chatBubbleInfo" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
-                                       <children>
-                                          <Label text="ED22" textFill="#6c1dcc">
-                                             <HBox.margin>
-                                                <Insets left="5.0" />
-                                             </HBox.margin>
-                                          </Label>
-                                       </children>
-                                       <HBox.margin>
-                                          <Insets />
-                                       </HBox.margin>
-                                    </HBox>
-                                 </children>
-                                 <VBox.margin>
-                                    <Insets />
-                                 </VBox.margin>
-                              </HBox>
-                              <HBox id="chatBubble" maxHeight="1.7976931348623157E308" minHeight="20.0" VBox.vgrow="ALWAYS">
-                                 <children>
-                                    <Label alignment="TOP_LEFT" text="Can you please share with me the timetable of class VI" wrapText="true">
-                                       <font>
-                                          <Font size="14.0" />
-                                       </font>
-                                       <HBox.margin>
-                                          <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-                                       </HBox.margin>
-                                    </Label>
-                                 </children>
-                                 <VBox.margin>
-                                    <Insets left="12.0" />
-                                 </VBox.margin>
-                              </HBox>
-                           </children>
-                        </VBox>
-                     </children>
-                  </HBox>
-                  <HBox alignment="TOP_RIGHT">
-                     <children>
-                        <VBox maxWidth="150.0" prefWidth="200.0" stylesheets="@../css/chat_bubble.css">
-                           <children>
-                              <HBox maxHeight="20.0" minHeight="20.0">
-                                 <children>
-                                    <HBox id="rev_chatBubbleInfo" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
-                                       <children>
-                                          <Label text="Graded">
-                                             <HBox.margin>
-                                                <Insets left="5.0" />
-                                             </HBox.margin>
-                                          </Label>
-                                       </children>
-                                       <HBox.margin>
-                                          <Insets />
-                                       </HBox.margin>
-                                    </HBox>
-                                    <HBox id="reverse_thumb" alignment="CENTER" maxHeight="20.0" maxWidth="12.0" minHeight="20.0" minWidth="8.0" prefHeight="28.0" prefWidth="12.0" />
-                                 </children>
-                                 <VBox.margin>
-                                    <Insets />
-                                 </VBox.margin>
-                              </HBox>
-                              <HBox id="rev_chatBubble" maxHeight="1.7976931348623157E308" minHeight="20.0" VBox.vgrow="ALWAYS">
-                                 <children>
-                                    <Label alignment="TOP_LEFT" text="Sure" wrapText="true">
-                                       <HBox.margin>
-                                          <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-                                       </HBox.margin>
-                                    </Label>
-                                 </children>
-                                 <VBox.margin>
-                                    <Insets right="12.0" />
-                                 </VBox.margin>
-                              </HBox>
-                           </children>
-                        </VBox>
-                     </children>
-                  </HBox>
-               </children>
-               <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </padding>
-            </VBox>
-            <HBox id="message-box" alignment="CENTER" spacing="4.0">
-               <children>
-                  <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../icons/alternate_email.png" />
-                     </image>
-                  </ImageView>
-                  <VBox HBox.hgrow="ALWAYS">
-                     <children>
-                        <CustomTextField maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS">
-                           <padding>
-                              <Insets bottom="10.0" left="20.0" right="10.0" top="10.0" />
-                           </padding>
-                        </CustomTextField>
-                     </children>
-                  </VBox>
-                  <Button fx:id="send" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" HBox.hgrow="ALWAYS" />
-               </children>
+            <ImageView fitWidth="700.0" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS">
+               <image>
+                  <Image url="@../icons/doodle.gif" />
+               </image>
+            </ImageView>
+            <Label text="Every child is different, so should be &#10;their way of learning." textAlignment="CENTER">
+               <font>
+                  <Font name="☞Gilroy-Bold" size="29.0" />
+               </font>
                <VBox.margin>
-                  <Insets />
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </VBox.margin>
-               <padding>
-                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-               </padding>
-            </HBox>
+            </Label>
          </children>
       </VBox>
    </center>
    <left>
-      <VBox minWidth="400.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
+      <VBox minWidth="400.0" BorderPane.alignment="CENTER">
          <children>
             <HBox alignment="CENTER_LEFT">
                <children>
@@ -236,6 +45,14 @@
                         <Font name="☞Gilroy-Bold" size="32.0" />
                      </font>
                   </Label>
+                  <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Button fx:id="add_new_member" mnemonicParsing="false" />
+                     </children>
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                  </HBox>
                </children>
             </HBox>
             <HBox id="message-box" alignment="CENTER" spacing="4.0">

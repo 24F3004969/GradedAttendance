@@ -2,6 +2,7 @@ package org.graded_classes.graded_attendance.controller;
 
 import atlantafx.base.controls.ModalPane;
 import atlantafx.base.controls.Notification;
+import atlantafx.base.theme.Styles;
 import atlantafx.base.util.Animations;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -19,13 +20,14 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import org.graded_classes.graded_attendance.calender.CalendarApp;
 import org.graded_classes.graded_attendance.GradedFxmlLoader;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.R;
+import org.graded_classes.graded_attendance.calender.CalendarApp;
 import org.graded_classes.graded_attendance.data.Formatter;
 import org.graded_classes.graded_attendance.data.GradedDataLoader;
 import org.graded_classes.graded_attendance.data.MessageSender;
+import org.graded_classes.graded_attendance.data.Student;
 import org.graded_classes.graded_attendance.planner.Planner;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignH;
@@ -33,6 +35,10 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignH;
 import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -82,6 +88,31 @@ public class MainController implements Initializable {
         Tooltip.install(selectedTab, tooltip);
         messageSender = new MessageSender(gradedDataLoader.databaseLoader, this, getToken());
         notificationInit();
+        ArrayList<Student> students = getStudentsWithFeeDateIsWeekAfter();
+        if (!students.isEmpty()) {
+            sendNotification("Some students with ED No. .... have there fee dues date in a week", Styles.ACCENT, students);
+        }
+    }
+
+    private ArrayList<Student> getStudentsWithFeeDateIsWeekAfter() {
+        ArrayList<Student> students = new ArrayList<>();
+        for (Student student : gradedDataLoader.getStudentData().values()) {
+            if (!student.getLastPaymentDate().isEmpty()) {
+                long daysDifference = getFeeDueDays(student);
+                if (daysDifference >= 0 && daysDifference <= 7) {
+                    students.add(student);
+                } else if (daysDifference < 0) {
+                    students.add(student);
+                }
+            }
+        }
+        return students;
+    }
+
+    private static long getFeeDueDays(Student student) {
+        LocalDate date1 = LocalDate.parse(student.getLastPaymentDate(), DateTimeFormatter.ISO_LOCAL_DATE);
+        var deadline = date1.plusDays(30);
+        return ChronoUnit.DAYS.between(LocalDate.now(), deadline);
     }
 
     public String getToken() {
@@ -110,7 +141,6 @@ public class MainController implements Initializable {
         notificationsVBox = (VBox) notificationsScrollPane.getContent();
         Button clearAllButton = (Button) ((HBox) notificationBox.getChildren().get(1)).getChildren().getFirst();
         clearAllButton.setOnAction(_ -> {
-
             for (int i = 0; i < notificationsVBox.getChildren().size(); i++) {
                 var node = notificationsVBox.getChildren().get(i);
                 var out = Animations.slideOutRight(node, Duration.millis(500));
@@ -153,7 +183,7 @@ public class MainController implements Initializable {
     }
 
     private void toggleIn(HBox root, Rectangle rectangle, ImageView imageView) {
-        root.setStyle("-fx-background-color:  #1C75BC;-fx-background-radius: 0 5 5 0");
+        root.setStyle("-fx-background-color:  #1C75BC;-fx-background-radius: 0 5 5 0;");
         rectangle.setFill(Paint.valueOf("#fafafa"));
         imageView.setImage(toggleInImages.get(root.getId()));
     }
@@ -169,6 +199,60 @@ public class MainController implements Initializable {
             stackPane.getChildren().add(notificationBox);
         }
         var msg = new Notification(message, new FontIcon(MaterialDesignH.HELP_CIRCLE_OUTLINE));
+        msg.getStyleClass().add(styles);
+        msg.setPrefHeight(Region.USE_PREF_SIZE);
+        msg.setMaxHeight(Region.USE_PREF_SIZE);
+        msg.setOnClose(_ -> {
+            var out = Animations.slideOutUp(msg, Duration.millis(250));
+            out.setOnFinished(_ -> {
+                notificationsVBox.getChildren().remove(msg);
+                if (notificationsVBox.getChildren().size() <= 5) {
+                    notificationsScrollPane.setPrefHeight(Region.USE_COMPUTED_SIZE);
+
+                }
+                if (notificationsVBox.getChildren().isEmpty()) {
+                    notificationsScrollPane.setPrefHeight(Region.USE_COMPUTED_SIZE);
+                    stackPane.getChildren().remove(notificationBox);
+
+                }
+            });
+            out.playFromStart();
+        });
+        var in = Animations.slideInDown(msg, Duration.millis(250));
+        if (!notificationsVBox.getChildren().contains(msg)) {
+            VBox.setMargin(msg, new Insets(2));
+            if (notificationsVBox.getChildren().size() >= 5) {
+                notificationsScrollPane.setPrefHeight(300);
+            }
+            notificationsVBox.getChildren().addAll(msg);
+
+        }
+        in.playFromStart();
+    }
+
+    public void sendNotification(String message, String styles, ArrayList<Student> students) {
+        if (!stackPane.getChildren().contains(notificationBox)) {
+            stackPane.getChildren().add(notificationBox);
+        }
+        var msg = new Notification(message, new FontIcon(MaterialDesignH.HELP_CIRCLE_OUTLINE));
+        msg.setPrimaryActions(new Button("Send Notification"));
+        msg.getPrimaryActions().getFirst().setOnMouseClicked(event -> {
+            for (Student student : students) {
+                try {
+                    long daysDifference = getFeeDueDays(student);
+                    if (daysDifference >= 0) {
+                        messageSender.sendMessage("Your fee due date is " + LocalDate.now().plusDays(daysDifference) + ".\nPlease pay on time as this helps us to deliver the best" +
+                                " possible coaching experience/uninterrupted service you expect.", Long.parseLong(student.telegram_id()));
+                    }
+                    else{
+                        messageSender.sendMessage("Your fee due date has passed.Please pay by" + LocalDate.now().plusDays(1) + ".\nPlease pay on time as this helps us to deliver the best" +
+                                " possible coaching experience/uninterrupted service you expect.", Long.parseLong(student.telegram_id()));
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to send notification " + student.ed_no() + " class :" + student._class() + " name : " + student.name());
+                }
+            }
+        });
         msg.getStyleClass().add(styles);
         msg.setPrefHeight(Region.USE_PREF_SIZE);
         msg.setMaxHeight(Region.USE_PREF_SIZE);

@@ -34,6 +34,7 @@ public class GradedDataLoader {
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/Fee.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/LessonPlanner.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/TopicAndSubtopic.sql").getQuery());
+            databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/DailyTopics.sql").getQuery());
             for (int i = 4; i <= 10; i++) {
                 databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/TimeTable.sql").getQuery().formatted(i, i));
 

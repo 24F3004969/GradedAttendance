@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class Student {
@@ -168,7 +169,7 @@ public class Student {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, ed_no);
             stmt.setString(2, name);
-            stmt.setString(3, dob);
+            stmt.setString(3, LocalDate.now().toString());
             stmt.setString(4, email);
             stmt.setString(5, bloodGroup);
             stmt.setString(6, guardian_phone);

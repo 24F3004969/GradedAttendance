@@ -196,6 +196,13 @@ public class AttendanceDataView implements Initializable {
                         gradedFxmlLoader.createView(R.attendance_report,
                                 new AttendanceReportController(firstLetterToUpperCase(student.name()), ed_no, view)));
     }
+    @FXML
+    void onSave() {
+      if (edit.isSelected()) {
+            editStudentData.update(studentAttendance.mainController.gradedDataLoader.databaseLoader.getConnection());
+        }
+    }
+
 
     @FXML
     void editTime(MouseEvent event) {

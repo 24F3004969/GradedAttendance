@@ -5,17 +5,20 @@ import atlantafx.base.theme.Tweaks;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 
 import java.net.URL;
 import java.sql.Connection;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.TreeMap;
 
 public class TimeTableView extends TimeTable implements Initializable {
     public Label heading;
@@ -23,6 +26,8 @@ public class TimeTableView extends TimeTable implements Initializable {
     private TableView<Map<String, Object>> table_view;
     @FXML
     private TableColumn<Map<String, Object>, String> day, three, four, five, six, seven, eight;
+    private final TreeMap<Integer, String> grades = new TreeMap<>(Map.of(10, "X"
+            , 9, "IX", 8, "VIII", 7, "VII", 6, "VI", 5, "V", 4, "IV"));
     ObservableList<Map<String, Object>> items = FXCollections.observableArrayList();
 
     public TimeTableView(String grade, Connection connection) {
@@ -81,5 +86,44 @@ public class TimeTableView extends TimeTable implements Initializable {
             }
         };
     }
+
+    @FXML
+    private TextField topic1;
+
+    @FXML
+    private TextField topic2;
+
+    @FXML
+    private TextField topic3;
+
+    @FXML
+    private TextField topic4;
+    @FXML
+    private TextField subject1;
+
+    @FXML
+    private TextField subject2;
+
+    @FXML
+    private TextField subject3;
+
+    @FXML
+    private TextField subject4;
+
+    @FXML
+    void onNewTopic(ActionEvent event) {
+        String sub1 = subject1.getText();
+        String top1 = topic1.getText();
+        String sub2 = subject2.getText();
+        String top2 = topic2.getText();
+        String sub3 = subject3.getText();
+        String top3 = topic3.getText();
+        String sub4 = subject4.getText();
+        String top4 = topic4.getText();
+        System.out.println(getGrade());
+        insertDailyTopics(grades.get(Integer.parseInt(getGrade().trim())), sub1, top1, sub2, top2, sub3, top3, sub4, top4);
+
+    }
+
 
 }

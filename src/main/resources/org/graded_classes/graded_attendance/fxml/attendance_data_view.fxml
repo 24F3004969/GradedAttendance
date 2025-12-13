@@ -253,6 +253,11 @@
             </font>
             </Button>
             <Separator visible="false" HBox.hgrow="ALWAYS" />
+         <Button id="button-ok" mnemonicParsing="false" onAction="#onSave" text="Save">
+            <font>
+               <Font size="16.0" />
+            </font>
+         </Button>
             <Button id="button-cancel" minWidth="70.0" mnemonicParsing="false" onAction="#onCancel" text="Cancel">
                 <HBox.margin>
                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

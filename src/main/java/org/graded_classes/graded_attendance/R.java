@@ -24,7 +24,8 @@ public enum R {
     attendance_report("fxml/attendance_report.fxml"),
     teaching_progress_search("fxml/teaching_progress_layout_search.fxml"),
     topic_taught_today("fxml/todays_topics.fxml"),
-    message_view("fxml/message_view.fxml"),;
+    message_view("fxml/message_view.fxml"),
+    message_box("fxml/message_box.fxml"),;
     private final String path;
 
     R(String path) {

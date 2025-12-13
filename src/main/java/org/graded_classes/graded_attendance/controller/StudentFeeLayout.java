@@ -14,6 +14,7 @@ import javafx.util.Duration;
 import org.graded_classes.graded_attendance.R;
 
 import java.net.URL;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -152,7 +153,8 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
             String sql = """
                      UPDATE "fee_2025" SET %s = ? WHERE ed_no = ?
                     """.formatted(selectedMonth.getText().trim());
-            try (PreparedStatement stmt = gradedDataLoader.databaseLoader.getConnection().prepareStatement(sql)) {
+            Connection conn = gradedDataLoader.databaseLoader.getConnection();
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, Arrays.toString(s));
                 stmt.setString(2, ed);
                 stmt.executeUpdate();
@@ -163,7 +165,8 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
                 selectedMonth.getStylesheets().add(loadURL("css/paid.css").toExternalForm());
                 paymentNode = splitPane.getItems().getLast();
                 splitPane.getItems().set(1, mainController.gradedFxmlLoader.createView(R.payment_done_animation));
-                if (mainController.gradedDataLoader.getStudentData().get(ed).telegram_id() != null)
+                if (mainController.gradedDataLoader.getStudentData().get(ed).telegram_id() != null &&
+                        !mainController.gradedDataLoader.getStudentData().get(ed).telegram_id().isEmpty())
                     mainController.messageSender.sendMessage("""
                              Fee Received
                             \s
@@ -178,6 +181,7 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
                             \s""".formatted(selectedMonth.getText(), name, amount_to_pay.getText(), LocalDate.now()), Long.parseLong(mainController.gradedDataLoader.getStudentData().get(ed).telegram_id()));
 
                 selectedMonth = null;
+                updateLastPaymentDate();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -189,11 +193,24 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
         }
     }
 
+    private void updateLastPaymentDate() {
+        Connection conn = mainController.gradedDataLoader.databaseLoader.getConnection();
+        String sql = "UPDATE StudentData SET last_payment_date = ? WHERE ed_no = ?";
+        try (PreparedStatement pst = conn.prepareStatement(sql)) {
+            pst.setString(1, LocalDate.now().toString());
+            pst.setString(2, ed_no.getText());
+            pst.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private boolean nonEmptyOrNull(String[] s) {
         return s[0] != null && !s[0].isEmpty() && s[1] != null && !s[1].isEmpty() && s[2] != null && !s[2].isEmpty()
                 && s[3] != null && !s[3].isEmpty();
     }
-    public  void startClock() {
+
+    public void startClock() {
         Timeline timeline = new Timeline(
                 new KeyFrame(Duration.seconds(0), event -> {
                     LocalDateTime now = LocalDateTime.now();

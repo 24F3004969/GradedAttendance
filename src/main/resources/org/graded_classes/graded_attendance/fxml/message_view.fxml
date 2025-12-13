@@ -8,14 +8,13 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-
 <HBox prefWidth="300.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.MessageViewController">
    <children>
-      <StackPane maxHeight="60.0" maxWidth="60.0" minHeight="60.0" minWidth="60.0" style="-fx-background-color: #1C75BC; -fx-background-radius: 50;">
+      <StackPane maxHeight="50.0" maxWidth="50.0" minHeight="50.0" minWidth="50.0" style="-fx-background-color: #1C75BC; -fx-background-radius: 50;">
          <children>
-            <Text fx:id="ed" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="1" StackPane.alignment="CENTER">
+            <Text id="num" fx:id="ed" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="1" StackPane.alignment="CENTER">
                <font>
-                  <Font name="System Bold" size="30.0" />
+                  <Font name="System Bold" size="24.0" />
                </font>
             </Text>
          </children>
@@ -25,16 +24,12 @@
       </StackPane>
       <VBox HBox.hgrow="ALWAYS">
          <children>
-            <Label fx:id="name_class" text="Name">
+            <Label id="name" fx:id="name_class" text="Name">
                <font>
-                  <Font name="System Bold" size="20.0" />
+                  <Font name="System Bold" size="16.0" />
                </font>
             </Label>
-            <Label fx:id="recent_message" text="Recent message">
-               <font>
-                  <Font size="16.0" />
-               </font>
-            </Label>
+            <Label fx:id="recent_message" text="Recent message" />
          </children>
          <HBox.margin>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

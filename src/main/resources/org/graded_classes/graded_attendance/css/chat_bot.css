@@ -1,19 +1,23 @@
 
-
-.text-field{
+.text-field {
     -fx-background-radius: 50;
 }
-.list-view{
+
+.list-view {
     -fx-background-color: transparent;
 }
-#message-box{
+
+#message-box {
     -fx-background-color: white;
 }
 #message_box{
     -fx-border-color: rgba(0, 0, 0, 0.2);
     -fx-border-style: hidden hidden hidden solid;
 }
+#message_heading{
+    -fx-background-color: white;
+}
 .list-view .list-cell {
-   -fx-border-radius: 10;
+    -fx-border-radius: 10;
     -fx-background-radius: 10;
 }

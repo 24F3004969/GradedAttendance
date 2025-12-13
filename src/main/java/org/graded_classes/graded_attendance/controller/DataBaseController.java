@@ -1,6 +1,5 @@
 package org.graded_classes.graded_attendance.controller;
 
-import atlantafx.base.controls.CustomTextField;
 import atlantafx.base.theme.Styles;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -12,7 +11,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.VBox;
-import javafx.util.StringConverter;
 import org.graded_classes.graded_attendance.data.Student;
 import org.graded_classes.graded_attendance.data.StudentInfo;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -23,11 +21,12 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class DataBaseController implements Initializable {
     @FXML
@@ -41,7 +40,7 @@ public class DataBaseController implements Initializable {
     private TableColumn<StudentInfo, String> last_fee;
     @FXML
     private TableColumn<StudentInfo, CheckBox> checkboxes;
-    ObservableList<StudentInfo> items = FXCollections.observableArrayList();
+    ObservableList<StudentInfo> items = FXCollections.observableList(new ArrayList<>());
     ArrayList<StudentInfo> selectedStudent;
     Map<String, Student> studentsMap;
     @FXML
@@ -181,9 +180,10 @@ public class DataBaseController implements Initializable {
                     var x = studentsMap.get(select.ed_no().getValue());
                     mainController.gradedDataLoader.removeStudent(x);
                     mainController.gradedDataLoader.getStudentData().remove(x.ed_no());
-                    studentData.getItems().remove(select);
+                    //studentData.getItems().remove(select);
                     items.remove(select);
                 }
+                selectedStudent.clear();
             }
         }
     }

@@ -62,17 +62,17 @@
                <children>
                   <TextField fx:id="subject1" promptText="Subject1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
                   <TextField fx:id="topic1" promptText="Topics" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                  <TextField fx:id="subject2" promptText="Subject3" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="TOP" />
-                  <TextField fx:id="topic2" promptText="Topics" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="TOP" />
-                  <TextField fx:id="topic11" promptText="Topics" GridPane.columnIndex="3" />
-                  <TextField fx:id="subject11" promptText="Subject2" GridPane.columnIndex="2" />
-                  <TextField fx:id="subject111" promptText="Subject4" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="TOP" />
-                  <TextField fx:id="topic111" promptText="Topics" GridPane.columnIndex="3" GridPane.rowIndex="1" GridPane.valignment="TOP" />
+                  <TextField fx:id="subject3" promptText="Subject3" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="TOP" />
+                  <TextField fx:id="topic3" promptText="Topics" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="TOP" />
+                  <TextField fx:id="topic2" promptText="Topics" GridPane.columnIndex="3" />
+                  <TextField fx:id="subject2" promptText="Subject2" GridPane.columnIndex="2" />
+                  <TextField fx:id="subject4" promptText="Subject4" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="TOP" />
+                  <TextField fx:id="topic4" promptText="Topics" GridPane.columnIndex="3" GridPane.rowIndex="1" GridPane.valignment="TOP" />
                </children>
             </GridPane>
             <HBox>
                <children>
-                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Add topics" HBox.hgrow="ALWAYS" />
+                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onNewTopic" text="Add topics" HBox.hgrow="ALWAYS" />
                </children>
             </HBox>
          </children>

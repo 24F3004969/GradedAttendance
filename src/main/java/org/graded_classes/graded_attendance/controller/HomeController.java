@@ -111,15 +111,11 @@ public class HomeController implements Initializable {
         VBox studentAttendanceLayout = (VBox) mainController.gradedFxmlLoader.createView(R.student_attendance_layout,
                 new StudentAttendance(mainController, gradedFxmlLoader, outer_main_box, "stu_atten"));
         dummy_box.setMinHeight(70);
-        // var data_viewer = gradedFxmlLoader.createView(R.data_view);
         VBox.setVgrow(studentAttendanceLayout, Priority.ALWAYS);
         AnchorPane.setRightAnchor(studentAttendanceLayout, 0.0);
         AnchorPane.setLeftAnchor(studentAttendanceLayout, 0.0);
-        //VBox.setVgrow(data_viewer, Priority.ALWAYS);
         searchBarHolder.getChildren().add(studentAttendanceLayout);
         outer_main_box.getChildren().add(dummy_box);
-        //outer_main_box.getChildren().add(data_viewer);
-
     }
 
     private void toggleIn(VBox vBox, String paths) {
