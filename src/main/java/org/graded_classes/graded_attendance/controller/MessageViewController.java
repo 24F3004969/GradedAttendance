@@ -18,10 +18,11 @@ public class MessageViewController implements Initializable {
 
     @FXML
     private Label recent_message;
-
+    @FXML
+    private Label id_user;
     @FXML
     private Label time;
-    private String ed_s, name_s, recent_message_s, time_s;
+    private String ed_s, name_s, recent_message_s, time_s, telegram_id;
 
     public Text getEd() {
         return ed;
@@ -87,11 +88,12 @@ public class MessageViewController implements Initializable {
         this.time_s = time_s;
     }
 
-    public MessageViewController(String ed_s, String name_s, String grade_s, String recent_message_s, String time_s) {
+    public MessageViewController(String ed_s, String name_s, String grade_s, String recent_message_s, String time_s, String telegram_id) {
         this.ed_s = ed_s;
         this.name_s = name_s;
         this.recent_message_s = recent_message_s;
         this.time_s = time_s;
+        this.telegram_id = telegram_id;
     }
 
     @Override
@@ -100,5 +102,6 @@ public class MessageViewController implements Initializable {
         name_class.setText(name_s);
         recent_message.setText(recent_message_s);
         time.setText(time_s);
+        id_user.setText(telegram_id);
     }
 }

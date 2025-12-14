@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<HBox xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<HBox xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.ChatBubbleSendController">
    <children>
       <VBox maxWidth="150.0" prefWidth="200.0" stylesheets="@../css/chat_bubble.css">
          <children>
@@ -18,7 +18,7 @@
                   </HBox>
                   <HBox id="chatBubbleInfo" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label text="ED22" textFill="#6c1dcc">
+                        <Label text="Graded" textFill="#6c1dcc">
                            <HBox.margin>
                               <Insets left="5.0" />
                            </HBox.margin>
@@ -35,11 +35,19 @@
             </HBox>
             <HBox id="chatBubble" maxHeight="1.7976931348623157E308" minHeight="20.0" VBox.vgrow="ALWAYS">
                <children>
-                  <Label alignment="TOP_LEFT" text="Hii" wrapText="true">
+                  <VBox HBox.hgrow="ALWAYS">
                      <HBox.margin>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                      </HBox.margin>
-                  </Label>
+                     <children>
+                        <Label fx:id="message" alignment="TOP_LEFT" text="Hi" wrapText="true" />
+                        <HBox alignment="TOP_RIGHT">
+                           <children>
+                              <Label id="time" text="7:30pm" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
                </children>
                <VBox.margin>
                   <Insets left="12.0" />

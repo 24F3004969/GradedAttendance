@@ -65,7 +65,7 @@
                   </CustomTextField>
                </children>
             </VBox>
-            <Button fx:id="send" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" HBox.hgrow="ALWAYS" />
+            <Button fx:id="send" mnemonicParsing="false" onAction="#sendMessage" prefHeight="40.0" prefWidth="40.0" HBox.hgrow="ALWAYS" />
          </children>
          <VBox.margin>
             <Insets />

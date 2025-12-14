@@ -44,10 +44,9 @@ public class ChatController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        //send.setGraphic(new FontIcon(Material2MZ.SEND));
         Node searchIcon = new FontIcon(Material2MZ.SEARCH);
         searchBar.setLeft(searchIcon);
-        add_new_member.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.ACCENT,Styles.FLAT);
+        add_new_member.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.ACCENT, Styles.FLAT);
         FontIcon node = new FontIcon();
         add_new_member.setGraphic(node);
         node.setStyle("""
@@ -66,8 +65,9 @@ public class ChatController implements Initializable {
 
             HBox box = (HBox) mainController.gradedFxmlLoader.createView(
                     R.message_view,
-                    new MessageViewController(String.valueOf(i + 1), name, "", message, time)
+                    new MessageViewController(String.valueOf(i + 1), name, "", message, time, mapStudent.get(stu).telegram_id())
             );
+
             items.add(box);
         }
 
@@ -75,13 +75,17 @@ public class ChatController implements Initializable {
         list.getSelectionModel().selectedItemProperty().
                 addListener((observable,
                              oldValue, newValue) -> {
+                    String tel = String.valueOf(((Label) newValue.lookup("#tel_id")).getText());
+                    ;
                     String name = String.valueOf(((Label) newValue.lookup("#name")).getText());
                     String ed = String.valueOf(((Text) newValue.lookup("#num")).getText());
                     VBox box = (VBox) mainController.gradedFxmlLoader.createView(
-                            R.message_box, new MessageBoxController(ed, "Last seen at 7:30pm", name)
+                            R.message_box, new MessageBoxController(ed, "Last seen at 7:30pm", name, tel, mainController.messageSender)
                     );
+
                     root_box.setCenter(box);
                 });
 
     }
+
 }
