@@ -31,11 +31,19 @@
             </HBox>
             <HBox id="rev_chatBubble" maxHeight="1.7976931348623157E308" minHeight="20.0" VBox.vgrow="ALWAYS">
                <children>
-                  <Label fx:id="message" alignment="TOP_LEFT" text="Hello" wrapText="true">
+                  <VBox HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label fx:id="message1" alignment="TOP_LEFT" text="Hi" wrapText="true" />
+                        <HBox alignment="CENTER_RIGHT">
+                           <children>
+                              <Label id="time" text="7:30pm" />
+                           </children>
+                        </HBox>
+                     </children>
                      <HBox.margin>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                      </HBox.margin>
-                  </Label>
+                  </VBox>
                </children>
                <VBox.margin>
                   <Insets right="12.0" />

@@ -3,14 +3,18 @@ package org.graded_classes.graded_attendance.controller;
 import atlantafx.base.controls.CustomTextField;
 import atlantafx.base.theme.Styles;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
+import org.graded_classes.graded_attendance.GradedFxmlLoader;
+import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.data.MessageSender;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
@@ -18,7 +22,7 @@ import org.kordamp.ikonli.material2.Material2AL;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class MessageBoxController implements Initializable {
+public class MessageBoxController extends GradedFxmlLoader implements Initializable {
     @FXML
     private Text ed;
 
@@ -33,16 +37,21 @@ public class MessageBoxController implements Initializable {
 
     @FXML
     private Button send;
+    @FXML
+    ListView<HBox> message_list_view;
     String s_ed;
     String s_last_seen;
     String s_name;
     String telegram_id;
+    MessageSender sender;
+    ObservableList<HBox> items;
 
     public MessageBoxController(String s_ed, String s_last_seen, String s_name, String telegram_id, MessageSender sender) {
         this.s_ed = s_ed;
         this.s_last_seen = s_last_seen;
         this.s_name = s_name;
         this.telegram_id = telegram_id;
+        this.sender = sender;
     }
 
     @Override
@@ -68,12 +77,14 @@ public class MessageBoxController implements Initializable {
         ed.setText(s_ed);
         last_seen.setText(s_last_seen);
         name.setText(s_name);
+        items = message_list_view.getItems();
     }
 
     @FXML
     void sendMessage() {
         if (my_message.getText() != null && !my_message.getText().isEmpty() && telegram_id != null && !telegram_id.isEmpty()) {
-
+            var sendBubble = (HBox) createView(R.receive_bubble_label);
+            items.add(sendBubble);
         }
     }
 }

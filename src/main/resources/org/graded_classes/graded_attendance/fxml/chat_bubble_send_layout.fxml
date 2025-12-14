@@ -18,7 +18,7 @@
                   </HBox>
                   <HBox id="chatBubbleInfo" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label text="Graded" textFill="#6c1dcc">
+                        <Label text="ED01" textFill="#6c1dcc">
                            <HBox.margin>
                               <Insets left="5.0" />
                            </HBox.margin>

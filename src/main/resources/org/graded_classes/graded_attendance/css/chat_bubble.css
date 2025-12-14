@@ -1,36 +1,36 @@
 
 #box {
-    -fx-background-color: #1C75BC50;
+    -fx-background-color: #66FF0050;
     -fx-shape: "M 121 0 h -112.1 c -3.9 0 -5.9 4.6 -3.4 7.5 L 121 70.2 V 0";
     -fx-smooth: true;
 }
 
 #chatBubble {
     -fx-font-weight: bold;
-    -fx-background-color: #1C75BC50;
+    -fx-background-color: #66FF0050;
     -fx-background-radius: 0 0 10 10;
 }
 
 #chatBubbleInfo {
     -fx-font-weight: bold;
-    -fx-background-color: #1C75BC50;
+    -fx-background-color: #66FF0050;
     -fx-background-radius: 0 10 0 0;
 }
 
 #reverse_thumb {
-    -fx-background-color: #66FF0050;
+    -fx-background-color: #1C75BC50;
     -fx-shape: "m -123 -2 l 112.1 0 c 3.9 0 5.9 4.6 3.4 7.5 l -115.5 62.5 l 0 -70";
     -fx-smooth: true;
 }
 
 #rev_chatBubbleInfo {
     -fx-font-weight: bold;
-    -fx-background-color: #66FF0050;
+    -fx-background-color: #1C75BC50;
     -fx-background-radius: 10 0 0 0;
 }
 
 #rev_chatBubble {
     -fx-font-weight: bold;
-    -fx-background-color: #66FF0050;
+    -fx-background-color: #1C75BC50;
     -fx-background-radius: 0 0 10 10;
 }

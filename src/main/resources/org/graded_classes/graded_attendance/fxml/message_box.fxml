@@ -46,7 +46,7 @@
                   </VBox>
                </children>
             </HBox>
-            <ListView nodeOrientation="LEFT_TO_RIGHT" scaleY="-1.0" VBox.vgrow="ALWAYS" />
+            <ListView id="message_list_view" fx:id="message_list_view" VBox.vgrow="ALWAYS" />
          </children>
       </VBox>
       <HBox id="message-box" alignment="CENTER" spacing="4.0">
