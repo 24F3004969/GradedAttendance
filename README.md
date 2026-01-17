@@ -4,6 +4,10 @@ A comprehensive **attendance management system** with integrated grading capabil
 
 ![64521](https://github.com/user-attachments/assets/a250851d-d948-42c8-b587-b665bb08e48c)
 
+## Latex Support
+![2026-01-17 21-27-46](https://github.com/user-attachments/assets/30bfa0a4-2371-48d7-b76b-16c0ed05b316)
+
+
 ## 🚀 Features
 
 - **Smart Attendance Tracking**: Automated attendance recording and management
