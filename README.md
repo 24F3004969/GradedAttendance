@@ -1,5 +1,8 @@
 # GradedAttendance
 
+![2026-01-17 21-27-46 (2) (2) (2)](https://github.com/user-attachments/assets/53b2f026-9038-42bc-99de-fe838175d0fb)
+
+
 A comprehensive **attendance management system** with integrated grading capabilities, designed to streamline educational institution workflows and provide efficient student attendance tracking.
 
 ![64521](https://github.com/user-attachments/assets/a250851d-d948-42c8-b587-b665bb08e48c)
