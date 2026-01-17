@@ -1,7 +1,6 @@
 package org.graded_classes.graded_attendance.controller;
 
 import atlantafx.base.theme.Styles;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
@@ -24,7 +23,7 @@ public class TodayTopic implements Initializable {
     private TextField topic2;
 
     @FXML
-    void addMyTopic(ActionEvent event) {
+    void addMyTopic() {
         if (subject1.getText().isEmpty() || topic1.getText().isEmpty()) {
             subject1.pseudoClassStateChanged(Styles.STATE_DANGER, true);
             topic1.pseudoClassStateChanged(Styles.STATE_DANGER, true);

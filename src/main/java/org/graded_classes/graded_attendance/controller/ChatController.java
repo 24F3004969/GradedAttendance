@@ -76,11 +76,10 @@ public class ChatController implements Initializable {
                 addListener((observable,
                              oldValue, newValue) -> {
                     String tel = String.valueOf(((Label) newValue.lookup("#tel_id")).getText());
-                    ;
                     String name = String.valueOf(((Label) newValue.lookup("#name")).getText());
                     String ed = String.valueOf(((Text) newValue.lookup("#num")).getText());
                     VBox box = (VBox) mainController.gradedFxmlLoader.createView(
-                            R.message_box, new MessageBoxController(ed, "Last seen at 7:30pm", name, tel, mainController.messageSender)
+                            R.message_box, new MessageBoxController(ed, "Last seen at 7:30pm", name, tel, mainController)
                     );
 
                     root_box.setCenter(box);

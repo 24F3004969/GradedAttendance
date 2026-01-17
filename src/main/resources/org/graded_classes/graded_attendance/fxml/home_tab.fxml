@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane fx:id="home_tab_main_view" stylesheets="@../css/style_main.css" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.HomeController">
+<AnchorPane fx:id="home_tab_main_view" stylesheets="@../css/style_main.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.HomeController">
    <children>
       <VBox fx:id="outer_main_box" alignment="TOP_CENTER" spacing="15.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="20.0">
          <children>
@@ -145,9 +145,9 @@
             </HBox>
          </children>
       </VBox>
-      <VBox id="floating-bar" alignment="BOTTOM_RIGHT" fillWidth="false" layoutX="817.0" layoutY="576.0" spacing="20.0" stylesheets="@../css/style_main.css" AnchorPane.bottomAnchor="50.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="576.0">
+      <VBox id="floating-bar" alignment="BOTTOM_RIGHT" fillWidth="false" layoutX="817.0" layoutY="576.0" spacing="20.0" stylesheets="@../css/style_main.css" AnchorPane.bottomAnchor="50.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="496.0">
          <children>
-            <Button maxHeight="60.0" maxWidth="60.0" minHeight="60.0" minWidth="60.0" mnemonicParsing="false" onAction="#onButtonPressedNewStudent">
+            <Button maxHeight="60.0" maxWidth="60.0" minHeight="60.0" minWidth="60.0" mnemonicParsing="false" onAction="#onButtonPressedNewStudent" visible="false">
                <graphic>
                   <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -161,6 +161,15 @@
                   <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@../icons/time_table.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button maxHeight="60.0" maxWidth="60.0" minHeight="60.0" minWidth="60.0" mnemonicParsing="false" onAction="#onButtonPressedNewStudent">
+               <graphic>
+                  <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../icons/add.png" />
                      </image>
                   </ImageView>
                </graphic>

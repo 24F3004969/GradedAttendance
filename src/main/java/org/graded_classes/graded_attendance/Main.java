@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.graded_classes.graded_attendance.controller.MainController;
+import org.graded_classes.graded_attendance.test.KeyHook;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -22,6 +23,7 @@ public class Main extends Application {
         stage.setTitle("Graded Management");
         Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
         stage.setScene(scene);
+        stage.setFullScreen(true);
         stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("icons/app_icon.png"))));
         stage.show();
         stage.setOnCloseRequest(_ -> System.exit(1));

@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -49,6 +50,8 @@ public class MainController implements Initializable {
     public StackPane stackPane;
     @FXML
     HBox selectedTab;
+    @FXML
+    private Button ham;
     Tooltip tooltip;
     Stage stage;
     Node home, chat, calendar, lesson;
@@ -84,6 +87,7 @@ public class MainController implements Initializable {
         chat = gradedFxmlLoader.createView(R.chat_layout, new ChatController(this));
         calendar = new CalendarApp().createCalenderView();
         main_view.setCenter(navigateView("home"));
+        ham.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.ACCENT, Styles.FLAT);
         tooltip = new Tooltip(Formatter.format(selectedTab.getId()));
         Tooltip.install(selectedTab, tooltip);
         messageSender = new MessageSender(gradedDataLoader.databaseLoader, this, getToken());
@@ -177,7 +181,7 @@ public class MainController implements Initializable {
             case "chat" -> chat;
             case "calender" -> calendar;
             case "database" -> gradedFxmlLoader.createView(R.database_layout, new DataBaseController(this));
-            case "lesson" -> gradedFxmlLoader.createView(R.lesson_planner, new Planner(gradedDataLoader));
+            case "lesson" -> gradedFxmlLoader.createView(R.lesson_planner, new Planner(gradedDataLoader,modalPane ));
             default -> null;
         };
     }
@@ -243,8 +247,7 @@ public class MainController implements Initializable {
                     if (daysDifference >= 0) {
                         messageSender.sendMessage("Your fee due date is " + LocalDate.now().plusDays(daysDifference) + ".\nPlease pay on time as this helps us to deliver the best" +
                                 " possible coaching experience/uninterrupted service you expect.", Long.parseLong(student.telegram_id()));
-                    }
-                    else{
+                    } else {
                         messageSender.sendMessage("Your fee due date has passed.Please pay by" + LocalDate.now().plusDays(1) + ".\nPlease pay on time as this helps us to deliver the best" +
                                 " possible coaching experience/uninterrupted service you expect.", Long.parseLong(student.telegram_id()));
                     }
@@ -286,5 +289,18 @@ public class MainController implements Initializable {
 
     public void onSetting() {
 
+    }
+
+    @FXML
+    void g_Hamburger() {
+        modalPane.usePredefinedTransitionFactories(Side.LEFT);
+        VBox box = (VBox) gradedFxmlLoader.createView(R.navigation);
+        Button button = (Button) box.lookup("#back_button");
+        button.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.ACCENT, Styles.FLAT);
+        button.setOnMouseClicked(event -> {
+            modalPane.hide();
+        });
+        modalPane.show(box);
+        modalPane.setAlignment(Pos.TOP_LEFT);
     }
 }

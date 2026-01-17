@@ -14,6 +14,12 @@
     -fx-border-color: rgba(0, 0, 0, 0.2);
     -fx-border-style: hidden hidden hidden solid;
 }
+#message_list_view{
+    -fx-background-color: transparent;
+}
+#message_list_view .list-cell{
+    -fx-background-color: transparent;
+}
 #message_heading{
     -fx-background-color: white;
 }

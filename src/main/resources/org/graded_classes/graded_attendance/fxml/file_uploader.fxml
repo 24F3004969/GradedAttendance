@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+   <center>
+      <SplitPane dividerPositions="0.5" orientation="VERTICAL" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </BorderPane.margin>
+         <items>
+            <HBox prefHeight="100.0" prefWidth="200.0" />
+            <StackPane prefHeight="150.0" prefWidth="200.0" style="-fx-background-color: #1C75BC20; -fx-border-style: dashed; -fx-border-radius: 5; -fx-background-radius: 5;">
+               <children>
+                  <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <FontIcon style="-fx-icon-code: mdal-cloud_upload; -fx-icon-size: 128; -fx-fill: #1C75BC;" />
+                        <Label text="Drag and Drop&#10;or Browse" textAlignment="CENTER" wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="22.0" />
+                           </font>
+                        </Label>
+                        <Label text="Supports JPEG,JPG,PNG" textAlignment="CENTER">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </VBox>
+               </children>
+            </StackPane>
+         </items>
+      </SplitPane>
+   </center>
+   <left>
+      <VBox id="nav" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" stylesheets="@../css/icons_style.css" BorderPane.alignment="CENTER">
+         <children>
+            <HBox prefHeight="130.0">
+               <children>
+                  <HBox>
+                     <children>
+                        <Button id="back_button" graphicTextGap="0.0" mnemonicParsing="false">
+                           <HBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </HBox.margin>
+                           <graphic>
+                              <FontIcon iconLiteral="mdal-arrow_back" />
+                           </graphic>
+                        </Button>
+                     </children>
+                  </HBox>
+                  <StackPane HBox.hgrow="ALWAYS">
+                     <children>
+                        <ImageView fitHeight="50.0" fitWidth="210.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER_LEFT">
+                           <image>
+                              <Image url="@../icons/my-logo.svg" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </StackPane>
+               </children>
+            </HBox>
+            <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" VBox.vgrow="ALWAYS">
+               <children>
+                  <HBox alignment="CENTER_LEFT" maxWidth="230.0" minWidth="230.0" spacing="20.0" style="-fx-background-color: #1C75BC20; -fx-background-radius: 0 50 50 0;">
+                     <children>
+                        <FontIcon iconLiteral="mdal-home" iconSize="22" />
+                        <Label text="Home">
+                           <font>
+                              <Font name="☞Gilroy-Bold" size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                     <padding>
+                        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                     </padding>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" maxWidth="250.0" minWidth="250.0" spacing="20.0">
+                     <children>
+                        <FontIcon iconLiteral="mdmz-message" iconSize="22" />
+                        <Label text="Message">
+                           <font>
+                              <Font name="☞Gilroy-Bold" size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                     <padding>
+                        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                     </padding>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" maxWidth="250.0" minWidth="250.0" spacing="20.0">
+                     <children>
+                        <FontIcon iconLiteral="mdal-calendar_today" iconSize="22" />
+                        <Label text="Calender">
+                           <font>
+                              <Font name="☞Gilroy-Bold" size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                     <padding>
+                        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                     </padding>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" maxWidth="250.0" minWidth="250.0" spacing="20.0">
+                     <children>
+                        <FontIcon iconLiteral="mdal-data_usage" iconSize="22" />
+                        <Label text="Database">
+                           <font>
+                              <Font name="☞Gilroy-Bold" size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                     <padding>
+                        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                     </padding>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" maxWidth="250.0" minWidth="250.0" spacing="20.0">
+                     <children>
+                        <FontIcon iconLiteral="mdal-book" iconSize="22" />
+                        <Label text="Lesson Planner">
+                           <font>
+                              <Font name="☞Gilroy-Bold" size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                     <padding>
+                        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                     </padding>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </left>
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Close" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Edit">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Delete" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+</BorderPane>

@@ -1,6 +1,7 @@
 package org.graded_classes.graded_attendance.planner;
 
 import atlantafx.base.controls.Breadcrumbs;
+import atlantafx.base.controls.ModalPane;
 import atlantafx.base.theme.Styles;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -29,9 +30,10 @@ public class Planner extends GradedFxmlLoader implements Initializable {
     Node classView, subjectView;
     String[] items = {"Class", "Subjects", "Math"};
     GradedDataLoader gradedDataLoader;
-
-    public Planner(GradedDataLoader gradedDataLoader) {
+    ModalPane modalPane;
+    public Planner(GradedDataLoader gradedDataLoader, ModalPane modalPane) {
         this.gradedDataLoader = gradedDataLoader;
+        this.modalPane = modalPane;
     }
 
     @Override

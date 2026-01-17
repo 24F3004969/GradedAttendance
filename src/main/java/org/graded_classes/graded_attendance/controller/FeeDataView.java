@@ -28,7 +28,7 @@ public class FeeDataView {
 
     private void init() {
         try (Statement stmt = gradedDataLoader.databaseLoader.getStatement()) {
-            ResultSet r = stmt.executeQuery("select * from fee_2025");
+            ResultSet r = stmt.executeQuery("select * from fee_2026");
             while (r.next()) {
                 String[][] e = new String[12][4];
                 String[] months = new DateFormatSymbols(Locale.US).getShortMonths();

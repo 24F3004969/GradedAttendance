@@ -1,16 +1,16 @@
 package org.graded_classes.graded_attendance.data;
 
 import atlantafx.base.theme.Styles;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import org.graded_classes.graded_attendance.controller.MainController;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.format.TextStyle;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Objects;
 
 public class GradedDataLoader {
 
@@ -33,7 +33,9 @@ public class GradedDataLoader {
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/attendance_stu.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/Fee.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/LessonPlanner.sql").getQuery());
-            databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/TopicAndSubtopic.sql").getQuery());
+            databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/Topic.sql").getQuery());
+            databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/SubTopic.sql").getQuery());
+
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/DailyTopics.sql").getQuery());
             for (int i = 4; i <= 10; i++) {
                 databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/TimeTable.sql").getQuery().formatted(i, i));

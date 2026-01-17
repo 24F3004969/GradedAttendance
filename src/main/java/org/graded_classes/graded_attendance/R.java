@@ -27,7 +27,11 @@ public enum R {
     message_view("fxml/message_view.fxml"),
     message_box("fxml/message_box.fxml"),
     send_bubble_label("fxml/chat_bubble_send_layout.fxml"),
-    receive_bubble_label("fxml/chat_bubble_receive_layout.fxml"),;
+    receive_bubble_label("fxml/chat_bubble_receive_layout.fxml"),
+    navigation("fxml/side_nav_bar.fxml"),
+    edit_topic("fxml/editTopic.fxml"),
+    edit_sub_topic("fxml/editSubTopic.fxml"),
+    ;
     private final String path;
 
     R(String path) {

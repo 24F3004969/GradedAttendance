@@ -1,6 +1,6 @@
 -- Query 1: Count of missing dates, formatted to align with the second query
 WITH RECURSIVE dates(date) AS (
-    VALUES('2025-09-06')
+    VALUES('%s')
     UNION ALL
     SELECT date(date, '+1 day')
 FROM dates
@@ -23,7 +23,7 @@ SELECT
 FROM
     Attendance
 WHERE
-    date >= '2025-09-06' AND date <= '2025-10-31'
+    date >= '%s' AND date <= '%s'
   AND
     check_in is not NULL
 GROUP BY

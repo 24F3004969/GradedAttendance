@@ -1,6 +1,7 @@
 package org.graded_classes.graded_attendance.planner;
 
 import atlantafx.base.controls.CustomTextField;
+import atlantafx.base.controls.ModalPane;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
@@ -38,7 +39,7 @@ public class Lesson implements Initializable {
 
     @FXML
     public void addSubtopic() {
-        viewBox.getChildren().add(planner.createView(R.create_topic,new TopicCreator(planner,subject,className,topic.getText())));
+        viewBox.getChildren().add(planner.createView(R.create_topic, new  TopicCreator(planner, subject, className, topic.getText(),null)));
         insertTopic();
     }
 
@@ -52,15 +53,16 @@ public class Lesson implements Initializable {
             try (ResultSet rs = pst.executeQuery()) {
                 while (rs.next()) {
                     viewBox.getChildren().add(planner.createView(R.create_topic, new TopicCreator(planner, rs.getString("subject"),
-                            rs.getString("class"), rs.getString("topic"))));
+                            rs.getString("class"), rs.getString("topic_name"), rs.getString("topic_id"))));
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
     public void insertTopic() {
-        String sql = "INSERT INTO Topics(class, subject, topic) VALUES(?, ?, ?)";
+        String sql = "INSERT INTO Topics(class, subject, topic_name) VALUES(?, ?, ?)";
         try (PreparedStatement pst = planner.gradedDataLoader.databaseLoader.getConnection().prepareStatement(sql)) {
             pst.setString(1, className);
             pst.setString(2, subject);

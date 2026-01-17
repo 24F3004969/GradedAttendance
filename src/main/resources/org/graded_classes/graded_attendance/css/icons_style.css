@@ -1,0 +1,7 @@
+#nav {
+    -fx-background-color: #fafafa;
+    -fx-background-radius: 0 10 10 0;
+}
+#nav .ikonli-font-icon{
+    -fx-icon-size: 24;
+}

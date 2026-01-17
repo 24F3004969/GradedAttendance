@@ -1,5 +1,6 @@
 package org.graded_classes.graded_attendance.planner;
 
+import atlantafx.base.controls.ModalPane;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -12,7 +13,7 @@ import java.util.ResourceBundle;
 public class Subject implements Initializable {
     Planner planner;
     String className;
-    public Subject(Planner planner,String className) {
+    public Subject(Planner planner, String className) {
         this.planner = planner;
         this.className = className;
     }

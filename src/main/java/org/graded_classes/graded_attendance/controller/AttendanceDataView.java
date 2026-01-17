@@ -7,6 +7,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -192,6 +193,8 @@ public class AttendanceDataView implements Initializable {
         Student student = x.getStudentData().get(ed_no);
         var view = attendanceReport.getStudentAttendanceReport();
         studentAttendance.mainController.
+                modalPane.setAlignment(Pos.CENTER);
+        studentAttendance.mainController.
                 modalPane.show(studentAttendance.mainController.
                         gradedFxmlLoader.createView(R.attendance_report,
                                 new AttendanceReportController(firstLetterToUpperCase(student.name()), ed_no, view)));
@@ -212,6 +215,8 @@ public class AttendanceDataView implements Initializable {
             Node node = studentAttendance.mainController.gradedFxmlLoader.createView(R.edit_time);
             MaskTextField timeField = (MaskTextField) (node.lookup("#textfield"));
             timeField.setMask("19:59" + " " + (LocalTime.now().getHour() < 12 ? "am" : "pm"));
+            studentAttendance.mainController.
+                    modalPane.setAlignment(Pos.CENTER);
             studentAttendance.mainController.modalPane.show(node);
             var timeFormatter = DateTimeFormatter.ofPattern("hh:mm");
             timeField.setText(
@@ -243,6 +248,8 @@ public class AttendanceDataView implements Initializable {
 
     public void addTopic(MouseEvent mouseEvent) {
         TodayTopic todayTopic = new TodayTopic(this);
+        studentAttendance.mainController.
+                modalPane.setAlignment(Pos.CENTER);
         studentAttendance.
                 mainController.
                 modalPane.show(studentAttendance.

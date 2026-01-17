@@ -7,14 +7,14 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 
-<HBox id="sub-topic-item" alignment="CENTER" maxWidth="1.7976931348623157E308" stylesheets="@../css/lesson_planner.css" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.planner.SubtopicCreator">
+<HBox id="sub-topic-item" alignment="CENTER" maxWidth="1.7976931348623157E308" stylesheets="@../css/lesson_planner.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.planner.SubtopicCreator">
    <children>
       <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
          <children>
             <Label fx:id="subtopicName" text="Suptopic" />
          </children>
       </HBox>
-      <Button id="edit-button" fx:id="editSubtopic" mnemonicParsing="false">
+      <Button id="edit-button" mnemonicParsing="false" onAction="#editSubtopic">
          <graphic>
             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -23,7 +23,7 @@
             </ImageView>
          </graphic>
       </Button>
-      <Button id="delete-button" fx:id="removeSubtopic" mnemonicParsing="false">
+      <Button id="delete-button" mnemonicParsing="false" onAction="#removeSubtopic">
          <graphic>
             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                <image>

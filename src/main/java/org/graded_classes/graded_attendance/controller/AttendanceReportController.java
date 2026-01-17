@@ -43,7 +43,8 @@ public class AttendanceReportController implements Initializable {
     private CategoryAxis xAxis;
     @FXML
     private NumberAxis yAxis;
-    LocalDate startDate = LocalDate.of(2025, 9, 6);
+
+    LocalDate startDate = LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonthValue(), 1);
     LocalDate endDate = LocalDate.now();
 
     long totalWokingDays = ChronoUnit.DAYS.between(startDate, endDate);
@@ -61,18 +62,18 @@ public class AttendanceReportController implements Initializable {
         int present = Integer.parseInt(view.get(edNo).trim());
         System.out.println("Missing Dates: " + (totalWokingDays - missingDay - present));
         System.out.println("Present Dates: " + present);
-        setAttendanceData(present, (int) (totalWokingDays - missingDay - present));
+        setAttendanceData(present, (int) (totalWokingDays - missingDay - present),missingDay);
     }
 
     public void setStudentName(String name) {
         nameLabel.setText(name != null ? name : "Name");
     }
 
-    public void setAttendanceData(int presentDays, int absentDays) {
+    public void setAttendanceData(int presentDays, int absentDays,int missingDay) {
         if (totalWokingDays > 0) {
             yAxis.setAutoRanging(false);
             yAxis.setLowerBound(0);
-            yAxis.setUpperBound(totalWokingDays);
+            yAxis.setUpperBound(totalWokingDays-missingDay);
             yAxis.setTickUnit(5);
         } else {
             yAxis.setAutoRanging(true);

@@ -1,14 +1,12 @@
 package org.graded_classes.graded_attendance.controller;
 
 import atlantafx.base.controls.ModalPane;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -96,9 +94,9 @@ public class HomeController implements Initializable {
 
     private Node getSearchView(VBox vBox) {
         return switch (vBox.getId()) {
-            case "stu_atten", "st_fee"-> gradedFxmlLoader.createView(R.student_attendance_layout,
+            case "stu_atten", "st_fee" -> gradedFxmlLoader.createView(R.student_attendance_layout,
                     new StudentAttendance(mainController, gradedFxmlLoader, outer_main_box, vBox.getId()));
-            case "tea_prog"-> gradedFxmlLoader.createView(R.teaching_progress_search,
+            case "tea_prog" -> gradedFxmlLoader.createView(R.teaching_progress_search,
                     new StudentAttendance(mainController, gradedFxmlLoader, outer_main_box, vBox.getId()));
             case "tea_atten", "tea_fee" -> gradedFxmlLoader.createView(R.teacher_attendance_layout);
             default -> null;
@@ -148,24 +146,25 @@ public class HomeController implements Initializable {
     }
 
     @FXML
-    public void onButtonPressed(ActionEvent actionEvent) {
-        BorderPane dialog = null;
+    public void onButtonPressed() {
+        BorderPane dialog;
         try {
-           FXMLLoader fxmlLoader = new FXMLLoader(loadURL("fxml/time_table_classes.fxml"));
-            var time=new TimeTableClass(this);
+            FXMLLoader fxmlLoader = new FXMLLoader(loadURL("fxml/time_table_classes.fxml"));
+            var time = new TimeTableClass(this);
             fxmlLoader.setControllerFactory(c -> time);
             dialog = fxmlLoader.load();
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        modalPane.setAlignment(Pos.CENTER);
         modalPane.show(dialog);
 
     }
 
     @FXML
-    public void onButtonPressedNewStudent(ActionEvent actionEvent) {
-        Parent dialog = null;
+    public void onButtonPressedNewStudent() {
+        Parent dialog;
         try {
             var x = new FXMLLoader(loadURL("fxml/add_people.fxml"));
             x.setControllerFactory(c -> new AddPeople(this));
@@ -173,6 +172,7 @@ public class HomeController implements Initializable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        modalPane.setAlignment(Pos.CENTER);
         modalPane.show(dialog);
     }
 }

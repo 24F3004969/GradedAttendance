@@ -4,6 +4,7 @@ import org.graded_classes.graded_attendance.data.DatabaseLoader;
 import org.graded_classes.graded_attendance.data.SqlFileReader;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.LinkedHashMap;
 
 public class AttendanceReport {
@@ -22,7 +23,11 @@ public class AttendanceReport {
     public void init() {
         try {
             var connection = databaseLoader.getStatement().getConnection();
-            var sql = new SqlFileReader("data/attendance_data_report.sql").getQuery();
+            LocalDate startDate = LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonthValue(), 1);
+            LocalDate lastDate = startDate.plusDays(LocalDate.now().lengthOfMonth());
+            System.out.println(startDate +"   "+ lastDate);
+            var sql = new SqlFileReader("data/attendance_data_report.sql").getQuery().formatted(startDate.toString(),
+                    startDate.toString(), lastDate.toString());
 
             try (var pst = connection.prepareStatement(sql);
                  var r = pst.executeQuery()) {

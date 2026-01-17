@@ -1,5 +1,6 @@
 package org.graded_classes.graded_attendance.planner;
 
+import atlantafx.base.controls.ModalPane;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
@@ -8,7 +9,6 @@ import org.graded_classes.graded_attendance.R;
 
 public class Classes {
     Planner planner;
-
     public Classes(Planner planner) {
         this.planner = planner;
     }

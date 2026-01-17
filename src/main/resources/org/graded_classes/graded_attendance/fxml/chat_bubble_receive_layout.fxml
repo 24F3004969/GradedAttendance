@@ -5,15 +5,20 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<HBox alignment="TOP_RIGHT" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.ChatBubbleReceiveController">
+<HBox xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.ChatBubbleReceiveController">
    <children>
-      <VBox maxWidth="150.0" prefWidth="200.0" stylesheets="@../css/chat_bubble.css">
+      <VBox maxWidth="300.0" minWidth="150.0" stylesheets="@../css/chat_bubble.css">
          <children>
-            <HBox maxHeight="20.0" minHeight="20.0">
+            <HBox alignment="TOP_RIGHT" maxHeight="20.0" minHeight="20.0">
                <children>
-                  <HBox id="rev_chatBubbleInfo" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                  <HBox id="box" alignment="CENTER" maxHeight="20.0" maxWidth="12.0" minHeight="20.0" minWidth="8.0" prefHeight="28.0" prefWidth="12.0" HBox.hgrow="NEVER">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </HBox>
+                  <HBox id="chatBubbleInfo" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label fx:id="roll_num" text="ED01">
+                        <Label fx:id="ed_no" text="ED01" textFill="#6c1dcc">
                            <HBox.margin>
                               <Insets left="5.0" />
                            </HBox.margin>
@@ -23,33 +28,35 @@
                         <Insets />
                      </HBox.margin>
                   </HBox>
-                  <HBox id="reverse_thumb" alignment="CENTER" maxHeight="20.0" maxWidth="12.0" minHeight="20.0" minWidth="8.0" prefHeight="28.0" prefWidth="12.0" />
                </children>
                <VBox.margin>
                   <Insets />
                </VBox.margin>
             </HBox>
-            <HBox id="rev_chatBubble" maxHeight="1.7976931348623157E308" minHeight="20.0" VBox.vgrow="ALWAYS">
+            <HBox id="chatBubble" maxHeight="1.7976931348623157E308" minHeight="20.0" VBox.vgrow="ALWAYS">
                <children>
                   <VBox HBox.hgrow="ALWAYS">
-                     <children>
-                        <Label fx:id="message1" alignment="TOP_LEFT" text="Hi" wrapText="true" />
-                        <HBox alignment="CENTER_RIGHT">
-                           <children>
-                              <Label id="time" text="7:30pm" />
-                           </children>
-                        </HBox>
-                     </children>
                      <HBox.margin>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                      </HBox.margin>
+                     <children>
+                        <Label fx:id="message" alignment="TOP_LEFT" text="Hi" wrapText="true" />
+                        <HBox alignment="TOP_RIGHT">
+                           <children>
+                              <Label id="time" fx:id="time" text="7:30pm" />
+                           </children>
+                        </HBox>
+                     </children>
                   </VBox>
                </children>
                <VBox.margin>
-                  <Insets right="12.0" />
+                  <Insets left="12.0" />
                </VBox.margin>
             </HBox>
          </children>
+         <HBox.margin>
+            <Insets bottom="4.0" />
+         </HBox.margin>
       </VBox>
    </children>
 </HBox>
