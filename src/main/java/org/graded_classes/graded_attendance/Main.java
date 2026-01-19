@@ -23,7 +23,6 @@ public class Main extends Application {
         stage.setTitle("Graded Management");
         Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
         stage.setScene(scene);
-        stage.setFullScreen(true);
         stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("icons/app_icon.png"))));
         stage.show();
         stage.setOnCloseRequest(_ -> System.exit(1));

@@ -11,6 +11,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <StackPane fx:id="stackPane" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.MainController">
    <children>
@@ -112,6 +113,15 @@
                            <VBox.margin>
                               <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                            </VBox.margin>
+                        </HBox>
+                        <HBox id="lesson" alignment="CENTER_LEFT" fillHeight="false" onMouseClicked="#navigation" prefWidth="200.0" spacing="2.0" style="-fx-background-radius: 0 5 5 0;">
+                           <children>
+                              <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#fafafa00" height="24.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="4.0" />
+                              <FontIcon style="-fx-icon-code: mdal-grading; -fx-icon-size: 24; -fx-icon-color: #1C75BC;" />
+                           </children>
+                           <padding>
+                              <Insets bottom="10.0" left="2.0" right="2.0" top="10.0" />
+                           </padding>
                         </HBox>
                         <HBox id="setting" alignment="BOTTOM_CENTER" onMouseClicked="#onSetting" prefWidth="200.0" spacing="2.0" VBox.vgrow="ALWAYS">
                            <children>

@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import atlantafx.base.controls.CustomTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <HBox style="-fx-background-color: white; -fx-border-color: rgba(0, 0, 0, 0.2);" BorderPane.alignment="CENTER">
+         <children>
+            <HBox alignment="CENTER" spacing="5.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-style: hidden solid hidden hidden;">
+               <children>
+                  <FontIcon style="-fx-icon-code: mdal-assignment; -fx-icon-size: 24; -fx-icon-color: #1C75BC;" />
+                  <Label text="Graded">
+                     <font>
+                        <Font name="HelveticaRounded-Bold" size="24.0" />
+                     </font>
+                  </Label>
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </HBox>
+            <HBox HBox.hgrow="ALWAYS">
+               <children>
+                  <HBox alignment="CENTER_LEFT" spacing="20.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Dashboard">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="16.0" />
+                           </font>
+                        </Label>
+                        <Label text="Quizzes">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="16.0" />
+                           </font>
+                        </Label>
+                        <Label text="Student">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="16.0" />
+                           </font>
+                        </Label>
+                     </children>
+                     <HBox.margin>
+                        <Insets left="20.0" right="20.0" />
+                     </HBox.margin>
+                  </HBox>
+                  <HBox alignment="CENTER" HBox.hgrow="NEVER">
+                     <children>
+                        <Button mnemonicParsing="false" styleClass="button-outlined" text="Save Draft">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="14.0" />
+                           </font></Button>
+                        <Separator orientation="VERTICAL">
+                           <HBox.margin>
+                              <Insets bottom="12.0" top="12.0" />
+                           </HBox.margin></Separator>
+                        <Button mnemonicParsing="false" styleClass="accent" text="Publish">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="14.0" />
+                           </font></Button>
+                     </children>
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                  </HBox>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER" minWidth="70.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-style: hidden hidden hidden solid;" HBox.hgrow="NEVER">
+               <children>
+                  <FontIcon style="-fx-icon-code: mdoal-account_circle; -fx-icon-size: 32; -fx-icon-color: #1C75BC;" text="" />
+                  <ComboBox maxWidth="20.0" minWidth="20.0" style="-fx-background-color: NONE;" />
+               </children>
+            </HBox>
+         </children>
+      </HBox>
+   </top>
+   <left>
+      <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-style: hidden solid solid solid;" BorderPane.alignment="CENTER">
+         <children>
+            <Label text="Create New Quiz">
+               <font>
+                  <Font name="HelveticaRounded-Bold" size="20.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </VBox.margin>
+            </Label>
+            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="button-outlined" text="Add New Quiz">
+               <VBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </VBox.margin>
+               <graphic>
+                  <FontIcon style="-fx-icon-code: mdal-add; -fx-font-size: 28; -fx-icon-color: #1C75BC;" />
+               </graphic>
+               <font>
+                  <Font name="HelveticaRounded-Bold" size="16.0" />
+               </font>
+            </Button>
+            <ListView style="-fx-background-radius: 10; -fx-border-radius: 10;" VBox.vgrow="ALWAYS">
+               <VBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </VBox.margin>
+            </ListView>
+         </children></VBox>
+   </left>
+   <center>
+      <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+         <children>
+            <HBox>
+               <VBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="15.0" />
+               </VBox.margin>
+               <children>
+                  <Label text="Quiz Editor">
+                     <font>
+                        <Font name="HelveticaRounded-Bold" size="20.0" />
+                     </font>
+                  </Label>
+                  <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                     <Circle fill="#079707" radius="5.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
+                     <Label text="Saved">
+                        <font>
+                           <Font name="HelveticaRounded-Bold" size="12.0" />
+                        </font>
+                        <padding>
+                           <Insets left="5.0" right="20.0" />
+                        </padding>
+                     </Label>
+                     <HBox spacing="3.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-background-radius: 5; -fx-border-radius: 5;">
+                        <children>
+                           <ToggleButton maxWidth="1.7976931348623157E308" minWidth="63.0" mnemonicParsing="false" selected="true" text="Edit" HBox.hgrow="ALWAYS">
+                              <toggleGroup>
+                                 <ToggleGroup fx:id="app" />
+                              </toggleGroup>
+                              <font>
+                                 <Font name="HelveticaRounded-Bold" size="12.0" />
+                              </font>
+                           </ToggleButton>
+                           <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Preview" toggleGroup="$app" HBox.hgrow="ALWAYS">
+                              <font>
+                                 <Font name="HelveticaRounded-Bold" size="12.0" />
+                              </font>
+                           </ToggleButton>
+                        </children>
+                        <HBox.margin>
+                           <Insets />
+                        </HBox.margin>
+                        <padding>
+                           <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                        </padding>
+                     </HBox>
+                  </HBox>
+               </children>
+            </HBox>
+            <ScrollPane fitToHeight="true" fitToWidth="true" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 10; -fx-background-radius: 10;" VBox.vgrow="ALWAYS">
+               <VBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </VBox.margin>
+               <content>
+                  <VBox spacing="10.0" style="-fx-background-radius: 10;">
+                     <children>
+                        <Label text="Question 1">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="20.0" />
+                           </font>
+                        </Label>
+                        <CustomTextField promptText="Write a question hear...." />
+                        <StackPane prefHeight="150.0" prefWidth="200.0" style="-fx-background-color: #1C75BC20; -fx-border-style: dashed; -fx-border-radius: 5; -fx-background-radius: 5;">
+                           <children>
+                              <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <FontIcon style="-fx-icon-code: mdal-cloud_upload; -fx-icon-size: 64; -fx-fill: #1C75BC;" />
+                                    <Label text="Drag and Drop&#10;or Browse" textAlignment="CENTER">
+                                       <font>
+                                          <Font name="System Bold" size="22.0" />
+                                       </font>
+                                    </Label>
+                                    <Label text="Supports JPEG,JPG,PNG" textAlignment="CENTER">
+                                       <font>
+                                          <Font size="16.0" />
+                                       </font>
+                                    </Label>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </StackPane>
+                        <Label text="Answer Type">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="20.0" />
+                           </font>
+                        </Label>
+                        <HBox spacing="10.0">
+                           <children>
+                              <RadioButton mnemonicParsing="false" selected="true" text="MCQ(Multiple Choice Question)">
+                                 <font>
+                                    <Font name="HelveticaRounded-Bold" size="14.0" />
+                                 </font>
+                              </RadioButton>
+                              <RadioButton mnemonicParsing="false" text="MSQ(Multiple Select Question)">
+                                 <font>
+                                    <Font name="HelveticaRounded-Bold" size="14.0" />
+                                 </font>
+                              </RadioButton>
+                           </children>
+                        </HBox>
+                        <VBox spacing="5.0">
+                           <children>
+                              <Label text="Options">
+                                 <font>
+                                    <Font name="HelveticaRounded-Bold" size="14.0" />
+                                 </font>
+                              </Label>
+                              <HBox spacing="10.0">
+                                 <children>
+                                    <CustomTextField promptText="Option A" HBox.hgrow="ALWAYS" />
+                                    <HBox alignment="CENTER_LEFT" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <CheckBox mnemonicParsing="false" text="Correct">
+                                             <HBox.margin>
+                                                <Insets left="5.0" />
+                                             </HBox.margin>
+                                          </CheckBox>
+                                       </children>
+                                    </HBox>
+                                    <Button mnemonicParsing="false" text="Add Image">
+                                       <graphic>
+                                          <FontIcon style="-fx-icon-code: mdal-library_add; -fx-font-size: 16; -fx-icon-color: #1C75BC;" />
+                                       </graphic></Button>
+                                 </children>
+                              </HBox>
+                              <HBox spacing="10.0">
+                                 <children>
+                                    <CustomTextField promptText="Option B" HBox.hgrow="ALWAYS" />
+                                    <HBox alignment="CENTER_LEFT" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <CheckBox mnemonicParsing="false" text="Correct">
+                                             <HBox.margin>
+                                                <Insets left="5.0" />
+                                             </HBox.margin>
+                                          </CheckBox>
+                                       </children>
+                                    </HBox>
+                                    <Button mnemonicParsing="false" text="Add Image">
+                                       <graphic>
+                                          <FontIcon style="-fx-icon-code: mdal-library_add; -fx-font-size: 16; -fx-icon-color: #1C75BC;" />
+                                       </graphic></Button>
+                                 </children>
+                              </HBox>
+                              <HBox spacing="10.0">
+                                 <children>
+                                    <CustomTextField promptText="Option C" HBox.hgrow="ALWAYS" />
+                                    <HBox alignment="CENTER_LEFT" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <CheckBox mnemonicParsing="false" text="Correct">
+                                             <HBox.margin>
+                                                <Insets left="5.0" />
+                                             </HBox.margin>
+                                          </CheckBox>
+                                       </children>
+                                    </HBox>
+                                    <Button mnemonicParsing="false" text="Add Image">
+                                       <graphic>
+                                          <FontIcon style="-fx-icon-code: mdal-library_add; -fx-font-size: 16; -fx-icon-color: #1C75BC;" />
+                                       </graphic></Button>
+                                 </children>
+                              </HBox>
+                              <HBox spacing="10.0">
+                                 <children>
+                                    <CustomTextField promptText="Option D" HBox.hgrow="ALWAYS" />
+                                    <HBox alignment="CENTER_LEFT" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <CheckBox mnemonicParsing="false" text="Correct">
+                                             <HBox.margin>
+                                                <Insets left="5.0" />
+                                             </HBox.margin>
+                                          </CheckBox>
+                                       </children>
+                                    </HBox>
+                                    <Button mnemonicParsing="false" text="Add Image">
+                                       <graphic>
+                                          <FontIcon style="-fx-icon-code: mdal-library_add; -fx-font-size: 16; -fx-icon-color: #1C75BC;" />
+                                       </graphic></Button>
+                                 </children>
+                              </HBox>
+                              <Button mnemonicParsing="false" text="Add Option">
+                                 <graphic>
+                                    <FontIcon style="-fx-icon-code: mdal-add; -fx-font-size: 16; -fx-icon-color: #1C75BC;" />
+                                 </graphic></Button>
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+               </content>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </ScrollPane>
+            <HBox alignment="CENTER_LEFT">
+               <children>
+                  <Button mnemonicParsing="false" styleClass="button-outlined" text="Delete Question">
+                     <font>
+                        <Font name="HelveticaRounded-Bold" size="14.0" />
+                     </font>
+                  </Button>
+                  <HBox alignment="CENTER_RIGHT" spacing="10.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Button mnemonicParsing="false" styleClass="button-outlined" text="Previous">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="14.0" />
+                           </font>
+                        </Button>
+                        <Button mnemonicParsing="false" styleClass="button-outlined" text="Next">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="14.0" />
+                           </font>
+                        </Button>
+                        <Button mnemonicParsing="false" styleClass="accent" text="Save">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="14.0" />
+                           </font>
+                        </Button>
+                     </children>
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </HBox>
+               </children>
+               <VBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </VBox.margin></HBox>
+         </children></VBox>
+   </center>
+</BorderPane>
