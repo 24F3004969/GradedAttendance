@@ -7,6 +7,10 @@ A comprehensive **attendance management system** with integrated grading capabil
 
 ![64521](https://github.com/user-attachments/assets/a250851d-d948-42c8-b587-b665bb08e48c)
 
+## Exam Creator
+<img width="1915" height="1032" alt="image" src="https://github.com/user-attachments/assets/b4c84de3-7d5a-46b5-9270-8a12d4defd1f" />
+
+
 ## Latex Support
 ![2026-01-17 21-27-46](https://github.com/user-attachments/assets/30bfa0a4-2371-48d7-b76b-16c0ed05b316)
 
