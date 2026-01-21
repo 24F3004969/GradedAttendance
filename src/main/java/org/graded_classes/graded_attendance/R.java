@@ -31,6 +31,8 @@ public enum R {
     navigation("fxml/side_nav_bar.fxml"),
     edit_topic("fxml/editTopic.fxml"),
     edit_sub_topic("fxml/editSubTopic.fxml"),
+    quiz_creator("fxml/quiz_generator.fxml"),
+    quiz_taker("fxml/quiz_taker.fxml"),
     ;
     private final String path;
 

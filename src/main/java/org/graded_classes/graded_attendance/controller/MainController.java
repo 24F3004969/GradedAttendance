@@ -163,11 +163,16 @@ public class MainController implements Initializable {
     @FXML
     void navigation(MouseEvent event) {
         HBox root = (HBox) event.getSource();
-        ImageView imageView = ((ImageView) root.getChildren().getLast());
-        Rectangle rectangle = (Rectangle) root.getChildren().getFirst();
-        toggleOut(selectedTab, (Rectangle) selectedTab.getChildren().getFirst(),
-                (ImageView) selectedTab.getChildren().getLast());
-        toggleIn(root, rectangle, imageView);
+        try {
+            ImageView imageView = ((ImageView) root.getChildren().getLast());
+            Rectangle rectangle = (Rectangle) root.getChildren().getFirst();
+            toggleOut(selectedTab, (Rectangle) selectedTab.getChildren().getFirst(),
+                    (ImageView) selectedTab.getChildren().getLast());
+            toggleIn(root, rectangle, imageView);
+        }
+        catch (Exception e) {
+
+        }
         main_view.setCenter(navigateView(root.getId()));
         Tooltip.uninstall(selectedTab, tooltip);
         selectedTab = root;
@@ -181,7 +186,10 @@ public class MainController implements Initializable {
             case "chat" -> chat;
             case "calender" -> calendar;
             case "database" -> gradedFxmlLoader.createView(R.database_layout, new DataBaseController(this));
-            case "lesson" -> gradedFxmlLoader.createView(R.lesson_planner, new Planner(gradedDataLoader,modalPane ));
+            case "lesson" -> gradedFxmlLoader.createView(R.lesson_planner, new Planner(gradedDataLoader, modalPane));
+            case "quizCreator" -> gradedFxmlLoader.createView(R.quiz_creator);
+            case "quiz_taker" -> gradedFxmlLoader.createView(R.quiz_taker);
+            case "setting" -> gradedFxmlLoader.createView(R.quiz_taker);
             default -> null;
         };
     }

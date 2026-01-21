@@ -25,6 +25,7 @@ module org.graded_classes.graded_attendance {
     requires org.checkerframework.checker.qual;
     requires fxgraphics2d;
     requires jlatexmath;
+    requires com.dlsc.fxmlkit;
 
 
     opens org.graded_classes.graded_attendance.controller to javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc, java.sql;

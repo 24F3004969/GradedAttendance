@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 /**
  * The {@code LatexView} is a JavaFX {@code Node} used for rendering LaTeX formulas
  *
- * @author Egor Makarenko
+ * @author Helal Anwar
  */
 @DefaultProperty("formula")
 public class LatexView extends Canvas {

@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import org.graded_classes.graded_attendance.components.LatexView?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane prefHeight="600.0" style="-fx-background-color: #fafafa95;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <HBox style="-fx-background-color: white; -fx-border-color: rgba(0, 0, 0, 0.2);" BorderPane.alignment="CENTER">
+         <children>
+            <HBox alignment="CENTER" spacing="5.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-style: hidden solid hidden hidden;">
+               <children>
+                  <FontIcon style="-fx-icon-code: mdal-assignment; -fx-icon-size: 24; -fx-icon-color: #1C75BC;" />
+                  <Label text="Graded">
+                     <font>
+                        <Font name="HelveticaRounded-Bold" size="24.0" />
+                     </font>
+                  </Label>
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </HBox>
+            <HBox HBox.hgrow="ALWAYS">
+               <children>
+                  <HBox alignment="CENTER_LEFT" spacing="20.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label text="Quiz(Math) ">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="16.0" />
+                           </font>
+                        </Label>
+                     </children>
+                     <HBox.margin>
+                        <Insets left="20.0" right="20.0" />
+                     </HBox.margin>
+                  </HBox>
+                  <HBox alignment="CENTER" HBox.hgrow="NEVER">
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                     <children>
+                        <Label text="01:29:12">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="16.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER" minWidth="70.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-style: hidden hidden hidden solid;" HBox.hgrow="NEVER">
+               <children>
+                  <FontIcon style="-fx-icon-code: mdoal-account_circle; -fx-icon-size: 32; -fx-icon-color: #1C75BC;" text="" />
+                  <ComboBox maxWidth="20.0" minWidth="20.0" style="-fx-background-color: NONE;" />
+               </children>
+            </HBox>
+         </children>
+      </HBox>
+   </top>
+   <right>
+      <VBox BorderPane.alignment="CENTER">
+         <children>
+            <VBox spacing="10.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-style: hidden hidden  solid  hidden;" styleClass="question-icons" stylesheets="@../css/quiz.css">
+               <children>
+                  <HBox spacing="10.0">
+                     <children>
+                        <Label contentDisplay="TOP" text="Question Answred" textFill="GREEN">
+                           <graphic>
+                              <FontIcon id="question-icons" iconSize="64" selectionEnd="0" selectionStart="0" style="-fx-icon-code: mdsal-live_help; -fx-icon-color: green;" styleClass="question-icons" />
+                           </graphic>
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="14.0" />
+                           </font>
+                        </Label>
+                        <Label contentDisplay="TOP" text="Question not answred" textFill="RED">
+                           <graphic>
+                              <FontIcon id="question-icons" selectionEnd="0" selectionStart="0" style="-fx-icon-code: mdsal-live_help; -fx-icon-color: red;" styleClass="question-icons" />
+                           </graphic>
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="14.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <HBox spacing="10.0">
+                     <children>
+                        <Label contentDisplay="TOP" text="Question not Visited">
+                           <graphic>
+                              <FontIcon id="question-icons" selectionEnd="0" selectionStart="0" style="-fx-icon-code: mdsal-live_help;" styleClass="question-icons" />
+                           </graphic>
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="14.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </VBox>
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+               <VBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </VBox.margin>
+               <content>
+                  <TilePane hgap="5.0" vgap="5.0">
+                     <children>
+                        <Button fx:id="b1" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="1">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="b2" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="2">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="3">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="4">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="5">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="6">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="7">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="8">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="9">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="10">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="11">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="12">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="13">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="13">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="14">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="12.0" />
+                           </font>
+                        </Button>
+                        <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="15">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="12.0" />
+                           </font>
+                        </Button>
+                     </children>
+                  </TilePane>
+               </content>
+            </ScrollPane>
+            <HBox alignment="CENTER_RIGHT" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-style: solid hidden hidden hidden;">
+               <children>
+                  <Button mnemonicParsing="false" styleClass="accent" text="Submit">
+                     <font>
+                        <Font name="HelveticaRounded-Bold" size="12.0" />
+                     </font></Button>
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </HBox>
+         </children>
+      </VBox>
+   </right>
+   <center>
+      <VBox style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-style: hidden solid hidden hidden;" BorderPane.alignment="CENTER">
+         <children>
+            <SplitPane dividerPositions="0.5" orientation="VERTICAL" VBox.vgrow="ALWAYS">
+               <items>
+                  <SplitPane dividerPositions="0.8">
+                     <items>
+                        <ScrollPane fitToWidth="true">
+                           <content>
+                              <VBox prefHeight="200.0">
+                                 <LatexView formula="\\text{Question 1.}\\\\\text{For which values of } x \text{ does the power series}\[\sum_{n=1}^{\infty} (-1)^{n+1}n(x-2)^n\] \text{ converge?}" size="28" VBox.vgrow="ALWAYS" />
+                              </VBox>
+                           </content>
+                        </ScrollPane>
+                        <ScrollPane>
+                           <content>
+                              <StackPane prefHeight="150.0" prefWidth="200.0" />
+                           </content>
+                        </ScrollPane>
+                     </items>
+                  </SplitPane>
+                  <ScrollPane style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-style: solid hidden hidden hidden;">
+                     <content>
+                        <VBox spacing="10.0">
+                           <children>
+                              <HBox alignment="CENTER_LEFT" spacing="5.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" VBox.vgrow="ALWAYS">
+                                 <children>
+                                    <Label text="A)">
+                                       <font>
+                                          <Font size="24.0" />
+                                       </font>
+                                    </Label>
+                                    <RadioButton mnemonicParsing="false">
+                                       <toggleGroup>
+                                          <ToggleGroup fx:id="ans" />
+                                       </toggleGroup>
+                                    </RadioButton>
+                                    <LatexView formula="x = 1 \text{ and } x = 3" size="28" />
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </padding>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT" spacing="5.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" VBox.vgrow="ALWAYS">
+                                 <children>
+                                    <Label text="B)">
+                                       <font>
+                                          <Font size="24.0" />
+                                       </font>
+                                    </Label>
+                                    <RadioButton mnemonicParsing="false" toggleGroup="$ans" />
+                                    <LatexView formula="x = 0 \text{ and } x = -1" size="28" />
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </padding>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT" spacing="5.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" VBox.vgrow="ALWAYS">
+                                 <children>
+                                    <Label text="C)">
+                                       <font>
+                                          <Font size="24.0" />
+                                       </font>
+                                    </Label>
+                                    <RadioButton mnemonicParsing="false" toggleGroup="$ans" />
+                                    <LatexView formula="x = 12 \text{ and } x = 0" size="28" />
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </padding>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT" spacing="5.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" VBox.vgrow="ALWAYS">
+                                 <children>
+                                    <Label text="D)">
+                                       <font>
+                                          <Font size="24.0" />
+                                       </font>
+                                    </Label>
+                                    <RadioButton mnemonicParsing="false" toggleGroup="$ans" />
+                                    <LatexView formula="x = 7 \text{ and } x = -3" size="28" />
+                                    <ImageView pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../icons/OPT.png" />
+                                       </image>
+                                    </ImageView>
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </padding>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT" spacing="5.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;">
+                                 <children>
+                                    <Label text="D)">
+                                       <font>
+                                          <Font size="24.0" />
+                                       </font>
+                                    </Label>
+                                    <RadioButton mnemonicParsing="false">
+                                       <toggleGroup>
+                                          <ToggleGroup fx:id="ans1" />
+                                       </toggleGroup>
+                                    </RadioButton>
+                                    <LatexView formula="x = 7 \text{ and } x = -3" size="28" />
+                                    <ImageView pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                          <Image url="@../icons/OPT.png" />
+                                       </image>
+                                    </ImageView>
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </padding>
+                              </HBox>
+                           </children>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
+                        </VBox>
+                     </content>
+                  </ScrollPane>
+               </items>
+            </SplitPane>
+            <HBox alignment="CENTER_RIGHT" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-style: solid hidden hidden hidden;">
+               <children>
+                  <HBox HBox.hgrow="ALWAYS">
+                     <children>
+                        <Button mnemonicParsing="false" styleClass="accent" text="Previous">
+                           <font>
+                              <Font name="HelveticaRounded-Bold" size="12.0" />
+                           </font></Button>
+                     </children>
+                  </HBox>
+                  <Button mnemonicParsing="false" prefWidth="61.0" styleClass="accent" text="Next">
+                     <font>
+                        <Font name="HelveticaRounded-Bold" size="12.0" />
+                     </font></Button>
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </HBox>
+         </children>
+      </VBox>
+   </center>
+</BorderPane>
