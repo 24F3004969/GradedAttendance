@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import atlantafx.base.controls.PasswordTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+
+<StackPane id="data_viewer" maxHeight="250.0" maxWidth="350.0" minHeight="250.0" minWidth="350.0" style="-fx-background-color: white;" stylesheets="@root_style.css" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.helal_anwar.quiz_time.app.ExistingUser">
+    <GridPane alignment="CENTER" maxHeight="150.0" maxWidth="300.0" prefHeight="138.0" prefWidth="300.0" StackPane.alignment="BOTTOM_CENTER">
+        <columnConstraints>
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="144.4000244140625" minWidth="10.0" prefWidth="61.6000244140625" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="256.80000839233395" minWidth="10.0" prefWidth="239.19997558593747" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints maxHeight="67.60001220703126" minHeight="10.0" prefHeight="64.0" valignment="CENTER" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="74.4" minHeight="10.0" prefHeight="55.2" valignment="CENTER" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="45.600012207031256" minHeight="10.0" prefHeight="26.400000000000006" valignment="CENTER" vgrow="SOMETIMES" />
+        </rowConstraints>
+        <StackPane.margin>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+        </StackPane.margin>
+        <Label text="UserId" GridPane.halignment="RIGHT" GridPane.valignment="CENTER" />
+        <Label text="Password" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
+        <TextField fx:id="userId" GridPane.columnIndex="1">
+            <GridPane.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </GridPane.margin>
+        </TextField>
+        <PasswordTextField fx:id="password" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <GridPane.margin>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </GridPane.margin>
+        </PasswordTextField>
+        <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <Button mnemonicParsing="false" onAction="#create_new_account" text="Create account" />
+            <Button mnemonicParsing="false" onAction="#log_in" text="LogIn" />
+        </HBox>
+    </GridPane>
+    <Label text="Log In" StackPane.alignment="TOP_CENTER">
+        <font>
+          <Font name="☞Gilroy-Bold" size="40.0" />
+        </font>
+        <StackPane.margin>
+          <Insets bottom="5.0" left="5.0" right="5.0" top="10.0" />
+        </StackPane.margin>
+    </Label>
+</StackPane>

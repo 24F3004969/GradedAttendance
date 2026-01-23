@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<VBox id="box" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/splash.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox alignment="CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
+         <children>
+            <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" VBox.vgrow="NEVER">
+               <children>
+                  <ImageView pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../icons/white_logo.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </StackPane>
+            <Text fill="#fafafa" strokeType="OUTSIDE" strokeWidth="0.0" text="&quot;Every child is different, so should be their way of learning&quot;">
+               <font>
+                  <Font name="☞Gilroy-Bold" size="12.0" />
+               </font>
+            </Text>
+         </children>
+      </VBox>
+      <VBox alignment="BOTTOM_LEFT" VBox.vgrow="NEVER">
+         <children>
+            <ProgressBar maxHeight="5.0" maxWidth="1.7976931348623157E308" progress="0.0">
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </ProgressBar>
+         </children>
+         <VBox.margin>
+            <Insets bottom="5.0" top="5.0" />
+         </VBox.margin>
+      </VBox>
+   </children>
+</VBox>

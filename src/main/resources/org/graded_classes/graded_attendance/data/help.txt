@@ -1,0 +1,11 @@
+\[
+\begin{array}{l}
+\text{The total number of real solutions of the equation} \\
+\theta \;=\; \tan^{-1}\!\bigl(2\tan\theta\bigr)\;-\;\dfrac{1}{2}\,\sin^{-1}\!\left(\dfrac{6\tan\theta}{\,9+\tan^{2}\theta\,}\right) \text{is} \\
+\text{(Here, the inverse trigonometric functions }\sin^{-1}x\text{ and }\tan^{-1}x\text{ assume values in }
+\left[-\dfrac{\pi}{2},\,\dfrac{\pi}{2}\right]\text{ and }
+\left(-\dfrac{\pi}{2},\,\dfrac{\pi}{2}\right]\text{, respectively.)}
+\end{array}
+\]
+
+
