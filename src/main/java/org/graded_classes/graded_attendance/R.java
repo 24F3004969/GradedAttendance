@@ -33,6 +33,8 @@ public enum R {
     edit_sub_topic("fxml/editSubTopic.fxml"),
     quiz_creator("fxml/quiz_generator.fxml"),
     quiz_taker("fxml/quiz_taker.fxml"),
+    newTopic("fxml/new_topic_for quiz.fxml"),
+    newQuiz("fxml/new_quiz.fxml"),
     ;
     private final String path;
 

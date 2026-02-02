@@ -35,7 +35,7 @@ public class GradedDataLoader {
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/LessonPlanner.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/Topic.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/SubTopic.sql").getQuery());
-
+            databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/Questions.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/DailyTopics.sql").getQuery());
             for (int i = 4; i <= 10; i++) {
                 databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/TimeTable.sql").getQuery().formatted(i, i));
@@ -127,7 +127,6 @@ public class GradedDataLoader {
             studentData.put(student.ed_no(), student);
 
             student.insertIntoDatabase(databaseLoader.getStatement().getConnection());
-            mainController.sendNotification("Student with ed_no " + student.ed_no() + " added successfully.\n\n", Styles.SUCCESS);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

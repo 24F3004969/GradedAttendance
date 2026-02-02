@@ -25,6 +25,7 @@ import org.graded_classes.graded_attendance.GradedFxmlLoader;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.calender.CalendarApp;
+import org.graded_classes.graded_attendance.controller.quiz.QuizGenerator;
 import org.graded_classes.graded_attendance.data.Formatter;
 import org.graded_classes.graded_attendance.data.GradedDataLoader;
 import org.graded_classes.graded_attendance.data.MessageSender;
@@ -55,21 +56,9 @@ public class MainController implements Initializable {
     Tooltip tooltip;
     Stage stage;
     Node home, chat, calendar, lesson;
-    Map<String, Image> toggleInImages = Map.of(
-            "home", new Image(GradedResourceLoader.load("icons/home_in.svg")),
-            "chat", new Image(GradedResourceLoader.load("icons/chat_in.svg")),
-            "calender", new Image(GradedResourceLoader.load("icons/calendar_month_in.svg")),
-            "database", new Image(GradedResourceLoader.load("icons/database_in.svg")),
-            "lesson", new Image(GradedResourceLoader.load("icons/book_in.svg")));
-    Map<String, Image> toggleOutImages = Map.of(
-            "home", new Image(GradedResourceLoader.load("icons/home.svg")),
-            "chat", new Image(GradedResourceLoader.load("icons/chat.svg")),
-            "calender", new Image(GradedResourceLoader.load("icons/calendar_month.svg")),
-            "database", new Image(GradedResourceLoader.load("icons/database.svg")),
-            "lesson", new Image(GradedResourceLoader.load("icons/book.svg")));
     @FXML
-    ModalPane modalPane;
-    GradedFxmlLoader gradedFxmlLoader = new GradedFxmlLoader();
+    public ModalPane modalPane;
+    public GradedFxmlLoader gradedFxmlLoader = new GradedFxmlLoader();
     @FXML
     BorderPane main_view;
     public GradedDataLoader gradedDataLoader = new GradedDataLoader(this);
@@ -90,7 +79,7 @@ public class MainController implements Initializable {
         ham.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.ACCENT, Styles.FLAT);
         tooltip = new Tooltip(Formatter.format(selectedTab.getId()));
         Tooltip.install(selectedTab, tooltip);
-        messageSender = new MessageSender(gradedDataLoader.databaseLoader, this, getToken());
+        //messageSender = new MessageSender(gradedDataLoader.databaseLoader, this, getToken());
         notificationInit();
         ArrayList<Student> students = getStudentsWithFeeDateIsWeekAfter();
         if (!students.isEmpty()) {
@@ -164,13 +153,11 @@ public class MainController implements Initializable {
     void navigation(MouseEvent event) {
         HBox root = (HBox) event.getSource();
         try {
-            ImageView imageView = ((ImageView) root.getChildren().getLast());
+            FontIcon fontIcon = ((FontIcon) root.getChildren().getLast());
             Rectangle rectangle = (Rectangle) root.getChildren().getFirst();
-            toggleOut(selectedTab, (Rectangle) selectedTab.getChildren().getFirst(),
-                    (ImageView) selectedTab.getChildren().getLast());
-            toggleIn(root, rectangle, imageView);
-        }
-        catch (Exception e) {
+            toggleOut(selectedTab, (Rectangle) selectedTab.getChildren().getFirst(), ((FontIcon) selectedTab.getChildren().getLast()));
+            toggleIn(root, rectangle, fontIcon);
+        } catch (Exception e) {
 
         }
         main_view.setCenter(navigateView(root.getId()));
@@ -187,23 +174,28 @@ public class MainController implements Initializable {
             case "calender" -> calendar;
             case "database" -> gradedFxmlLoader.createView(R.database_layout, new DataBaseController(this));
             case "lesson" -> gradedFxmlLoader.createView(R.lesson_planner, new Planner(gradedDataLoader, modalPane));
-            case "quizCreator" -> gradedFxmlLoader.createView(R.quiz_creator);
+            case "quizCreator" -> gradedFxmlLoader.createView(R.quiz_creator, new QuizGenerator(this));
             case "quiz_taker" -> gradedFxmlLoader.createView(R.quiz_taker);
             case "setting" -> gradedFxmlLoader.createView(R.quiz_taker);
             default -> null;
         };
     }
 
-    private void toggleIn(HBox root, Rectangle rectangle, ImageView imageView) {
-        root.setStyle("-fx-background-color:  #1C75BC;-fx-background-radius: 0 5 5 0;");
+    private void toggleIn(HBox root, Rectangle rectangle, FontIcon fontIcon) {
+        root.setStyle("-fx-background-color:#1C75BC;-fx-background-radius: 0 5 5 0;");
         rectangle.setFill(Paint.valueOf("#fafafa"));
-        imageView.setImage(toggleInImages.get(root.getId()));
+        fontIcon.setStyle("""
+                -fx-icon-size:24;
+                -fx-icon-color:#fafafa;
+                """);
     }
 
-    private void toggleOut(HBox root, Rectangle rectangle, ImageView imageView) {
+    private void toggleOut(HBox root, Rectangle rectangle, FontIcon fontIcon) {
         root.setStyle("-fx-background-color:transparent;");
         rectangle.setFill(Paint.valueOf("#fafafa00"));
-        imageView.setImage(toggleOutImages.get(root.getId()));
+        fontIcon.setStyle("""
+                -fx-icon-color:#1C75BC;
+                """);
     }
 
     public void sendNotification(String message, String styles) {

@@ -15,12 +15,12 @@ public class FilterComboBox extends ComboBox<String> {
         super(items);
         super.setEditable(true);
         this.initialList = items;
-
         this.configAutoFilterListener();
     }
 
     private void configAutoFilterListener() {
         final FilterComboBox currentInstance = this;
+        currentInstance.setVisibleRowCount(10);
         this.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
             previousValue = oldValue;
             final TextField editor = currentInstance.getEditor();
@@ -67,4 +67,5 @@ public class FilterComboBox extends ComboBox<String> {
            Platform.runLater(() -> editor.selectRange(currentText.length(), onlyOption.length()));
         }
     }
+
 }

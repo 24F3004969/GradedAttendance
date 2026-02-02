@@ -1,0 +1,43 @@
+
+
+#home .ikonli-font-icon {
+    -fx-icon-code: mdal-home;
+    -fx-icon-size: 24;
+    -fx-icon-color: #fafafa;
+}
+#chat .ikonli-font-icon {
+    -fx-icon-code: mdmz-message;
+    -fx-icon-size: 24;
+    -fx-icon-color: #1C75BC;
+}
+
+#calender .ikonli-font-icon {
+    -fx-icon-code: mdal-event;
+    -fx-icon-size: 24;
+    -fx-icon-color: #1C75BC;
+
+}
+
+#database .ikonli-font-icon {
+    -fx-icon-code: mdi2d-database;
+    -fx-icon-size: 24;
+    -fx-icon-color: #1C75BC;
+}
+
+#lesson .ikonli-font-icon {
+    -fx-icon-code: mdi2b-book;
+    -fx-icon-size: 24;
+    -fx-icon-color: #1C75BC;
+}
+
+#quizCreator .ikonli-font-icon {
+    -fx-icon-code: mdal-grading;
+    -fx-icon-size: 24;
+    -fx-icon-color: #1C75BC;
+}
+
+#quiz_taker .ikonli-font-icon {
+    -fx-icon-code: mdal-assignment;
+    -fx-icon-size: 24;
+    -fx-icon-color: #1C75BC;
+}

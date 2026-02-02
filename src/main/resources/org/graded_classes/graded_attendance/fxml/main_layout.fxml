@@ -13,7 +13,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<StackPane fx:id="stackPane" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.MainController">
+<StackPane fx:id="stackPane" stylesheets="@../css/side_navigation.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.MainController">
    <children>
       <AnchorPane minWidth="41.0">
          <children>
@@ -37,11 +37,7 @@
                         <HBox id="home" fx:id="selectedTab" alignment="CENTER_LEFT" fillHeight="false" onMouseClicked="#navigation" prefWidth="200.0" spacing="2.0" style="-fx-background-color: #1C75BC; -fx-background-radius: 0 5 5 0;" VBox.vgrow="NEVER">
                            <children>
                               <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#fafafa" height="24.0" stroke="BLACK" strokeWidth="0.0" width="4.0" />
-                              <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../icons/home_in.svg" />
-                                 </image>
-                              </ImageView>
+                              <FontIcon iconLiteral="mdal-home" />
                            </children>
                            <VBox.margin>
                               <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
@@ -53,11 +49,7 @@
                         <HBox id="chat" alignment="CENTER_LEFT" fillHeight="false" onMouseClicked="#navigation" prefWidth="200.0" spacing="2.0" style="-fx-background-radius: 0 5 5 0;">
                            <children>
                               <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#fafafa00" height="24.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="4.0" />
-                              <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../icons/chat.svg" />
-                                 </image>
-                              </ImageView>
+                              <FontIcon iconLiteral="mdmz-message" />
                            </children>
                            <padding>
                               <Insets bottom="10.0" left="2.0" right="2.0" top="10.0" />
@@ -69,11 +61,7 @@
                         <HBox id="calender" alignment="CENTER_LEFT" fillHeight="false" onMouseClicked="#navigation" prefWidth="200.0" spacing="2.0" style="-fx-background-radius: 0 5 5 0;">
                            <children>
                               <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#fafafa00" height="24.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="4.0" />
-                              <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../icons/calendar_month.svg" />
-                                 </image>
-                              </ImageView>
+                              <FontIcon iconLiteral="mdal-event" />
                            </children>
                            <padding>
                               <Insets bottom="10.0" left="2.0" right="2.0" top="10.0" />
@@ -85,11 +73,7 @@
                         <HBox id="database" alignment="CENTER_LEFT" fillHeight="false" onMouseClicked="#navigation" prefWidth="200.0" spacing="2.0" style="-fx-background-radius: 0 5 5 0;">
                            <children>
                               <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#fafafa00" height="24.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="4.0" />
-                              <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../icons/database.svg" />
-                                 </image>
-                              </ImageView>
+                              <FontIcon iconLiteral="mdi2d-database" />
                            </children>
                            <padding>
                               <Insets bottom="10.0" left="2.0" right="2.0" top="10.0" />
@@ -101,11 +85,7 @@
                         <HBox id="lesson" alignment="CENTER_LEFT" fillHeight="false" onMouseClicked="#navigation" prefWidth="200.0" spacing="2.0" style="-fx-background-radius: 0 5 5 0;">
                            <children>
                               <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#fafafa00" height="24.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="4.0" />
-                              <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@../icons/book.svg" />
-                                 </image>
-                              </ImageView>
+                              <FontIcon iconLiteral="mdi2b-book" />
                            </children>
                            <padding>
                               <Insets bottom="10.0" left="2.0" right="2.0" top="10.0" />
@@ -117,7 +97,7 @@
                         <HBox id="quizCreator" alignment="CENTER_LEFT" fillHeight="false" onMouseClicked="#navigation" prefWidth="200.0" spacing="2.0" style="-fx-background-radius: 0 5 5 0;">
                            <children>
                               <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#fafafa00" height="24.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="4.0" />
-                              <FontIcon style="-fx-icon-code: mdal-grading; -fx-icon-size: 24; -fx-icon-color: #1C75BC;" />
+                              <FontIcon iconLiteral="mdal-grading" />
                            </children>
                            <padding>
                               <Insets bottom="10.0" left="2.0" right="2.0" top="10.0" />
@@ -126,7 +106,7 @@
                         <HBox id="quiz_taker" alignment="CENTER_LEFT" fillHeight="false" onMouseClicked="#navigation" prefWidth="200.0" spacing="2.0" style="-fx-background-radius: 0 5 5 0;">
                            <children>
                               <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#fafafa00" height="24.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="4.0" />
-                              <FontIcon style="-fx-icon-code: mdal-assignment; -fx-icon-size: 24; -fx-icon-color: #1C75BC;" />
+                              <FontIcon iconLiteral="mdal-assignment" />
                            </children>
                            <padding>
                               <Insets bottom="10.0" left="2.0" right="2.0" top="10.0" />

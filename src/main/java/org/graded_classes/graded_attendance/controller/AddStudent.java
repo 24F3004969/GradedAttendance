@@ -76,6 +76,8 @@ public class AddStudent implements Initializable {
                 homeController.gradedDataLoader.removeEdFromAbandonedEd(studentInfo.ed_no());
 
                 homeController.modalPane.hide();
+                homeController.mainController.sendNotification("Student with ed_no " + studentInfo.ed_no() + " added successfully.\n\n", Styles.SUCCESS);
+
             }
         } else if (button.getText().equals("Cancel")) {
 

@@ -1,0 +1,5 @@
+.button{
+    -fx-background-image: url('./../icons/button.png');
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+}

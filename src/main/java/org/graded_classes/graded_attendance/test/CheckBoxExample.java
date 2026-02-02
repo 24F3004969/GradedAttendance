@@ -24,7 +24,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import org.jetbrains.annotations.NotNull;
+
 
 public class CheckBoxExample extends Application {
     class BooleanCell extends TableCell<TableData, Boolean> {
@@ -224,7 +224,7 @@ public class CheckBoxExample extends Application {
 
     }
 
-    private @NotNull TableColumn<TableData, CheckBox> getTableDataCheckBoxTableColumn(TableModel model) {
+    private  TableColumn<TableData, CheckBox> getTableDataCheckBoxTableColumn(TableModel model) {
         final TableColumn<TableData, CheckBox> favoriteColumn = new TableColumn<>("Favorite");
         favoriteColumn.setCellValueFactory(
                 arg0 -> {

@@ -1,0 +1,13 @@
+#default_pane{
+    -fx-background-image: url('../icons/doodle.svg');
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+}
+.tree-cell{
+    -fx-text-fill: green;
+}
+.tree-cell:selected {
+    -fx-background-color: #1C75BC20;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+}
