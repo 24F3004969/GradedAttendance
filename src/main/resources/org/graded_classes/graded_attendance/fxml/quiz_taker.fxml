@@ -229,8 +229,8 @@
                      <items>
                         <ScrollPane fitToWidth="true">
                            <content>
-                              <VBox prefHeight="200.0">
-                                 <LatexView formula="\\text{Question 1.}\\\\\text{For which values of } x \text{ does the power series}\[\sum_{n=1}^{\infty} (-1)^{n+1}n(x-2)^n\] \text{ converge?}" size="28" VBox.vgrow="ALWAYS" />
+                              <VBox>
+                                 <LatexView formula="\\\\text{Question 1.}\\\\\text{For which values of } x \text{ does the power series}\[\sum_{n=1}^{\infty} (-1)^{n+1}n(x-2)^n\] \text{ converge?}" size="28" VBox.vgrow="ALWAYS" />
                               </VBox>
                            </content>
                         </ScrollPane>

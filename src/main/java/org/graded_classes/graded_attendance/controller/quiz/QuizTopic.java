@@ -1,13 +1,16 @@
 package org.graded_classes.graded_attendance.controller.quiz;
 
+import atlantafx.base.controls.ModalPane;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TreeItem;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
 import org.graded_classes.graded_attendance.components.FilterComboBox;
+import org.graded_classes.graded_attendance.controller.MainController;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
 import java.util.List;
@@ -41,6 +44,12 @@ public class QuizTopic implements Initializable {
             "Home Science", "Nutrition", "Food Science", "Hospitality Management",
             "Tourism", "Agriculture", "Horticulture"
     ));
+    TreeItem<String> rootItem;
+    ModalPane modalPane;
+    public QuizTopic(TreeItem<String> rootItem, ModalPane modalPane) {
+        this.rootItem = rootItem;
+        this.modalPane = modalPane;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -48,5 +57,12 @@ public class QuizTopic implements Initializable {
         filterComboBox=new FilterComboBox(observableList);
         parent.getChildren().set(parent.getChildren().indexOf(filterBox),filterComboBox);
         filterComboBox.setPromptText("Subject");
+    }
+    @FXML
+    void addTopic() {
+        var item=new TreeItem<>(filterComboBox.getValue());
+        item.setGraphic(new FontIcon("mdi2f-folder"));
+        rootItem.getChildren().add(item);
+        modalPane.hide();
     }
 }

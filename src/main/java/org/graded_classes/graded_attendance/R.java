@@ -35,6 +35,9 @@ public enum R {
     quiz_taker("fxml/quiz_taker.fxml"),
     newTopic("fxml/new_topic_for quiz.fxml"),
     newQuiz("fxml/new_quiz.fxml"),
+    question_editor("fxml/question_editor.fxml"),
+    question("fxml/questions.fxml"),
+    latex_editor("fxml/latex_editor.fxml"),
     ;
     private final String path;
 

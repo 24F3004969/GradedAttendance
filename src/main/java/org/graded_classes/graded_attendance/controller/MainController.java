@@ -79,7 +79,7 @@ public class MainController implements Initializable {
         ham.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.ACCENT, Styles.FLAT);
         tooltip = new Tooltip(Formatter.format(selectedTab.getId()));
         Tooltip.install(selectedTab, tooltip);
-        //messageSender = new MessageSender(gradedDataLoader.databaseLoader, this, getToken());
+        messageSender = new MessageSender(gradedDataLoader.databaseLoader, this, getToken());
         notificationInit();
         ArrayList<Student> students = getStudentsWithFeeDateIsWeekAfter();
         if (!students.isEmpty()) {

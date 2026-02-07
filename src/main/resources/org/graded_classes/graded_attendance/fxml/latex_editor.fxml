@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import org.graded_classes.graded_attendance.components.LatexView?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="900.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.LatexEditor">
+   <center>
+      <SplitPane dividerPositions="0.5" BorderPane.alignment="CENTER">
+         <SplitPane dividerPositions="0.5" orientation="VERTICAL">
+            <ScrollPane style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 2;">
+               <VBox>
+                  <LatexView fx:id="latexView" formula="\\theta \;=\; \tan^{-1}\!\bigl(2\tan\theta\bigr)\;-\;\dfrac{1}{2}\,\sin^{-1}\!\left(\dfrac{6\tan\theta}{\,9+\tan^{2}\theta\,}\right) \text{is} \\" size="24" VBox.vgrow="ALWAYS" />
+               </VBox>
+            </ScrollPane>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+               <TextArea fx:id="latexCode" editable="false" layoutX="5.0" layoutY="5.0" prefHeight="200.0" prefWidth="200.0" promptText="Type the question" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
+                  <font>
+                     <Font size="18.0" />
+                  </font>
+               </TextArea>
+            </AnchorPane>
+         </SplitPane>
+         <VBox maxWidth="1.7976931348623157E308" prefWidth="300.0">
+            <Label text="View Order">
+               <VBox.margin>
+                  <Insets left="5.0" />
+               </VBox.margin>
+            </Label>
+            <ScrollPane minHeight="200.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 2;" VBox.vgrow="ALWAYS">
+               <VBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </VBox.margin>
+               <TilePane fx:id="tilePane" hgap="2.0" vgap="2.0">
+                  <children>
+                     <Button alignment="TOP_LEFT" maxWidth="120.0" minWidth="84.0" mnemonicParsing="false" style="-fx-shape: &quot;M0 0V-.996H2.004L2.175.003 2 .998H.001V.003&quot;; -fx-smooth: true; -fx-padding: 2; -fx-label-padding: 0;" text="Button">
+                        <graphic>
+                           <Button contentDisplay="GRAPHIC_ONLY" maxHeight="24.0" maxWidth="24.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" text="Button">
+                              <graphic>
+                                 <FontIcon iconLiteral="mdal-close" />
+                              </graphic>
+                              <styleClass>
+                                 <String fx:value="button-circle" />
+                                 <String fx:value="flat" />
+                                 <String fx:value="button-outlined" />
+                              </styleClass>
+                           </Button>
+                        </graphic>
+                     </Button>
+                  </children></TilePane>
+            </ScrollPane>
+            <Label text="Plain text">
+               <VBox.margin>
+                  <Insets left="5.0" />
+               </VBox.margin>
+            </Label>
+            <TextArea fx:id="plainText" promptText="Question in plain english" VBox.vgrow="ALWAYS">
+               <VBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </VBox.margin>
+            </TextArea>
+            <HBox alignment="TOP_RIGHT" spacing="5.0">
+               <VBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </VBox.margin>
+               <Button mnemonicParsing="false" onAction="#addPlainText" styleClass="accent" text="Add" />
+            </HBox>
+            <Label text="Latex">
+               <VBox.margin>
+                  <Insets left="5.0" />
+               </VBox.margin>
+            </Label>
+            <TextArea fx:id="latexText" promptText="Math Formula" VBox.vgrow="ALWAYS">
+               <VBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </VBox.margin>
+            </TextArea>
+            <HBox alignment="TOP_RIGHT" spacing="5.0">
+               <VBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </VBox.margin>
+               <HBox HBox.hgrow="ALWAYS">
+                  <children>
+                     <Button mnemonicParsing="false" onAction="#addNewLine" styleClass="accent" text="New Line" />
+                  </children>
+               </HBox>
+               <Button mnemonicParsing="false" onAction="#addLatex" styleClass="accent" text="Add" />
+            </HBox>
+         </VBox>
+      </SplitPane>
+   </center>
+   <top>
+      <Label text="Question Editor" BorderPane.alignment="TOP_CENTER">
+         <BorderPane.margin>
+            <Insets bottom="2.0" />
+         </BorderPane.margin></Label>
+   </top>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="2.0" />
+   </padding>
+   <bottom>
+      <HBox alignment="CENTER_RIGHT" BorderPane.alignment="CENTER">
+         <Button mnemonicParsing="false" styleClass="accent" text="Add Question" />
+      </HBox>
+   </bottom>
+</BorderPane>

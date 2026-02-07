@@ -47,7 +47,6 @@ public class LatexView extends Canvas {
     private static final String DEFAULT_FORMULA = "";
 
     static {
-        // Where the fonts live relative to the classpath root:
         String[] roots = {
                 "org/scilab/forge/jlatexmath/fonts/",
                 "org/scilab/forge/jlatexmath/cyrillic/fonts/",
@@ -101,7 +100,6 @@ public class LatexView extends Canvas {
             }
         }
     }
-
     private TeXIcon texIcon;
 
     /**

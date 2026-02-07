@@ -1,0 +1,60 @@
+package org.graded_classes.graded_attendance.controller.quiz;
+
+import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.*;
+import javafx.scene.layout.TilePane;
+import org.graded_classes.graded_attendance.R;
+import org.graded_classes.graded_attendance.controller.MainController;
+import org.kordamp.ikonli.javafx.FontIcon;
+
+import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ResourceBundle;
+
+public class NewQuiz implements Initializable {
+
+    @FXML
+    private Spinner<Integer> NoOfQuestion;
+
+    @FXML
+    private ComboBox<String> classes;
+
+    @FXML
+    private Label quizName;
+
+    @FXML
+    private TilePane selectorDisplay;
+    TreeItem<String> target;
+    QuizGenerator quizGenerator;
+    MainController mainController;
+
+    public NewQuiz(TreeItem<String> target, QuizGenerator quizGenerator, MainController mainController) {
+        this.target = target;
+        this.quizGenerator = quizGenerator;
+        this.mainController = mainController;
+    }
+
+    @FXML
+    void onButtonClick(ActionEvent event) {
+        var newChild = new TreeItem<>(quizName.getText());
+        newChild.setGraphic(new FontIcon("mdi2n-note"));
+        target.getChildren().add(newChild);
+        quizGenerator.quiz_gen_layout.setCenter(mainController.gradedFxmlLoader.createView(R.question_editor,new QuestionEditor(mainController)));
+        target.setExpanded(true);
+        mainController.modalPane.hide();
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        quizName.setText("Draft_" + LocalDate.now()+"_"+LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+        SpinnerValueFactory<Integer> valueFactory =
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(5, 30, 5, 1);
+        NoOfQuestion.setValueFactory(valueFactory);
+        classes.setItems(FXCollections.observableArrayList("I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"));
+    }
+}

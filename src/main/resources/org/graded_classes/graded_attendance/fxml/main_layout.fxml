@@ -20,7 +20,7 @@
               <AnchorPane id="root_back" stylesheets="@../css/style_main.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
             <BorderPane fx:id="main_view" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <left>
-                  <VBox prefHeight="200.0" prefWidth="30.0" spacing="15.0" BorderPane.alignment="CENTER">
+                  <VBox prefHeight="200.0" prefWidth="30.0" spacing="15.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-style: hidden solid hidden hidden;" BorderPane.alignment="CENTER">
                      <children>
                         <Button fx:id="ham" mnemonicParsing="false" onAction="#g_Hamburger">
                            <graphic>
@@ -97,11 +97,14 @@
                         <HBox id="quizCreator" alignment="CENTER_LEFT" fillHeight="false" onMouseClicked="#navigation" prefWidth="200.0" spacing="2.0" style="-fx-background-radius: 0 5 5 0;">
                            <children>
                               <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#fafafa00" height="24.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="4.0" />
-                              <FontIcon iconLiteral="mdal-grading" />
+                              <FontIcon iconLiteral="mdal-assessment" />
                            </children>
                            <padding>
                               <Insets bottom="10.0" left="2.0" right="2.0" top="10.0" />
                            </padding>
+                           <VBox.margin>
+                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                           </VBox.margin>
                         </HBox>
                         <HBox id="quiz_taker" alignment="CENTER_LEFT" fillHeight="false" onMouseClicked="#navigation" prefWidth="200.0" spacing="2.0" style="-fx-background-radius: 0 5 5 0;">
                            <children>
@@ -111,6 +114,9 @@
                            <padding>
                               <Insets bottom="10.0" left="2.0" right="2.0" top="10.0" />
                            </padding>
+                           <VBox.margin>
+                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                           </VBox.margin>
                         </HBox>
                         <HBox id="setting" alignment="BOTTOM_CENTER" onMouseClicked="#onSetting" prefWidth="200.0" spacing="2.0" VBox.vgrow="ALWAYS">
                            <children>
