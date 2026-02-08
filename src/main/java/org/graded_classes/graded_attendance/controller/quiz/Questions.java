@@ -58,7 +58,7 @@ public class Questions implements Initializable {
         question_text.setRight(new FontIcon("mdi2a-arrow-expand"));
         question_text.getRight().setCursor(Cursor.DEFAULT);
         question_text.getRight().setOnMouseClicked(event -> {
-            var editor=mainController.gradedFxmlLoader.createView(R.latex_editor);
+            var editor=mainController.gradedFxmlLoader.createView(R.latex_editor,new LatexEditor(mainController));
             mainController.modalPane.show(editor);
         });
         opt1.setRight(new FontIcon("mdi2a-arrow-expand"));
@@ -75,11 +75,11 @@ public class Questions implements Initializable {
 
     private void expand(CustomTextField opt1, CustomTextField opt2) {
         opt1.getRight().setOnMouseClicked(event -> {
-            var editor=mainController.gradedFxmlLoader.createView(R.latex_editor);
+            var editor=mainController.gradedFxmlLoader.createView(R.latex_editor,new LatexEditor(mainController));
             mainController.modalPane.show(editor);
         });
         opt2.getRight().setOnMouseClicked(event -> {
-            var editor=mainController.gradedFxmlLoader.createView(R.latex_editor);
+            var editor=mainController.gradedFxmlLoader.createView(R.latex_editor,new LatexEditor(mainController));
             mainController.modalPane.show(editor);
         });
     }

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -14,7 +13,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import org.graded_classes.graded_attendance.components.LatexView?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="900.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.LatexEditor">
    <center>
@@ -39,27 +37,11 @@
                   <Insets left="5.0" />
                </VBox.margin>
             </Label>
-            <ScrollPane minHeight="200.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 2;" VBox.vgrow="ALWAYS">
+            <ScrollPane fitToHeight="true" fitToWidth="true" minHeight="200.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 2;" VBox.vgrow="ALWAYS">
                <VBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
-               <TilePane fx:id="tilePane" hgap="2.0" vgap="2.0">
-                  <children>
-                     <Button alignment="TOP_LEFT" maxWidth="120.0" minWidth="84.0" mnemonicParsing="false" style="-fx-shape: &quot;M0 0V-.996H2.004L2.175.003 2 .998H.001V.003&quot;; -fx-smooth: true; -fx-padding: 2; -fx-label-padding: 0;" text="Button">
-                        <graphic>
-                           <Button contentDisplay="GRAPHIC_ONLY" maxHeight="24.0" maxWidth="24.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" text="Button">
-                              <graphic>
-                                 <FontIcon iconLiteral="mdal-close" />
-                              </graphic>
-                              <styleClass>
-                                 <String fx:value="button-circle" />
-                                 <String fx:value="flat" />
-                                 <String fx:value="button-outlined" />
-                              </styleClass>
-                           </Button>
-                        </graphic>
-                     </Button>
-                  </children></TilePane>
+               <TilePane fx:id="tilePane" hgap="5.0" vgap="2.0" />
             </ScrollPane>
             <Label text="Plain text">
                <VBox.margin>

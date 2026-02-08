@@ -6,7 +6,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import org.graded_classes.graded_attendance.controller.MainController;
 
@@ -31,3 +30,7 @@ public class Main extends Application {
         stage.show();
     }
 }
+
+
+
+

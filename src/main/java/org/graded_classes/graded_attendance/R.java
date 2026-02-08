@@ -38,6 +38,7 @@ public enum R {
     question_editor("fxml/question_editor.fxml"),
     question("fxml/questions.fxml"),
     latex_editor("fxml/latex_editor.fxml"),
+    triangular_button("fxml/triangular_buton.fxml")
     ;
     private final String path;
 
