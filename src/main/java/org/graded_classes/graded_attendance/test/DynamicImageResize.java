@@ -31,7 +31,7 @@ public class DynamicImageResize extends Application {
         imageView.setPreserveRatio(true);
 
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Dynamic Image Resize");
+        primaryStage.setTitle("Dynamic Image");
         primaryStage.show();
     }
 

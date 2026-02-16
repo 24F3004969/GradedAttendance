@@ -21,7 +21,7 @@
          </font>
       </Label>
       <CustomTextField fx:id="question_text" promptText="Write a question here...." />
-      <StackPane fx:id="drag_area" onDragOver="#handleDragOver" prefHeight="150.0" prefWidth="200.0" style="-fx-background-color: #1C75BC20; -fx-border-style: dashed; -fx-border-radius: 5; -fx-background-radius: 5;">
+      <StackPane fx:id="drag_area" onDragDropped="#handleDragDropped" onDragOver="#handleDragOver" prefHeight="150.0" prefWidth="200.0" style="-fx-background-color: #1C75BC20; -fx-border-style: dashed; -fx-border-radius: 5; -fx-background-radius: 5;">
          <children>
             <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
                <children>
@@ -126,7 +126,7 @@
                         </CheckBox>
                      </children>
                   </HBox>
-                  <Button mnemonicParsing="false" onAction="#onBasicAction" text="Add Image">
+                  <Button id="img_1" mnemonicParsing="false" onAction="#onBasicAction" text="Add Image">
                      <graphic>
                         <FontIcon style="-fx-icon-code: mdal-library_add; -fx-font-size: 16; -fx-icon-color: #1C75BC;" />
                      </graphic>
@@ -145,7 +145,7 @@
                         </CheckBox>
                      </children>
                   </HBox>
-                  <Button mnemonicParsing="false" onAction="#onBasicAction" text="Add Image">
+                  <Button id="img_2" mnemonicParsing="false" onAction="#onBasicAction" text="Add Image">
                      <graphic>
                         <FontIcon style="-fx-icon-code: mdal-library_add; -fx-font-size: 16; -fx-icon-color: #1C75BC;" />
                      </graphic>
@@ -164,7 +164,7 @@
                         </CheckBox>
                      </children>
                   </HBox>
-                  <Button mnemonicParsing="false" onAction="#onBasicAction" text="Add Image">
+                  <Button id="img_3" mnemonicParsing="false" onAction="#onBasicAction" text="Add Image">
                      <graphic>
                         <FontIcon style="-fx-icon-code: mdal-library_add; -fx-font-size: 16; -fx-icon-color: #1C75BC;" />
                      </graphic>
@@ -183,7 +183,7 @@
                         </CheckBox>
                      </children>
                   </HBox>
-                  <Button mnemonicParsing="false" onAction="#onBasicAction" text="Add Image">
+                  <Button id="img_4" mnemonicParsing="false" onAction="#onBasicAction" text="Add Image">
                      <graphic>
                         <FontIcon style="-fx-icon-code: mdal-library_add; -fx-font-size: 16; -fx-icon-color: #1C75BC;" />
                      </graphic>

@@ -84,4 +84,7 @@ public class Questions implements Initializable {
         });
     }
 
+    public void handleDragDropped(DragEvent event) {
+
+    }
 }

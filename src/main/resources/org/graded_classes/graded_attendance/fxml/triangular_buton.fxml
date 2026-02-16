@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
-<?import javafx.scene.control.Button?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import org.kordamp.ikonli.javafx.*?>
 
-<Button alignment="BASELINE_LEFT" maxHeight="32.0" maxWidth="120.0" minHeight="32.0" minWidth="84.0" mnemonicParsing="false" style="-fx-shape: &quot;M0 0V-.996H2.004L2.175.003 2 .998H.001V.003&quot;; -fx-smooth: true;" text="Button" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<Button alignment="BASELINE_LEFT" maxWidth="120.0" minWidth="84.0" mnemonicParsing="false" style="-fx-shape: &quot;M0 0V-.996H2.004L2.175.003 2 .998H.001V.003&quot;; -fx-smooth: true;" text="Button" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1">
    <graphic>
       <Button contentDisplay="GRAPHIC_ONLY" maxHeight="24.0" maxWidth="24.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" text="Button">
          <graphic>
