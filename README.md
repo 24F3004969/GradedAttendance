@@ -159,7 +159,7 @@ This project is licensed under the [License Type] - see the [LICENSE](LICENSE) f
 ## 🙏 Acknowledgments
 
 - AtlantaFx (https://github.com/mkpaz/atlantafx)
-- 
+- Frank Delporte https://github.com/fdelporte
 
 ##  Support
 
