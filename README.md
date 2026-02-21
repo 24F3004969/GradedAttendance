@@ -15,7 +15,7 @@ A comprehensive **attendance management system** with integrated grading capabil
 ![2026-01-17 21-27-46](https://github.com/user-attachments/assets/30bfa0a4-2371-48d7-b76b-16c0ed05b316)
 
 
-## 🚀 Features
+##  Features
 
 - **Smart Attendance Tracking**: Automated attendance recording and management
 - **Integrated Grading System**: Direct correlation between attendance and academic performance
@@ -23,14 +23,14 @@ A comprehensive **attendance management system** with integrated grading capabil
 - **Real-time Analytics**: Track attendance patterns and generate insights
 - **Multi-user Support**: Different access levels for administrators, teachers, and students
 
-## 🛠️ Technology Stack
+##  Technology Stack
 
 - **Backend**: Java
 - **Frontend**: JavaFX, CSS
 - **Build Tool**: Maven
 - **Database**: SQLite
 
-## 📋 Prerequisites
+##  Prerequisites
 
 Before running this project, ensure you have the following installed:
 
@@ -39,7 +39,7 @@ Before running this project, ensure you have the following installed:
 - **Git**
 - **SQLite** (ensure the SQLite JDBC driver is included in the project dependencies)
 
-## 🚀 Installation & Setup
+##  Installation & Setup
 
 ### 1. Clone the Repository
 ```bash
@@ -72,7 +72,7 @@ mvn javafx:run
 ### 4. Access the Application
 The application will launch a desktop window upon successful execution.
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 GradedAttendance/
@@ -88,14 +88,14 @@ GradedAttendance/
 └── .gitignore
 ```
 
-## 🎯 Usage
+##  Usage
 
 1. **Administrator Dashboard**: Access comprehensive attendance and grading analytics
 2. **Teacher Interface**: Mark attendance, assign grades, and generate reports
 3. **Student Portal**: View personal attendance records and grades
 4. **Reporting System**: Generate detailed attendance and performance reports
 
-## 🔧 Configuration
+##  Configuration
 
 ### Database Configuration
 Ensure the SQLite JDBC driver is included in your `pom.xml`. Example dependency:
@@ -115,7 +115,7 @@ jdbc.url=jdbc:sqlite:graded_attendance.db
 ### Application Properties
 [Key configuration options to be documented]
 
-## 🤝 Contributing
+##  Contributing
 
 We welcome contributions! Please follow these steps:
 
@@ -131,15 +131,15 @@ We welcome contributions! Please follow these steps:
 - Update documentation as needed
 - Ensure responsive design principles
 
-## 📝 API Documentation
+##  API Documentation
 
 [API endpoints and usage documentation to be added]
 
-## 🐛 Known Issues
+##  Known Issues
 
 - [List any known issues or limitations]
 
-## 🔄 Changelog
+##  Changelog
 
 ### Version 1.0.0 (Current)
 - Initial release
@@ -147,7 +147,7 @@ We welcome contributions! Please follow these steps:
 - Basic grading system integration
 - Responsive desktop interface
 
-## 📜 License
+##  License
 
 This project is licensed under the [License Type] - see the [LICENSE](LICENSE) file for details.
 
@@ -161,7 +161,7 @@ This project is licensed under the [License Type] - see the [LICENSE](LICENSE) f
 - [Acknowledge any libraries, frameworks, or contributors]
 - [Thank any mentors or inspiration sources]
 
-## 📞 Support
+##  Support
 
 If you encounter any issues or have questions:
 
@@ -169,7 +169,7 @@ If you encounter any issues or have questions:
 2. Create a new issue if your problem isn't already reported
 3. Contact the maintainer directly
 
-## 🚀 Future Enhancements
+##  Future Enhancements
 
 - [ ] Mobile application development
 - [ ] Advanced analytics dashboard
@@ -178,4 +178,4 @@ If you encounter any issues or have questions:
 - [ ] Multi-language support
 - [ ] Email/SMS notifications
 
-**⭐ Star this repository if you find it helpful!**
+** Star this repository if you find it helpful!**
