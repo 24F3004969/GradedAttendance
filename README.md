@@ -154,12 +154,12 @@ This project is licensed under the [License Type] - see the [LICENSE](LICENSE) f
 ## 👨💻 Author
 
 **Hilal Anwar**
-- GitHub: [@Hilal-Anwar](https://github.com/Hilal-Anwar)
+- GitHub: [@Hilal-Anwar](https://github.com/24F3004969)
 
 ## 🙏 Acknowledgments
 
-- [Acknowledge any libraries, frameworks, or contributors]
-- [Thank any mentors or inspiration sources]
+- AtlantaFx (https://github.com/mkpaz/atlantafx)
+- 
 
 ##  Support
 
