@@ -24,7 +24,7 @@
                </VBox>
             </ScrollPane>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
-               <TextArea fx:id="latexCode" editable="false" layoutX="5.0" layoutY="5.0" prefHeight="200.0" prefWidth="200.0" promptText="Type the question" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
+               <TextArea fx:id="latexCode" layoutX="5.0" layoutY="5.0" prefHeight="200.0" prefWidth="200.0" promptText="Type the question" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
                   <font>
                      <Font size="18.0" />
                   </font>

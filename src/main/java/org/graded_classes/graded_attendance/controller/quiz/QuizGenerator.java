@@ -37,18 +37,6 @@ public class QuizGenerator implements Initializable {
 
         TreeItem<String> javaItem = new TreeItem<>("Fraction");
         javaItem.setGraphic(new FontIcon("mdi2f-folder"));
-
-        for (int i = 1; i <= 10; i++) {
-            var item = new TreeItem<>("" + i);
-            item.setGraphic(new FontIcon("mdi2n-note"));
-            webItem.getChildren().add(item);
-        }
-
-        for (int i = 1; i <= 10; i++) {
-            var item = new TreeItem<>("" + i);
-            item.setGraphic(new FontIcon("mdi2n-note"));
-            javaItem.getChildren().add(item);
-        }
         rootItem.getChildren().add(webItem);
         rootItem.getChildren().add(javaItem);
         quizTree.setRoot(rootItem);

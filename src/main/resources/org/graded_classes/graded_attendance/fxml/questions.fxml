@@ -15,7 +15,7 @@
 
 <VBox spacing="10.0" style="-fx-background-radius: 10;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.Questions">
    <children>
-      <Label text="Question 1">
+      <Label fx:id="QNum" text="Question 1">
          <font>
             <Font name="HelveticaRounded-Bold" size="20.0" />
          </font>
@@ -126,11 +126,15 @@
                         </CheckBox>
                      </children>
                   </HBox>
-                  <Button id="img_1" mnemonicParsing="false" onAction="#onBasicAction" text="Add Image">
-                     <graphic>
-                        <FontIcon style="-fx-icon-code: mdal-library_add; -fx-font-size: 16; -fx-icon-color: #1C75BC;" />
-                     </graphic>
-                  </Button>
+                  <HBox>
+                     <children>
+                        <Button id="img_1" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#onBasicAction" text="Add Image">
+                           <graphic>
+                              <FontIcon style="-fx-icon-code: mdal-library_add; -fx-font-size: 16; -fx-icon-color: #1C75BC;" />
+                           </graphic>
+                        </Button>
+                     </children>
+                  </HBox>
                </children>
             </HBox>
             <HBox spacing="10.0">
@@ -145,11 +149,15 @@
                         </CheckBox>
                      </children>
                   </HBox>
-                  <Button id="img_2" mnemonicParsing="false" onAction="#onBasicAction" text="Add Image">
-                     <graphic>
-                        <FontIcon style="-fx-icon-code: mdal-library_add; -fx-font-size: 16; -fx-icon-color: #1C75BC;" />
-                     </graphic>
-                  </Button>
+                  <HBox>
+                     <children>
+                        <Button id="img_2" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#onBasicAction" text="Add Image">
+                           <graphic>
+                              <FontIcon style="-fx-icon-code: mdal-library_add; -fx-font-size: 16; -fx-icon-color: #1C75BC;" />
+                           </graphic>
+                        </Button>
+                     </children>
+                  </HBox>
                </children>
             </HBox>
             <HBox spacing="10.0">
@@ -164,11 +172,15 @@
                         </CheckBox>
                      </children>
                   </HBox>
-                  <Button id="img_3" mnemonicParsing="false" onAction="#onBasicAction" text="Add Image">
-                     <graphic>
-                        <FontIcon style="-fx-icon-code: mdal-library_add; -fx-font-size: 16; -fx-icon-color: #1C75BC;" />
-                     </graphic>
-                  </Button>
+                  <HBox>
+                     <children>
+                        <Button id="img_3" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#onBasicAction" text="Add Image">
+                           <graphic>
+                              <FontIcon style="-fx-icon-code: mdal-library_add; -fx-font-size: 16; -fx-icon-color: #1C75BC;" />
+                           </graphic>
+                        </Button>
+                     </children>
+                  </HBox>
                </children>
             </HBox>
             <HBox spacing="10.0">
@@ -183,11 +195,15 @@
                         </CheckBox>
                      </children>
                   </HBox>
-                  <Button id="img_4" mnemonicParsing="false" onAction="#onBasicAction" text="Add Image">
-                     <graphic>
-                        <FontIcon style="-fx-icon-code: mdal-library_add; -fx-font-size: 16; -fx-icon-color: #1C75BC;" />
-                     </graphic>
-                  </Button>
+                  <HBox>
+                     <children>
+                        <Button id="img_4" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#onBasicAction" text="Add Image">
+                           <graphic>
+                              <FontIcon style="-fx-icon-code: mdal-library_add; -fx-font-size: 16; -fx-icon-color: #1C75BC;" />
+                           </graphic>
+                        </Button>
+                     </children>
+                  </HBox>
                </children>
             </HBox>
             <Button mnemonicParsing="false" onAction="#onBasicAction" text="Add Option">

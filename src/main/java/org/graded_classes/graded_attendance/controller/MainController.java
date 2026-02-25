@@ -54,6 +54,11 @@ public class MainController implements Initializable {
     @FXML
     private Button ham;
     Tooltip tooltip;
+
+    public Stage getStage() {
+        return stage;
+    }
+
     Stage stage;
     Node home, chat, calendar, lesson;
     @FXML

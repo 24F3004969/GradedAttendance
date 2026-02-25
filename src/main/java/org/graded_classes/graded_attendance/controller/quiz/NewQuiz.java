@@ -44,7 +44,11 @@ public class NewQuiz implements Initializable {
         var newChild = new TreeItem<>(quizName.getText());
         newChild.setGraphic(new FontIcon("mdi2n-note"));
         target.getChildren().add(newChild);
-        quizGenerator.quiz_gen_layout.setCenter(mainController.gradedFxmlLoader.createView(R.question_editor,new QuestionEditor(mainController)));
+        TabPane tabPane = (TabPane) quizGenerator.quiz_gen_layout.lookup("#tabs");
+        var tb=mainController.gradedFxmlLoader.createView(R.question_editor,new QuestionEditor(mainController));
+        Tab tab = new Tab(quizName.getText());
+        tab.setContent(tb);
+        tabPane.getTabs().add(tab);
         target.setExpanded(true);
         mainController.modalPane.hide();
     }

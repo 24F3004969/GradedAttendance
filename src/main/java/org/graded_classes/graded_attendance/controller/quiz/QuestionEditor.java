@@ -5,6 +5,7 @@ import atlantafx.base.controls.ToggleLabel;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
@@ -16,10 +17,8 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class QuestionEditor implements Initializable {
-
+    private int questionCount = 0;
     ArrayList<VBox> listOfQuestions = new ArrayList<>();
-    @FXML
-    private ScrollPane question_scroll;
     @FXML
     MainController mainController;
 
@@ -38,15 +37,47 @@ public class QuestionEditor implements Initializable {
 
     @FXML
     void onBasicAction(ActionEvent event) {
-
+        String buttonText = ((Button) event.getSource()).getText();
+        System.out.println(listOfQuestions);
+        int totalQuestionNumber = listOfQuestions.size() - 1;
+        if (buttonText.equals("Next")) {
+            if (questionCount == totalQuestionNumber) {
+                questionCount = totalQuestionNumber + 1;
+                var content = (VBox) mainController.gradedFxmlLoader.createView(R.question, new Questions(mainController,
+                        "Question " + (questionCount + 1)));
+                editor.setContent(content);
+                listOfQuestions.add(content);
+            } else {
+                if (questionCount <= totalQuestionNumber) {
+                    questionCount++;
+                    editor.setContent(listOfQuestions.get(questionCount));
+                }
+            }
+        } else if (buttonText.equals("Previous")) {
+            if (questionCount >= 1) {
+                questionCount--;
+                editor.setContent(listOfQuestions.get(questionCount));
+            }
+        }
+        System.out.println((listOfQuestions.size() - 1) + "  " + questionCount);
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         segmentControl.getSegments().add(new ToggleLabel("Edit"));
         segmentControl.getSegments().add(new ToggleLabel("Preview"));
-        editor.setContent(mainController.gradedFxmlLoader.createView(R.question, new Questions(mainController)));
-
+        var content = (VBox) mainController.gradedFxmlLoader.createView(R.question,
+                new Questions(mainController, "Question " + (questionCount + 1)));
+        segmentControl.getToggleGroup().selectedToggleProperty().subscribe(toggle -> {
+            if (toggle instanceof ToggleLabel l) {
+                if (l.getText().equals("Edit")) {
+                    editor.setContent(listOfQuestions.get(questionCount));
+                } else if (l.getText().equals("Preview")) {
+                    editor.setContent(mainController.gradedFxmlLoader.createView(R.question_preview));
+                }
+            }
+        });
+        listOfQuestions.add(content);
     }
 
 }

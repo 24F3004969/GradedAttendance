@@ -1,6 +1,8 @@
 package org.graded_classes.graded_attendance.controller.quiz;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.TilePane;
@@ -52,7 +54,7 @@ public class LatexEditor {
     void addPlainText() {
         if (!plainText.getText().isEmpty()) {
             var ab = plainText.getText().split("\n");
-            StringBuilder x= new StringBuilder();
+            StringBuilder x = new StringBuilder();
             for (var st : ab) {
                 x.append("\\text{%s}\\\\".formatted(st));
             }
@@ -70,6 +72,11 @@ public class LatexEditor {
                         createView(R.triangular_button);
         button.setText(prompt);
         tilePane.getChildren().add(button);
+        Button cross= (Button) button.getGraphic();
+        cross.setOnMouseClicked(event -> {
+            tilePane.getChildren().remove(button);
+        });
+
     }
 
     private void renderLatex() {
