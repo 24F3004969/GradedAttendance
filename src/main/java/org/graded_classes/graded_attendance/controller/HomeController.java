@@ -16,6 +16,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.graded_classes.graded_attendance.GradedFxmlLoader;
 import org.graded_classes.graded_attendance.R;
+import org.graded_classes.graded_attendance.controller.fee.FeeReport;
 import org.graded_classes.graded_attendance.data.GradedDataLoader;
 
 import java.io.IOException;
@@ -174,5 +175,10 @@ public class HomeController implements Initializable {
         }
         modalPane.setAlignment(Pos.CENTER);
         modalPane.show(dialog);
+    }
+    @FXML
+    void onReport()
+    {
+        modalPane.show(mainController.gradedFxmlLoader.createView(R.fee_report,new FeeReport(mainController)));
     }
 }

@@ -19,100 +19,104 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<ScrollPane fitToHeight="true" fitToWidth="true" maxWidth="750.0" styleClass="data_viewer" stylesheets="@../css/data-view-style.css" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.StudentFeeLayout">
-   <VBox alignment="CENTER" stylesheets="@../css/payment_bottom.css">
-      <SplitPane fx:id="splitPane" dividerPositions="0.5" VBox.vgrow="ALWAYS">
-         <items>
-            <VBox spacing="10.0">
-               <Label id="date" fx:id="current_date" text="15 Feb 2025">
-                  <font>
-                     <Font size="15.0" />
-                  </font>
-               </Label>
-               <Label id="time" fx:id="day_and_time" text="Mon, 01:49 AM">
-                  <font>
-                     <Font size="27.0" />
-                  </font>
-               </Label>
-               <GridPane fx:id="monthsGrid" alignment="CENTER" hgap="5.0" vgap="5.0" VBox.vgrow="ALWAYS">
-                  <columnConstraints>
-                     <ColumnConstraints halignment="CENTER" minWidth="10.0" prefWidth="100.0" />
-                     <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                     <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                  </columnConstraints>
-                  <rowConstraints>
-                     <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
-                     <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
-                     <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
-                     <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
-                  </rowConstraints>
-                  <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Jan" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" />
-                  <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Feb" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" />
-                  <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Mar" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" />
-                  <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Apr" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
-                  <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="May" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
-                  <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Jun" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
-                  <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Jul" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS" />
-                  <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Aug" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS" />
-                  <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Sep" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS" />
-                  <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Oct" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS" />
-                  <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Nov" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS" />
-                  <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Dec" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS" />
-               </GridPane>
-               <HBox alignment="CENTER" spacing="5.0">
-                  <Circle fill="#00ff0033" radius="5.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Paid" />
-                  <Circle fill="#ff000033" radius="5.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Unpaid" />
-                  <Circle fill="#1f93ff1c" radius="5.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Absent" />
-               </HBox>
+
+<VBox maxWidth="750.0" styleClass="data_viewer" stylesheets="@../css/data-view-style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.StudentFeeLayout">
+   <children>
+      <ScrollPane fitToHeight="true" fitToWidth="true">
+         <VBox alignment="CENTER">
+            <SplitPane fx:id="splitPane" dividerPositions="0.5" VBox.vgrow="ALWAYS">
+               <items>
+                  <VBox spacing="10.0">
+                     <Label id="date" fx:id="current_date" text="15 Feb 2025">
+                        <font>
+                           <Font size="15.0" />
+                        </font>
+                     </Label>
+                     <Label id="time" fx:id="day_and_time" text="Mon, 01:49 AM">
+                        <font>
+                           <Font size="27.0" />
+                        </font>
+                     </Label>
+                     <GridPane fx:id="monthsGrid" alignment="CENTER" hgap="5.0" vgap="5.0" VBox.vgrow="ALWAYS">
+                        <columnConstraints>
+                           <ColumnConstraints halignment="CENTER" minWidth="10.0" prefWidth="100.0" />
+                           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        </columnConstraints>
+                        <rowConstraints>
+                           <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                           <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                           <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                           <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                        </rowConstraints>
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Jan" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" />
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Feb" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" />
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Mar" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" />
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Apr" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="May" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Jun" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Jul" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS" />
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Aug" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS" />
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Sep" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS" />
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Oct" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS" />
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Nov" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS" />
+                        <Button maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onMonthClicked" text="Dec" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS" />
+                     </GridPane>
+                     <HBox alignment="CENTER" spacing="5.0">
+                        <Circle fill="#00ff0033" radius="5.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Paid" />
+                        <Circle fill="#ff000033" radius="5.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Unpaid" />
+                        <Circle fill="#1f93ff1c" radius="5.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" />
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Absent" />
+                     </HBox>
+                     <padding>
+                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                     </padding>
+                  </VBox>
+                  <VBox alignment="CENTER" spacing="5.0">
+                     <Label contentDisplay="TOP" text="Free Payment">
+                        <graphic>
+                           <ImageView fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true">
+                              <Image url="@../icons/teacher_payment_normal.png" />
+                           </ImageView>
+                        </graphic>
+                     </Label>
+                     <TextField fx:id="ed_no" editable="false" maxWidth="200.0" promptText="ED No." />
+                     <ComboBox fx:id="mode" maxWidth="200.0" promptText="Mode" />
+                     <TextField fx:id="amount_to_pay" maxWidth="200.0" promptText="Amount to pay" />
+                     <TextField fx:id="name_of_receiver" maxWidth="200.0" promptText="Received By" />
+                     <TextField fx:id="due_amount" maxWidth="200.0" promptText="Due Amount" />
+                     <ComboBox fx:id="gatway" maxWidth="200.0" promptText="Gatway" />
+                     <TextField fx:id="reference_no" maxWidth="200.0" promptText="Reference_No" />
+                  </VBox>
+               </items>
+               <VBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </VBox.margin>
                <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                  <Insets left="5.0" right="5.0" />
                </padding>
-            </VBox>
-            <VBox alignment="CENTER" spacing="10.0">
-               <Label contentDisplay="TOP" text="Free Payment">
-                  <graphic>
-                     <ImageView fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true">
-                        <Image url="@../icons/teacher_payment_normal.png" />
-                     </ImageView>
-                  </graphic>
-               </Label>
-               <TextField fx:id="ed_no" editable="false" maxWidth="200.0" promptText="ED No." />
-               <ComboBox fx:id="mode" maxWidth="200.0" promptText="Mode" />
-               <TextField fx:id="amount_to_pay" maxWidth="200.0" promptText="Amount to pay" />
-               <TextField fx:id="name_of_receiver" maxWidth="200.0" promptText="Received By" />
-               <TextField fx:id="due_amount" maxWidth="200.0" promptText="Due Amount" />
-            </VBox>
-         </items>
+            </SplitPane>
+         </VBox>
          <VBox.margin>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            <Insets left="5.0" right="5.0" top="5.0" />
          </VBox.margin>
-         <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </padding>
-      </SplitPane>
-      <HBox alignment="CENTER" spacing="10.0" VBox.vgrow="ALWAYS">
-          <Button id="cancel" mnemonicParsing="false" onAction="#cancel" text="Cancel" textAlignment="CENTER">
+      </ScrollPane>
+      <HBox alignment="CENTER_RIGHT" spacing="10.0" VBox.vgrow="ALWAYS">
+          <Button id="cancel" mnemonicParsing="false" onAction="#cancel" styleClass="danger" text="Cancel" textAlignment="CENTER">
             <graphic>
                <SVGPath content="M 8.9413 -8.0506 L 12.6 -11.7096 l 3.6587 3.659 l 0.8907 -0.8907 L 13.4904 -12.6 l 3.659 -3.6587 l -0.8907 -0.8907 L 12.6 -13.4904 L 8.9413 -17.1494 l -0.8907 0.8907 L 11.7096 -12.6 L 8.0506 -8.9413 l 0.8907 0.8907 Z m 3.6611 4.7935 q -1.9202 0 -3.6241 -0.7303 q -1.7041 -0.7305 -2.9836 -2.0107 q -1.2792 -1.2802 -2.0084 -2.9807 q -0.7292 -1.7007 -0.7292 -3.6188 q 0 -1.9464 0.7303 -3.6372 q 0.7305 -1.691 2.0107 -2.9705 q 1.2802 -1.2792 2.9807 -2.0084 q 1.7007 -0.7292 3.6188 -0.7292 q 1.9464 0 3.6372 0.7303 q 1.691 0.7305 2.9705 2.0107 q 1.2792 1.2802 2.0084 2.9676 q 0.7292 1.6876 0.7292 3.632 q 0 1.9202 -0.7303 3.6241 q -0.7305 1.7041 -2.0107 2.9836 q -1.2802 1.2792 -2.9676 2.0084 q -1.6876 0.7292 -3.632 0.7292 Z m -0.0026 -1.259 q 3.3571 0 5.7207 -2.363 q 2.3636 -2.3633 2.3636 -5.7207 q 0 -3.3571 -2.363 -5.7207 q -2.3633 -2.3636 -5.7207 -2.3636 q -3.3571 0 -5.7207 2.363 q -2.3636 2.3633 -2.3636 5.7207 q 0 3.3571 2.363 5.7207 q 2.3633 2.3636 5.7207 2.3636 Z M 12.6 -12.6 Z" fill="#fafafa" />
             </graphic>
-            <padding>
-               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-            </padding>
           </Button>
-          <Button id="pay" alignment="CENTER" graphicTextGap="8.0" minWidth="84.0" mnemonicParsing="false" onAction="#pay" text="Pay" textAlignment="CENTER">
+          <Button id="pay" alignment="CENTER" graphicTextGap="8.0" minWidth="84.0" mnemonicParsing="false" onAction="#pay" styleClass="accent" text="Pay" textAlignment="CENTER">
             <graphic>
                <SVGPath content="M 13.55 -3.825 L 7.2625 -10.225 v -1.7125 H 10.5 q 1.275 0 2.275 -0.8375 t 1.1 -2.125 H 6.6625 v -1.675 h 6.95 q -0.425 -0.9375 -1.2563 -1.4313 T 10.5 -18.5 H 6.6625 v -1.675 h 10.675 v 1.675 H 14.35 q 0.3625 0.4625 0.6375 0.9125 t 0.4 1.0125 h 1.95 v 1.675 h -1.8 q -0.125 2.025 -1.5813 3.3313 T 10.5 -10.2625 h -0.925 L 15.9 -3.825 h -2.35 Z" fill="#fafafa" />
             </graphic>
-            <padding>
-               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-            </padding>
           </Button>
+         <VBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </VBox.margin>
       </HBox>
-      <padding>
-         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-      </padding>
-   </VBox>
-</ScrollPane>
+   </children>
+</VBox>

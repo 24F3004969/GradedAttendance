@@ -18,7 +18,7 @@ import java.util.ResourceBundle;
 
 public class QuestionEditor implements Initializable {
     private int questionCount = 0;
-    ArrayList<VBox> listOfQuestions = new ArrayList<>();
+    ArrayList<QuestionEditorModel> listOfQuestions = new ArrayList<>();
     @FXML
     MainController mainController;
 
@@ -46,17 +46,20 @@ public class QuestionEditor implements Initializable {
                 var content = (VBox) mainController.gradedFxmlLoader.createView(R.question, new Questions(mainController,
                         "Question " + (questionCount + 1)));
                 editor.setContent(content);
-                listOfQuestions.add(content);
+                listOfQuestions.add(new QuestionEditorModel(content, segmentControl.getSegments().getFirst()));
             } else {
                 if (questionCount <= totalQuestionNumber) {
                     questionCount++;
-                    editor.setContent(listOfQuestions.get(questionCount));
+                    editor.setContent(listOfQuestions.get(questionCount).root);
+                    segmentControl.getToggleGroup().selectToggle(listOfQuestions.get(questionCount).status);
                 }
             }
         } else if (buttonText.equals("Previous")) {
             if (questionCount >= 1) {
                 questionCount--;
-                editor.setContent(listOfQuestions.get(questionCount));
+                editor.setContent(listOfQuestions.get(questionCount).root);
+                segmentControl.getToggleGroup().selectToggle(listOfQuestions.get(questionCount).status);
+
             }
         }
         System.out.println((listOfQuestions.size() - 1) + "  " + questionCount);
@@ -68,16 +71,19 @@ public class QuestionEditor implements Initializable {
         segmentControl.getSegments().add(new ToggleLabel("Preview"));
         var content = (VBox) mainController.gradedFxmlLoader.createView(R.question,
                 new Questions(mainController, "Question " + (questionCount + 1)));
+        listOfQuestions.add(new QuestionEditorModel(content, segmentControl.getSegments().getFirst()));
         segmentControl.getToggleGroup().selectedToggleProperty().subscribe(toggle -> {
             if (toggle instanceof ToggleLabel l) {
                 if (l.getText().equals("Edit")) {
-                    editor.setContent(listOfQuestions.get(questionCount));
+                    editor.setContent(listOfQuestions.get(questionCount).root);
+                    listOfQuestions.get(questionCount).status = l;
                 } else if (l.getText().equals("Preview")) {
                     editor.setContent(mainController.gradedFxmlLoader.createView(R.question_preview));
+                    listOfQuestions.get(questionCount).status = l;
                 }
             }
         });
-        listOfQuestions.add(content);
+
     }
 
 }

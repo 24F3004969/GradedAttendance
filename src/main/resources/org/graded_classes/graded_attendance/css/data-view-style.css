@@ -1,8 +1,8 @@
 @import '../fonts/Fonts.css';
 .data_viewer {
     -fx-background-color: #fafafa;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
     -fx-font-family: "Helvetica";
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.12, -1.0, 2.0);
 }
@@ -19,16 +19,4 @@
 
 .data_viewer_bottom {
     -fx-background-color: #fafafa;
-}
-
-#button-cancel {
-    -fx-background-color: red;
-    -fx-text-fill: white;
-    -fx-font-family: "Helvetica";
-}
-
-#button-ok {
-    -fx-background-color: #1C75BC;
-    -fx-text-fill: white;
-    -fx-font-family: "Helvetica";
 }

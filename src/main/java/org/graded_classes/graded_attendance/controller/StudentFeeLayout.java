@@ -77,36 +77,32 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
         if (paymentNode != null) {
             splitPane.getItems().set(1, paymentNode);
         }
-        updateColorCode();
+       // updateColorCode();
         startClock();
     }
 
     private void updateColorCode() {
-        String[][] months = feeRecords.get(ed);
-        boolean found = false;
-        for (int i = 0; i < LocalDate.now().getMonth().getValue(); i++) {
-            var arr = months[i];
-            if (notAnyNull(arr)) {
-                Button button = (Button) monthsGrid.getChildren().get(i);
-                button.getStylesheets().clear();
-                button.getStylesheets().add(loadURL("css/paid.css").toExternalForm());
-                found = true;
-            } else if (found) {
-                Button button = (Button) monthsGrid.getChildren().get(i);
-                button.getStylesheets().clear();
-                button.getStylesheets().add(loadURL("css/unpaid.css").toExternalForm());
-            }
-        }
+//        String[][] months = feeRecords.get(ed);
+//        boolean found = false;
+//        for (int i = 0; i < LocalDate.now().getMonth().getValue(); i++) {
+//            var arr = months[i];
+//            if (notAnyNull(arr)) {
+//                Button button = (Button) monthsGrid.getChildren().get(i);
+//                button.getStylesheets().clear();
+//                button.getStylesheets().add(loadURL("css/paid.css").toExternalForm());
+//                found = true;
+//            } else if (found) {
+//                Button button = (Button) monthsGrid.getChildren().get(i);
+//                button.getStylesheets().clear();
+//                button.getStylesheets().add(loadURL("css/unpaid.css").toExternalForm());
+//            }
+//        }
     }
 
     private boolean notAnyNull(String[] arr) {
         return arr[0] != null && arr[1] != null && arr[2] != null && arr[3] != null;
     }
 
-    private ArrayList<Integer> getList() {
-        return IntStream.rangeClosed(1990, 2100).
-                boxed().collect(Collectors.toCollection(ArrayList::new));
-    }
 
     private String format(String date) {
         return date.charAt(0) + date.substring(1).toLowerCase();
@@ -227,4 +223,5 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
     }
+
 }

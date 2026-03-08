@@ -9,3 +9,108 @@
 \]
 
 
+\displaystyle a+b=b+a,\quad ab=ba,\quad (a+b)+c=a+(b+c)
+
+\displaystyle 1+2+\cdots+n=\frac{n(n+1)}{2}
+
+\displaystyle 1^2+2^2+\cdots+n^2=\frac{n(n+1)(2n+1)}{6}
+
+\displaystyle \sum_{k=1}^{n}k^3=\left(\frac{n(n+1)}{2}\right)^2
+
+\displaystyle \binom{n}{k}=\frac{n!}{k!(n-k)!},\quad (1+x)^n=\sum_{k=0}^{n}\binom{n}{k}x^k
+
+\displaystyle e^{ix}=\cos x+i\sin x,\quad \cos^2 x+\sin^2 x=1
+
+\displaystyle \frac{d}{dx}x^n=nx^{n-1},\quad \frac{d}{dx}\sin x=\cos x,\quad \frac{d}{dx}\ln x=\frac{1}{x}
+
+\displaystyle \int_a^b f'(x)\,dx=f(b)-f(a)
+
+\displaystyle \int x^n\,dx=\frac{x^{n+1}}{n+1}+C\quad(n\neq -1),\qquad \int \frac{dx}{x}=\ln|x|+C
+
+\displaystyle \frac{dy}{dx}=\frac{dy}{du}\cdot\frac{du}{dx}\quad\text{(chain rule)}
+
+\displaystyle \lim_{x\to a}f(x)=L\iff \forall\epsilon>0\,\exists\delta>0:\ |x-a|<\delta\Rightarrow |f(x)-L|<\epsilon
+
+\displaystyle \sum_{n=0}^{\infty}x^n=\frac{1}{1-x}\quad(|x|<1)
+
+\displaystyle e^{x}=\sum_{n=0}^{\infty}\frac{x^n}{n!},\quad \sin x=\sum_{n=0}^{\infty}\frac{(-1)^n x^{2n+1}}{(2n+1)!}
+
+\displaystyle \cos x=\sum_{n=0}^{\infty}\frac{(-1)^n x^{2n}}{(2n)!},\quad \ln(1+x)=\sum_{n=1}^{\infty}\frac{(-1)^{n-1}x^{n}}{n} \ (|x|<1)
+
+\displaystyle a^2+b^2=c^2,\qquad (x-a)^2+(y-b)^2=r^2
+
+\displaystyle ds^2=g_{ij}\,dx^{i}dx^{j}\quad\text{(Riemannian metric)}
+
+\displaystyle \nabla\cdot \mathbf{E}=\frac{\rho}{\varepsilon_0},\quad \nabla\times \mathbf{E}=-\frac{\partial \mathbf{B}}{\partial t}
+
+\displaystyle \nabla\cdot \mathbf{B}=0,\quad \nabla\times \mathbf{B}=\mu_0 \mathbf{J}+\mu_0\varepsilon_0\frac{\partial \mathbf{E}}{\partial t}
+
+\displaystyle F=m\frac{d^{2}x}{dt^{2}},\quad p=\frac{\partial \mathcal{L}}{\partial \dot{q}},\quad \frac{d}{dt}\frac{\partial \mathcal{L}}{\partial \dot{q}}-\frac{\partial \mathcal{L}}{\partial q}=0
+
+\displaystyle \hat{H}\psi=E\psi,\quad i\hbar\frac{\partial \psi}{\partial t}=\hat{H}\psi
+
+\displaystyle \int_{a}^{b}f\,dg=f(b)g(b)-f(a)g(a)-\int_{a}^{b}g\,df\quad\text{(integration by parts, Stieltjes)}
+
+\displaystyle \oint_{\partial \Omega}\mathbf{F}\cdot d\mathbf{r}=\iint_{\Omega}(\nabla\times \mathbf{F})\cdot \mathbf{\hat{n}}\,dS\quad\text{(Stokes)}
+
+\displaystyle \iiint_{V}\nabla\cdot \mathbf{F}\,dV=\iint_{\partial V}\mathbf{F}\cdot \mathbf{\hat{n}}\,dS\quad\text{(Divergence theorem)}
+
+\displaystyle \widehat{f}(\xi)=\int_{-\infty}^{\infty} f(x)e^{-2\pi i x \xi}\,dx,\quad f(x)=\int_{-\infty}^{\infty}\widehat{f}(\xi)e^{2\pi i x \xi}\,d\xi
+
+\displaystyle f(x)\sim \sum_{n=1}^{\infty}a_n\sin\frac{n\pi x}{L}\quad\text{on }[0,L]
+
+\displaystyle \|f\|_{2}=\left(\int |f|^{2}\right)^{1/2},\quad \langle f,g\rangle=\int f\overline{g}
+
+\displaystyle \lambda\text{-eigenvalue: }Av=\lambda v,\quad \det(A-\lambda I)=0
+
+\displaystyle \det A=\sum_{\sigma\in S_n}\operatorname{sgn}(\sigma)\prod_{i=1}^{n}a_{i,\sigma(i)}
+
+\displaystyle \begin{pmatrix}a&b\\ c&d\end{pmatrix}^{-1}=\frac{1}{ad-bc}\begin{pmatrix}d&-b\\ -c&a\end{pmatrix}\quad(ad\neq bc)
+
+\displaystyle \|x\|_2=\sqrt{x_1^2+\cdots+x_n^2},\quad \langle x,y\rangle=\sum_{i=1}^{n}x_i y_i
+
+\displaystyle \text{Cauchy--Schwarz: }|\langle x,y\rangle|\le \|x\|\|y\|
+
+\displaystyle \Pr(A\mid B)=\frac{\Pr(B\mid A)\Pr(A)}{\Pr(B)},\quad \operatorname{Var}(X)=\mathbb{E}[X^2]-\mathbb{E}[X]^2
+
+\displaystyle \mathbb{E}[X]=\sum_{x} x\,\Pr(X=x)\quad\text{(discrete)},\qquad \mathbb{E}[X]=\int_{-\infty}^{\infty} x f_X(x)\,dx\quad\text{(continuous)}
+
+\displaystyle \phi_X(t)=\mathbb{E}[e^{itX}],\quad M_X(t)=\mathbb{E}[e^{tX}]
+
+\displaystyle \mathcal{N}(\mu,\sigma^2):\ f(x)=\frac{1}{\sqrt{2\pi}\sigma}e^{-(x-\mu)^2/(2\sigma^2)}
+
+\displaystyle \text{LLN: }\ \overline{X}_n\to \mu\ \text{in probability},\qquad \text{CLT: }\ \frac{\overline{X}_n-\mu}{\sigma/\sqrt{n}}\Rightarrow \mathcal{N}(0,1)
+
+\displaystyle (G,\cdot):\ \forall a,b,c\in G,\ a\cdot(b\cdot c)=(a\cdot b)\cdot c,\ \exists e,\ \exists a^{-1}
+
+\displaystyle \text{Homomorphism: } \varphi(ab)=\varphi(a)\varphi(b),\quad \ker\varphi\trianglelefteq G
+
+\displaystyle \mathbb{Z}_p\ \text{field iff $p$ prime},\quad a^{p-1}\equiv 1\pmod p\ (a\not\equiv 0)
+
+\displaystyle \gcd(a,b)=\gcd(b,a\bmod b),\quad ax+by=\gcd(a,b)
+
+\displaystyle \sum_{d\mid n}\varphi(d)=n,\quad \mu*\mathbf{1}=\varepsilon\ \text{(Möbius inversion)}
+
+\displaystyle \zeta(s)=\sum_{n=1}^{\infty}\frac{1}{n^{s}}=\prod_{p}\frac{1}{1-p^{-s}}\quad(\Re s>1)
+
+\displaystyle \frac{d}{dz}\log f(z)=\frac{f'(z)}{f(z)},\quad \oint_{\gamma}\frac{f'(z)}{f(z)}\,dz=2\pi i\,(N-P)
+
+\displaystyle \text{Cauchy: }f^{(n)}(z_0)=\frac{n!}{2\pi i}\oint_{\gamma}\frac{f(z)}{(z-z_0)^{n+1}}\,dz
+
+\displaystyle \partial_t u=\alpha\,\partial_{xx}u\quad\text{(heat)},\qquad \partial_{tt}u=c^2\partial_{xx}u\quad\text{(wave)}
+
+\displaystyle \min_{x}\ \tfrac{1}{2}\|Ax-b\|_2^2 \ \Rightarrow\ A^{\top}Ax=A^{\top}b\quad\text{(normal equations)}
+
+\displaystyle \nabla f(x)=0\Rightarrow \text{critical point};\quad \text{if } \nabla^2 f(x)\succ 0\ \text{then local minimum}
+
+\displaystyle \text{Softmax: } \sigma(z)_i=\frac{e^{z_i}}{\sum_{j}e^{z_j}},\quad \text{Cross-entropy: } -\sum_{i} y_i\log \sigma(z)_i
+
+\displaystyle \mathrm{KL}(p\|q)=\int p(x)\log\frac{p(x)}{q(x)}\,dx\ge 0
+
+\displaystyle \operatorname{rank}(A)+\operatorname{nullity}(A)=n\quad\text{(rank--nullity)}
+
+\displaystyle \lambda_{\max}(A)=\max_{\|x\|=1} x^{\top}Ax\quad\text{(Rayleigh quotient for SPD)}
+
+\displaystyle \det(e^{A})=e^{\operatorname{tr}(A)},\quad \operatorname{tr}(AB)=\operatorname{tr}(BA)
+
+\displaystyle \begin{pmatrix}x'\\y'\end{pmatrix}=\begin{pmatrix}\cos\theta&-\sin\theta\\ \sin\theta&\cos\theta\end{pmatrix}\begin{pmatrix}x\\y\end{pmatrix}

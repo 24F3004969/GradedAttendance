@@ -42,20 +42,31 @@ public class NewQuiz implements Initializable {
     @FXML
     void onButtonClick(ActionEvent event) {
         var newChild = new TreeItem<>(quizName.getText());
-        newChild.setGraphic(new FontIcon("mdi2n-note"));
+        FontIcon node = new FontIcon();
+        newChild.setGraphic(
+                node);
+        node.getStyleClass().add("ikonli-font-icon");
+        node.setStyle("""
+                    -fx-icon-code:mdi2f-folder;
+                    -fx-icon-color:#964B00;
+                    """);
+        for (int i = 1; i <= 5; i++) {
+            newChild.getChildren().add(new TreeItem<>("Question " + i,new FontIcon("mdi2n-note")));
+        }
         target.getChildren().add(newChild);
         TabPane tabPane = (TabPane) quizGenerator.quiz_gen_layout.lookup("#tabs");
-        var tb=mainController.gradedFxmlLoader.createView(R.question_editor,new QuestionEditor(mainController));
+        var tb = mainController.gradedFxmlLoader.createView(R.question_editor, new QuestionEditor(mainController));
         Tab tab = new Tab(quizName.getText());
         tab.setContent(tb);
         tabPane.getTabs().add(tab);
+        tabPane.getSelectionModel().select(tab);
         target.setExpanded(true);
         mainController.modalPane.hide();
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        quizName.setText("Draft_" + LocalDate.now()+"_"+LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+        quizName.setText("Draft_" + LocalDate.now() + "_" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         SpinnerValueFactory<Integer> valueFactory =
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(5, 30, 5, 1);
         NoOfQuestion.setValueFactory(valueFactory);

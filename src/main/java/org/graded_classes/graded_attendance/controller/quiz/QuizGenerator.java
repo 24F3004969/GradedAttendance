@@ -93,7 +93,8 @@ public class QuizGenerator implements Initializable {
         MenuItem addQuiz = new MenuItem("Add " + name + " Quiz");
         addQuiz.setGraphic(new FontIcon("mdi2n-note"));
         addQuiz.setOnAction(e -> {
-            var newQuiz = mainController.gradedFxmlLoader.createView(R.newQuiz, new NewQuiz(target, this, mainController));
+            var newQuiz = mainController.gradedFxmlLoader.createView(R.newQuiz,
+                    new NewQuiz(target, this, mainController));
             mainController.modalPane.show(newQuiz);
         });
         return addQuiz;

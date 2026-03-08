@@ -58,6 +58,7 @@
             </VBox>
          </children>
       </StackPane>
+      <Label text="Label" visible="false" />
       <Label text="Answer Type">
          <font>
             <Font name="HelveticaRounded-Bold" size="20.0" />
@@ -65,7 +66,7 @@
       </Label>
       <HBox spacing="10.0">
          <children>
-            <RadioButton mnemonicParsing="false" selected="true" text="MCQ(Multiple Choice Question)">
+            <RadioButton mnemonicParsing="false" selected="true" text="MCQs(Multiple Choice Question)">
                <font>
                   <Font name="HelveticaRounded-Bold" size="14.0" />
                </font>
@@ -73,7 +74,15 @@
                   <ToggleGroup fx:id="q_options" />
                </toggleGroup>
             </RadioButton>
-            <RadioButton mnemonicParsing="false" text="MSQ(Multiple Select Question)" toggleGroup="$q_options">
+            <RadioButton mnemonicParsing="false" text="MSQs(Multiple Select Question)" toggleGroup="$q_options">
+               <font>
+                  <Font name="HelveticaRounded-Bold" size="14.0" />
+               </font>
+            </RadioButton>
+            <RadioButton mnemonicParsing="false" text="NAT (Numerical Answer Type)">
+               <toggleGroup>
+                  <ToggleGroup fx:id="q_options1" />
+               </toggleGroup>
                <font>
                   <Font name="HelveticaRounded-Bold" size="14.0" />
                </font>
@@ -206,7 +215,7 @@
                   </HBox>
                </children>
             </HBox>
-            <Button mnemonicParsing="false" onAction="#onBasicAction" text="Add Option">
+            <Button mnemonicParsing="false" onAction="#onBasicAction" text="Generate Optiona">
                <graphic>
                   <FontIcon style="-fx-icon-code: mdal-add; -fx-font-size: 16; -fx-icon-color: #1C75BC;" />
                </graphic>

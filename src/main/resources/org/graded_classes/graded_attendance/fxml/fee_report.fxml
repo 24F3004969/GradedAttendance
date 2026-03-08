@@ -1,47 +1,133 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@../css/data1-view-style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <HBox alignment="CENTER">
-         <children>
-            <Spinner styleClass="split-arrows-horizontal" />
-         </children>
-         <VBox.margin>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </VBox.margin>
-      </HBox>
-      <HBox prefHeight="100.0" prefWidth="200.0" />
-      <VBox spacing="10.0" VBox.vgrow="ALWAYS">
-         <children>
-            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-               <children>
-                  <TextField promptText="ED NO." />
-               </children>
-            </HBox>
-            <TableView tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
-              <columns>
-                <TableColumn prefWidth="75.0" text="C1" />
-                <TableColumn prefWidth="75.0" text="C2" />
-              </columns>
-               <columnResizePolicy>
-                  <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-               </columnResizePolicy>
-               <VBox.margin>
-                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-               </VBox.margin>
-            </TableView>
-         </children>
-         <VBox.margin>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </VBox.margin>
+
+<VBox maxHeight="600.0" maxWidth="800.0" minHeight="600.0" minWidth="800.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.fee.FeeReport">
+   <HBox>
+      <VBox>
+         <HBox.margin>
+            <Insets left="10.0" top="10.0" />
+         </HBox.margin>
+         <Label text="06 Mar, 2026">
+            <font>
+               <Font name="☞Gilroy-Bold" size="14.0" />
+            </font>
+         </Label>
+         <Label text="Fee Report">
+            <font>
+               <Font name="☞Gilroy-Bold" size="42.0" />
+            </font>
+         </Label>
       </VBox>
-   </children>
+      <HBox alignment="CENTER_RIGHT" spacing="5.0" HBox.hgrow="ALWAYS">
+         <HBox.margin>
+            <Insets right="5.0" />
+         </HBox.margin>
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding>
+         <VBox maxHeight="80.0" maxWidth="150.0" minHeight="80.0" minWidth="150.0" spacing="5.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5;">
+            <padding>
+               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+            <Label text="Free Collected">
+               <font>
+                  <Font name="☞Gilroy-Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label text="₹50,000" textFill="#3db904">
+               <font>
+                  <Font name="☞Gilroy-Bold" size="30.0" />
+               </font>
+            </Label>
+         </VBox>
+         <VBox maxHeight="80.0" maxWidth="150.0" minHeight="80.0" minWidth="150.0" spacing="5.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5;">
+            <padding>
+               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </padding>
+            <Label text="Free Left">
+               <font>
+                  <Font name="☞Gilroy-Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label text="₹20,000" textFill="#ff0404">
+               <font>
+                  <Font name="☞Gilroy-Bold" size="30.0" />
+               </font>
+            </Label>
+         </VBox>
+      </HBox>
+   </HBox>
+   <VBox alignment="TOP_CENTER" stylesheets="@../css/list_view_style.css">
+      <padding>
+         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      </padding>
+      <HBox id="search1" alignment="CENTER" maxWidth="600.0" minWidth="600.0" spacing="5.0" stylesheets="@../css/tile_style.css">
+         <padding>
+            <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+         </padding>
+         <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+            <HBox.margin>
+               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </HBox.margin>
+            <Image url="@../icons/search.png" />
+         </ImageView>
+         <TextField fx:id="filterText" maxWidth="1.7976931348623157E308" minWidth="150.0" promptText="ED No. or Name" style="-fx-background-color: transparent;" HBox.hgrow="ALWAYS">
+            <HBox.margin>
+               <Insets left="5.0" right="5.0" />
+            </HBox.margin>
+         </TextField>
+         <MenuButton fx:id="filterMenu" maxHeight="1.7976931348623157E308" mnemonicParsing="false" text="ED No.">
+            <items>
+               <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenu" selected="true" text="Class" />
+               <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenu" text="Name" />
+               <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenu" text="ED No." />
+            </items>
+         </MenuButton>
+      </HBox>
+   </VBox>
+   <HBox alignment="CENTER_LEFT" prefHeight="30.0" spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 5 5 0 0; -fx-border-radius: 5 5 0 0; -fx-border-color: rgba(0, 0, 0, 0.2);">
+      <padding>
+         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      </padding>
+   </HBox>
+   <StackPane VBox.vgrow="ALWAYS">
+      <children>
+         <TableView fx:id="studentData" editable="true" tableMenuButtonVisible="true">
+            <columns>
+               <TableColumn fx:id="checkboxes" text="Pay Id" />
+               <TableColumn fx:id="ed_no" text="ED No." visible="false" />
+               <TableColumn fx:id="name" text="Name" />
+               <TableColumn fx:id="grade" prefWidth="75.0" text="Class" />
+               <TableColumn fx:id="doa" text="Amount" />
+               <TableColumn fx:id="last_fee" text="Pay Date" />
+               <TableColumn fx:id="last_fee2" text="Due Date" />
+               <TableColumn fx:id="last_fee1" text="Mode" />
+               <TableColumn fx:id="last_fee11" text="Reference No." />
+               <TableColumn fx:id="last_fee111" text="Send Notification" visible="false" />
+            </columns>
+            <columnResizePolicy>
+               <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            </columnResizePolicy>
+         </TableView>
+         <ProgressIndicator StackPane.alignment="CENTER" />
+      </children>
+   </StackPane>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
 </VBox>

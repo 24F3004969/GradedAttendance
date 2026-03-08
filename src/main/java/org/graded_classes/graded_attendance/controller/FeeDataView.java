@@ -1,19 +1,16 @@
 package org.graded_classes.graded_attendance.controller;
 
+import org.graded_classes.graded_attendance.data.FeeData;
 import org.graded_classes.graded_attendance.data.GradedDataLoader;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.DateFormatSymbols;
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Locale;
 import java.util.TreeMap;
 
 public class FeeDataView {
     GradedDataLoader gradedDataLoader;
-    TreeMap<String, String[][]> feeRecords = new TreeMap<>();
+    TreeMap<String, FeeData> feeRecords = new TreeMap<>();
     String ed;
 
     public FeeDataView(GradedDataLoader gradedDataLoader, String ed) {
@@ -22,33 +19,55 @@ public class FeeDataView {
         init();
     }
 
-    public TreeMap<String, String[][]> getFeeRecords() {
+    public TreeMap<String, FeeData> getFeeRecords() {
         return feeRecords;
     }
 
     private void init() {
-        try (Statement stmt = gradedDataLoader.databaseLoader.getStatement()) {
-            ResultSet r = stmt.executeQuery("select * from fee_2026");
-            while (r.next()) {
-                String[][] e = new String[12][4];
-                String[] months = new DateFormatSymbols(Locale.US).getShortMonths();
-                for (int j = 0; j < LocalDate.now().getMonth().getValue(); j++) {
-                    e[j] = getFromArray(r.getString(months[j]));
-                }
-                feeRecords.put(r.getString("ed_no"), e);
-            }
+        String sql = """
+            SELECT payment_id, ed_no, month, amount, paid_on, next_fee_date,
+                   collected_by_name, payment_mode, gateway, reference_no, due_amount
+            FROM fee_payments
+            WHERE paid_on BETWEEN date('now', 'start of month')
+                              AND date('now', 'start of month', '+1 month', '-1 day')
+              AND ed_no = ?
+            ORDER BY paid_on , payment_id
+        """;
 
+        try (PreparedStatement ps = gradedDataLoader.databaseLoader.getConnection().prepareStatement(sql)) {
+            ps.setString(1, ed);
+            try (ResultSet r = ps.executeQuery()) {
+                while (r.next()) {
+                    String paidOn = r.getString("paid_on");
+                    String nextFeeDate = r.getString("next_fee_date");
+                    String edNo = r.getString("ed_no");
+                    System.out.println(paidOn + "  " + nextFeeDate);
+                    FeeData fee = new FeeData(
+                            r.getObject("payment_id") != null ? r.getInt("payment_id") : null,
+                            edNo,
+                            FeeData.MonthAbbrev.valueOf(r.getString("month")),
+                            r.getDouble("amount"),
+                            paidOn,
+                            nextFeeDate,
+                            r.getString("collected_by_name"),
+                            FeeData.PaymentMode.valueOf(r.getString("payment_mode")),
+                            parseGateway(r.getString("gateway")),
+                            r.getString("reference_no"),
+                            r.getString("due_amount")
+                    );
+                    String key = paidOn + "#" + r.getInt("payment_id")+"   "+r.getString("ed_no");
+                    feeRecords.put(key, fee);
+                }
+            }
+            System.out.println(feeRecords);
         } catch (SQLException exception) {
             System.out.println("SQLException: " + exception.getMessage());
         }
     }
 
-    private String[] getFromArray(String string) {
-        if (string == null) {
-            return new String[4];
-        }
-        string = string.replace("[", "").replace("]", "");
-        return string.split(",");
-
+    // Helper to handle null gateways safely
+    private static FeeData.Gateway parseGateway(String g) {
+        if (g == null || g.isBlank()) return null;
+        return FeeData.Gateway.valueOf(g);
     }
 }
