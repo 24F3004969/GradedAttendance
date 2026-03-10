@@ -14,6 +14,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.R;
+import org.graded_classes.graded_attendance.controller.fee.FeeReport;
 import org.graded_classes.graded_attendance.data.Attendance;
 import org.graded_classes.graded_attendance.data.Student;
 import org.graded_classes.graded_attendance.report.AttendanceReport;
@@ -53,7 +54,7 @@ public class AttendanceDataView implements Initializable {
     private Label checkOutTime;
 
     @FXML
-    private Label dueAmount;
+    private Label reminder;
     @FXML
     private Tab edit, info;
     @FXML
@@ -82,6 +83,14 @@ public class AttendanceDataView implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        try {
+            var dueReport = new FeeReport.FeeRepository().
+                    duePaymentRecord(studentAttendance.mainController.gradedDataLoader.databaseLoader.getConnection());
+            if (dueReport.containsKey(ed_no.trim()))
+                reminder.setText("Fee is not paid "+" due date is "+dueReport.get(ed_no.trim()).nextFeeDate().getValue());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         var x = studentAttendance.mainController.gradedDataLoader;
         Student student = x.getStudentData().get(ed_no);
         uId.setText(student.ed_no());
@@ -199,9 +208,10 @@ public class AttendanceDataView implements Initializable {
                         gradedFxmlLoader.createView(R.attendance_report,
                                 new AttendanceReportController(firstLetterToUpperCase(student.name()), ed_no, view)));
     }
+
     @FXML
     void onSave() {
-      if (edit.isSelected()) {
+        if (edit.isSelected()) {
             editStudentData.update(studentAttendance.mainController.gradedDataLoader.databaseLoader.getConnection());
         }
     }

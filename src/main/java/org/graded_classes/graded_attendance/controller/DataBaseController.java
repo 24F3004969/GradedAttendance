@@ -141,7 +141,7 @@ public class DataBaseController implements Initializable {
             Student student = data.get(keys);
             StudentInfo studentInfo = new StudentInfo(false,
                     student.ed_no(), student.name(),
-                    student._class(), student.getDoa(), student.getLastPaymentDate());
+                    student._class(), student.getDoa(), student.getLastPaymentDate(),"0");
             items.add(studentInfo);
         }
         studentData.setItems(filteredData);

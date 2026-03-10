@@ -3,27 +3,36 @@ package org.graded_classes.graded_attendance.controller;
 import org.graded_classes.graded_attendance.data.FeeData;
 import org.graded_classes.graded_attendance.data.GradedDataLoader;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.TreeMap;
 
 public class FeeDataView {
     GradedDataLoader gradedDataLoader;
-    TreeMap<String, FeeData> feeRecords = new TreeMap<>();
+    TreeMap<String, FeeData> feeRecordsForTheCurrentMonth = new TreeMap<>();
+    TreeMap<String, FeeData> duePaymentRecord = new TreeMap<>();
     String ed;
 
     public FeeDataView(GradedDataLoader gradedDataLoader, String ed) {
         this.gradedDataLoader = gradedDataLoader;
         this.ed = ed;
-        init();
+        paymentForTheCurrentMonth();
     }
 
-    public TreeMap<String, FeeData> getFeeRecords() {
-        return feeRecords;
+    private void duePayments() {
+
     }
 
-    private void init() {
+    public TreeMap<String, FeeData> getFeeRecordsForTheCurrentMonth() {
+        return feeRecordsForTheCurrentMonth;
+    }
+
+    private void paymentForTheCurrentMonth() {
         String sql = """
             SELECT payment_id, ed_no, month, amount, paid_on, next_fee_date,
                    collected_by_name, payment_mode, gateway, reference_no, due_amount
@@ -55,11 +64,10 @@ public class FeeDataView {
                             r.getString("reference_no"),
                             r.getString("due_amount")
                     );
-                    String key = paidOn + "#" + r.getInt("payment_id")+"   "+r.getString("ed_no");
-                    feeRecords.put(key, fee);
+                    feeRecordsForTheCurrentMonth.put(r.getString("ed_no"), fee);
                 }
             }
-            System.out.println(feeRecords);
+            System.out.println(feeRecordsForTheCurrentMonth);
         } catch (SQLException exception) {
             System.out.println("SQLException: " + exception.getMessage());
         }

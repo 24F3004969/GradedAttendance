@@ -31,13 +31,14 @@ public class GradedDataLoader {
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/GradedData.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/AbandonedEd.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/attendance_stu.sql").getQuery());
-           // databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/Fee.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/LessonPlanner.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/Topic.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/SubTopic.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/Questions.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/DailyTopics.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/fee_data.sql").getQuery());
+            databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/dueDates.sql").getQuery());
+
             for (int i = 4; i <= 10; i++) {
                 databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/TimeTable.sql").getQuery().formatted(i, i));
 
@@ -159,7 +160,8 @@ public class GradedDataLoader {
                         rs.getString("school_n"),
                         rs.getString("suggestions"),
                         rs.getString("subjects").split(", "), // Assuming subjects are stored as a comma-separated string
-                        rs.getString("telegram_id"), Objects.requireNonNullElse(rs.getString("last_payment_date"), "")
+                        rs.getString("telegram_id"), Objects.requireNonNullElse(rs.getString("last_payment_date"), ""),
+                        "" + rs.getDouble("fee")
                 ));
             }
         }

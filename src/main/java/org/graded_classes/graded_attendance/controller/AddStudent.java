@@ -140,7 +140,8 @@ public class AddStudent implements Initializable {
                 suggestions.getText(),
                 list_of_subjects.toArray(new String[0]),
                 telegram_id.getText(),
-                ""
+                "",
+                info_about.getText()
                 );
     }
 

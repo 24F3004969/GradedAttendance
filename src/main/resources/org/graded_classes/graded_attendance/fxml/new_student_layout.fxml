@@ -139,8 +139,8 @@
                         </HBox>
                         <HBox alignment="CENTER_LEFT" spacing="20.0">
                             <children>
-                                <TextField fx:id="info_about" prefHeight="36.0" prefWidth="407.0" promptText="Who told you about graded" />
-                                <TextField fx:id="suggestions" prefHeight="36.0" prefWidth="230.0" promptText="Any Request that you have" />
+                                <TextField fx:id="info_about" prefHeight="36.0" prefWidth="407.0" promptText="Fee" />
+                                <TextField fx:id="suggestions" prefHeight="36.0" prefWidth="230.0" promptText="Who told you about graded" />
                             </children>
                             <VBox.margin>
                                 <Insets bottom="5.0" left="30.0" right="30.0" top="5.0" />

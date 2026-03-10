@@ -7,15 +7,15 @@ import javafx.beans.property.StringProperty;
 
 
 public record StudentInfo(BooleanProperty active, StringProperty ed_no, StringProperty name, StringProperty grade,
-                          StringProperty date_of_admission, StringProperty last_fee_date) {
+                          StringProperty date_of_admission, StringProperty last_fee_date, SimpleStringProperty fee) {
 
 
     public StudentInfo(boolean active, String ed_no, String name, String grade,
-                       String date_of_admission, String last_fee_date) {
+                       String date_of_admission, String last_fee_date, String fee) {
         this(new SimpleBooleanProperty(active), new SimpleStringProperty(ed_no),
                 new SimpleStringProperty(name), new SimpleStringProperty(grade),
                 new SimpleStringProperty(date_of_admission),
-                new SimpleStringProperty(last_fee_date));
+                new SimpleStringProperty(last_fee_date), new SimpleStringProperty(fee));
     }
 
     public void setActive(boolean active) {

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import atlantafx.base.controls.RingProgressIndicator?>
+<?import atlantafx.base.controls.SegmentedControl?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
-<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
@@ -15,14 +16,13 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <VBox maxHeight="600.0" maxWidth="800.0" minHeight="600.0" minWidth="800.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.fee.FeeReport">
    <HBox>
       <VBox>
          <HBox.margin>
             <Insets left="10.0" top="10.0" />
          </HBox.margin>
-         <Label text="06 Mar, 2026">
+         <Label fx:id="current_date" text="06 Mar, 2026">
             <font>
                <Font name="☞Gilroy-Bold" size="14.0" />
             </font>
@@ -49,7 +49,7 @@
                   <Font name="☞Gilroy-Bold" size="15.0" />
                </font>
             </Label>
-            <Label text="₹50,000" textFill="#3db904">
+            <Label fx:id="feeCollected" text="₹50,000" textFill="#3db904">
                <font>
                   <Font name="☞Gilroy-Bold" size="30.0" />
                </font>
@@ -64,7 +64,7 @@
                   <Font name="☞Gilroy-Bold" size="15.0" />
                </font>
             </Label>
-            <Label text="₹20,000" textFill="#ff0404">
+            <Label fx:id="feeLeft" text="₹20,000" textFill="#ff0404">
                <font>
                   <Font name="☞Gilroy-Bold" size="30.0" />
                </font>
@@ -100,31 +100,58 @@
          </MenuButton>
       </HBox>
    </VBox>
-   <HBox alignment="CENTER_LEFT" prefHeight="30.0" spacing="10.0" style="-fx-background-color: white; -fx-background-radius: 5 5 0 0; -fx-border-radius: 5 5 0 0; -fx-border-color: rgba(0, 0, 0, 0.2);">
-      <padding>
-         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-      </padding>
+   <HBox alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-background-radius: 5 5 0 0; -fx-border-radius: 5 5 0 0; -fx-border-color: rgba(0, 0, 0, 0.2);">
+      <children>
+         <SegmentedControl fx:id="segmentControl">
+            <HBox.margin>
+               <Insets bottom="20.0" left="5.0" right="5.0" top="5.0" />
+            </HBox.margin>
+         </SegmentedControl>
+         <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+            <children>
+               <MenuButton fx:id="months" maxHeight="1.7976931348623157E308" mnemonicParsing="false" text="Months">
+                  <HBox.margin>
+                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                  </HBox.margin>
+                  <items>
+                     <CheckMenuItem mnemonicParsing="false" text="Jan" />
+                     <CheckMenuItem mnemonicParsing="false" text="Feb" />
+                     <CheckMenuItem mnemonicParsing="false" text="Mar" />
+                     <CheckMenuItem mnemonicParsing="false" text="Apr" />
+                     <CheckMenuItem mnemonicParsing="false" text="May" />
+                     <CheckMenuItem mnemonicParsing="false" text="Jun" />
+                     <CheckMenuItem mnemonicParsing="false" text="Jul" />
+                     <CheckMenuItem mnemonicParsing="false" text="Aug" />
+                     <CheckMenuItem mnemonicParsing="false" text="Sep" />
+                     <CheckMenuItem mnemonicParsing="false" text="Oct" />
+                     <CheckMenuItem mnemonicParsing="false" text="Nov" />
+                     <CheckMenuItem mnemonicParsing="false" text="Dec" />
+                  </items>
+               </MenuButton>
+            </children>
+         </HBox>
+      </children>
    </HBox>
    <StackPane VBox.vgrow="ALWAYS">
       <children>
-         <TableView fx:id="studentData" editable="true" tableMenuButtonVisible="true">
+         <TableView fx:id="feePaidData" editable="true" stylesheets="@../css/time_table.css" StackPane.alignment="CENTER">
             <columns>
-               <TableColumn fx:id="checkboxes" text="Pay Id" />
-               <TableColumn fx:id="ed_no" text="ED No." visible="false" />
-               <TableColumn fx:id="name" text="Name" />
-               <TableColumn fx:id="grade" prefWidth="75.0" text="Class" />
-               <TableColumn fx:id="doa" text="Amount" />
-               <TableColumn fx:id="last_fee" text="Pay Date" />
-               <TableColumn fx:id="last_fee2" text="Due Date" />
-               <TableColumn fx:id="last_fee1" text="Mode" />
-               <TableColumn fx:id="last_fee11" text="Reference No." />
-               <TableColumn fx:id="last_fee111" text="Send Notification" visible="false" />
+               <TableColumn fx:id="payID" text="Pay Id" />
+               <TableColumn fx:id="ed_no" text="ED No." />
+               <TableColumn fx:id="name" text="Name" visible="false" />
+               <TableColumn fx:id="grade" prefWidth="75.0" text="Class" visible="false" />
+               <TableColumn fx:id="amount" text="Amount" />
+               <TableColumn fx:id="payDate" text="Pay Date" />
+               <TableColumn fx:id="dueData" text="Due Date" />
+               <TableColumn fx:id="mode" text="Mode" />
+               <TableColumn fx:id="referenceNo" text="Reference No." />
+               <TableColumn fx:id="sendNotification" text="Send Notification" visible="false" />
             </columns>
             <columnResizePolicy>
                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
             </columnResizePolicy>
          </TableView>
-         <ProgressIndicator StackPane.alignment="CENTER" />
+         <RingProgressIndicator maxHeight="50.0" maxWidth="50.0" minHeight="50.0" minWidth="50.0" prefHeight="50.0" prefWidth="50.0" visible="false" StackPane.alignment="CENTER" />
       </children>
    </StackPane>
    <padding>

@@ -111,6 +111,7 @@ public class Student {
     private String[] subjects;
     private String telegram_id;
     private String lastPaymentDate;
+    String fee;
 
     public Student(String ed_no,
                    String name,
@@ -133,7 +134,7 @@ public class Student {
                    String suggestions,
                    String[] subjects,
                    String telegram_id,
-                   String last_payment_date) {
+                   String last_payment_date, String fee) {
         this.ed_no = ed_no;
         this.name = name;
         this.email = email;
@@ -157,6 +158,15 @@ public class Student {
         this.telegram_id = telegram_id;
 
         lastPaymentDate = last_payment_date;
+        this.fee = fee;
+    }
+
+    public String getFee() {
+        return fee;
+    }
+
+    public void setFee(String fee) {
+        this.fee = fee;
     }
 
     public void insertIntoDatabase(Connection connection) throws SQLException {
@@ -165,7 +175,7 @@ public class Student {
                 "bloodGroup, guardian_phone, aadhaar_no, father_name, mother_name, " +
                 "class, gender, dob, address, father_occ, mother_occ, " +
                 "previous_ins_name, reason_leaving, school_n, suggestions, " +
-                "subjects, telegram_id,last_payment_date) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+                "subjects, telegram_id,last_payment_date,fee) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, ed_no);
             stmt.setString(2, name);
@@ -189,7 +199,7 @@ public class Student {
             stmt.setString(20, String.join(", ", subjects));
             stmt.setString(21, telegram_id);
             stmt.setString(22, lastPaymentDate);
-
+            stmt.setString(23, fee);
             stmt.executeUpdate();
         }
     }
