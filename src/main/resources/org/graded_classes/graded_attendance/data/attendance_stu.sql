@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS Attendance
     date      TEXT,
     check_in  TEXT,
     check_out TEXT,
-    homework  TEXT
+    homework  TEXT,
+    topic_taught TEXT
 );
 
 

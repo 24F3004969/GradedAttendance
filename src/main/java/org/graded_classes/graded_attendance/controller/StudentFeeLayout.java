@@ -6,13 +6,20 @@ import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
+import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.R;
+import org.graded_classes.graded_attendance.controller.fee.FeeReceipt;
+import org.graded_classes.graded_attendance.test.SnapshotUtil;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -73,6 +80,7 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
                 format(LocalDate.now().getMonth().toString()) +
                 " " + LocalDate.now().getYear());
         mode.setItems(FXCollections.observableArrayList(List.of("Online", "Offline")));
+
         ed_no.setText(ed);
         if (paymentNode != null) {
             splitPane.getItems().set(1, paymentNode);
@@ -85,18 +93,20 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
         ArrayList<String> listOfMonthPaid = getMonthForThisStudent(ed);
         var rMap = generateMonthMapInt();
         Map<Integer, String> map = generateMonthMap();
-        for (int i = 0; i < 12; i++) {
-            if (listOfMonthPaid.contains(map.get(i))) {
-                Button button = (Button) monthsGrid.getChildren().get(i);
-                button.getStylesheets().clear();
-                button.getStylesheets().add(loadURL("css/paid.css").toExternalForm());
-            } else if (!listOfMonthPaid.contains(map.get(i)) && rMap.get(map.get(i)) < rMap.get(listOfMonthPaid.getLast())) {
-                Button button = (Button) monthsGrid.getChildren().get(i);
-                button.getStylesheets().clear();
-                button.getStylesheets().add(loadURL("css/unpaid.css").toExternalForm());
+        if (!listOfMonthPaid.isEmpty()) {
+            for (int i = 0; i < 12; i++) {
+                if (listOfMonthPaid.contains(map.get(i))) {
+                    Button button = (Button) monthsGrid.getChildren().get(i);
+                    button.getStylesheets().clear();
+                    button.getStylesheets().add(loadURL("css/paid.css").toExternalForm());
+                } else if (!listOfMonthPaid.contains(map.get(i)) && rMap.get(map.get(i)) <= rMap.get(listOfMonthPaid.getLast()) &&
+                        rMap.get(map.get(i)) >= rMap.get(listOfMonthPaid.getFirst())) {
+                    Button button = (Button) monthsGrid.getChildren().get(i);
+                    button.getStylesheets().clear();
+                    button.getStylesheets().add(loadURL("css/unpaid.css").toExternalForm());
+                }
             }
         }
-
     }
 
     private Map<Integer, String> generateMonthMap() {
@@ -133,6 +143,29 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
         return map;
     }
 
+    // Controller fields (create once and reuse)
+    private static final java.util.concurrent.ExecutorService IO_EXEC = java.util.concurrent.Executors.newFixedThreadPool(
+            Math.max(4, Runtime.getRuntime().availableProcessors() / 2),
+            r -> {
+                Thread t = new Thread(r, "io-exec");
+                t.setDaemon(true);
+                return t;
+            });
+
+    private static final java.util.concurrent.ExecutorService NET_EXEC = java.util.concurrent.Executors.newFixedThreadPool(
+            4,
+            r -> {
+                Thread t = new Thread(r, "net-exec");
+                t.setDaemon(true);
+                return t;
+            });
+
+    // Call these when your app closes to cleanly shutdown:
+    public static void shutdownExecutors() {
+        IO_EXEC.shutdown();
+        NET_EXEC.shutdown();
+    }
+
     private ArrayList<String> getMonthForThisStudent(String ed) {
         final String sql = """
                 SELECT month
@@ -141,7 +174,8 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
                 """;
 
         ArrayList<String> months = new ArrayList<>();
-        try (PreparedStatement ps = mainController.gradedDataLoader.databaseLoader.getConnection().prepareStatement(sql)) {
+        try {
+            PreparedStatement ps = mainController.gradedDataLoader.databaseLoader.getConnection().prepareStatement(sql);
             ps.setString(1, ed.trim());
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -159,7 +193,6 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
         months.sort(Comparator.comparing(map::get));
         return months;
     }
-
 
 
     private String format(String date) {
@@ -202,12 +235,22 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
 
     @FXML
     void pay() {
+        Parent node;
+
+        node = (Parent) mainController.gradedFxmlLoader.createView(R.fee_receipt, new FeeReceipt(
+                name,ed_no.getText(), mode.getSelectionModel().getSelectedItem(), Double.parseDouble(amount_to_pay.getText()),name_of_receiver.getText()));
+
+        try {
+            SnapshotUtil.exportFxmlNodeAsPngOffscreen(node, new File("export.png"), 6);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        // ---- 1) Validate on FX thread (same as before) ----
         if (selectedMonth == null) {
             showError("Some data is missing (no month selected).");
             return;
         }
 
-        // Collect/validate UI inputs on FX thread
         final String edNo = ed;
         if (edNo == null || edNo.isBlank()) {
             showError("Missing ED number.");
@@ -240,7 +283,7 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
             return;
         }
 
-        final String paymentMode = Optional.ofNullable(mode.getSelectionModel().getSelectedItem()).orElse("").trim();
+        final String paymentMode = java.util.Optional.ofNullable(mode.getSelectionModel().getSelectedItem()).orElse("").trim();
         if (!(paymentMode.equals("Online") || paymentMode.equals("Offline"))) {
             showError("Payment mode must be 'Online' or 'Offline'.");
             return;
@@ -249,112 +292,178 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
         final String gateway = "UPI";
         final String referenceNo = reference_no.getText().isBlank() ? null : reference_no.getText().trim();
         final String dueAmount = "0";
-        final java.time.LocalDate nextFeeDate = java.time.LocalDate.now().plusDays(30);
-        final String nextFeeDateStr = nextFeeDate.toString();
 
-        // Optional: disable pay button / show spinner to prevent double-clicks
-        // (Assuming you have a Pay button reference)
-        // payButton.setDisable(true);
+        // Use LocalDate for date columns (if DB column is DATE); if TEXT, stringify later.
+        final java.time.LocalDate today = java.time.LocalDate.now();
+        final java.time.LocalDate nextFeeDate = today.plusDays(30);
 
-        // Prepare background task
-        Task<Void> task = new Task<>() {
-            @Override
-            protected Void call() throws Exception {
-                // 1) DB write (blocking)
-                final String sql = """
-                        INSERT INTO fee_payments
-                        (ed_no, month, amount, next_fee_date, collected_by_name, payment_mode, gateway, reference_no, due_amount)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                        """;
+        // Optional: prevent double-pay clicks and show busy UI
+        // if (payButton != null) payButton.setDisable(true);
 
-                Connection conn = gradedDataLoader.databaseLoader.getConnection();
-                boolean previousAutoCommit = conn.getAutoCommit();
-                try {
-                    conn.setAutoCommit(true);
-                    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                        int i = 0;
-                        stmt.setString(++i, edNo);
-                        stmt.setString(++i, mon);
-                        stmt.setBigDecimal(++i, amount);
-                        stmt.setString(++i, nextFeeDateStr);
-                        stmt.setString(++i, collectedByName);
-                        stmt.setString(++i, paymentMode);
-                        stmt.setString(++i, gateway);
-                        if (referenceNo == null) stmt.setNull(++i, java.sql.Types.VARCHAR);
-                        else stmt.setString(++i, referenceNo);
-                        stmt.setString(++i, dueAmount);
-                        stmt.executeUpdate();
-                    }
-
-                    // Update last payment date too (also I/O)
-                    try (PreparedStatement pst = conn.prepareStatement(
-                            "UPDATE StudentData SET last_payment_date = ? WHERE ed_no = ?")) {
-                        pst.setString(1, java.time.LocalDate.now().toString());
-                        pst.setString(2, edNo);
-                        pst.executeUpdate();
-                    }
-                } catch (SQLException e) {
-                    throw new RuntimeException("Failed to record payment", e);
-                } finally {
+        // ---- 2) Stage A: DB work (async on IO_EXEC) ----
+        java.util.concurrent.CompletableFuture<StudentLite> dbFuture =
+                java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+                    // Return a minimal student object for later Telegram (id + name). Adjust to your model.
                     try {
-                        conn.setAutoCommit(previousAutoCommit);
-                    } catch (SQLException ignore) {
-                    }
-                }
+                        java.sql.Connection conn = gradedDataLoader.databaseLoader.getConnection();
+                        boolean origAuto = conn.getAutoCommit();
+                        conn.setAutoCommit(false);
+                        try {
+                            // Insert fee_payments
+                            final String insertSql = """
+                                        INSERT INTO fee_payments
+                                        (ed_no, month, amount, next_fee_date, collected_by_name, payment_mode, gateway, reference_no, due_amount)
+                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                    """;
+                            try {
+                                java.sql.PreparedStatement ps = conn.prepareStatement(insertSql);
+                                int i = 0;
+                                ps.setString(++i, edNo);
+                                ps.setString(++i, mon);
+                                ps.setBigDecimal(++i, amount);
 
-                // 2) Telegram send (blocking network I/O)
-                var student = mainController.gradedDataLoader.getStudentData().get(edNo);
-                if (student != null && student.telegram_id() != null && !student.telegram_id().isEmpty()) {
+                                // If next_fee_date column is DATE:
+                                ps.setString(++i, nextFeeDate.toString());
+                                // If your column is TEXT, use:
+                                // ps.setString(i, nextFeeDate.toString());
+
+                                ps.setString(++i, collectedByName);
+                                ps.setString(++i, paymentMode);
+                                ps.setString(++i, gateway);
+                                if (referenceNo == null) {
+                                    ps.setNull(++i, java.sql.Types.VARCHAR);
+                                } else {
+                                    ps.setString(++i, referenceNo);
+                                }
+                                ps.setString(++i, dueAmount);
+                                ps.executeUpdate();
+                            } catch (SQLException e) {
+                                throw new RuntimeException(e);
+                            }
+
+                            // Update StudentData.last_payment_date
+                            try {
+                                java.sql.PreparedStatement pst =
+                                        conn.prepareStatement("UPDATE StudentData SET last_payment_date = ? WHERE ed_no = ?");
+                                // If last_payment_date is DATE:
+                                pst.setString(1, String.valueOf(today));
+                                // If TEXT: pst.setString(1, today.toString());
+                                pst.setString(2, edNo);
+                                pst.executeUpdate();
+                            } catch (SQLException e) {
+                                throw new RuntimeException(e);
+                            }
+
+                            // Commit DB changes
+                            conn.commit();
+                            conn.setAutoCommit(origAuto);
+
+                            // Load minimal info for telegram (id + name)
+                            var student = mainController.gradedDataLoader.getStudentData().get(edNo);
+                            if (student == null) {
+                                return new StudentLite(null, null);
+                            }
+                            // Adjust accessors to your student type (record/getters)
+                            String telegramId = student.telegram_id(); // or student.getTelegramId()
+                            String studentName = student.name();       // or student.getName()
+                            return new StudentLite(telegramId, studentName);
+
+                        } catch (Exception ex) {
+                            try {
+                                conn.rollback();
+                            } catch (Exception ignore) {
+                            }
+                            throw new RuntimeException("Failed to record payment", ex);
+                        } finally {
+                            try {
+                                conn.setAutoCommit(true);
+                            } catch (Exception ignore) {
+                            }
+                        }
+                    } catch (java.sql.SQLException se) {
+                        throw new RuntimeException("DB connection failed", se);
+                    }
+                }, IO_EXEC);
+
+        // ---- 3) Stage B: Telegram (async on NET_EXEC), independent of DB commit status ----
+        // We run it AFTER DB success, but we DO NOT fail the overall flow if Telegram fails.
+        java.util.concurrent.CompletableFuture<Void> telegramFuture =
+                dbFuture.thenAcceptAsync(studentLite -> {
+                    if (studentLite == null) return;
+                    if (studentLite.telegramId == null || studentLite.telegramId.isBlank()) return;
+
                     try {
-                        mainController.messageSender.sendMessage("""
-                                            Fee Received
-                                        
-                                            Dear Parent,
-                                            We have received the fee for the month %s
-                                            Name : %s
-                                            Amount : %s
-                                            Date : %s
-                                        
-                                            Thank you!
-                                            — Graded coaching classes
-                                        """.formatted(mon, name, amount.toPlainString(), java.time.LocalDate.now()),
-                                Long.parseLong(student.telegram_id()));
+                        String message = """
+                                Fee Received
+                                
+                                Dear Parent,
+                                We have received the fee for the month %s
+                                Name : %s
+                                Amount : %s
+                                Date : %s
+                                
+                                Thank you!
+                                — Graded coaching classes
+                                """.formatted(mon,
+                                studentLite.name == null ? "" : studentLite.name,
+                                amount.toPlainString(),
+                                today);
+
+                       /* mainController.messageSender.sendMessage(
+                                message,
+                                Long.parseLong(studentLite.telegramId)
+                        );*/
+                        mainController.messageSender.sendImage(new File("export.png"), Long.parseLong(studentLite.telegramId));
                     } catch (Exception ex) {
-                        // Decide policy: ignore, log, or rethrow to show error
-                        // Here we log and continue so DB success is not rolled back.
+                        // Log and continue; DB was already committed
                         System.err.println("Telegram send failed: " + ex.getMessage());
                     }
-                }
-                return null;
-            }
-        };
+                }, NET_EXEC);
 
-        // Success → update UI safely
-        task.setOnSucceeded(e -> {
-            var alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Payment Confirmation");
-            alert.setHeaderText("Payment done for " + edNo);
-            alert.show();
+        // ---- 4) Stage C: Update UI on completion (FX thread) ----
+        telegramFuture
+                .handle((ok, ex) -> {
+                    // Whether telegram ok or failed, we check if DB stage failed (present on dbFuture)
+                    return ex;
+                })
+                .whenComplete((ex, ignored) -> {
+                    javafx.application.Platform.runLater(() -> {
+                        try {
+                            if (dbFuture.isCompletedExceptionally()) {
+                                // If DB failed, extract the exception
+                                dbFuture.exceptionally(dbEx -> {
+                                    showError(dbEx.getMessage() != null ? dbEx.getMessage() : "Payment failed.");
+                                    return null;
+                                });
+                            } else {
+                                // Success UI path
+                                var alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
+                                alert.setTitle("Payment Confirmation");
+                                alert.setHeaderText("Payment done for " + edNo);
+                                alert.show();
 
-            selectedMonth.getStylesheets().add(loadURL("css/paid.css").toExternalForm());
-            paymentNode = splitPane.getItems().getLast();
-            splitPane.getItems().set(1, mainController.gradedFxmlLoader.createView(R.payment_done_animation));
-            selectedMonth = null;
+                                selectedMonth.getStylesheets().add(loadURL("css/paid.css").toExternalForm());
+                                paymentNode = splitPane.getItems().getLast();
+                                splitPane.getItems().set(1, mainController.gradedFxmlLoader.createView(R.payment_done_animation));
+                                selectedMonth = null;
+                            }
+                        } finally {
+                            // Re-enable button / stop spinner
+                            // if (payButton != null) payButton.setDisable(false);
+                        }
+                    });
+                });
+    }
 
-            // payButton.setDisable(false);
-        });
+    // Minimal holder for Telegram send step
+    private static final class StudentLite {
+        final String telegramId;
+        final String name;
 
-        // Failure → show error on UI
-        task.setOnFailed(e -> {
-            Throwable ex = task.getException();
-            showError(ex != null ? ex.getMessage() : "Payment failed.");
-            // payButton.setDisable(false);
-        });
-
-        // Run task in a background thread
-        Thread t = new Thread(task, "pay-worker");
-        t.setDaemon(true);
-        t.start();
+        StudentLite(String telegramId, String name) {
+            this.telegramId = telegramId;
+            this.name = name;
+        }
     }
 
     // Utility to show errors
@@ -389,18 +498,6 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
             case "dec", "december" -> "Dec";
             default -> "";
         };
-    }
-
-    private void updateLastPaymentDate() {
-        Connection conn = mainController.gradedDataLoader.databaseLoader.getConnection();
-        String sql = "UPDATE StudentData SET last_payment_date = ? WHERE ed_no = ?";
-        try (PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setString(1, LocalDate.now().toString());
-            pst.setString(2, ed_no.getText());
-            pst.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 

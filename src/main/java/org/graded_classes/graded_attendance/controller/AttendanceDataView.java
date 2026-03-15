@@ -83,14 +83,12 @@ public class AttendanceDataView implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        try {
-            var dueReport = new FeeReport.FeeRepository().
-                    duePaymentRecord(studentAttendance.mainController.gradedDataLoader.databaseLoader.getConnection());
-            if (dueReport.containsKey(ed_no.trim()))
-                reminder.setText("Fee is not paid "+" due date is "+dueReport.get(ed_no.trim()).nextFeeDate().getValue());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+
+        var dueReport = new FeeReport.FeeRepository().
+                duePaymentRecord(studentAttendance.mainController.gradedDataLoader.databaseLoader.getConnection());
+        if (dueReport.containsKey(ed_no.trim()))
+            reminder.setText("Fee is not paid " + " due date is " + dueReport.get(ed_no.trim()).nextFeeDate().getValue());
+
         var x = studentAttendance.mainController.gradedDataLoader;
         Student student = x.getStudentData().get(ed_no);
         uId.setText(student.ed_no());
@@ -101,8 +99,10 @@ public class AttendanceDataView implements Initializable {
             studentAttendance.checkIn_out.setVisible(true);
             if (studentAttendance.attendanceMap.get(ed_no).getCheck_in() == null)
                 studentAttendance.checkIn_out.setText("Check In");
-            else if (studentAttendance.attendanceMap.get(ed_no).getCheck_out() == null)
+            else if (studentAttendance.attendanceMap.get(ed_no).getCheck_out() == null) {
                 studentAttendance.checkIn_out.setText("Check Out");
+                studentAttendance.attendanceMap.get(ed_no).setTopics("Unknown");
+            }
         } else {
             studentAttendance.checkIn_out.setVisible(false);
         }

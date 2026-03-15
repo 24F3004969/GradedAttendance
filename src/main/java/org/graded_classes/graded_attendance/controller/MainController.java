@@ -86,10 +86,10 @@ public class MainController implements Initializable {
         Tooltip.install(selectedTab, tooltip);
         messageSender = new MessageSender(gradedDataLoader.databaseLoader, this, getToken());
         notificationInit();
-        ArrayList<Student> students = getStudentsWithFeeDateIsWeekAfter();
+        /*ArrayList<Student> students = getStudentsWithFeeDateIsWeekAfter();
         if (!students.isEmpty()) {
             sendNotification("Some students with ED No. .... have there fee dues date in a week", Styles.ACCENT, students);
-        }
+        }*/
     }
 
     private ArrayList<Student> getStudentsWithFeeDateIsWeekAfter() {

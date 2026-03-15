@@ -76,14 +76,14 @@ public class TimeTable {
             String subject2, String topic2,
             String subject3, String topic3,
             String subject4, String topic4) {
-        final LocalDate date=LocalDate.now();
+        final LocalDate date = LocalDate.now();
         final String sql = "INSERT INTO DailyTopics " +
                 "(date, class, subject1, topic1, subject2, topic2, subject3, topic3, subject4, topic4) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pst = connection.prepareStatement(sql)) {
 
-            pst.setDate(1, Date.valueOf(date));
+            pst.setString(1, date.toString());
             pst.setString(2, className);
             pst.setString(3, subject1);
             pst.setString(4, topic1);
@@ -98,10 +98,6 @@ public class TimeTable {
             return rowsInserted > 0; // true if insert succeeded
 
         } catch (SQLException e) {
-            // Common duplicate key SQL states:
-            // PostgreSQL: 23505
-            // SQLite: "SQLITE_CONSTRAINT_PRIMARYKEY" or message containing "UNIQUE constraint failed"
-            // MySQL: 1062
             String msg = e.getMessage();
             System.err.println("Insert failed: " + msg);
             return false;

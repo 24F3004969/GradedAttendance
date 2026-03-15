@@ -40,7 +40,7 @@ public enum R {
     latex_editor("fxml/latex_editor.fxml"),
     triangular_button("fxml/triangular_buton.fxml"),
     question_preview("fxml/question_preview.fxml"),
-
+    fee_receipt("fxml/fee_recipt.fxml"),
     ;
     private final String path;
 

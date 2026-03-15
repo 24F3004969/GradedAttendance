@@ -7,14 +7,16 @@ import org.graded_classes.graded_attendance.messaging.TelegramBot;
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.File;
+
 
 public class MessageSender {
     public MessageData message;
     TelegramBot bot;
 
-    public MessageSender(DatabaseLoader databaseLoader, MainController mainController,String token) {
+    public MessageSender(DatabaseLoader databaseLoader, MainController mainController, String token) {
         message = new MessageData(databaseLoader, mainController);
-        Platform.runLater(()->{
+        Platform.runLater(() -> {
             try {
                 TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication();
                 bot = new TelegramBot(token);
@@ -37,5 +39,9 @@ public class MessageSender {
 
     public void sendMessage(String message, long id) {
         bot.sendText(id, message);
+    }
+
+    public void sendImage(File file, long id) {
+        bot.sendImage(id, file);
     }
 }

@@ -56,12 +56,10 @@ public class FeeReport implements Initializable {
         this.mainController = mainController;
         init();
         FeeRepository feeRepository = new FeeRepository();
-        try {
-            duePaymentRecord = feeRepository.duePaymentRecord(mainController.
-                    gradedDataLoader.databaseLoader.getConnection());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+
+        duePaymentRecord = feeRepository.duePaymentRecord(mainController.
+                gradedDataLoader.databaseLoader.getConnection());
+
         System.out.println(duePaymentRecord);
     }
 
@@ -80,28 +78,31 @@ public class FeeReport implements Initializable {
                     ORDER BY paid_on , payment_id
                 """;
 
-        try (PreparedStatement ps = mainController.gradedDataLoader.databaseLoader.getConnection().prepareStatement(sql)) {
-            try (ResultSet r = ps.executeQuery()) {
-                while (r.next()) {
-                    String paidOn = r.getString("paid_on");
-                    String nextFeeDate = r.getString("next_fee_date");
-                    String edNo = r.getString("ed_no");
-                    System.out.println(paidOn + "  " + nextFeeDate);
-                    FeeData fee = new FeeData(
-                            r.getObject("payment_id") != null ? r.getInt("payment_id") : null,
-                            new SimpleStringProperty(edNo),
-                            FeeData.MonthAbbrev.valueOf(r.getString("month")),
-                            r.getDouble("amount"),
-                            new SimpleStringProperty(paidOn),
-                            new SimpleStringProperty(nextFeeDate),
-                            new SimpleStringProperty(r.getString("collected_by_name")),
-                            FeeData.PaymentMode.valueOf(r.getString("payment_mode")),
-                            parseGateway(r.getString("gateway")),
-                            new SimpleStringProperty(r.getString("reference_no")),
-                            new SimpleStringProperty(r.getString("due_amount"))
-                    );
-                    feeRecords.put(r.getString("ed_no"), fee);
-                }
+        try {
+            PreparedStatement ps = mainController.
+                    gradedDataLoader.databaseLoader.
+                    getConnection().prepareStatement(sql);
+            ResultSet r = ps.executeQuery();
+            while (r.next()) {
+                String paidOn = r.getString("paid_on");
+                String nextFeeDate = r.getString("next_fee_date");
+                String edNo = r.getString("ed_no");
+                System.out.println(paidOn + "  " + nextFeeDate);
+                FeeData fee = new FeeData(
+                        r.getObject("payment_id") != null ?
+                                r.getInt("payment_id") : null,
+                        new SimpleStringProperty(edNo),
+                        FeeData.MonthAbbrev.valueOf(r.getString("month")),
+                        r.getDouble("amount"),
+                        new SimpleStringProperty(paidOn),
+                        new SimpleStringProperty(nextFeeDate),
+                        new SimpleStringProperty(r.getString("collected_by_name")),
+                        FeeData.PaymentMode.valueOf(r.getString("payment_mode")),
+                        parseGateway(r.getString("gateway")),
+                        new SimpleStringProperty(r.getString("reference_no")),
+                        new SimpleStringProperty(r.getString("due_amount"))
+                );
+                feeRecords.put(r.getString("ed_no"), fee);
             }
             System.out.println(feeRecords);
         } catch (SQLException exception) {
@@ -182,7 +183,7 @@ public class FeeReport implements Initializable {
          * @return TreeMap<String, FeeData> keyed by ed_no
          * @throws SQLException on DB errors
          */
-        public TreeMap<String, FeeData> duePaymentRecord(Connection conn) throws SQLException {
+        public TreeMap<String, FeeData> duePaymentRecord(Connection conn) {
 
             // Safer than NATURAL JOIN + SELECT *:
             //  - Picks the exact columns needed for FeeData
@@ -208,8 +209,9 @@ public class FeeReport implements Initializable {
 
             TreeMap<String, FeeData> map = new TreeMap<>();
 
-            try (PreparedStatement ps = conn.prepareStatement(sql);
-                 ResultSet rs = ps.executeQuery()) {
+            try {
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery();
 
                 while (rs.next()) {
                     Integer paymentId = getInteger(rs, "payment_id");
@@ -245,6 +247,8 @@ public class FeeReport implements Initializable {
                     // Key by ed_no (change to something else if you prefer)
                     map.put(edNo, data);
                 }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
 
             return map;

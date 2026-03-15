@@ -18,6 +18,7 @@ import javafx.scene.layout.VBox;
 import org.graded_classes.graded_attendance.GradedFxmlLoader;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.data.Attendance;
+import org.graded_classes.graded_attendance.data.DailyTopics;
 
 import java.io.IOException;
 import java.net.URL;
@@ -29,6 +30,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 import static org.graded_classes.graded_attendance.GradedResourceLoader.loadURL;
 
@@ -52,7 +54,7 @@ public class StudentAttendance implements Initializable {
     GradedFxmlLoader gradedFxmlLoader;
     VBox outer_main_box;
     String id;
-    String todayTopicList = "";
+    public String todayTopicList = "";
     ListViewStudents listViewStudents;
     final String submit = """
              Dear Parent,
@@ -103,6 +105,7 @@ public class StudentAttendance implements Initializable {
 
         }
     }
+
 
     private Boolean getAsRequired(String homework) {
         return homework != null ? homework.equals("Submitted") : null;
@@ -201,6 +204,17 @@ public class StudentAttendance implements Initializable {
         String timeStamp = updatedTime == null ? LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a")) : updatedTime;
         Connection conn = mainController.gradedDataLoader.databaseLoader.getConnection();
         String edNo = listViewStudents.ed;
+        String studentClass = mainController.gradedDataLoader.getStudentData().get(edNo)._class();
+        try {
+            var data = DailyTopicsDao.loadForDateAllClasses(mainController.gradedDataLoader.databaseLoader.getConnection(),
+                    LocalDate.now());
+            if (!isAllNull(data.get(studentClass))) {
+                var valid = data.get(studentClass);
+                topicTaughtTodayUpdate(valid.getSubject1(), valid.getTopic1(), valid.getSubject2(), valid.getTopic2());
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         String date = LocalDate.now().toString();
         try {
             if (source.getText().equals("Check In")) {
@@ -219,19 +233,24 @@ public class StudentAttendance implements Initializable {
                         Thank you for trusting us with their learning journey!
                         """.formatted(mainController.gradedDataLoader.getStudentData().get(edNo).name(), timeStamp);
                 if (mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id() != null && shouldMessageBeSend) {
-                    Platform.runLater(() -> {
+
+                    CompletableFuture.runAsync(() -> {
                         try {
                             if (mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id() != null) {
-                                mainController.messageSender.sendMessage(msg, Long.parseLong(mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id()));
-                                mainController.sendNotification("Arrival message was sent successfully for " + edNo, Styles.SUCCESS);
-
+                                mainController.messageSender.sendMessage(
+                                        msg,
+                                        Long.parseLong(mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id())
+                                );
+                                Platform.runLater(() ->
+                                        mainController.sendNotification("Arrival message was sent successfully for " + edNo, Styles.SUCCESS)
+                                );
                             }
-
                         } catch (Exception e) {
                             System.out.println(e.getMessage());
                             System.out.println("Message was not sent to the server.");
-                            mainController.sendNotification("Message was not sent to the server for " + edNo, Styles.DANGER);
-
+                            Platform.runLater(() ->
+                                    mainController.sendNotification("Message was not sent to the server for " + edNo, Styles.DANGER)
+                            );
                         }
                     });
                 }
@@ -291,26 +310,39 @@ public class StudentAttendance implements Initializable {
                             list[0], list[1], listViewStudents.attendanceDataView.Submitted.isSelected() ? "Submitted" : "Not Submitted",
                             listViewStudents.attendanceDataView.Submitted.isSelected() ? submit : not_submit);
                 }
-                Platform.runLater(() -> {
+
+                CompletableFuture.runAsync(() -> {
                     try {
                         if (mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id() != null && shouldMessageBeSend) {
-                            mainController.messageSender.sendMessage(msg, Long.parseLong(mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id()));
-                            mainController.sendNotification("Departure message was sent successfully for " + edNo, Styles.SUCCESS);
+                            mainController.messageSender.sendMessage(
+                                    msg,
+                                    Long.parseLong(mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id())
+                            );
+                            Platform.runLater(() ->
+                                    mainController.sendNotification("Departure message was sent successfully for " + edNo, Styles.SUCCESS)
+                            );
                         }
-
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                         System.out.println("Message was not sent to the server.");
-                        mainController.sendNotification("Message was not sent to the server for " + edNo, Styles.DANGER);
-
+                        Platform.runLater(() ->
+                                mainController.sendNotification("Message was not sent to the server for " + edNo, Styles.DANGER)
+                        );
                     }
                 });
                 inputField.setText("");
                 updateStmt.executeUpdate();
+                todayTopicList = "";
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private boolean isAllNull(DailyTopics dailyTopics) {
+
+        return dailyTopics.getSubject1() == null && dailyTopics.getSubject2() == null && dailyTopics.getSubject3() == null &&
+                dailyTopics.getTopic1() == null && dailyTopics.getTopic2() == null && dailyTopics.getTopic3() == null;
     }
 
     @FXML

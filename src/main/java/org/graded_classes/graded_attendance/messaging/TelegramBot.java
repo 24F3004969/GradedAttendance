@@ -1,6 +1,8 @@
 package org.graded_classes.graded_attendance.messaging;
 
 
+import org.graded_classes.graded_attendance.AppMode;
+import org.graded_classes.graded_attendance.Main;
 import org.graded_classes.graded_attendance.data.MessageData;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
@@ -28,7 +30,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
 
     public void sendText(Long who, String what) {
         SendMessage sm = SendMessage.builder()
-                .chatId(who.toString())//Who are we sending a message to
+                .chatId(Main.appMode== AppMode.DEV ? "6749377036" : who.toString())//Who are we sending a message to
                 .text(what).build();    //Message content
      /*   SendPhoto myPhoto = SendPhoto.builder().
                 chatId("6749377036").
@@ -38,6 +40,17 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
         try {
             telegramClient.execute(sm);
            // telegramClient.execute(myPhoto);//Actually sending the message
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);      //Any error will be printed here
+        }
+    }
+    public void sendImage(Long who, File file) {
+        SendPhoto myPhoto = SendPhoto.builder().
+                chatId(Main.appMode== AppMode.DEV ? "6749377036" : who.toString()).
+                photo(new InputFile(file)).caption("Graded Icon")
+                .build();
+        try {
+             telegramClient.execute(myPhoto);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);      //Any error will be printed here
         }
