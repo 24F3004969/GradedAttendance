@@ -1,9 +1,11 @@
 package org.graded_classes.graded_attendance.data;
 
 import javafx.beans.property.SimpleStringProperty;
+
 public record FeeData(
         Integer paymentId,
         SimpleStringProperty edNo,
+        SimpleStringProperty name,
         MonthAbbrev month,
         double amount,
         SimpleStringProperty paidOn,
@@ -16,6 +18,7 @@ public record FeeData(
 ) {
     public FeeData(Integer paymentId,
                    String edNo,
+                   String name,
                    MonthAbbrev month,
                    double amount,
                    String paidOn,
@@ -25,7 +28,7 @@ public record FeeData(
                    Gateway gateway,
                    String referenceNo,
                    String dueAmount) {
-        this(paymentId, new SimpleStringProperty(edNo), month, amount, new SimpleStringProperty(paidOn),
+        this(paymentId, new SimpleStringProperty(edNo), new SimpleStringProperty(name), month, amount, new SimpleStringProperty(paidOn),
                 new SimpleStringProperty(nextFeeDate), new SimpleStringProperty(collectedByName),
                 paymentMode, gateway, new SimpleStringProperty(referenceNo), new SimpleStringProperty(dueAmount));
     }

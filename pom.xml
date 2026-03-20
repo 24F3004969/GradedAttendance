@@ -138,6 +138,19 @@
             <artifactId>offline</artifactId>
             <version>1.1.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.dlsc.pdfviewfx</groupId>
+            <artifactId>pdfviewfx</artifactId>
+            <version>3.4.2</version>
+        </dependency>
+
+        <!-- Apache PDFBox (3.x) -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.7</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

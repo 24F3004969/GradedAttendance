@@ -3,25 +3,21 @@ package org.graded_classes.graded_attendance.controller;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
-import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.controller.fee.FeeReceipt;
+import org.graded_classes.graded_attendance.data.FeeData;
 import org.graded_classes.graded_attendance.test.SnapshotUtil;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -99,7 +95,8 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
                     Button button = (Button) monthsGrid.getChildren().get(i);
                     button.getStylesheets().clear();
                     button.getStylesheets().add(loadURL("css/paid.css").toExternalForm());
-                } else if (!listOfMonthPaid.contains(map.get(i)) && rMap.get(map.get(i)) <= rMap.get(listOfMonthPaid.getLast()) &&
+                } else if (!listOfMonthPaid.contains(map.get(i)) && rMap.get(map.get(i)) <=
+                        rMap.get(listOfMonthPaid.getLast()) &&
                         rMap.get(map.get(i)) >= rMap.get(listOfMonthPaid.getFirst())) {
                     Button button = (Button) monthsGrid.getChildren().get(i);
                     button.getStylesheets().clear();
@@ -195,7 +192,7 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
     }
 
 
-    private String format(String date) {
+    public static String format(String date) {
         return date.charAt(0) + date.substring(1).toLowerCase();
     }
 
@@ -235,16 +232,6 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
 
     @FXML
     void pay() {
-        Parent node;
-
-        node = (Parent) mainController.gradedFxmlLoader.createView(R.fee_receipt, new FeeReceipt(
-                name,ed_no.getText(), mode.getSelectionModel().getSelectedItem(), Double.parseDouble(amount_to_pay.getText()),name_of_receiver.getText()));
-
-        try {
-            SnapshotUtil.exportFxmlNodeAsPngOffscreen(node, new File("export.png"), 6);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
         // ---- 1) Validate on FX thread (same as before) ----
         if (selectedMonth == null) {
             showError("Some data is missing (no month selected).");
@@ -291,16 +278,28 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
 
         final String gateway = "UPI";
         final String referenceNo = reference_no.getText().isBlank() ? null : reference_no.getText().trim();
-        final String dueAmount = "0";
+        final String dueAmount = due_amount.getText().isBlank() ? "0" : due_amount.getText().trim();
 
         // Use LocalDate for date columns (if DB column is DATE); if TEXT, stringify later.
         final java.time.LocalDate today = java.time.LocalDate.now();
         final java.time.LocalDate nextFeeDate = today.plusDays(30);
+        Parent node;
 
-        // Optional: prevent double-pay clicks and show busy UI
-        // if (payButton != null) payButton.setDisable(true);
+        node = (Parent) mainController.gradedFxmlLoader.createView(R.fee_receipt,
+                new FeeReceipt(name, new FeeData(0, ed, "", FeeData.MonthAbbrev.valueOf(mon), amount.doubleValue(),
+                        LocalDate.now().toString(),
+                        nextFeeDate.toString(),
+                        collectedByName,
+                        FeeData.PaymentMode.valueOf(paymentMode),
+                        FeeData.Gateway.valueOf(gateway),
+                        referenceNo,
+                        dueAmount)));
 
-        // ---- 2) Stage A: DB work (async on IO_EXEC) ----
+        try {
+            SnapshotUtil.exportFxmlNodeAsPngOffscreen(node, new File(System.getProperty("user.home") + "\\" + "export.png"), 6);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         java.util.concurrent.CompletableFuture<StudentLite> dbFuture =
                 java.util.concurrent.CompletableFuture.supplyAsync(() -> {
                     // Return a minimal student object for later Telegram (id + name). Adjust to your model.
@@ -413,7 +412,8 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
                                 message,
                                 Long.parseLong(studentLite.telegramId)
                         );*/
-                        mainController.messageSender.sendImage(new File("export.png"), Long.parseLong(studentLite.telegramId));
+                        System.out.println(System.getProperty("user.home") + "\\" + "export.png");
+                        mainController.messageSender.sendImage(new File(System.getProperty("user.home") + "\\" + "export.png"), Long.parseLong(studentLite.telegramId));
                     } catch (Exception ex) {
                         // Log and continue; DB was already committed
                         System.err.println("Telegram send failed: " + ex.getMessage());
@@ -518,5 +518,4 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
     }
-
 }

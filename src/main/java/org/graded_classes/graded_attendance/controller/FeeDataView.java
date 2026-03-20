@@ -54,6 +54,7 @@ public class FeeDataView {
                     FeeData fee = new FeeData(
                             r.getObject("payment_id") != null ? r.getInt("payment_id") : null,
                             edNo,
+                            r.getString("student_name"),
                             FeeData.MonthAbbrev.valueOf(r.getString("month")),
                             r.getDouble("amount"),
                             paidOn,

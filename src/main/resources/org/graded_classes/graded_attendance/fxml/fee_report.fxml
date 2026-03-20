@@ -3,6 +3,7 @@
 <?import atlantafx.base.controls.RingProgressIndicator?>
 <?import atlantafx.base.controls.SegmentedControl?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
@@ -15,6 +16,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <VBox maxHeight="600.0" maxWidth="800.0" minHeight="600.0" minWidth="800.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.fee.FeeReport">
    <HBox>
@@ -93,9 +95,9 @@
          </TextField>
          <MenuButton fx:id="filterMenu" maxHeight="1.7976931348623157E308" mnemonicParsing="false" text="ED No.">
             <items>
-               <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenu" selected="true" text="Class" />
-               <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenu" text="Name" />
-               <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenu" text="ED No." />
+               <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenuFilter" selected="true" text="Class" />
+               <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenuFilter" text="Name" />
+               <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenuFilter" text="ED No." />
             </items>
          </MenuButton>
       </HBox>
@@ -109,25 +111,33 @@
          </SegmentedControl>
          <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
             <children>
-               <MenuButton fx:id="months" maxHeight="1.7976931348623157E308" mnemonicParsing="false" text="Months">
+               <MenuButton fx:id="monthList" maxHeight="1.7976931348623157E308" mnemonicParsing="false" text="Months">
                   <HBox.margin>
                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                   </HBox.margin>
                   <items>
-                     <CheckMenuItem mnemonicParsing="false" text="Jan" />
-                     <CheckMenuItem mnemonicParsing="false" text="Feb" />
-                     <CheckMenuItem mnemonicParsing="false" text="Mar" />
-                     <CheckMenuItem mnemonicParsing="false" text="Apr" />
-                     <CheckMenuItem mnemonicParsing="false" text="May" />
-                     <CheckMenuItem mnemonicParsing="false" text="Jun" />
-                     <CheckMenuItem mnemonicParsing="false" text="Jul" />
-                     <CheckMenuItem mnemonicParsing="false" text="Aug" />
-                     <CheckMenuItem mnemonicParsing="false" text="Sep" />
-                     <CheckMenuItem mnemonicParsing="false" text="Oct" />
-                     <CheckMenuItem mnemonicParsing="false" text="Nov" />
-                     <CheckMenuItem mnemonicParsing="false" text="Dec" />
+                     <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenuMonth" text="Jan" />
+                     <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenuMonth" text="Feb" />
+                     <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenuMonth" text="Mar" />
+                     <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenuMonth" text="Apr" />
+                     <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenuMonth" text="May" />
+                     <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenuMonth" text="Jun" />
+                     <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenuMonth" text="Jul" />
+                     <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenuMonth" text="Aug" />
+                     <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenuMonth" text="Sep" />
+                     <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenuMonth" text="Oct" />
+                     <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenuMonth" text="Nov" />
+                     <CheckMenuItem mnemonicParsing="false" onAction="#onFilterMenuMonth" text="Dec" />
                   </items>
                </MenuButton>
+               <Button contentDisplay="GRAPHIC_ONLY" maxHeight="1.7976931348623157E308" mnemonicParsing="false" onAction="#printNode" text="Button">
+                  <HBox.margin>
+                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                  </HBox.margin>
+                  <graphic>
+                     <FontIcon iconLiteral="mdi2p-printer" />
+                  </graphic>
+               </Button>
             </children>
          </HBox>
       </children>
@@ -138,7 +148,7 @@
             <columns>
                <TableColumn fx:id="payID" text="Pay Id" />
                <TableColumn fx:id="ed_no" text="ED No." />
-               <TableColumn fx:id="name" text="Name" visible="false" />
+               <TableColumn fx:id="name" text="Name" />
                <TableColumn fx:id="grade" prefWidth="75.0" text="Class" visible="false" />
                <TableColumn fx:id="amount" text="Amount" />
                <TableColumn fx:id="payDate" text="Pay Date" />

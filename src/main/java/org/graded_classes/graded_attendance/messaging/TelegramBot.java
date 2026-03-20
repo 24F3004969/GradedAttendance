@@ -47,7 +47,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
     public void sendImage(Long who, File file) {
         SendPhoto myPhoto = SendPhoto.builder().
                 chatId(Main.appMode== AppMode.DEV ? "6749377036" : who.toString()).
-                photo(new InputFile(file)).caption("Graded Icon")
+                photo(new InputFile(file)).caption("Fee Receipt")
                 .build();
         try {
              telegramClient.execute(myPhoto);
@@ -74,12 +74,12 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
             boolean c = this.messageData.updateTelegramId(test[0], test[1], test[2], String.valueOf(user.getId()));
             if (c) {
 
-                sendText(user.getId(), "🎉🎉🎊🎊Congratulations! " + test[0] + "\nName:" + test[1] + "\nClass:" + test[2] +
+                sendText(user.getId(), "Congratulations! " + test[0] + "\nName:" + test[1] + "\nClass:" + test[2] +
                         "\nYou have been successfully added to the Graded Coaching Classes Messaging System.\n" +
                         "We’re excited to have you on board—get ready to achieve great things!");
             } else {
                 sendText(user.getId(), """
-                        We're really sorry 🙏🙏
+                        We're really sorry
                         Something went wrong. Please try again.
                         It looks like there might be an issue with the roll number, name, or class you entered.
                         Please make sure they match exactly with the details you provided during admission.

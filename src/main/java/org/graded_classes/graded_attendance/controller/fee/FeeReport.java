@@ -6,15 +6,33 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
-import org.graded_classes.graded_attendance.R;
+import javafx.scene.image.WritableImage;
+import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.util.Matrix;
 import org.graded_classes.graded_attendance.controller.MainController;
 import org.graded_classes.graded_attendance.data.FeeData;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,13 +54,13 @@ public class FeeReport implements Initializable {
     @FXML
     private Label current_date;
     @FXML
-    private MenuButton filterMenu;
-    @FXML
     private SegmentedControl segmentControl;
     @FXML
     private TextField filterText;
     @FXML
     private Label feeCollected;
+    @FXML
+    private MenuButton monthList, filterMenu;
 
     @FXML
     private Label feeLeft;
@@ -51,11 +69,11 @@ public class FeeReport implements Initializable {
     private TableView<FeeData> feePaidData;
     MainController mainController;
     double totalSumOfMoney, totalCollection;
+    FeeRepository feeRepository = new FeeRepository();
 
     public FeeReport(MainController mainController) {
         this.mainController = mainController;
-        init();
-        FeeRepository feeRepository = new FeeRepository();
+        paidStudentData(FeeRepository.toAbbrevFromNumber(LocalDate.now().getMonthValue()).name());
 
         duePaymentRecord = feeRepository.duePaymentRecord(mainController.
                 gradedDataLoader.databaseLoader.getConnection());
@@ -64,19 +82,58 @@ public class FeeReport implements Initializable {
     }
 
     @FXML
-    void onFilterMenu(ActionEvent event) {
+    void onFilterMenuMonth(ActionEvent event) {
+        var list = monthList.getItems();
+        CheckMenuItem checkMenuItem = (CheckMenuItem) event.getSource();
+        for (MenuItem m : list) {
+            if (((CheckMenuItem) m).isSelected()) {
+                ((CheckMenuItem) m).setSelected(false);
+            }
+        }
+        checkMenuItem.setSelected(true);
 
+        monthList.setText(checkMenuItem.getText());
+        feeRecords.clear();
+        paidStudentData(checkMenuItem.getText());
+        items.clear();
+        for (var keys : feeRecords.keySet()) {
+            items.add(feeRecords.get(keys));
+        }
+        duePaymentRecord.clear();
+        feeRepository.duePaymentRecord(mainController.
+                gradedDataLoader.databaseLoader.getConnection());
+        double totalSumOfMoney = mainController.gradedDataLoader.getStudentData().
+                values().stream().mapToDouble(sd -> Double.parseDouble(sd.getFee())).sum();
+        double totalCollection = feeRecords.
+                values().stream().mapToDouble(FeeData::amount).sum();
+        System.out.println("Total collection: " + totalCollection);
+        System.out.println("Total sum of money: " + totalSumOfMoney);
+        feeCollected.setText("₹" + String.format("%,d", (long) totalCollection));
+        feeLeft.setText("₹" + String.format("%,d", (int) (totalSumOfMoney - totalCollection)));
     }
 
-    private void init() {
+    @FXML
+    void onFilterMenuFilter(ActionEvent event) {
+        var list = filterMenu.getItems();
+        CheckMenuItem checkMenuItem = (CheckMenuItem) event.getSource();
+        for (MenuItem m : list) {
+            if (((CheckMenuItem) m).isSelected()) {
+                ((CheckMenuItem) m).setSelected(false);
+            }
+        }
+        checkMenuItem.setSelected(true);
+        filterMenu.setText(checkMenuItem.getText());
+    }
+
+    private void paidStudentData(String monthName) {
         String sql = """
                     SELECT payment_id, ed_no, month, amount, paid_on, next_fee_date,
-                           collected_by_name, payment_mode, gateway, reference_no, due_amount
+                           collected_by_name, payment_mode, gateway, reference_no, due_amount,student_name
                     FROM fee_payments
-                    WHERE paid_on BETWEEN date('now', 'start of month')
-                                      AND date('now', 'start of month', '+1 month', '-1 day')
-                    ORDER BY paid_on , payment_id
-                """;
+                   WHERE month='%s'
+                   AND paid_on BETWEEN date('now', 'start of year') AND date('now', 'start of year', '+1 year', '-1 day')
+                   ORDER BY paid_on , payment_id
+                """.formatted(monthName);
 
         try {
             PreparedStatement ps = mainController.
@@ -92,6 +149,7 @@ public class FeeReport implements Initializable {
                         r.getObject("payment_id") != null ?
                                 r.getInt("payment_id") : null,
                         new SimpleStringProperty(edNo),
+                        new SimpleStringProperty(r.getString("student_name")),
                         FeeData.MonthAbbrev.valueOf(r.getString("month")),
                         r.getDouble("amount"),
                         new SimpleStringProperty(paidOn),
@@ -102,7 +160,9 @@ public class FeeReport implements Initializable {
                         new SimpleStringProperty(r.getString("reference_no")),
                         new SimpleStringProperty(r.getString("due_amount"))
                 );
-                feeRecords.put(r.getString("ed_no"), fee);
+                var edNumber = r.getString("ed_no");
+                if (edNumber != null)
+                    feeRecords.put(edNumber, fee);
             }
             System.out.println(feeRecords);
         } catch (SQLException exception) {
@@ -118,6 +178,7 @@ public class FeeReport implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        feePaidData.setFixedCellSize(35);
         double totalSumOfMoney = mainController.gradedDataLoader.getStudentData().
                 values().stream().mapToDouble(sd -> Double.parseDouble(sd.getFee())).sum();
         double totalCollection = feeRecords.
@@ -129,12 +190,16 @@ public class FeeReport implements Initializable {
         current_date.setText(LocalDate.now().getDayOfMonth() + " " +
                 format(LocalDate.now().getMonth().toString()) +
                 " " + LocalDate.now().getYear());
+        ((CheckMenuItem) monthList.getItems().get(LocalDate.now().getMonthValue() - 1)).setSelected(true);
+        monthList.setText(monthList.getItems().get(LocalDate.now().getMonthValue() - 1).getText());
         segmentControl.getSegments().add(new ToggleLabel("Paid"));
         segmentControl.getSegments().add(new ToggleLabel("Unpaid"));
+        segmentControl.getSegments().add(new ToggleLabel("Online"));
+        segmentControl.getSegments().add(new ToggleLabel("Offline"));
         ed_no.setCellValueFactory(map -> map.getValue().edNo());
+        name.setCellValueFactory(map -> map.getValue().name());
         amount.setCellValueFactory(map -> new SimpleStringProperty("" + map.getValue().amount()));
         dueData.setCellValueFactory(map -> map.getValue().nextFeeDate());
-        //grade.setCellValueFactory(map -> map.getValue());
         mode.setCellValueFactory(map -> new SimpleStringProperty(map.getValue().paymentMode() + ""));
         payDate.setCellValueFactory(map -> map.getValue().paidOn());
         payID.setCellValueFactory(map -> new SimpleStringProperty(map.getValue().paymentId() + ""));
@@ -157,6 +222,20 @@ public class FeeReport implements Initializable {
                     referenceNo.setVisible(false);
                     for (var keys : duePaymentRecord.keySet()) {
                         items.add(duePaymentRecord.get(keys));
+                    }
+                } else if (l.getText().equals("Online")) {
+                    items.clear();
+                    for (var keys : feeRecords.keySet()) {
+                        if (feeRecords.get(keys).paymentMode().equals(FeeData.PaymentMode.Online)) {
+                            items.add(feeRecords.get(keys));
+                        }
+                    }
+                } else if (l.getText().equals("Offline")) {
+                    items.clear();
+                    for (var keys : feeRecords.keySet()) {
+                        if (feeRecords.get(keys).paymentMode().equals(FeeData.PaymentMode.Offline)) {
+                            items.add(feeRecords.get(keys));
+                        }
                     }
                 }
             }
@@ -192,6 +271,7 @@ public class FeeReport implements Initializable {
                     SELECT
                         fp.payment_id          AS payment_id,
                         fp.ed_no               AS ed_no,
+                        fp.student_name        AS student_name,
                         fp.month               AS month,           -- can be 'Jan'.. or numeric; we'll parse
                         fp.amount              AS amount,
                         fp.paid_on             AS paid_on,
@@ -233,6 +313,7 @@ public class FeeReport implements Initializable {
                     FeeData data = new FeeData(
                             paymentId,
                             edNo,
+                            rs.getString("student_name"),
                             month,
                             amount,
                             nullToEmpty(paidOn),
@@ -361,7 +442,7 @@ public class FeeReport implements Initializable {
             };
         }
 
-        private static FeeData.MonthAbbrev toAbbrevFromNumber(int m) {
+        static FeeData.MonthAbbrev toAbbrevFromNumber(int m) {
             if (m < 1 || m > 12) return FeeData.MonthAbbrev.Jan;
             return switch (m) {
                 case 1 -> FeeData.MonthAbbrev.Jan;
@@ -379,5 +460,140 @@ public class FeeReport implements Initializable {
                 default -> FeeData.MonthAbbrev.Jan;
             };
         }
+    }
+
+
+    @FXML
+    void printNode() {
+        // 1) Take a full-content snapshot of the TableView you already have:
+        double scale = 2.0; // 2.0–2.5 is usually plenty; higher = larger PNG and PDF
+        BufferedImage awtImg = snapshotFullTable(feePaidData, scale);
+
+        // 2) Create a multi-page A4 PDF with margins and automatic vertical tiling
+        try {
+            Path pdfPath = Files.createTempFile("fee-table-", ".pdf");
+            createPdfFromImageTiled(awtImg, PDRectangle.A4, 36f /*0.5" margin*/, pdfPath);
+            // Optionally open or show a success message
+            System.out.println("Saved: " + pdfPath);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            // handle UI error dialog as needed
+        }
+    }
+
+    /**
+     * Writes a PDF where the (potentially tall) image is scaled to fit the content width/height
+     * and tiled vertically across as many pages as needed.
+     */
+
+
+    private static void createPdfFromImageTiled(BufferedImage img, PDRectangle pageSize,
+                                                float margin, Path outPath) throws IOException {
+        float pageW = pageSize.getWidth();
+        float pageH = pageSize.getHeight();
+        float availW = pageW - 2 * margin;
+        float availH = pageH - 2 * margin;
+
+        float imgW = img.getWidth();
+        float imgH = img.getHeight();
+
+        // Scale to fit the content area; change to (availW/imgW) to "fit width" strictly
+        float scale = Math.min(availW / imgW, availH / imgH);
+        float drawW = imgW * scale;
+        float drawH = imgH * scale;
+
+        int pages = (int) Math.ceil(drawH / availH);
+        float x = margin + (availW - drawW) / 2f;
+
+        // Encode once
+        ByteArrayOutputStream png = new ByteArrayOutputStream();
+        ImageIO.write(img, "PNG", png);
+        byte[] pngBytes = png.toByteArray();
+
+        try (PDDocument doc = new PDDocument()) {
+            PDImageXObject pdImage = PDImageXObject.createFromByteArray(doc, pngBytes, "table");
+
+            for (int i = 0; i < pages; i++) {
+                PDPage page = new PDPage(pageSize);
+                doc.addPage(page);
+
+                float sliceTopY = margin + availH; // top of drawable content area
+                float yOffset   = i * availH;      // vertical advance per page
+
+                try (PDPageContentStream cs = new PDPageContentStream(doc, page)) {
+                    // Clip to content rect to avoid spillover
+                    cs.addRect(margin, margin, availW, availH);
+                    cs.clip();
+
+                    float translateX = x;
+                    float translateY = sliceTopY - drawH + yOffset;
+
+                    cs.transform(new Matrix(scale, 0, 0, scale, translateX, translateY));
+                    cs.drawImage(pdImage, 0, 0);
+                }
+            }
+
+            doc.save(outPath.toFile());
+        }
+    }
+
+    private static double getHeaderHeight(TableView<?> table) {
+        // Ensure CSS/skin is created
+        table.applyCss();
+        table.layout();
+
+        // Try to look up the header background node created by TableViewSkin
+        Node header = table.lookup(".column-header-background");
+        if (header != null) {
+            return header.getBoundsInParent().getHeight();
+        }
+
+        // Fallback if lookup fails (style-dependent). Adjust as needed.
+        return 28.0;
+    }
+
+    private static double computeTableFullHeight(TableView<?> table) {
+        double headerH = getHeaderHeight(table);
+
+        double rowH = table.getFixedCellSize();
+        if (rowH <= 0) rowH = 24; // fallback if fixed size isn’t set
+
+        int rows = table.getItems() == null ? 0 : table.getItems().size();
+
+        Insets insets = table.getInsets() == null ? Insets.EMPTY : table.getInsets();
+        double insetSum = insets.getTop() + insets.getBottom();
+
+        // No scrollbar when expanded for snapshot
+        return headerH + rows * rowH + insetSum;
+    }
+
+    public static BufferedImage snapshotFullTable(TableView<?> table, double scale) {
+        // Save original size hints
+        double oldPrefH = table.getPrefHeight();
+        double oldMinH  = table.getMinHeight();
+        double oldMaxH  = table.getMaxHeight();
+
+        // Expand to full height
+        double fullH = computeTableFullHeight(table);
+        table.setMinHeight(Region.USE_PREF_SIZE);
+        table.setMaxHeight(Region.USE_PREF_SIZE);
+        table.setPrefHeight(fullH);
+
+        // Force CSS/layout so virtualized rows are realized
+        table.applyCss();
+        table.layout();
+
+        // Snapshot at scale
+        SnapshotParameters sp = new SnapshotParameters();
+        sp.setTransform(javafx.scene.transform.Transform.scale(scale, scale));
+        sp.setFill(Color.WHITE);
+        WritableImage fxImg = table.snapshot(sp, null);
+
+        // Restore original sizing
+        table.setPrefHeight(oldPrefH);
+        table.setMinHeight(oldMinH);
+        table.setMaxHeight(oldMaxH);
+
+        return SwingFXUtils.fromFXImage(fxImg, null);
     }
 }
