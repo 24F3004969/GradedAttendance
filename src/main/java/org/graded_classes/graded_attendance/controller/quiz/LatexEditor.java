@@ -12,6 +12,8 @@ import org.graded_classes.graded_attendance.controller.MainController;
 
 import java.util.ArrayList;
 
+import static org.graded_classes.graded_attendance.GradedResourceLoader.loadURL;
+
 public class LatexEditor {
     MainController mainController;
     ArrayList<String> text = new ArrayList<>();
@@ -35,6 +37,7 @@ public class LatexEditor {
 
     @FXML
     private TilePane tilePane;
+    Button selectAppButton;
 
     @FXML
     void addLatex() {
@@ -55,11 +58,13 @@ public class LatexEditor {
     @FXML
     void addNewLine() {
         text.add("\\\\");
+        addToViewOrder("\\n", "newLine");
         renderLatex();
     }
 
     @FXML
     void addPlainText() {
+
         if (!plainText.getText().isEmpty()) {
             var ab = plainText.getText().split("\n");
             StringBuilder x = new StringBuilder();
@@ -77,6 +82,7 @@ public class LatexEditor {
             plainText.clear();
             renderLatex();
         }
+        System.out.println(text);
     }
 
     private void addToViewOrder(String prompt, String id) {
@@ -88,6 +94,19 @@ public class LatexEditor {
         tilePane.getChildren().add(button);
         button.setId(id + "," + (text.size() - 1));
         button.setOnMouseClicked(e -> {
+            if (selectAppButton != null && selectAppButton == button) {
+                selectAppButton.getStylesheets().removeLast();
+                selectAppButton = null;
+
+            } else if (selectAppButton != null) {
+                selectAppButton.getStylesheets().removeLast();
+                button.getStylesheets().add(loadURL("css/selectButton.css").toExternalForm());
+                selectAppButton = button;
+            } else {
+                button.getStylesheets().add(loadURL("css/selectButton.css").toExternalForm());
+                selectAppButton = button;
+
+            }
             if (button.getId().contains("plain")) {
                 plainText.setText(button.getText());
                 selectedButton = Integer.parseInt(button.getId().split(",")[1]);
@@ -102,6 +121,8 @@ public class LatexEditor {
         cross.setOnMouseClicked(event -> {
             tilePane.getChildren().remove(button);
             text.remove(Integer.parseInt(button.getId().split(",")[1]));
+            selectedButton = -1;
+            renderLatex();
         });
 
     }
@@ -114,7 +135,6 @@ public class LatexEditor {
             else
                 finalText.append(line);
         }
-        System.out.println(finalText);
         latexCode.setText(finalText.toString());
         latexView.setFormula(finalText.toString());
     }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<StackPane stylesheets="@../css/presenter.css" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded.Winners">
+    <ImageView fx:id="winner_img" fitHeight="1920.0" fitWidth="1080.0" pickOnBounds="true" preserveRatio="true" />
+    <VBox id="poster" maxHeight="600.0" StackPane.alignment="BOTTOM_CENTER">
+        <Text fx:id="winner_name" fill="#fafafa" strokeType="OUTSIDE" strokeWidth="0.0" text="Name">
+            <font>
+                <Font name="System Bold" size="60.0" />
+            </font>
+            <VBox.margin>
+                <Insets left="220.0" top="240.0" />
+            </VBox.margin>
+        </Text>
+        <Text fx:id="winner_class" fill="#fafafa" strokeType="OUTSIDE" strokeWidth="0.0" text="class">
+            <font>
+                <Font name="System Bold" size="26.0" />
+            </font>
+            <VBox.margin>
+                <Insets left="220.0" />
+            </VBox.margin>
+        </Text>
+        <HBox alignment="BOTTOM_CENTER" VBox.vgrow="ALWAYS">
+            <ImageView fitHeight="69.0" fitWidth="267.0" pickOnBounds="true" preserveRatio="true">
+                <HBox.margin>
+                    <Insets bottom="90.0" />
+                </HBox.margin>
+                <Image url="@../icons/white_logo.png" />
+            </ImageView>
+        </HBox>
+    </VBox>
+</StackPane>

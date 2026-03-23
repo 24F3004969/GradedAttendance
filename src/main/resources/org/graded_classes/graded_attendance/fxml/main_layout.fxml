@@ -118,6 +118,18 @@
                               <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                            </VBox.margin>
                         </HBox>
+                        <HBox id="leader_board" alignment="CENTER_LEFT" fillHeight="false" onMouseClicked="#navigation" prefWidth="200.0" spacing="2.0" style="-fx-background-radius: 0 5 5 0;">
+                           <children>
+                              <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#fafafa00" height="24.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="4.0" />
+                              <FontIcon iconLiteral="mdi2c-chart-timeline-variant" />
+                           </children>
+                           <padding>
+                              <Insets bottom="10.0" left="2.0" right="2.0" top="10.0" />
+                           </padding>
+                           <VBox.margin>
+                              <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+                           </VBox.margin>
+                        </HBox>
                         <HBox id="setting" alignment="BOTTOM_CENTER" onMouseClicked="#onSetting" prefWidth="200.0" spacing="2.0" VBox.vgrow="ALWAYS">
                            <children>
                               <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">

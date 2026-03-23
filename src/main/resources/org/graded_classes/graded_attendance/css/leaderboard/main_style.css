@@ -1,0 +1,106 @@
+@import '../fonts/Fonts.css';
+
+
+#title {
+    -fx-font-size: 40px;
+    -fx-font-family: 'Gilroy-Regular';
+}
+#about_page{
+    -fx-background-color: "#182caf";
+}
+#info{
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-family: 'Gilroy-Black';
+}
+#layer {
+
+    -fx-background-image: url('../icons/my_back.png');
+    -fx-background-color:transparent;
+    -fx-background-size: cover;
+
+}
+
+.custom-view {
+    -fx-border-color: transparent;
+    -fx-background-radius: 10;
+    -fx-background-color: #1c75bc20;
+    -fx-border-radius-radius: 10px;
+    -fx-font-family: 'Gilroy-SemiBold';
+    -fx-font-size: 15px;
+    /*-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0.12, -1.0, 2.0);*/
+
+}
+
+
+#customListView_hold {
+    -fx-background-color: rgba(250, 250, 250, 0.8);
+    -fx-border-color: rgba(0, 0, 0, 0.2);
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    /*-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.12, -1.0, 2.0);*/
+}
+
+#customListView {
+    -fx-background-color: #fafafa;
+    -fx-padding: 10;
+    -fx-border-color: transparent;
+    -fx-background-radius: 10;
+
+}
+
+#customListView .scroll-bar:horizontal .increment-button,
+#customListView .scroll-bar:horizontal .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0.0em;
+    -fx-padding: 0.0 0.0 5.0 0.0;
+
+}
+
+#customListView .scroll-bar:vertical .increment-button,
+#customListView .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0.0em;
+    -fx-padding: 0.0 5.0 0.0 0.0;
+
+}
+
+#customListView .scroll-bar .increment-arrow,
+#customListView .scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0.15em 0.0;
+}
+
+#customListView .scroll-bar:vertical .increment-arrow,
+#customListView .scroll-bar:vertical .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0.0 0.15em;
+}
+
+#customListView .scroll-bar .track {
+    -fx-background-color: rgb(230, 230, 230);;
+    -fx-background-radius: 2em;
+    -fx-border-radius: 2em;
+
+}
+
+#customListView .thumb {
+    -fx-background-color: rgb(137, 137, 137);
+}
+
+#customListView .thumb:hover {
+    -fx-background-color: rgb(89, 88, 91);
+}
+
+
+#customListView .list-cell {
+    -fx-background-color: #fafafa;
+    -fx-padding: 0.5;
+    -fx-background-radius: 10;
+}
+.table-view .table-cell{
+    -fx-alignment: CENTER;
+}
+.table-view .column-header .label{
+    -fx-alignment: CENTER;
+}

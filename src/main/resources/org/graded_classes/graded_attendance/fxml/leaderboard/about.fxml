@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<VBox id="about_page" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" stylesheets="@../css/main_style.css" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <ImageView fitHeight="233.0" fitWidth="233.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../icons/about_image.png" />
+         </image>
+         <VBox.margin>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </VBox.margin>
+      </ImageView>
+      <Text id="title" fill="#fafafa" strokeType="OUTSIDE" strokeWidth="0.0" text="About" />
+      <Text id="info" fill="#fafafa" strokeType="OUTSIDE" strokeWidth="0.0" text="Hi, I'm Helal Anwar, a self-taught Java developer with a deep passion for coding and problem-solving. My journey into programming began with curiosity and has grown into a commitment to building efficient and impactful software solutions. I'm currently pursuing a Bachelor of Science in Data Science and Applications at IIT Madras, and I hold a Diploma in Mechanical Engineering from Al-Kabir Polytechnic.&#10;&#10;Over the years, I've developed and contributed to several standalone projects, including desktop and mobile apps, ASCII-based games, and utility tools—all available on my GitHub. I enjoy teaching, cooking, and continuously learning new technologies.&#10;&#10;My core skills include Java, Python, C/C++, Kotlin, and various development tools. Whether it's building applications or exploring data, I strive to create meaningful experiences through code.&#10;&#10;Let’s connect:&#10;📧 hilal560anwar@gmail.com&#10;🔗 www.linkedin.com/in/helal-anwar-94571016b" textAlignment="CENTER" wrappingWidth="549.23046875">
+         <font>
+            <Font size="13.0" />
+         </font>
+         <VBox.margin>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </VBox.margin>
+      </Text>
+   </children>
+</VBox>
