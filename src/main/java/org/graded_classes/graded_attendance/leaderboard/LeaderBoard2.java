@@ -19,7 +19,7 @@ public class LeaderBoard2 implements Initializable {
     VBox root_layout;
     @FXML
     ListView<CustomView> customListView;
-    ArrayList<CustomView> customViews = new ArrayList<>();
+    public ArrayList<CustomView> customViews = new ArrayList<>();
     StudentDataLoader studentDataLoader;
 
     public LeaderBoard2(StudentDataLoader studentDataLoader) {

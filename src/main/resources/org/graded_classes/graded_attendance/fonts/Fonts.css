@@ -1,37 +1,21 @@
-
-
 @font-face {
-	font-family: 'Helvetica Rounded';
+	font-family: 'Gilroy-Black';
 	font-weight: bold;
 	font-style: normal;
 	font-display: swap;
-	src: url('../fonts/helvetica-rounded-bold.otf') format('truetype');
+	src: url('../fonts/Gilroy/Gilroy-Black.ttf') format('truetype');
 }
 @font-face {
-	font-family: 'Helvetica';
-	font-weight: bold;
-	font-style: normal;
-	font-display: swap;
-	src: url('../fonts/Helvetica.ttf') format('truetype');
+    font-family: 'Gilroy-SemiBold';
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+    src: url('../fonts/Gilroy/Gilroy-SemiBold.ttf') format('truetype');
 }
 @font-face {
-	font-family: 'Gilroy-Light';
-	font-weight: normal;
-	font-style: normal;
-	font-display: swap;
-	src: url('../fonts/Gilroy-Light.ttf') format('truetype');
-}
-@font-face {
-	font-family: 'Gilroy-Medium';
-	font-weight: normal;
-	font-style: normal;
-	font-display: swap;
-	src: url('../fonts/Gilroy-Medium.ttf') format('truetype');
-}
-@font-face {
-	font-family: 'Gilroy-Bold';
-	font-weight: normal;
-	font-style: normal;
-	font-display: swap;
-	src: url('../fonts/Gilroy-Bold.ttf') format('truetype');
+    font-family: 'Gilroy-Regular';
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+    src: url('../fonts/Gilroy/Gilroy-Regular.ttf') format('truetype');
 }

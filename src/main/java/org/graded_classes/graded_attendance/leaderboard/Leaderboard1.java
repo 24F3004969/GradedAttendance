@@ -21,7 +21,7 @@ public class Leaderboard1 implements Initializable {
     @FXML
     ListView<CustomView> customListView;
     StudentDataLoader studentDataLoader;
-    ArrayList<CustomView> customViews = new ArrayList<>();
+    public ArrayList<CustomView> customViews = new ArrayList<>();
 
     public Leaderboard1(StudentDataLoader studentDataLoader) {
         this.studentDataLoader = studentDataLoader;
@@ -46,7 +46,7 @@ public class Leaderboard1 implements Initializable {
 
     }
 
-    private void firstThree(List<Student> vr) {
+    private void firstThree(List<StudentScore> vr) {
         var k1 = vr.get(0);
         var k2 = vr.get(1);
         var k3 = vr.get(2);

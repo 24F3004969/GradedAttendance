@@ -1,7 +1,8 @@
 package org.graded_classes.graded_attendance.leaderboard;
 
 
-import java.sql.SQLException;
+import org.graded_classes.graded_attendance.data.Student;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -9,34 +10,37 @@ import java.util.List;
 
 
 public class StudentDataLoader {
-    private final LinkedHashMap<String, Student> studentLinkedHashMap = new LinkedHashMap<>(20);
+    private final LinkedHashMap<String, StudentScore> studentLinkedHashMap = new LinkedHashMap<>(20);
     public DatabaseLoader databaseLoader;
 
-    public LinkedHashMap<String, Student> getStudentLinkedHashMap() {
+    public LinkedHashMap<String, StudentScore> getStudentLinkedHashMap() {
         return studentLinkedHashMap;
     }
 
-    public List<Student> getSortedStudentList() {
-        List<Student> list = new ArrayList<>(studentLinkedHashMap.values());
-        list.sort(Comparator.comparing(Student::points, Comparator.reverseOrder()));
+    public List<StudentScore> getSortedStudentList() {
+        List<StudentScore> list = new ArrayList<>(studentLinkedHashMap.values());
+        list.sort(Comparator.comparing(StudentScore::points, Comparator.reverseOrder()));
         System.out.println(list);
         return list;
     }
 
-    public List<Student> getStudentList() {
+    public List<StudentScore> getStudentList() {
         return new ArrayList<>(studentLinkedHashMap.values());
     }
 
-    StudentDataLoader() {
-        init();
+    public StudentDataLoader( LinkedHashMap<String, org.graded_classes.graded_attendance.data.Student> studentLinkedHashMap) {
+         for (String key : studentLinkedHashMap.keySet()) {
+             Student student = studentLinkedHashMap.get(key);
+             this.studentLinkedHashMap.put(key,new StudentScore(student.ed_no(),student.name(),student._class(),student.points));
+         }
     }
 
-    private void init() {
+    /*private void init() {
         databaseLoader = new DatabaseLoader("G:/My Drive/", "LeaderBoard.db");
         try (var x = databaseLoader.getStatement().executeQuery("SELECT * FROM LEADERS")) {
 
             while (x.next()) {
-                var stu = new Student(x.getString("ED No."),
+                var stu = new StudentScore(x.getString("ED No."),
                         x.getString("Name"), x.getString("Class"),
                         Double.parseDouble(x.getString("Points")));
                 studentLinkedHashMap.put(x.getString("ED No."), stu);
@@ -45,7 +49,7 @@ public class StudentDataLoader {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }
+    }*/
 
 
 }

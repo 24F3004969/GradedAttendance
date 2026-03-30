@@ -58,7 +58,7 @@ public class FeeReport implements Initializable {
     @FXML
     private TextField filterText;
     @FXML
-    private Label feeCollected;
+    private Label feeCollected,total_num;
     @FXML
     private MenuButton monthList, filterMenu;
 
@@ -182,7 +182,8 @@ public class FeeReport implements Initializable {
         double totalSumOfMoney = mainController.gradedDataLoader.getStudentData().
                 values().stream().mapToDouble(sd -> Double.parseDouble(sd.getFee())).sum();
         double totalCollection = feeRecords.
-                values().stream().mapToDouble(FeeData::amount).sum();
+                values().stream().
+                mapToDouble(FeeData::amount).sum();
         System.out.println("Total collection: " + totalCollection);
         System.out.println("Total sum of money: " + totalSumOfMoney);
         feeCollected.setText("₹" + String.format("%,d", (long) totalCollection));
@@ -225,18 +226,24 @@ public class FeeReport implements Initializable {
                     }
                 } else if (l.getText().equals("Online")) {
                     items.clear();
+                    double sum=0;
                     for (var keys : feeRecords.keySet()) {
                         if (feeRecords.get(keys).paymentMode().equals(FeeData.PaymentMode.Online)) {
                             items.add(feeRecords.get(keys));
+                            sum+=feeRecords.get(keys).amount();
                         }
                     }
+                    total_num.setText("Total : ₹ "+sum);
                 } else if (l.getText().equals("Offline")) {
                     items.clear();
+                    double sum=0;
                     for (var keys : feeRecords.keySet()) {
                         if (feeRecords.get(keys).paymentMode().equals(FeeData.PaymentMode.Offline)) {
                             items.add(feeRecords.get(keys));
+                            sum+=feeRecords.get(keys).amount();
                         }
                     }
+                    total_num.setText("Total : ₹ "+sum);
                 }
             }
         });

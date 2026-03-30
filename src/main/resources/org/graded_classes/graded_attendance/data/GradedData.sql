@@ -23,7 +23,8 @@ CREATE TABLE if not exists StudentData
     subjects          TEXT,
     telegram_id       TEXT,
     last_payment_date TEXT,
-    fee               REAL NOT NULL default (0)
+    fee               REAL NOT NULL default (0),
+    points            REAL          DEFAULT 0
 );
 
 

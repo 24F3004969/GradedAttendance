@@ -76,7 +76,7 @@ public class AddStudent implements Initializable {
                 homeController.gradedDataLoader.removeEdFromAbandonedEd(studentInfo.ed_no());
 
                 homeController.modalPane.hide();
-                homeController.mainController.sendNotification("Student with ed_no " + studentInfo.ed_no() + " added successfully.\n\n", Styles.SUCCESS);
+                homeController.mainController.sendNotification("StudentScore with ed_no " + studentInfo.ed_no() + " added successfully.\n\n", Styles.SUCCESS);
 
             }
         } else if (button.getText().equals("Cancel")) {
@@ -141,7 +141,7 @@ public class AddStudent implements Initializable {
                 list_of_subjects.toArray(new String[0]),
                 telegram_id.getText(),
                 "",
-                info_about.getText()
+                info_about.getText(),0
                 );
     }
 

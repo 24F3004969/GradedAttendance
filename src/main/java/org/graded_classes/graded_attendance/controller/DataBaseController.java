@@ -191,7 +191,7 @@ public class DataBaseController implements Initializable {
     private static Optional<ButtonType> showAlert(String ed_no) {
         var alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Warning");
-        alert.setHeaderText("Are you sure ?\nStudent with ED_NO " + ed_no + ".. will be deleted.");
+        alert.setHeaderText("Are you sure ?\nStudentScore with ED_NO " + ed_no + ".. will be deleted.");
         return alert.showAndWait();
     }
 

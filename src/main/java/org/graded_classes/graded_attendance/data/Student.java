@@ -99,7 +99,7 @@ public class Student {
     private String mother_name;
     private String _class;
     private String gender;
-    private final String doa;
+    private  String doa;
     private String dob;
     private String address;
     private String father_occ;
@@ -111,7 +111,8 @@ public class Student {
     private String[] subjects;
     private String telegram_id;
     private String lastPaymentDate;
-    String fee;
+    public String fee;
+    public double points;
 
     public Student(String ed_no,
                    String name,
@@ -134,7 +135,7 @@ public class Student {
                    String suggestions,
                    String[] subjects,
                    String telegram_id,
-                   String last_payment_date, String fee) {
+                   String last_payment_date, String fee,double points) {
         this.ed_no = ed_no;
         this.name = name;
         this.email = email;
@@ -159,6 +160,7 @@ public class Student {
 
         lastPaymentDate = last_payment_date;
         this.fee = fee;
+        this.points = points;
     }
 
     public String getFee() {
@@ -175,7 +177,7 @@ public class Student {
                 "bloodGroup, guardian_phone, aadhaar_no, father_name, mother_name, " +
                 "class, gender, dob, address, father_occ, mother_occ, " +
                 "previous_ins_name, reason_leaving, school_n, suggestions, " +
-                "subjects, telegram_id,last_payment_date,fee) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)";
+                "subjects, telegram_id,last_payment_date,fee,points) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, ed_no);
             stmt.setString(2, name);
@@ -200,6 +202,7 @@ public class Student {
             stmt.setString(21, telegram_id);
             stmt.setString(22, lastPaymentDate);
             stmt.setString(23, fee);
+            stmt.setDouble(24, points);
             stmt.executeUpdate();
         }
     }
@@ -382,7 +385,7 @@ public class Student {
 
     @Override
     public String toString() {
-        return "Student[" +
+        return "StudentScore[" +
                 "ed_no=" + ed_no + ", " +
                 "name=" + name + ", " +
                 "email=" + email + ", " +

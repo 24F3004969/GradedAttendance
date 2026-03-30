@@ -5,6 +5,7 @@ import atlantafx.base.controls.Notification;
 import atlantafx.base.theme.Styles;
 import atlantafx.base.util.Animations;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -30,6 +31,10 @@ import org.graded_classes.graded_attendance.data.Formatter;
 import org.graded_classes.graded_attendance.data.GradedDataLoader;
 import org.graded_classes.graded_attendance.data.MessageSender;
 import org.graded_classes.graded_attendance.data.Student;
+import org.graded_classes.graded_attendance.leaderboard.LeaderBoard2;
+import org.graded_classes.graded_attendance.leaderboard.Leaderboard1;
+import org.graded_classes.graded_attendance.leaderboard.PointsTable;
+import org.graded_classes.graded_attendance.leaderboard.StudentDataLoader;
 import org.graded_classes.graded_attendance.planner.Planner;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignH;
@@ -68,9 +73,13 @@ public class MainController implements Initializable {
     BorderPane main_view;
     public GradedDataLoader gradedDataLoader = new GradedDataLoader(this);
     MessageSender messageSender;
+    StudentDataLoader studentDataLoader;
+    Leaderboard1 l1;
+    LeaderBoard2 l2;
 
     public MainController(Stage stage) {
         this.stage = stage;
+
 
     }
 
@@ -85,8 +94,11 @@ public class MainController implements Initializable {
         tooltip = new Tooltip(Formatter.format(selectedTab.getId()));
         Tooltip.install(selectedTab, tooltip);
         messageSender = new MessageSender(gradedDataLoader.databaseLoader, this, getToken());
+        studentDataLoader = new StudentDataLoader(gradedDataLoader.getStudentData());
+        l1 = new Leaderboard1(studentDataLoader);
+        l2 = new LeaderBoard2(studentDataLoader);
         notificationInit();
-        /*ArrayList<Student> students = getStudentsWithFeeDateIsWeekAfter();
+        /*ArrayList<StudentScore> students = getStudentsWithFeeDateIsWeekAfter();
         if (!students.isEmpty()) {
             sendNotification("Some students with ED No. .... have there fee dues date in a week", Styles.ACCENT, students);
         }*/
@@ -160,7 +172,8 @@ public class MainController implements Initializable {
         try {
             FontIcon fontIcon = ((FontIcon) root.getChildren().getLast());
             Rectangle rectangle = (Rectangle) root.getChildren().getFirst();
-            toggleOut(selectedTab, (Rectangle) selectedTab.getChildren().getFirst(), ((FontIcon) selectedTab.getChildren().getLast()));
+            toggleOut(selectedTab, (Rectangle) selectedTab.getChildren().getFirst(),
+                    ((FontIcon) selectedTab.getChildren().getLast()));
             toggleIn(root, rectangle, fontIcon);
         } catch (Exception e) {
 
@@ -181,6 +194,10 @@ public class MainController implements Initializable {
             case "lesson" -> gradedFxmlLoader.createView(R.lesson_planner, new Planner(gradedDataLoader, modalPane));
             case "quizCreator" -> gradedFxmlLoader.createView(R.quiz_creator, new QuizGenerator(this));
             case "quiz_taker" -> gradedFxmlLoader.createView(R.quiz_taker);
+            case "leaderboard" -> gradedFxmlLoader.createView(R.points_table, new PointsTable(studentDataLoader,
+                    l1.customViews,
+                    l2.customViews,
+                    stage));
             case "setting" -> gradedFxmlLoader.createView(R.quiz_taker);
             default -> null;
         };

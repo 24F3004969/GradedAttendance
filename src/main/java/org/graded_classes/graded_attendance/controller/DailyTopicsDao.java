@@ -27,6 +27,7 @@ public class DailyTopicsDao {
             result.put(cls, empty);
         }
 
+
         String sql =
                 "SELECT date, \"class\", subject1, topic1, subject2, topic2, " +
                         "       subject3, topic3, subject4, topic4 " +

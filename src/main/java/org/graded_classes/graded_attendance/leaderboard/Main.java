@@ -32,9 +32,9 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader loader1 = new FXMLLoader(GradedResourceLoader.loadURL("fxml/leaderboard/leader_board_view1.fxml"));
+       /* FXMLLoader loader1 = new FXMLLoader(GradedResourceLoader.loadURL("fxml/leaderboard/leader_board_view1.fxml"));
         FXMLLoader loader2 = new FXMLLoader(GradedResourceLoader.loadURL("fxml/leaderboard/leader_board_view2.fxml"));
-        StudentDataLoader studentDataLoader = new StudentDataLoader();
+        StudentDataLoader studentDataLoader = new StudentDataLoader(n);
         var l1 = new Leaderboard1(studentDataLoader);
         var l2 = new LeaderBoard2(studentDataLoader);
         loader1.setControllerFactory(_ -> l1);
@@ -65,14 +65,16 @@ public class Main extends Application {
         layoutAnimator.animate();
         stage.setScene(scene);
         stage.setTitle("Graded Management");
-       /* stage.getIcons().add(new Image(Objects.requireNonNull(getClass().
-                getResourceAsStream("icons/__logo.png"))));*/
+ stage.getIcons().add(new Image(Objects.requireNonNull(getClass().
+                getResourceAsStream("icons/__logo.png"))));
+
         Stage stage2 = new Stage();
         stage2.setTitle("Points Table");
-       /* stage2.getIcons().add(new Image(Objects.requireNonNull(getClass().
-                getResourceAsStream("icons/__logo.png"))));*/
+ stage2.getIcons().add(new Image(Objects.requireNonNull(getClass().
+                getResourceAsStream("icons/__logo.png"))));
+
         Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
-        var pointsTable = new FXMLLoader(LeaderboardResourcesLoader.loadURL("fxml/data_edit.fxml"));
+        var pointsTable = new FXMLLoader(GradedResourceLoader .loadURL("fxml/leaderboard/data_edit.fxml"));
         pointsTable.setControllerFactory(_ -> new PointsTable(studentDataLoader,
                 l1.customViews,
                 l2.customViews,
@@ -84,7 +86,7 @@ public class Main extends Application {
             if (event.getCode() == KeyCode.P) {
                 stage2.show();
             }
-        });
+        });*/
     }
 
     public TreeMap<Integer, WinnerInfo> listOfWinners(String path) {

@@ -2,7 +2,7 @@ package org.graded_classes.graded_attendance.leaderboard;
 
 import java.util.Objects;
 
-public final class Student {
+public final class StudentScore {
     private final String id;
 
     public String getName() {
@@ -34,7 +34,8 @@ public final class Student {
 
     private double points;
 
-    public Student(String id, String name, String grade, double points) {
+    public StudentScore(String id, String name, String grade, double points) {
+        super();
         this.id = id;
         this.name = name;
         this.grade = grade;
@@ -43,7 +44,7 @@ public final class Student {
 
     @Override
     public String toString() {
-        return "Student[" +
+        return "StudentScore[" +
                 "id=" + id + ", " +
                 "name=" + name + ", " +
                 "grade=" + grade + ", " +
@@ -70,7 +71,7 @@ public final class Student {
     public boolean equals(Object obj) {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass()) return false;
-        var that = (Student) obj;
+        var that = (StudentScore) obj;
         return Objects.equals(this.id, that.id) &&
                 Objects.equals(this.name, that.name) &&
                 Objects.equals(this.grade, that.grade) &&

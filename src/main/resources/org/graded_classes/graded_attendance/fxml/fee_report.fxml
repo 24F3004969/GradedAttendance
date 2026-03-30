@@ -111,6 +111,11 @@
          </SegmentedControl>
          <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
             <children>
+               <Label fx:id="total_num" text="Total : ">
+                  <HBox.margin>
+                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                  </HBox.margin>
+               </Label>
                <MenuButton fx:id="monthList" maxHeight="1.7976931348623157E308" mnemonicParsing="false" text="Months">
                   <HBox.margin>
                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

@@ -205,15 +205,18 @@ public class StudentAttendance implements Initializable {
         Connection conn = mainController.gradedDataLoader.databaseLoader.getConnection();
         String edNo = listViewStudents.ed;
         String studentClass = mainController.gradedDataLoader.getStudentData().get(edNo)._class();
-        try {
-            var data = DailyTopicsDao.loadForDateAllClasses(mainController.gradedDataLoader.databaseLoader.getConnection(),
-                    LocalDate.now());
-            if (!isAllNull(data.get(studentClass))) {
-                var valid = data.get(studentClass);
-                topicTaughtTodayUpdate(valid.getSubject1(), valid.getTopic1(), valid.getSubject2(), valid.getTopic2());
+        TreeMap<String, DailyTopics> data = new TreeMap<>();
+        if (attendanceMap.get(edNo).getTopics() == null) {
+            try {
+                data = DailyTopicsDao.loadForDateAllClasses(mainController.gradedDataLoader.databaseLoader.getConnection(),
+                        LocalDate.now());
+                if (!isAllNull(data.get(studentClass))) {
+                    var valid = data.get(studentClass);
+                    topicTaughtTodayUpdate(valid.getSubject1(), valid.getTopic1(), valid.getSubject2(), valid.getTopic2());
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
         String date = LocalDate.now().toString();
         try {
@@ -224,7 +227,11 @@ public class StudentAttendance implements Initializable {
                 updateStmt.setString(3, date);
                 updateStmt.setString(1, timeStamp);
                 attendanceMap.get(edNo).setCheck_in(timeStamp);
-                attendanceMap.get(edNo).setTopics("UNKNOWN");
+                if (!(data.isEmpty()))
+                    attendanceMap.get(edNo).setTopics(data.get(studentClass).getSubject1() + ":" + data.get(studentClass).getTopic1() +
+                            data.get(studentClass).getSubject2() + ":" + data.get(studentClass).getTopic2());
+                else
+                    attendanceMap.get(edNo).setTopics("Unknown");
                 listViewStudents.attendanceDataView.update();
                 String msg = """
                         Arrival Alert
@@ -257,7 +264,9 @@ public class StudentAttendance implements Initializable {
                 source.setText("Check Out");
                 inputField.setText("");
                 updateStmt.executeUpdate();
-            } else if (source.getText().equals("Check Out") && !todayTopicList.isEmpty() && (listViewStudents.attendanceDataView.Submitted.isSelected() || listViewStudents.attendanceDataView.NotSubmitted.isSelected())) {
+            } else if (source.getText().equals("Check Out") && !todayTopicList.isEmpty() &&
+                    (listViewStudents.attendanceDataView.Submitted.isSelected() ||
+                            listViewStudents.attendanceDataView.NotSubmitted.isSelected())) {
 
                 PreparedStatement updateStmt = conn.prepareStatement(
                         "UPDATE Attendance SET check_out = ?, homework = ? WHERE ed_no = ? AND date = ?"
@@ -266,7 +275,6 @@ public class StudentAttendance implements Initializable {
                 updateStmt.setString(2, listViewStudents.attendanceDataView.Submitted.isSelected() ? "Submitted" : "NotSubmitted");
                 updateStmt.setString(3, edNo);
                 updateStmt.setString(4, date);
-
                 attendanceMap.get(edNo).setCheck_out(timeStamp);
                 source.setVisible(false);
                 attendanceMap.get(edNo).setHomework_status(listViewStudents.attendanceDataView.Submitted.isSelected());
@@ -369,9 +377,9 @@ public class StudentAttendance implements Initializable {
             } else if (!subject1.isEmpty() && !topic1.isEmpty()) {
                 todayTopicList = subject1 + ":" + topic1;
             }
-            attendanceMap.get(edNo).setTopics(todayTopicList);
             updateStmt.setString(1, todayTopicList);
             updateStmt.executeUpdate();
+            attendanceMap.get(edNo).setTopics(todayTopicList);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

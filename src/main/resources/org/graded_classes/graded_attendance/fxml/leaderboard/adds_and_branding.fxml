@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
 
-<StackPane stylesheets="@../css/presenter.css" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.leaderboard.ImageSliderShow">
-    <ImageView fitHeight="1350.0" fitWidth="850.0" pickOnBounds="true"  fx:id="branding" />
+<StackPane stylesheets="@../../css/leaderboard/presenter.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.leaderboard.ImageSliderShow">
+    <ImageView fx:id="branding" fitHeight="1350.0" fitWidth="850.0" pickOnBounds="true" />
 </StackPane>

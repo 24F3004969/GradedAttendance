@@ -62,7 +62,7 @@ public class GradedDataLoader {
                 int affectedRows = preparedStatement.executeUpdate();
 
                 if (affectedRows > 0) {
-                    System.out.println("Student with ed_no " + s.ed_no() + " removed successfully.");
+                    System.out.println("StudentScore with ed_no " + s.ed_no() + " removed successfully.");
                 } else {
                     System.out.println("No student found with ed_no " + s.ed_no());
                 }
@@ -162,7 +162,8 @@ public class GradedDataLoader {
                         rs.getString("suggestions"),
                         rs.getString("subjects").split(", "), // Assuming subjects are stored as a comma-separated string
                         rs.getString("telegram_id"), Objects.requireNonNullElse(rs.getString("last_payment_date"), ""),
-                        "" + rs.getDouble("fee")
+                        "" + rs.getDouble("fee"),
+                        rs.getDouble("points")
                 ));
             }
         }

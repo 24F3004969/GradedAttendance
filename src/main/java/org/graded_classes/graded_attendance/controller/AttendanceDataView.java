@@ -101,7 +101,8 @@ public class AttendanceDataView implements Initializable {
                 studentAttendance.checkIn_out.setText("Check In");
             else if (studentAttendance.attendanceMap.get(ed_no).getCheck_out() == null) {
                 studentAttendance.checkIn_out.setText("Check Out");
-                studentAttendance.attendanceMap.get(ed_no).setTopics("Unknown");
+                if (studentAttendance.attendanceMap.get(ed_no).getTopics() == null)
+                    studentAttendance.attendanceMap.get(ed_no).setTopics("Unknown");
             }
         } else {
             studentAttendance.checkIn_out.setVisible(false);

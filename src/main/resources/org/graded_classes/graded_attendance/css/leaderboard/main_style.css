@@ -1,4 +1,4 @@
-@import '../fonts/Fonts.css';
+@import '../../fonts/Fonts.css';
 
 
 #title {
@@ -15,7 +15,7 @@
 }
 #layer {
 
-    -fx-background-image: url('../icons/my_back.png');
+    -fx-background-image: url('../../icons/leaderboard/my_back.png');
     -fx-background-color:transparent;
     -fx-background-size: cover;
 

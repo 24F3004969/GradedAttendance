@@ -43,6 +43,6 @@ public class TodayTopic implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
+        System.out.println(studentAttendanceView.studentAttendance.attendanceMap);
     }
 }

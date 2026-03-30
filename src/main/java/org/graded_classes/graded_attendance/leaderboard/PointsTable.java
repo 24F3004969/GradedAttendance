@@ -83,25 +83,25 @@ public class PointsTable implements Initializable {
     private void eventResolver(TableColumn.CellEditEvent<Map<String, Object>, String> event, String key) {
         String listKey = event.getTableView().getItems().get(event.getTablePosition().getRow()).get("ED No.").toString();
         String object = "";
-        Student student = studentDataLoader.getStudentLinkedHashMap().get(listKey);
+        StudentScore studentScore = studentDataLoader.getStudentLinkedHashMap().get(listKey);
         switch (key) {
             case "Name" -> {
                 object = event.getNewValue();
-                student.setName(object);
+                studentScore.setName(object);
                 update("Name", object, listKey);
             }
             case "Class" -> {
                 object = event.getNewValue();
-                student.setGrade(object);
+                studentScore.setGrade(object);
                 update("Class", object, listKey);
             }
             case "Points" -> {
                 if (event.getNewValue() == null || event.getNewValue().isEmpty()) {
-                    student.setPoints(Double.parseDouble(event.getOldValue()));
+                    studentScore.setPoints(Double.parseDouble(event.getOldValue()));
                     update("Points", event.getOldValue(), listKey);
                 }
                 object = new Operators(event.getNewValue()).solve() + "";
-                student.setPoints(Double.parseDouble(object));
+                studentScore.setPoints(Double.parseDouble(object));
                 update("Points", object, listKey);
             }
             default -> throw new IllegalStateException("Unexpected value: " + key);
@@ -159,7 +159,7 @@ public class PointsTable implements Initializable {
     }
 
 
-    private static Map<String, Object> getStringObjectMap(Student st) {
+    private static Map<String, Object> getStringObjectMap(StudentScore st) {
         Map<String, Object> item1 = new HashMap<>();
         item1.put("Name", st.name());
         item1.put("ED No.", st.id());
@@ -188,7 +188,7 @@ public class PointsTable implements Initializable {
             String ed = "ED" + (Integer.parseInt(studentDataLoader.getStudentList().getLast().
                     id().replace("ED", "")) + 1);
             updateNewStudent(ed, new_name.getText(), new_class.getText(), 0);
-            studentDataLoader.getStudentLinkedHashMap().put("ED" + (max_ed + 1), new Student("ED" + (max_ed + 1), new_name.getText(), new_class.getText(), 0));
+            studentDataLoader.getStudentLinkedHashMap().put("ED" + (max_ed + 1), new StudentScore("ED" + (max_ed + 1), new_name.getText(), new_class.getText(), 0));
             Map<String, Object> item1 = getStringObjectMap(studentDataLoader.getStudentList().getLast());
             items.add(item1);
             max_ed++;
@@ -197,7 +197,7 @@ public class PointsTable implements Initializable {
             new_class.setText("");
             var alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Information");
-            alert.setHeaderText("New Student added");
+            alert.setHeaderText("New StudentScore added");
             alert.show();
         }
     }
