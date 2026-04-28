@@ -41,7 +41,9 @@ public class GradedDataLoader {
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/token.sql").getQuery());
 
             for (int i = 4; i <= 10; i++) {
-                databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/TimeTable.sql").getQuery().formatted(i, i));
+                String formatted = new SqlFileReader("data/TimeTable.sql").getQuery().formatted("_ICSE_" + i, "_ICSE_"+i);
+                databaseLoader.getStatement().executeUpdate(formatted);
+                databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/TimeTable.sql").getQuery().formatted("_CBSE_" + i, "_ICSE_"+i));
 
             }
             loadData();
@@ -163,7 +165,8 @@ public class GradedDataLoader {
                         rs.getString("subjects").split(", "), // Assuming subjects are stored as a comma-separated string
                         rs.getString("telegram_id"), Objects.requireNonNullElse(rs.getString("last_payment_date"), ""),
                         "" + rs.getDouble("fee"),
-                        rs.getDouble("points")
+                        rs.getDouble("points"),
+                        rs.getString("board")
                 ));
             }
         }

@@ -2,6 +2,8 @@ package org.graded_classes.graded_attendance.controller.fee;
 
 import atlantafx.base.controls.SegmentedControl;
 import atlantafx.base.controls.ToggleLabel;
+import atlantafx.base.theme.Styles;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -24,7 +26,9 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.util.Matrix;
 import org.graded_classes.graded_attendance.controller.MainController;
+import org.graded_classes.graded_attendance.controller.StudentFeeLayout;
 import org.graded_classes.graded_attendance.data.FeeData;
+import org.graded_classes.graded_attendance.data.StudentInfo;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -33,23 +37,21 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.TreeMap;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class FeeReport implements Initializable {
     @FXML
     TableColumn<FeeData, String> amount, dueData, ed_no,
             grade, mode, name, payDate, payID, referenceNo,
-            sendNotification;
+            dueAmount;
+    @FXML
+    TableColumn<FeeData, Button> sendNotification;
     ObservableList<FeeData> items = FXCollections.observableList(new ArrayList<>());
-    TreeMap<String, FeeData> duePaymentRecord;
+    TreeMap<String, FeeData> duePaymentRecord, last_10_day;
 
     @FXML
     private Label current_date;
@@ -58,10 +60,9 @@ public class FeeReport implements Initializable {
     @FXML
     private TextField filterText;
     @FXML
-    private Label feeCollected,total_num;
+    private Label feeCollected, total_num;
     @FXML
     private MenuButton monthList, filterMenu;
-
     @FXML
     private Label feeLeft;
     TreeMap<String, FeeData> feeRecords = new TreeMap<>();
@@ -77,8 +78,7 @@ public class FeeReport implements Initializable {
 
         duePaymentRecord = feeRepository.duePaymentRecord(mainController.
                 gradedDataLoader.databaseLoader.getConnection());
-
-        System.out.println(duePaymentRecord);
+        last_10_day = getUpcomingFees();
     }
 
     @FXML
@@ -103,13 +103,17 @@ public class FeeReport implements Initializable {
         feeRepository.duePaymentRecord(mainController.
                 gradedDataLoader.databaseLoader.getConnection());
         double totalSumOfMoney = mainController.gradedDataLoader.getStudentData().
-                values().stream().mapToDouble(sd -> Double.parseDouble(sd.getFee())).sum();
+                values().stream().filter(sd ->
+                        isValidMonth(sd.getDoa(), checkMenuItem.getText())).mapToDouble(sd -> Double.parseDouble(sd.getFee())).sum();
         double totalCollection = feeRecords.
                 values().stream().mapToDouble(FeeData::amount).sum();
-        System.out.println("Total collection: " + totalCollection);
-        System.out.println("Total sum of money: " + totalSumOfMoney);
         feeCollected.setText("₹" + String.format("%,d", (long) totalCollection));
         feeLeft.setText("₹" + String.format("%,d", (int) (totalSumOfMoney - totalCollection)));
+    }
+
+    private boolean isValidMonth(String doa, String currentMonth) {
+        LocalDate givenDate = LocalDate.parse(doa);
+        return givenDate.getMonthValue() - 1 <= StudentFeeLayout.generateMonthMapInt().get(currentMonth);
     }
 
     @FXML
@@ -144,7 +148,6 @@ public class FeeReport implements Initializable {
                 String paidOn = r.getString("paid_on");
                 String nextFeeDate = r.getString("next_fee_date");
                 String edNo = r.getString("ed_no");
-                System.out.println(paidOn + "  " + nextFeeDate);
                 FeeData fee = new FeeData(
                         r.getObject("payment_id") != null ?
                                 r.getInt("payment_id") : null,
@@ -164,7 +167,6 @@ public class FeeReport implements Initializable {
                 if (edNumber != null)
                     feeRecords.put(edNumber, fee);
             }
-            System.out.println(feeRecords);
         } catch (SQLException exception) {
             System.out.println("SQLException: " + exception.getMessage());
         }
@@ -184,8 +186,6 @@ public class FeeReport implements Initializable {
         double totalCollection = feeRecords.
                 values().stream().
                 mapToDouble(FeeData::amount).sum();
-        System.out.println("Total collection: " + totalCollection);
-        System.out.println("Total sum of money: " + totalSumOfMoney);
         feeCollected.setText("₹" + String.format("%,d", (long) totalCollection));
         feeLeft.setText("₹" + String.format("%,d", (int) (totalSumOfMoney - totalCollection)));
         current_date.setText(LocalDate.now().getDayOfMonth() + " " +
@@ -193,10 +193,7 @@ public class FeeReport implements Initializable {
                 " " + LocalDate.now().getYear());
         ((CheckMenuItem) monthList.getItems().get(LocalDate.now().getMonthValue() - 1)).setSelected(true);
         monthList.setText(monthList.getItems().get(LocalDate.now().getMonthValue() - 1).getText());
-        segmentControl.getSegments().add(new ToggleLabel("Paid"));
-        segmentControl.getSegments().add(new ToggleLabel("Unpaid"));
-        segmentControl.getSegments().add(new ToggleLabel("Online"));
-        segmentControl.getSegments().add(new ToggleLabel("Offline"));
+        addSegmentControl();
         ed_no.setCellValueFactory(map -> map.getValue().edNo());
         name.setCellValueFactory(map -> map.getValue().name());
         amount.setCellValueFactory(map -> new SimpleStringProperty("" + map.getValue().amount()));
@@ -204,52 +201,100 @@ public class FeeReport implements Initializable {
         mode.setCellValueFactory(map -> new SimpleStringProperty(map.getValue().paymentMode() + ""));
         payDate.setCellValueFactory(map -> map.getValue().paidOn());
         payID.setCellValueFactory(map -> new SimpleStringProperty(map.getValue().paymentId() + ""));
+        dueAmount.setCellValueFactory(map -> map.getValue().dueAmount());
         referenceNo.setCellValueFactory(map -> map.getValue().referenceNo() == null ?
                 new SimpleStringProperty("") : map.getValue().referenceNo());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+// 2. Sort the TreeMap entries by the payDate field inside FeeData
+        Map<String, FeeData> sortedFeeRecords = feeRecords.entrySet()
+                .stream()
+                .sorted((e1, e2) -> {
+                    LocalDate date1 = LocalDate.parse(e1.getValue().paidOn().getValue(), formatter);
+                    LocalDate date2 = LocalDate.parse(e2.getValue().paidOn().getValue(), formatter);
+                    return date1.compareTo(date2);
+                })
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue,
+                        LinkedHashMap::new // Maintains the sorted order
+                ));
         segmentControl.getToggleGroup().selectedToggleProperty().subscribe(toggle -> {
             if (toggle instanceof ToggleLabel l) {
                 if (l.getText().equals("Paid")) {
+                    total_num.setText("");
                     items.clear();
                     payID.setVisible(true);
                     sendNotification.setVisible(false);
                     referenceNo.setVisible(true);
-                    for (var keys : feeRecords.keySet()) {
+                    for (var keys : sortedFeeRecords.keySet()) {
                         items.add(feeRecords.get(keys));
                     }
                 } else if (l.getText().equals("Unpaid")) {
+                    total_num.setText("");
                     items.clear();
                     payID.setVisible(false);
                     sendNotification.setVisible(true);
+                    sendNotification.setCellValueFactory(arg0 -> {
+                        Button button = new Button("Send Notification");
+                        button.setPadding(new Insets(5,5,5,5));
+                        button.getStyleClass().add(Styles.SUCCESS);
+                        FeeData studentInfo = arg0.getValue();
+                        button.setOnMouseClicked(a -> {
+                            String edNo=studentInfo.edNo().getValue();
+                            String telegramID=mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id();
+                            mainController.messageSender.sendMessage("Your fee due date has passed.Please pay by " + LocalDate.now() + ".\nPlease pay on time as this helps us to deliver the best" +
+                                    " possible coaching experience/uninterrupted service you expect.", Long.parseLong(telegramID));
+                        });
+                        return new SimpleObjectProperty<>(button);
+                    });
                     referenceNo.setVisible(false);
                     for (var keys : duePaymentRecord.keySet()) {
                         items.add(duePaymentRecord.get(keys));
                     }
                 } else if (l.getText().equals("Online")) {
                     items.clear();
-                    double sum=0;
-                    for (var keys : feeRecords.keySet()) {
+                    double sum = 0;
+                    for (var keys : sortedFeeRecords.keySet()) {
                         if (feeRecords.get(keys).paymentMode().equals(FeeData.PaymentMode.Online)) {
                             items.add(feeRecords.get(keys));
-                            sum+=feeRecords.get(keys).amount();
+                            sum += feeRecords.get(keys).amount();
                         }
                     }
-                    total_num.setText("Total : ₹ "+sum);
+                    total_num.setText("Total : ₹ " + sum);
                 } else if (l.getText().equals("Offline")) {
                     items.clear();
-                    double sum=0;
-                    for (var keys : feeRecords.keySet()) {
+                    double sum = 0;
+                    for (var keys : sortedFeeRecords.keySet()) {
                         if (feeRecords.get(keys).paymentMode().equals(FeeData.PaymentMode.Offline)) {
                             items.add(feeRecords.get(keys));
-                            sum+=feeRecords.get(keys).amount();
+                            sum += feeRecords.get(keys).amount();
                         }
                     }
-                    total_num.setText("Total : ₹ "+sum);
+                    total_num.setText("Total : ₹ " + sum);
+                } else if (l.getText().equals("Due Date in 10 days")) {
+                    referenceNo.setVisible(false);
+                    mode.setVisible(false);
+                    items.clear();
+                    for (var keys : last_10_day.keySet()) {
+                        total_num.setText("");
+                        items.add(last_10_day.get(keys));
+                    }
                 }
             }
         });
         FilteredList<FeeData> filteredData = new FilteredList<>(items, _ -> true);
 
         feePaidData.setItems(filteredData);
+    }
+
+    private void addSegmentControl() {
+        segmentControl.getSegments().add(new ToggleLabel("Paid"));
+        segmentControl.getSegments().add(new ToggleLabel("Unpaid"));
+        segmentControl.getSegments().add(new ToggleLabel("Online"));
+        segmentControl.getSegments().add(new ToggleLabel("Offline"));
+        segmentControl.getSegments().add(new ToggleLabel("Due Date in 10 days"));
     }
 
     private String format(String date) {
@@ -334,6 +379,7 @@ public class FeeReport implements Initializable {
 
                     // Key by ed_no (change to something else if you prefer)
                     map.put(edNo, data);
+                    IO.println("MAP:    " + map);
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -481,7 +527,6 @@ public class FeeReport implements Initializable {
             Path pdfPath = Files.createTempFile("fee-table-", ".pdf");
             createPdfFromImageTiled(awtImg, PDRectangle.A4, 36f /*0.5" margin*/, pdfPath);
             // Optionally open or show a success message
-            System.out.println("Saved: " + pdfPath);
         } catch (IOException ex) {
             ex.printStackTrace();
             // handle UI error dialog as needed
@@ -525,7 +570,7 @@ public class FeeReport implements Initializable {
                 doc.addPage(page);
 
                 float sliceTopY = margin + availH; // top of drawable content area
-                float yOffset   = i * availH;      // vertical advance per page
+                float yOffset = i * availH;      // vertical advance per page
 
                 try (PDPageContentStream cs = new PDPageContentStream(doc, page)) {
                     // Clip to content rect to avoid spillover
@@ -577,8 +622,8 @@ public class FeeReport implements Initializable {
     public static BufferedImage snapshotFullTable(TableView<?> table, double scale) {
         // Save original size hints
         double oldPrefH = table.getPrefHeight();
-        double oldMinH  = table.getMinHeight();
-        double oldMaxH  = table.getMaxHeight();
+        double oldMinH = table.getMinHeight();
+        double oldMaxH = table.getMaxHeight();
 
         // Expand to full height
         double fullH = computeTableFullHeight(table);
@@ -603,4 +648,34 @@ public class FeeReport implements Initializable {
 
         return SwingFXUtils.fromFXImage(fxImg, null);
     }
+
+    public TreeMap<String, FeeData> getUpcomingFees() {
+        TreeMap<String, FeeData> results = new TreeMap<>();
+
+        String sql = "SELECT payment_id, DueDate.ed_no, student_name, " +
+                "fee_payments.paid_on, fee_payments.due_amount, last_due_date,fee_payments.amount " +
+                "FROM DueDate JOIN fee_payments ON DueDate.ed_no = fee_payments.ed_no " +
+                "WHERE last_due_date BETWEEN date('now') AND date('now', '+10 days') " +
+                "ORDER BY last_due_date";
+
+        Statement stmt;
+        ResultSet rs;
+        try {
+            stmt = mainController.
+                    gradedDataLoader.databaseLoader.
+                    getConnection().createStatement();
+            rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                FeeData data = new FeeData(rs.getInt("payment_id"), rs.getString("ed_no"),
+                        rs.getString("student_name"), FeeData.MonthAbbrev.Jan, rs.getDouble("amount"),
+                        rs.getString("paid_on"), rs.getString("last_due_date"), "Helal", FeeData.PaymentMode.Offline, FeeData.Gateway.UPI,
+                        "", rs.getString("due_amount"));
+                results.put(rs.getString("ed_no"), data);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return results;
+    }
 }
+

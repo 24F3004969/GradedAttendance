@@ -25,7 +25,7 @@ public class GradedFxmlLoader {
         return parent;
     }
 
-    public Node createView(R path, Object controller) {
+    public  Node createView(R path, Object controller) {
         Node parent;
         try {
             var v = new FXMLLoader(loadURL(path.getPath()));

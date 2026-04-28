@@ -1,12 +1,9 @@
 package org.graded_classes.graded_attendance.data;
 
-import javafx.application.Platform;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.Objects;
 
 public class Student {
     public void setEd_no(String ed_no) {
@@ -99,7 +96,7 @@ public class Student {
     private String mother_name;
     private String _class;
     private String gender;
-    private  String doa;
+    private String doa;
     private String dob;
     private String address;
     private String father_occ;
@@ -108,6 +105,12 @@ public class Student {
     private String reason_leaving;
     private String school_n;
     private String suggestions;
+    private String board;
+
+    public String[] getSubjects() {
+        return subjects;
+    }
+
     private String[] subjects;
     private String telegram_id;
     private String lastPaymentDate;
@@ -135,7 +138,7 @@ public class Student {
                    String suggestions,
                    String[] subjects,
                    String telegram_id,
-                   String last_payment_date, String fee,double points) {
+                   String last_payment_date, String fee, double points, String board) {
         this.ed_no = ed_no;
         this.name = name;
         this.email = email;
@@ -161,6 +164,7 @@ public class Student {
         lastPaymentDate = last_payment_date;
         this.fee = fee;
         this.points = points;
+        this.board = board;
     }
 
     public String getFee() {
@@ -177,7 +181,7 @@ public class Student {
                 "bloodGroup, guardian_phone, aadhaar_no, father_name, mother_name, " +
                 "class, gender, dob, address, father_occ, mother_occ, " +
                 "previous_ins_name, reason_leaving, school_n, suggestions, " +
-                "subjects, telegram_id,last_payment_date,fee,points) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)";
+                "subjects, telegram_id,last_payment_date,fee,points) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, ed_no);
             stmt.setString(2, name);
@@ -203,6 +207,7 @@ public class Student {
             stmt.setString(22, lastPaymentDate);
             stmt.setString(23, fee);
             stmt.setDouble(24, points);
+            stmt.setString(25, board);
             stmt.executeUpdate();
         }
     }
@@ -351,64 +356,6 @@ public class Student {
         return telegram_id;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
-        var that = (Student) obj;
-        return Objects.equals(this.ed_no, that.ed_no) &&
-                Objects.equals(this.name, that.name) &&
-                Objects.equals(this.email, that.email) &&
-                Objects.equals(this.bloodGroup, that.bloodGroup) &&
-                Objects.equals(this.guardian_phone, that.guardian_phone) &&
-                Objects.equals(this.aadhaar_no, that.aadhaar_no) &&
-                Objects.equals(this.father_name, that.father_name) &&
-                Objects.equals(this.mother_name, that.mother_name) &&
-                Objects.equals(this._class, that._class) &&
-                Objects.equals(this.gender, that.gender) &&
-                Objects.equals(this.dob, that.dob) &&
-                Objects.equals(this.address, that.address) &&
-                Objects.equals(this.father_occ, that.father_occ) &&
-                Objects.equals(this.mother_occ, that.mother_occ) &&
-                Objects.equals(this.previous_ins_name, that.previous_ins_name) &&
-                Objects.equals(this.reason_leaving, that.reason_leaving) &&
-                Objects.equals(this.school_n, that.school_n) &&
-                Objects.equals(this.suggestions, that.suggestions) &&
-                Objects.equals(this.subjects, that.subjects) &&
-                Objects.equals(this.telegram_id, that.telegram_id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(ed_no, name, email, bloodGroup, guardian_phone, aadhaar_no, father_name, mother_name, _class, gender, dob, address, father_occ, mother_occ, previous_ins_name, reason_leaving, school_n, suggestions, subjects, telegram_id);
-    }
-
-    @Override
-    public String toString() {
-        return "StudentScore[" +
-                "ed_no=" + ed_no + ", " +
-                "name=" + name + ", " +
-                "email=" + email + ", " +
-                "bloodGroup=" + bloodGroup + ", " +
-                "guardian_phone=" + guardian_phone + ", " +
-                "aadhaar_no=" + aadhaar_no + ", " +
-                "father_name=" + father_name + ", " +
-                "mother_name=" + mother_name + ", " +
-                "_class=" + _class + ", " +
-                "gender=" + gender + ", " +
-                "dob=" + dob + ", " +
-                "address=" + address + ", " +
-                "father_occ=" + father_occ + ", " +
-                "mother_occ=" + mother_occ + ", " +
-                "previous_ins_name=" + previous_ins_name + ", " +
-                "reason_leaving=" + reason_leaving + ", " +
-                "school_n=" + school_n + ", " +
-                "suggestions=" + suggestions + ", " +
-                "subjects=" + subjects + ", " +
-                "telegram_id=" + telegram_id + ']';
-    }
-
-
     public String getDoa() {
         return doa;
     }
@@ -419,5 +366,13 @@ public class Student {
 
     public String getLastPaymentDate() {
         return lastPaymentDate;
+    }
+
+    public String getBoard() {
+        return board;
+    }
+
+    public void setBoard(String board) {
+        this.board = board;
     }
 }

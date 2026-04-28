@@ -1,16 +1,11 @@
 package org.graded_classes.graded_attendance.leaderboard;
 
 
-import atlantafx.base.theme.PrimerLight;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import org.graded_classes.graded_attendance.GradedResourceLoader;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,29 +13,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
-public class Main extends Application {
-    public static void main(String[] args) {
-        launch(args);
-    }
+public class LeaderboardLoader {
+
 
     public static ArrayList<String> preview = new ArrayList<>();
     public static LinkedHashMap<String, AnimationDuration> defaultAnimationDuration = new LinkedHashMap<>();
 
-    @Override
-    public void start(Stage stage) throws Exception {
-       /* FXMLLoader loader1 = new FXMLLoader(GradedResourceLoader.loadURL("fxml/leaderboard/leader_board_view1.fxml"));
-        FXMLLoader loader2 = new FXMLLoader(GradedResourceLoader.loadURL("fxml/leaderboard/leader_board_view2.fxml"));
-        StudentDataLoader studentDataLoader = new StudentDataLoader(n);
-        var l1 = new Leaderboard1(studentDataLoader);
-        var l2 = new LeaderBoard2(studentDataLoader);
-        loader1.setControllerFactory(_ -> l1);
-        loader2.setControllerFactory(_ -> l2);
-        StackPane leader1 = loader1.load();
-        StackPane leader2 = loader2.load();
+    public static Scene load(StackPane leader1, StackPane leader2) throws Exception {
         var treeMap = listOfWinners("Winners");
         var list = brandList("Branding");
         ArrayList<StackPane> panes = new ArrayList<>();
@@ -63,33 +45,10 @@ public class Main extends Application {
         Scene scene = new Scene(root);
         LayoutAnimator layoutAnimator = new LayoutAnimator(root, panes.toArray(new StackPane[0]));
         layoutAnimator.animate();
-        stage.setScene(scene);
-        stage.setTitle("Graded Management");
- stage.getIcons().add(new Image(Objects.requireNonNull(getClass().
-                getResourceAsStream("icons/__logo.png"))));
-
-        Stage stage2 = new Stage();
-        stage2.setTitle("Points Table");
- stage2.getIcons().add(new Image(Objects.requireNonNull(getClass().
-                getResourceAsStream("icons/__logo.png"))));
-
-        Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
-        var pointsTable = new FXMLLoader(GradedResourceLoader .loadURL("fxml/leaderboard/data_edit.fxml"));
-        pointsTable.setControllerFactory(_ -> new PointsTable(studentDataLoader,
-                l1.customViews,
-                l2.customViews,
-                stage2));
-        stage2.setScene(new Scene(pointsTable.load(), 700, 600));
-        stage.show();
-        scene.setOnKeyPressed(event -> {
-            stage.setFullScreen(event.getCode() == KeyCode.F11 && !stage.isFullScreen());
-            if (event.getCode() == KeyCode.P) {
-                stage2.show();
-            }
-        });*/
+        return scene;
     }
 
-    public TreeMap<Integer, WinnerInfo> listOfWinners(String path) {
+    public static TreeMap<Integer, WinnerInfo> listOfWinners(String path) {
         TreeMap<Integer, WinnerInfo> brandList = new TreeMap<>();
         try (Stream<Path> paths = Files.walk(Paths.get("G:/My Drive/" + path))) {
             paths.filter(Files::isRegularFile).forEach(p -> {
@@ -106,7 +65,7 @@ public class Main extends Application {
         return brandList;
     }
 
-    public ArrayList<String> brandList(String path) {
+    public static ArrayList<String> brandList(String path) {
         ArrayList<String> brandList = new ArrayList<>();
         try (Stream<Path> paths = Files.walk(Paths.get("G:/My Drive/" + path))) {
             paths.filter(Files::isRegularFile).forEach(p -> {

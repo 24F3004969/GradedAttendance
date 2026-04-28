@@ -6,7 +6,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -29,17 +28,22 @@ public class TimeTableClass implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        VBox[] dialog = new VBox[7];
+        VBox[] dialog = new VBox[14];
+        var k=0;
         for (int i = 0; i <= 6; i++) {
             try {
-                FXMLLoader fxmlLoader = new FXMLLoader(loadURL("fxml/time_table_view.fxml"));
-                var timeTableView = new TimeTableView("" + (i + 4), homeController.gradedDataLoader.databaseLoader.getConnection());
-                fxmlLoader.setControllerFactory(c -> timeTableView);
-                dialog[i] = fxmlLoader.load();
-                DeckPane.setLeftAnchor( dialog[i], 0d);
-                DeckPane.setRightAnchor( dialog[i], 0d);
-                DeckPane.setTopAnchor( dialog[i], 0d);
-                DeckPane.setBottomAnchor( dialog[i], 0d);
+                var list = new String[]{"ICSE", "CBSE"};
+                for (var x : list) {
+                    FXMLLoader fxmlLoader = new FXMLLoader(loadURL("fxml/time_table_view.fxml"));
+                    var timeTableView = new TimeTableView("_" + x + "_" + (i + 4),
+                            homeController.gradedDataLoader.databaseLoader.getConnection());
+
+                    fxmlLoader.setControllerFactory(_ -> timeTableView);
+                    dialog[k] = fxmlLoader.load();
+                    DeckPane.setLeftAnchor(dialog[k], 0d);
+                    DeckPane.setRightAnchor(dialog[k], 0d);
+                    k++;
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -47,11 +51,13 @@ public class TimeTableClass implements Initializable {
         deckPane.getChildren().addAll(dialog);
 
     }
+
     Supplier<Node> nextItem = () -> {
         var next = (deckPane.getChildren().indexOf(deckPane.getTopNode()) + 1)
                 % deckPane.getChildren().size();
         return deckPane.getChildren().get(next);
     };
+
     @FXML
     void left(MouseEvent event) {
         deckPane.swipeRight(nextItem.get());

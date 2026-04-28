@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="117.0" prefWidth="300.0" style="-fx-background-color: rgb(28, 117, 188);" stylesheets="@../css/card-view-style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+         <children>
+            <FontIcon style="-fx-icon-code: mdal-account_circle; -fx-icon-size: 48;" />
+            <Label text="Students">
+               <font>
+                  <Font size="24.0" />
+               </font></Label>
+         </children>
+         <VBox.margin>
+            <Insets left="20.0" />
+         </VBox.margin>
+      </HBox>
+      <HBox maxHeight="2.0" minHeight="2.0" style="-fx-background-color: rgba(0, 0, 0, 0.1);">
+         <VBox.margin>
+            <Insets left="60.0" />
+         </VBox.margin>
+      </HBox>
+      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+         <children>
+            <Label text="250">
+               <font>
+                  <Font size="33.0" />
+               </font>
+            </Label>
+            <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <FontIcon style="-fx-icon-code: &quot;mdrmz-people_alt&quot;; -fx-icon-size: 52; -fx-opacity: 0.5;" />
+               </children>
+            </HBox>
+         </children>
+         <VBox.margin>
+            <Insets left="20.0" />
+         </VBox.margin>
+      </HBox>
+   </children>
+</VBox>

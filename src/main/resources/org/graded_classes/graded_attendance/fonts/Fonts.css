@@ -1,9 +1,9 @@
 @font-face {
-	font-family: 'Gilroy-Black';
+	font-family: 'Gilroy-Bold';
 	font-weight: bold;
 	font-style: normal;
 	font-display: swap;
-	src: url('../fonts/Gilroy/Gilroy-Black.ttf') format('truetype');
+	src: url('../fonts/Gilroy/Gilroy-Bold.ttf') format('truetype');
 }
 @font-face {
     font-family: 'Gilroy-SemiBold';

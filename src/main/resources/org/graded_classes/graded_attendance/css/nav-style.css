@@ -1,12 +1,14 @@
+@import '../fonts/Fonts.css';
 #nav_bar {
     -fx-background-color: #1C75BC30;
     /*-fx-background-image: url('../icons/back_app.svg');
+
     -fx-background-size: cover;
     -fx-background-repeat: no-repeat;*/
     -fx-background-radius: 10;
     -fx-border-radius: 10;
     -fx-font-size: 18px;
-    -fx-font-family: 'Gilroy-Bold';
+    -fx-font-family: Gilroy-Bold;
 }
 
 #nav_bar_bottom {

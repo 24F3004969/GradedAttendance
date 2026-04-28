@@ -1,0 +1,13 @@
+@import '../fonts/Fonts.css';
+
+#root {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.12, -1.0, 2.0);
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+#root * {
+    -fx-font-family: Gilroy-Bold;
+    -fx-text-fill: white;
+    -fx-icon-color: white;
+}

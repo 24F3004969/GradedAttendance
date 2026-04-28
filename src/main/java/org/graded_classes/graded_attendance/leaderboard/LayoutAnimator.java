@@ -8,7 +8,7 @@ import javafx.event.EventHandler;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 
-import static org.graded_classes.graded_attendance.leaderboard.Main.defaultAnimationDuration;
+import static org.graded_classes.graded_attendance.leaderboard.LeaderboardLoader.defaultAnimationDuration;
 
 
 public class LayoutAnimator {

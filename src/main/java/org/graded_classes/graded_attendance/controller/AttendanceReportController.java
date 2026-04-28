@@ -1,21 +1,18 @@
 package org.graded_classes.graded_attendance.controller;
 
 
-import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class AttendanceReportController implements Initializable {
@@ -38,11 +35,8 @@ public class AttendanceReportController implements Initializable {
     @FXML
     private Label nameLabel;
     @FXML
-    private BarChart<String, Number> attendanceChart;
-    @FXML
-    private CategoryAxis xAxis;
-    @FXML
-    private NumberAxis yAxis;
+    private PieChart attendanceChart;
+
 
     LocalDate startDate = LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonthValue(), 1);
     LocalDate endDate = LocalDate.now();
@@ -51,11 +45,6 @@ public class AttendanceReportController implements Initializable {
 
     @FXML
     public void initialize() {
-        xAxis.setLabel("Attendance Status");
-        xAxis.setTickLabelsVisible(true);
-        yAxis.setLabel("Days");
-        yAxis.setForceZeroInRange(true);
-        yAxis.setAutoRanging(true);
         nameLabel.setText(name);
 
         int missingDay = Integer.parseInt(view.get("Missing Dates").trim());
@@ -70,29 +59,17 @@ public class AttendanceReportController implements Initializable {
     }
 
     public void setAttendanceData(int presentDays, int absentDays,int missingDay) {
-        if (totalWokingDays > 0) {
-            yAxis.setAutoRanging(false);
-            yAxis.setLowerBound(0);
-            yAxis.setUpperBound(totalWokingDays-missingDay);
-            yAxis.setTickUnit(5);
-        } else {
-            yAxis.setAutoRanging(true);
+
+
+        ObservableList<PieChart.Data> pieChartData =
+                FXCollections.observableArrayList(
+                        new PieChart.Data("Present", presentDays),
+                        new PieChart.Data("Absent", absentDays));
+        attendanceChart.setData(pieChartData);
+        for (PieChart.Data data : pieChartData) {
+            data.nameProperty().bind(
+                    Bindings.concat(data.getName(), " ", data.pieValueProperty())
+            );
         }
-        XYChart.Series<String, Number> present = new XYChart.Series<>();
-        present.setName("Present");
-        XYChart.Series<String, Number> absent = new XYChart.Series<>();
-        absent.setName("Absent");
-        present.getData().add(new XYChart.Data<>("Present", presentDays));
-        absent.getData().add(new XYChart.Data<>("Absent", absentDays));
-        attendanceChart.getData().setAll(present, absent);
-        Platform.runLater(() -> {
-          /*  for (XYChart.Data<String, Number> d : series.getData()) {
-                String category = d.getXValue();
-                String color = "Present".equals(category) ? "#1C75BC" : "#e74c3c"; // green / red
-                if (d.getNode() != null) {
-                    d.getNode().setStyle("-fx-bar-fill: " + color + ";");
-                }
-            }*/
-        });
     }
 }

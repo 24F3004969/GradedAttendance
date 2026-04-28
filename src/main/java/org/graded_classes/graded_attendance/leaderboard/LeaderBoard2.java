@@ -21,7 +21,7 @@ public class LeaderBoard2 implements Initializable {
     ListView<CustomView> customListView;
     public ArrayList<CustomView> customViews = new ArrayList<>();
     StudentDataLoader studentDataLoader;
-
+    public LeaderBoard2(){}
     public LeaderBoard2(StudentDataLoader studentDataLoader) {
         this.studentDataLoader = studentDataLoader;
     }

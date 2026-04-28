@@ -3,7 +3,7 @@
 
 #title {
     -fx-font-size: 40px;
-    -fx-font-family: 'Gilroy-Regular';
+    -fx-font-family: 'Gilroy-Bold';
 }
 #about_page{
     -fx-background-color: "#182caf";
@@ -14,13 +14,26 @@
     -fx-font-family: 'Gilroy-Black';
 }
 #layer {
-
-    -fx-background-image: url('../../icons/leaderboard/my_back.png');
-    -fx-background-color:transparent;
+    -fx-background-color: #0c0c1e;
     -fx-background-size: cover;
+}
+#layer1 {
+    -fx-background-image: url('../../icons/leaderboard/my_back.png');
+    -fx-background-size: cover;
+    -fx-opacity: 0.09;
+}
+#levels{
 
 }
-
+#levels .label{
+    -fx-font-family: 'Gilroy-Bold';
+    -fx-text-fill: white;
+}
+#inner_box .label{
+    -fx-font-family: 'Gilroy-Bold';
+    -fx-text-fill: white;
+    -fx-font-size: 33px;
+}
 .custom-view {
     -fx-border-color: transparent;
     -fx-background-radius: 10;
@@ -34,7 +47,7 @@
 
 
 #customListView_hold {
-    -fx-background-color: rgba(250, 250, 250, 0.8);
+    -fx-background-color: rgba(250, 250, 250, 0.85);
     -fx-border-color: rgba(0, 0, 0, 0.2);
     -fx-background-radius: 5;
     -fx-border-radius: 5;

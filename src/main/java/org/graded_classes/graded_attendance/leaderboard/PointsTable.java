@@ -12,11 +12,15 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import org.graded_classes.graded_attendance.GradedFxmlLoader;
+import org.graded_classes.graded_attendance.R;
+import org.graded_classes.graded_attendance.controller.MainController;
 
 import java.io.IOException;
 import java.net.URL;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -27,25 +31,48 @@ public class PointsTable implements Initializable {
     private TableColumn<Map<String, Object>, String> ed_column, points_column,
             name_column, class_column;
     @FXML
-    private TextField filterField, new_ed, new_name, new_class;
+    private TextField filterField;
     @FXML
     private MenuButton filterMenu;
     StudentDataLoader studentDataLoader;
-    ArrayList<CustomView> l1, l2;
+    ArrayList<CustomView> l1customView, l2customView;
     ArrayList<String> sqlQueries = new ArrayList<>();
     ObservableList<Map<String, Object>> items = FXCollections.observableArrayList();
-    int max_ed;
-    Stage stage2;
-    public PointsTable(StudentDataLoader studentDataLoader, ArrayList<CustomView> l1, ArrayList<CustomView> l2, Stage stage2) {
+    Stage stage2 = new Stage();
+    LeaderBoard2 l2;
+    Leaderboard1 l1;
+    MainController mainController;
+
+    public PointsTable(StudentDataLoader studentDataLoader, Leaderboard1 l1, LeaderBoard2 l2, MainController mainController) {
         this.studentDataLoader = studentDataLoader;
         this.l1 = l1;
         this.l2 = l2;
-        this.stage2 = stage2;
+        l1customView = l1.customViews;
+        l2customView = l2.customViews;
+        this.mainController = mainController;
     }
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        mainController.getStage().getScene().setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.P) {
+                stage2.setTitle("Leaderboard");
+                try {
+                    stage2.setScene(LeaderboardLoader.load((StackPane) mainController.gradedFxmlLoader.createView(R.leaderboard1),
+                            (StackPane) mainController.gradedFxmlLoader.createView(R.leaderboard2)));
+
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                stage2.show();
+            }
+            stage2.getScene().setOnKeyPressed(event1 -> {
+                stage2.setFullScreen(event1.getCode() == KeyCode.F11 && !mainController.getStage().isFullScreen());
+
+            });
+
+        });
         name_column.setCellValueFactory(map -> getValues(map, "Name"));
         name_column.setCellFactory(TextFieldTableCell.forTableColumn());
         ed_column.setCellValueFactory(map -> getValues(map, "ED No."));
@@ -76,8 +103,7 @@ public class PointsTable implements Initializable {
             });
         });
         points_table.setItems(filteredData);
-        max_ed = Integer.parseInt(studentDataLoader.getStudentList().getLast().id().replace("ED", ""));
-        new_ed.setText("ED" + (max_ed + 1));
+
     }
 
     private void eventResolver(TableColumn.CellEditEvent<Map<String, Object>, String> event, String key) {
@@ -85,7 +111,7 @@ public class PointsTable implements Initializable {
         String object = "";
         StudentScore studentScore = studentDataLoader.getStudentLinkedHashMap().get(listKey);
         switch (key) {
-            case "Name" -> {
+           /* case "Name" -> {
                 object = event.getNewValue();
                 studentScore.setName(object);
                 update("Name", object, listKey);
@@ -94,15 +120,15 @@ public class PointsTable implements Initializable {
                 object = event.getNewValue();
                 studentScore.setGrade(object);
                 update("Class", object, listKey);
-            }
+            }*/
             case "Points" -> {
                 if (event.getNewValue() == null || event.getNewValue().isEmpty()) {
                     studentScore.setPoints(Double.parseDouble(event.getOldValue()));
-                    update("Points", event.getOldValue(), listKey);
+                    update(event.getOldValue(), listKey);
                 }
                 object = new Operators(event.getNewValue()).solve() + "";
                 studentScore.setPoints(Double.parseDouble(object));
-                update("Points", object, listKey);
+                update( object, listKey);
             }
             default -> throw new IllegalStateException("Unexpected value: " + key);
         }
@@ -110,13 +136,13 @@ public class PointsTable implements Initializable {
         var newSortedStudentList = studentDataLoader.getSortedStudentList();
         for (int i = 0; i < 24; i++) {
             if (i < 12) {
-                l1.get(i).getText1().setText(newSortedStudentList.get(i).getName());
-                l1.get(i).getText2().setText(newSortedStudentList.get(i).getGrade());
-                l1.get(i).getText3().setText((int) newSortedStudentList.get(i).points() + "");
+                l1customView.get(i).getText1().setText(newSortedStudentList.get(i).getName());
+                l1customView.get(i).getText2().setText(newSortedStudentList.get(i).getGrade());
+                l1customView.get(i).getText3().setText((int) newSortedStudentList.get(i).points() + "");
             } else {
-                l2.get(i - 12).getText1().setText(newSortedStudentList.get(i).getName());
-                l2.get(i - 12).getText2().setText(newSortedStudentList.get(i).getGrade());
-                l2.get(i - 12).getText3().setText((int) newSortedStudentList.get(i).points() + "");
+                l2customView.get(i - 12).getText1().setText(newSortedStudentList.get(i).getName());
+                l2customView.get(i - 12).getText2().setText(newSortedStudentList.get(i).getGrade());
+                l2customView.get(i - 12).getText3().setText((int) newSortedStudentList.get(i).points() + "");
             }
 
         }
@@ -177,54 +203,11 @@ public class PointsTable implements Initializable {
         };
     }
 
-    public void update(String column_name, String value, String key) {
-        String sql = "UPDATE LEADERS SET " + column_name + " = '" + value + "' WHERE [ED No.] = '" + key + "'";
+    public void update(String value, String key) {
+        String sql = """
+                UPDATE StudentData SET points = %s  WHERE ed_no =%s
+                """.formatted(value, key);
         sqlQueries.add(sql);
-    }
-
-    @FXML
-    public void addNewStudent() {
-        if (!new_name.getText().isEmpty() && !new_class.getText().isEmpty()) {
-            String ed = "ED" + (Integer.parseInt(studentDataLoader.getStudentList().getLast().
-                    id().replace("ED", "")) + 1);
-            updateNewStudent(ed, new_name.getText(), new_class.getText(), 0);
-            studentDataLoader.getStudentLinkedHashMap().put("ED" + (max_ed + 1), new StudentScore("ED" + (max_ed + 1), new_name.getText(), new_class.getText(), 0));
-            Map<String, Object> item1 = getStringObjectMap(studentDataLoader.getStudentList().getLast());
-            items.add(item1);
-            max_ed++;
-            new_ed.setText("ED" + (max_ed + 1));
-            new_name.setText("");
-            new_class.setText("");
-            var alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Information");
-            alert.setHeaderText("New StudentScore added");
-            alert.show();
-        }
-    }
-
-    public void updateNewStudent(String edNo, String name, String className, int points) {
-
-        String sql = "INSERT INTO LEADERS ([ED No.], Name, Class, Points) VALUES (?, ?, ?, ?)";
-        PreparedStatement pstmt = null;
-        try {
-            pstmt = studentDataLoader.databaseLoader.getConnection().prepareStatement(sql);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            pstmt.setString(1, edNo);
-            pstmt.setString(2, name);
-            pstmt.setString(3, className);
-            pstmt.setInt(4, points);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
     }
 
     @FXML
@@ -239,7 +222,7 @@ public class PointsTable implements Initializable {
         try {
             var layout = new FXMLLoader(LeaderboardResourcesLoader.loadURL("fxml/timer.fxml"));
             layout.setControllerFactory(_ -> new Timer(timerStage));
-            timerStage.setScene(new Scene(layout.load(),1100,720));
+            timerStage.setScene(new Scene(layout.load(), 1100, 720));
             timerStage.getIcons().add(new Image(Objects.requireNonNull(getClass().
                     getResourceAsStream("icons/__logo.png"))));
             timerStage.show();

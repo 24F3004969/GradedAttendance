@@ -42,7 +42,12 @@
     -fx-icon-color: #1C75BC;
 }
 #leaderboard .ikonli-font-icon {
-    -fx-icon-code:mdi2c-chart-timeline-variant;
+    -fx-icon-code:"mdi2c-chart-timeline-variant";
     -fx-icon-size: 24;
     -fx-icon-color: #1C75BC;
+}
+#dashboard .ikonli-font-icon {
+    -fx-icon-code: "mdsal-dashboard";
+    -fx-icon-size: 24;
+    -fx-icon-color:white;
 }

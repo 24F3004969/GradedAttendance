@@ -106,8 +106,8 @@ public class CustomView extends HBox {
 
     private ImageView getImageView() {
         ImageView imageViewer = new ImageView(new Image(GradedResourceLoader.loadURL(image_src).toString()));
-        imageViewer.setFitWidth(40);
-        imageViewer.setFitHeight(40);
+        imageViewer.setFitWidth(100);
+        imageViewer.setFitHeight(100);
         imageViewer.setPreserveRatio(true);
         imageViewer.setSmooth(true);
         return imageViewer;

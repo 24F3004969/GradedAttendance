@@ -72,7 +72,7 @@ public class MainController implements Initializable {
     @FXML
     BorderPane main_view;
     public GradedDataLoader gradedDataLoader = new GradedDataLoader(this);
-    MessageSender messageSender;
+    public MessageSender messageSender;
     StudentDataLoader studentDataLoader;
     Leaderboard1 l1;
     LeaderBoard2 l2;
@@ -187,6 +187,7 @@ public class MainController implements Initializable {
 
     private Node navigateView(String id) {
         return switch (id) {
+            case "dashboard"->gradedFxmlLoader.createView(R.dashboard);
             case "home" -> home;
             case "chat" -> chat;
             case "calender" -> calendar;
@@ -195,9 +196,9 @@ public class MainController implements Initializable {
             case "quizCreator" -> gradedFxmlLoader.createView(R.quiz_creator, new QuizGenerator(this));
             case "quiz_taker" -> gradedFxmlLoader.createView(R.quiz_taker);
             case "leaderboard" -> gradedFxmlLoader.createView(R.points_table, new PointsTable(studentDataLoader,
-                    l1.customViews,
-                    l2.customViews,
-                    stage));
+                    l1,
+                    l2,
+                    this));
             case "setting" -> gradedFxmlLoader.createView(R.quiz_taker);
             default -> null;
         };

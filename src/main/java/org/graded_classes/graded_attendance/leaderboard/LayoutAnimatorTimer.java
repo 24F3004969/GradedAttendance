@@ -9,7 +9,6 @@ import javafx.scene.text.Text;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static org.graded_classes.graded_attendance.leaderboard.Main.defaultAnimationDuration;
 
 
 public class LayoutAnimatorTimer implements Initializable {
@@ -37,12 +36,12 @@ public class LayoutAnimatorTimer implements Initializable {
         layout_duration.getValueFactory().setValue(l_duration);
         fade_duration.getValueFactory().setValue(f_duration);
         layout_duration.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            var am=defaultAnimationDuration.get(name);
-            am.setLayoutDuration(Double.parseDouble(newValue));
+           // var am=defaultAnimationDuration.get(name);
+           // am.setLayoutDuration(Double.parseDouble(newValue));
         });
         fade_duration.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-            var am=defaultAnimationDuration.get(name);
-            am.setFadeTime(Double.parseDouble(newValue));
+            //var am=defaultAnimationDuration.get(name);
+            //am.setFadeTime(Double.parseDouble(newValue));
         });
 
     }

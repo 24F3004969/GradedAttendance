@@ -50,12 +50,12 @@ public class TimeTable {
                 String day = rs.getString("Day");
                 Map<String, Object> slots = new LinkedHashMap<>();
                 slots.put("Day", day);
-                slots.put("3:00 PM", getIfPresent(rs.getString("3:00 PM")));
-                slots.put("4:00 PM", getIfPresent(rs.getString("4:00 PM")));
+                slots.put("3:30 PM", getIfPresent(rs.getString("3:30 PM")));
+                slots.put("4:15 PM", getIfPresent(rs.getString("4:15 PM")));
                 slots.put("5:00 PM", getIfPresent(rs.getString("5:00 PM")));
-                slots.put("6:00 PM", getIfPresent(rs.getString("6:00 PM")));
-                slots.put("7:00 PM", getIfPresent(rs.getString("7:00 PM")));
-                slots.put("8:00 PM", getIfPresent(rs.getString("8:00 PM")));
+                slots.put("5:45 PM", getIfPresent(rs.getString("5:45 PM")));
+                slots.put("6:30 PM", getIfPresent(rs.getString("6:30 PM")));
+                slots.put("7:15 PM", getIfPresent(rs.getString("7:15 PM")));
 
                 timeTable.put(day, slots);
             }
@@ -70,7 +70,7 @@ public class TimeTable {
         return string == null ? "" : string;
     }
 
-    public boolean insertDailyTopics(
+    public void insertDailyTopics(
             String className,
             String subject1, String topic1,
             String subject2, String topic2,
@@ -95,12 +95,10 @@ public class TimeTable {
             pst.setString(10, topic4);
 
             int rowsInserted = pst.executeUpdate();
-            return rowsInserted > 0; // true if insert succeeded
 
         } catch (SQLException e) {
             String msg = e.getMessage();
             System.err.println("Insert failed: " + msg);
-            return false;
         }
     }
 

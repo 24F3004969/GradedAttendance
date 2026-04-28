@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.AreaChart?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.TilePane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox prefHeight="788.0" prefWidth="1052.0" style="-fx-background-radius: 5;" stylesheets="@../css/dashboard-style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
+   <children>
+      <HBox>
+         <children>
+            <VBox>
+               <HBox.margin>
+                  <Insets left="10.0" top="10.0" />
+               </HBox.margin>
+               <children>
+                  <Label fx:id="current_date" text="06 Mar, 2026">
+                     <font>
+                        <Font name="☞Gilroy-Bold" size="14.0" />
+                     </font>
+                  </Label>
+                  <Label text="Dashboard">
+                     <font>
+                        <Font name="☞Gilroy-Bold" size="42.0" />
+                     </font>
+                  </Label>
+               </children>
+            </VBox>
+            <HBox alignment="CENTER_RIGHT" spacing="5.0" HBox.hgrow="ALWAYS">
+               <HBox.margin>
+                  <Insets right="5.0" />
+               </HBox.margin>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+               <children>
+                  <VBox alignment="CENTER_RIGHT" stylesheets="@../css/list_view_style.css">
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                     <children>
+                        <HBox id="search1" alignment="CENTER" maxWidth="300.0" minWidth="300.0" spacing="5.0" stylesheets="@../css/tile_style.css">
+                           <padding>
+                              <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                           </padding>
+                           <children>
+                              <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
+                                 <image>
+                                    <Image url="@../icons/search.png" />
+                                 </image>
+                              </ImageView>
+                              <TextField fx:id="filterText" maxWidth="1.7976931348623157E308" minWidth="150.0" promptText="ED No. or Name" style="-fx-background-color: transparent;" HBox.hgrow="ALWAYS">
+                                 <HBox.margin>
+                                    <Insets left="5.0" right="5.0" />
+                                 </HBox.margin>
+                              </TextField>
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+         </children>
+      </HBox>
+      <BorderPane prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+         <right>
+            <VBox maxWidth="360.0" minWidth="360.0" spacing="10.0" BorderPane.alignment="CENTER">
+               <children>
+                  <VBox id="root_box" prefHeight="200.0" prefWidth="100.0" spacing="20.0">
+                     <children>
+                        <Label text="Recent Activity">
+                           <font>
+                              <Font size="24.0" />
+                           </font>
+                        </Label>
+                        <Label graphicTextGap="8.0" text="Fee payment received from Rahul Sharma" wrapText="true">
+                           <graphic>
+                              <Circle fill="#ff981f" radius="5.0" stroke="TRANSPARENT" strokeType="INSIDE" />
+                           </graphic>
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </Label>
+                        <Label graphicTextGap="8.0" text="New Student Priya Sign enrolled in Grade 10" wrapText="true">
+                           <graphic>
+                              <Circle fill="LIGHTGREEN" radius="5.0" stroke="TRANSPARENT" strokeType="INSIDE" />
+                           </graphic>
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </Label>
+                        <Label graphicTextGap="8.0" text="Teacher Mr. Verma marked todays's attendance" wrapText="true">
+                           <graphic>
+                              <Circle fill="DODGERBLUE" radius="5.0" stroke="TRANSPARENT" strokeType="INSIDE" />
+                           </graphic>
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </Label>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                  </VBox>
+                  <VBox id="root_box" prefHeight="200.0" prefWidth="100.0" spacing="20.0">
+                     <children>
+                        <Label text="Recent Activity">
+                           <font>
+                              <Font size="24.0" />
+                           </font>
+                        </Label>
+                        <Label graphicTextGap="8.0" text="Fee payment received from Rahul Sharma" wrapText="true">
+                           <graphic>
+                              <Circle fill="#ff981f" radius="5.0" stroke="TRANSPARENT" strokeType="INSIDE" />
+                           </graphic>
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </Label>
+                        <Label graphicTextGap="8.0" text="New Student Priya Sign enrolled in Grade 10" wrapText="true">
+                           <graphic>
+                              <Circle fill="LIGHTGREEN" radius="5.0" stroke="TRANSPARENT" strokeType="INSIDE" />
+                           </graphic>
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </Label>
+                        <Label graphicTextGap="8.0" text="Teacher Mr. Verma marked todays's attendance" wrapText="true">
+                           <graphic>
+                              <Circle fill="DODGERBLUE" radius="5.0" stroke="TRANSPARENT" strokeType="INSIDE" />
+                           </graphic>
+                           <font>
+                              <Font size="13.0" />
+                           </font>
+                        </Label>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                  </VBox>
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding></VBox>
+         </right>
+         <center>
+            <VBox spacing="5.0" BorderPane.alignment="CENTER">
+               <children>
+                  <TilePane hgap="20.0" prefHeight="200.0" prefWidth="200.0" vgap="20.0">
+                     <children>
+                        <VBox id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="117.0" prefWidth="300.0" style="-fx-background-color: rgb(28, 117, 188);" stylesheets="@../css/card-view-style.css">
+                           <children>
+                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                 <children>
+                                    <FontIcon style="-fx-icon-code: whhgmz-student-school; -fx-icon-size: 48;" />
+                                    <Label style="-fx-font-size: 24;" text="Students" />
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets left="20.0" />
+                                 </VBox.margin>
+                              </HBox>
+                              <HBox maxHeight="2.0" minHeight="2.0" style="-fx-background-color: rgba(0, 0, 0, 0.1);">
+                                 <VBox.margin>
+                                    <Insets left="60.0" />
+                                 </VBox.margin>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                 <children>
+                                    <Label style="-fx-font-size: 33;" text="250">
+                                       <font>
+                                          <Font size="33.0" />
+                                       </font>
+                                    </Label>
+                                    <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <FontIcon style="-fx-icon-code: &quot;mdrmz-people_alt&quot;; -fx-icon-size: 52; -fx-opacity: 0.5;">
+                                             <HBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                             </HBox.margin>
+                                          </FontIcon>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets left="20.0" />
+                                 </VBox.margin>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        <VBox id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="117.0" prefWidth="300.0" style="-fx-background-color: #847bde;" stylesheets="@../css/card-view-style.css">
+                           <children>
+                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                 <children>
+                                    <FontIcon style="-fx-icon-code: mdi-account; -fx-icon-size: 48;" />
+                                    <Label style="-fx-font-size: 24;" text="Teachers" />
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets left="20.0" />
+                                 </VBox.margin>
+                              </HBox>
+                              <HBox maxHeight="2.0" minHeight="2.0" style="-fx-background-color: rgba(0, 0, 0, 0.1);">
+                                 <VBox.margin>
+                                    <Insets left="60.0" />
+                                 </VBox.margin>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" VBox.vgrow="ALWAYS">
+                                 <children>
+                                    <Label style="-fx-font-size: 33;" text="20" HBox.hgrow="ALWAYS">
+                                       <font>
+                                          <Font size="33.0" />
+                                       </font>
+                                    </Label>
+                                    <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <FontIcon style="-fx-icon-code: &quot;mdrmz-people_alt&quot;; -fx-icon-size: 52; -fx-opacity: 0.5;">
+                                             <HBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                             </HBox.margin>
+                                          </FontIcon>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets left="20.0" />
+                                 </VBox.margin>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        <VBox id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="117.0" prefWidth="300.0" style="-fx-background-color: #f5a14a;" stylesheets="@../css/card-view-style.css">
+                           <children>
+                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                 <children>
+                                    <FontIcon style="-fx-icon-code: mdi2c-calendar-account; -fx-icon-size: 48;" />
+                                    <Label style="-fx-font-size: 24;" text="Classes Scheduled" />
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets left="20.0" />
+                                 </VBox.margin>
+                              </HBox>
+                              <HBox maxHeight="2.0" minHeight="2.0" style="-fx-background-color: rgba(0, 0, 0, 0.1);">
+                                 <VBox.margin>
+                                    <Insets left="60.0" />
+                                 </VBox.margin>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                 <children>
+                                    <Label style="-fx-font-size: 33;" text="35" HBox.hgrow="ALWAYS">
+                                       <font>
+                                          <Font size="33.0" />
+                                       </font>
+                                    </Label>
+                                    <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <FontIcon style="-fx-icon-code: bi-calendar3; -fx-icon-size: 52; -fx-opacity: 0.5;">
+                                             <HBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                             </HBox.margin>
+                                          </FontIcon>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets left="20.0" />
+                                 </VBox.margin>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        <VBox id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="117.0" prefWidth="300.0" style="-fx-background-color: #4fa3bc;" stylesheets="@../css/card-view-style.css">
+                           <children>
+                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                 <children>
+                                    <FontIcon style="-fx-icon-code: mdi-book-plus; -fx-icon-size: 48;" />
+                                    <Label style="-fx-font-size: 24;" text="Attendance Rate" />
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets left="20.0" />
+                                 </VBox.margin>
+                              </HBox>
+                              <HBox maxHeight="2.0" minHeight="2.0" style="-fx-background-color: rgba(0, 0, 0, 0.1);">
+                                 <VBox.margin>
+                                    <Insets left="60.0" />
+                                 </VBox.margin>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                 <children>
+                                    <Label style="-fx-font-size: 33;" text="92%">
+                                       <font>
+                                          <Font size="33.0" />
+                                       </font>
+                                    </Label>
+                                    <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <FontIcon style="-fx-icon-code: mdral-class; -fx-icon-size: 52; -fx-opacity: 0.5;">
+                                             <HBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                             </HBox.margin></FontIcon>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets left="20.0" />
+                                 </VBox.margin>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        <VBox id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="117.0" prefWidth="300.0" style="-fx-background-color: #4db4a2;" stylesheets="@../css/card-view-style.css">
+                           <children>
+                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                 <children>
+                                    <FontIcon style="-fx-icon-code: fa-rupee; -fx-icon-size: 48;" />
+                                    <Label style="-fx-font-size: 24;" text="Monthly Revenue" />
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets left="20.0" />
+                                 </VBox.margin>
+                              </HBox>
+                              <HBox maxHeight="2.0" minHeight="2.0" style="-fx-background-color: rgba(0, 0, 0, 0.1);">
+                                 <VBox.margin>
+                                    <Insets left="60.0" />
+                                 </VBox.margin>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                 <children>
+                                    <Label style="-fx-font-size: 33;" text=" ₹ 1,25,000" HBox.hgrow="ALWAYS">
+                                       <font>
+                                          <Font size="33.0" />
+                                       </font>
+                                    </Label>
+                                    <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <FontIcon style="-fx-icon-code: fa-money; -fx-icon-size: 52; -fx-opacity: 0.5;">
+                                             <HBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                             </HBox.margin>
+                                          </FontIcon>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets left="20.0" />
+                                 </VBox.margin>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        <VBox id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="117.0" prefWidth="300.0" style="-fx-background-color: #4068ab;" stylesheets="@../css/card-view-style.css">
+                           <children>
+                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                 <children>
+                                    <FontIcon style="-fx-icon-code: fa-paypal; -fx-icon-size: 48;" />
+                                    <Label style="-fx-font-size: 24;" text="Fee Payment" />
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets left="20.0" />
+                                 </VBox.margin>
+                              </HBox>
+                              <HBox maxHeight="2.0" minHeight="2.0" style="-fx-background-color: rgba(0, 0, 0, 0.1);">
+                                 <VBox.margin>
+                                    <Insets left="60.0" />
+                                 </VBox.margin>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                 <children>
+                                    <Label style="-fx-font-size: 33;" text="95" HBox.hgrow="ALWAYS">
+                                       <font>
+                                          <Font size="33.0" />
+                                       </font>
+                                    </Label>
+                                    <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <FontIcon style="-fx-icon-code: mdomz-payments; -fx-icon-size: 52; -fx-opacity: 0.5;">
+                                             <HBox.margin>
+                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                             </HBox.margin>
+                                          </FontIcon>
+                                       </children>
+                                       <HBox.margin>
+                                          <Insets />
+                                       </HBox.margin>
+                                    </HBox>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets left="20.0" />
+                                 </VBox.margin>
+                              </HBox>
+                           </children>
+                        </VBox>
+                     </children>
+                  </TilePane>
+                  <VBox id="root_box" VBox.vgrow="ALWAYS">
+                     <children>
+                        <HBox>
+                           <children>
+                              <Label style="-fx-font-family: Gilroy-Bold;" text="Performance Overview">
+                                 <font>
+                                    <Font size="28.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
+                        <HBox VBox.vgrow="ALWAYS">
+                           <children>
+                              <BarChart title="Student Attendance">
+                                <xAxis>
+                                  <CategoryAxis side="BOTTOM" />
+                                </xAxis>
+                                <yAxis>
+                                  <NumberAxis side="LEFT" />
+                                </yAxis>
+                              </BarChart>
+                              <Separator orientation="VERTICAL" prefHeight="200.0" />
+                              <AreaChart title="Revenue Trends">
+                                <xAxis>
+                                  <CategoryAxis side="BOTTOM" />
+                                </xAxis>
+                                <yAxis>
+                                  <NumberAxis side="LEFT" />
+                                </yAxis>
+                              </AreaChart>
+                              <Separator orientation="VERTICAL" prefHeight="200.0" />
+                              <LineChart title="Admission Rate">
+                                <xAxis>
+                                  <CategoryAxis side="BOTTOM" />
+                                </xAxis>
+                                <yAxis>
+                                  <NumberAxis side="LEFT" />
+                                </yAxis>
+                              </LineChart>
+                           </children>
+                        </HBox>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                     <VBox.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="40.0" />
+                     </VBox.margin>
+                  </VBox>
+               </children>
+               <BorderPane.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </BorderPane.margin>
+            </VBox>
+         </center>
+         <VBox.margin>
+            <Insets top="20.0" />
+         </VBox.margin>
+      </BorderPane>
+   </children>
+</VBox>

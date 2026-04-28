@@ -106,7 +106,7 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
         }
     }
 
-    private Map<Integer, String> generateMonthMap() {
+    public Map<Integer, String> generateMonthMap() {
         var map = new HashMap<Integer, String>();
         map.put(0, "Jan");
         map.put(1, "Feb");
@@ -123,7 +123,7 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
         return map;
     }
 
-    private Map<String, Integer> generateMonthMapInt() {
+    public static Map<String, Integer> generateMonthMapInt() {
         Map<String, Integer> map = new TreeMap<>();
         map.put("Jan", 0);
         map.put("Feb", 1);

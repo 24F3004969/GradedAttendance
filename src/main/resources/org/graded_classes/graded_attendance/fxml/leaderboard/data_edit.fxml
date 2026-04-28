@@ -11,8 +11,6 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
 
 <VBox spacing="10.0" stylesheets="@../../css/leaderboard/main_style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.leaderboard.PointsTable">
    <children>
@@ -49,26 +47,6 @@
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
          </columnResizePolicy>
       </TableView>
-      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Add Student">
-         <VBox.margin>
-            <Insets left="10.0" />
-         </VBox.margin>
-         <font>
-            <Font name="System Bold" size="12.0" />
-         </font>
-      </Text>
-      <HBox spacing="10.0">
-         <children>
-            <TextField fx:id="new_ed" editable="false" promptText="ED No.">
-               <HBox.margin>
-                  <Insets left="10.0" />
-               </HBox.margin>
-            </TextField>
-            <TextField fx:id="new_name" promptText="Name" />
-            <TextField fx:id="new_class" promptText="Class" />
-            <Button mnemonicParsing="false" onAction="#addNewStudent" text="Add" />
-         </children>
-      </HBox>
       <HBox alignment="CENTER_RIGHT" spacing="20.0">
          <children>
             <HBox HBox.hgrow="ALWAYS">

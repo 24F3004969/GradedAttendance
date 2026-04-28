@@ -23,10 +23,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class DataBaseController implements Initializable {
     @FXML
@@ -49,11 +46,14 @@ public class DataBaseController implements Initializable {
     TextField filterText;
     @FXML
     private MenuButton filterMenu;
+    @FXML
+    private TableColumn<StudentInfo, String> subjects;
+    @FXML
+    private TableColumn<StudentInfo, String> board,fee;
 
     public DataBaseController(MainController mainController) {
         this.mainController = mainController;
     }
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         studentsMap = mainController.gradedDataLoader.getStudentData();
@@ -103,6 +103,10 @@ public class DataBaseController implements Initializable {
         grade.setCellValueFactory(map -> map.getValue().grade());
         grade.setCellFactory(TextFieldTableCell.forTableColumn());
         doa.setCellValueFactory(map -> map.getValue().date_of_admission());
+        subjects.setCellValueFactory(map -> map.getValue().subjects());
+        board.setCellValueFactory(map -> map.getValue().board());
+        fee.setCellValueFactory(map -> map.getValue().fee());
+
         doa.setCellFactory(TextFieldTableCell.forTableColumn());
         doa.setOnEditCommit(event -> {
             String value = event.getNewValue();
@@ -141,7 +145,9 @@ public class DataBaseController implements Initializable {
             Student student = data.get(keys);
             StudentInfo studentInfo = new StudentInfo(false,
                     student.ed_no(), student.name(),
-                    student._class(), student.getDoa(), student.getLastPaymentDate(),"0");
+                    student._class(), student.getDoa(), student.getLastPaymentDate(), student.fee,
+                    Arrays.toString(student.getSubjects()).replace("[", "").replace("]", ""),
+                    student.getBoard());
             items.add(studentInfo);
         }
         studentData.setItems(filteredData);

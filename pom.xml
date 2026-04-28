@@ -138,7 +138,11 @@
             <artifactId>offline</artifactId>
             <version>1.1.0</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-whhg-pack</artifactId>
+            <version>12.4.0</version>
+        </dependency>
         <dependency>
             <groupId>com.dlsc.pdfviewfx</groupId>
             <artifactId>pdfviewfx</artifactId>
@@ -150,6 +154,11 @@
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
             <version>3.0.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dlsc.fxmlkit</groupId>
+            <artifactId>fxmlkit</artifactId>
+            <version>1.5.1</version>
         </dependency>
     </dependencies>
     <build>

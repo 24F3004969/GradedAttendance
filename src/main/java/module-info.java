@@ -28,6 +28,7 @@ module org.graded_classes.graded_attendance {
     requires javafx.swing;
     requires com.dlsc.pdfviewfx;
     requires org.apache.pdfbox;
+    requires com.dlsc.fxmlkit;
 
 
     opens org.graded_classes.graded_attendance.controller to javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc, java.sql;

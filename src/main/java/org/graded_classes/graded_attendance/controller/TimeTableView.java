@@ -39,24 +39,24 @@ public class TimeTableView extends TimeTable implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         heading.setText(heading.getText() + " " + getGrade());
         day.setCellValueFactory(map -> getValues(map, "Day"));
-        three.setCellValueFactory(map -> getValues(map, "3:00 PM"));
+        three.setCellValueFactory(map -> getValues(map, "3:30 PM"));
         three.setCellFactory(TextFieldTableCell.forTableColumn());
-        four.setCellValueFactory(map -> getValues(map, "4:00 PM"));
+        four.setCellValueFactory(map -> getValues(map, "4:15 PM"));
         four.setCellFactory(TextFieldTableCell.forTableColumn());
         five.setCellValueFactory(map -> getValues(map, "5:00 PM"));
         five.setCellFactory(TextFieldTableCell.forTableColumn());
-        six.setCellValueFactory(map -> getValues(map, "6:00 PM"));
+        six.setCellValueFactory(map -> getValues(map, "5:45 PM"));
         six.setCellFactory(TextFieldTableCell.forTableColumn());
-        seven.setCellValueFactory(map -> getValues(map, "7:00 PM"));
+        seven.setCellValueFactory(map -> getValues(map, "6:30 PM"));
         seven.setCellFactory(TextFieldTableCell.forTableColumn());
-        eight.setCellValueFactory(map -> getValues(map, "8:00 PM"));
+        eight.setCellValueFactory(map -> getValues(map, "7:15 PM"));
         eight.setCellFactory(TextFieldTableCell.forTableColumn());
-        three.setOnEditCommit(event -> eventResolver(event, "3:00 PM"));
-        four.setOnEditCommit(event -> eventResolver(event, "4:00 PM"));
+        three.setOnEditCommit(event -> eventResolver(event, "3:30 PM"));
+        four.setOnEditCommit(event -> eventResolver(event, "4:15 PM"));
         five.setOnEditCommit(event -> eventResolver(event, "5:00 PM"));
-        six.setOnEditCommit(event -> eventResolver(event, "6:00 PM"));
-        seven.setOnEditCommit(event -> eventResolver(event, "7:00 PM"));
-        eight.setOnEditCommit(event -> eventResolver(event, "8:00 PM"));
+        six.setOnEditCommit(event -> eventResolver(event, "5:45 PM"));
+        seven.setOnEditCommit(event -> eventResolver(event, "6:30 PM"));
+        eight.setOnEditCommit(event -> eventResolver(event, "7:15 PM"));
         for (var da : table.keySet())
             items.add(table.get(da));
         table_view.setItems(items);

@@ -3,8 +3,8 @@ package org.graded_classes.graded_attendance.leaderboard;
 import java.sql.*;
 import java.util.ArrayList;
 
-import static org.graded_classes.graded_attendance.leaderboard.Main.defaultAnimationDuration;
-import static org.graded_classes.graded_attendance.leaderboard.Main.preview;
+import static org.graded_classes.graded_attendance.leaderboard.LeaderboardLoader.defaultAnimationDuration;
+import static org.graded_classes.graded_attendance.leaderboard.LeaderboardLoader.preview;
 
 
 public class DurationReaderData {
@@ -21,7 +21,7 @@ public class DurationReaderData {
     public static void init() {
         try {
             if (!tableExists(getConnection())) {
-                Main.generateDefaultAnimationDuration();
+                LeaderboardLoader.generateDefaultAnimationDuration();
                 try (Statement stmt = getConnection().createStatement()) {
                     String sql = "CREATE TABLE IF NOT EXISTS durations (" +
                             "key TEXT PRIMARY KEY, " +

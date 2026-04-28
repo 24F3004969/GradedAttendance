@@ -18,7 +18,7 @@
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<VBox maxHeight="600.0" maxWidth="800.0" minHeight="600.0" minWidth="800.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.fee.FeeReport">
+<VBox maxHeight="600.0" maxWidth="1000.0" minHeight="600.0" minWidth="1000.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.fee.FeeReport">
    <HBox>
       <VBox>
          <HBox.margin>
@@ -46,7 +46,7 @@
             <padding>
                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
             </padding>
-            <Label text="Free Collected">
+            <Label text="Fee Collected">
                <font>
                   <Font name="☞Gilroy-Bold" size="15.0" />
                </font>
@@ -61,7 +61,7 @@
             <padding>
                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
             </padding>
-            <Label text="Free Left">
+            <Label text="Fee Left">
                <font>
                   <Font name="☞Gilroy-Bold" size="15.0" />
                </font>
@@ -156,6 +156,7 @@
                <TableColumn fx:id="name" text="Name" />
                <TableColumn fx:id="grade" prefWidth="75.0" text="Class" visible="false" />
                <TableColumn fx:id="amount" text="Amount" />
+               <TableColumn fx:id="dueAmount" text="Due Amount" />
                <TableColumn fx:id="payDate" text="Pay Date" />
                <TableColumn fx:id="dueData" text="Due Date" />
                <TableColumn fx:id="mode" text="Mode" />

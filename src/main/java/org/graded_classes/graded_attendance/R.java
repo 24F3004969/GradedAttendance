@@ -42,9 +42,10 @@ public enum R {
     question_preview("fxml/question_preview.fxml"),
     fee_receipt("fxml/fee_recipt.fxml"),
     points_table("fxml/leaderboard/data_edit.fxml"),
-    leaderboard1("fxml/leaderboard/leader_board_view1.fxml"),
-    leaderboard2("fxml/leaderboard/leader_board_view2.fxml"),
-    ;
+    leaderboard1("fxml/leaderboard/leader_board_view12.fxml"),
+    leaderboard2("fxml/leaderboard/leader_board_view12.fxml"),
+    seating_plan("fxml/seating_plan.fxml"),
+    dashboard("fxml/dashboard.fxml");
     private final String path;
 
     R(String path) {

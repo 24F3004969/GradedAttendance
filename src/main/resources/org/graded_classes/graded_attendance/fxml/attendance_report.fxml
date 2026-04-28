@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.chart.BarChart?>
-<?import javafx.scene.chart.CategoryAxis?>
-<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
 
@@ -12,15 +10,5 @@
       <VBox.margin>
          <Insets top="10.0" />
       </VBox.margin></Label>
-    <BarChart fx:id="attendanceChart" alternativeColumnFillVisible="true" barGap="0.0" categoryGap="0.0" title="Student Attendance Report" verticalGridLinesVisible="false" VBox.vgrow="ALWAYS">
-      <xAxis>
-          <CategoryAxis autoRanging="false" endMargin="0.0" label="Attendance Status" startMargin="0.0" tickLabelGap="0.0" tickLength="0.0" fx:id="xAxis" />
-      </xAxis>
-      <yAxis>
-          <NumberAxis fx:id="yAxis" label="Days" side="LEFT" upperBound="30.0" />
-      </yAxis>
-      <VBox.margin>
-         <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-      </VBox.margin>
-    </BarChart>
+   <PieChart fx:id="attendanceChart" stylesheets="@../css/chart-style.css" title="Student Attendance Report" VBox.vgrow="ALWAYS" />
 </VBox>

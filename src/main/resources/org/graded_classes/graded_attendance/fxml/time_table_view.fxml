@@ -27,12 +27,12 @@
        <TableView fx:id="table_view" editable="true" tableMenuButtonVisible="true" VBox.vgrow="ALWAYS">
            <columns>
              <TableColumn fx:id="day" prefWidth="75.0" text="Day" />
-             <TableColumn fx:id="three" prefWidth="75.0" text="3:00 PM" />
-             <TableColumn fx:id="four" prefWidth="75.0" text="4:00 PM" />
+             <TableColumn fx:id="three" prefWidth="75.0" text="3:30 PM" />
+             <TableColumn fx:id="four" prefWidth="75.0" text="4:15 PM" />
              <TableColumn fx:id="five" prefWidth="75.0" text="5:00 PM" />
-             <TableColumn fx:id="six" prefWidth="75.0" text="6:00 PM" />
-             <TableColumn fx:id="seven" prefWidth="75.0" text="7:00 PM" />
-             <TableColumn fx:id="eight" prefWidth="75.0" text="8:00 PM" />
+             <TableColumn fx:id="six" prefWidth="75.0" text="5:45 PM" />
+             <TableColumn fx:id="seven" prefWidth="75.0" text="6:30 PM" />
+             <TableColumn fx:id="eight" prefWidth="75.0" text="7:15 PM" />
            </columns>
          <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

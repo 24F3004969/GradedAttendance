@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
-import static org.graded_classes.graded_attendance.leaderboard.Main.defaultAnimationDuration;
-import static org.graded_classes.graded_attendance.leaderboard.Main.preview;
+import static org.graded_classes.graded_attendance.leaderboard.LeaderboardLoader.defaultAnimationDuration;
+import static org.graded_classes.graded_attendance.leaderboard.LeaderboardLoader.preview;
 
 
 public class Timer implements Initializable {

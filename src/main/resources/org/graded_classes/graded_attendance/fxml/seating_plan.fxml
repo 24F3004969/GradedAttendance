@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<StackPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.leaderboard.SeatingPlan">
+   <children>
+      <VBox alignment="TOP_CENTER" style="-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.12, -1.0, 2.0); -fx-background-color: #fafafa; -fx-background-radius: 10;">
+         <children>
+            <Label text="Seating Plan">
+               <font>
+                  <Font name="System Bold" size="29.0" />
+               </font>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </Label>
+            <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" style="-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.12, -1.0, 2.0);">
+               <children>
+                  <VBox fx:id="timing" alignment="TOP_CENTER" spacing="10.0">
+                     <children>
+                        <HBox alignment="CENTER" minHeight="56.0" minWidth="120.0" style="-fx-background-color: #cdd5e2; -fx-background-radius: 5;">
+                           <children>
+                              <Label text="Timing">
+                                 <font>
+                                    <Font name="System Bold" size="20.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+                  <VBox fx:id="grade" alignment="TOP_CENTER" spacing="10.0">
+                     <children>
+                        <HBox alignment="CENTER" minHeight="56.0" minWidth="120.0" style="-fx-background-color: #cdd5e2; -fx-background-radius: 5;">
+                           <children>
+                              <Label text="Class">
+                                 <font>
+                                    <Font name="System Bold" size="20.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+                  <VBox fx:id="room_no" alignment="TOP_CENTER" spacing="10.0">
+                     <children>
+                        <HBox alignment="CENTER" minHeight="56.0" minWidth="120.0" style="-fx-background-color: #cdd5e2; -fx-background-radius: 5;">
+                           <children>
+                              <Label text="Room No.">
+                                 <font>
+                                    <Font name="System Bold" size="20.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+                  <VBox fx:id="subject" alignment="TOP_CENTER" spacing="10.0">
+                     <children>
+                        <HBox alignment="CENTER" minHeight="56.0" minWidth="120.0" style="-fx-background-color: #cdd5e2; -fx-background-radius: 5;">
+                           <children>
+                              <Label text="Subject">
+                                 <font>
+                                    <Font name="System Bold" size="20.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+                  <VBox fx:id="teacher" alignment="TOP_CENTER" spacing="10.0">
+                     <children>
+                        <HBox fx:id="teacher" alignment="CENTER" minHeight="56.0" minWidth="120.0" style="-fx-background-color: #cdd5e2; -fx-background-radius: 5;">
+                           <children>
+                              <Label text="Teacher">
+                                 <font>
+                                    <Font name="System Bold" size="20.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </HBox>
+            <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../icons/leaderboard/my-logo.png" />
+               </image>
+            </ImageView>
+         </children>
+         <StackPane.margin>
+            <Insets bottom="20.0" left="200.0" right="200.0" top="20.0" />
+         </StackPane.margin>
+      </VBox>
+   </children>
+</StackPane>
