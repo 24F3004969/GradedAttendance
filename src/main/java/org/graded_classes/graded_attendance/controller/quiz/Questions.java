@@ -34,8 +34,10 @@ public class Questions implements Initializable {
     private ToggleGroup q_options;
 
     @FXML
+    private Label file_name;
+    @FXML
     private CustomTextField question_text;
-
+    String file;
     @FXML
     private ToggleGroup t_options;
     MainController mainController;
@@ -59,9 +61,8 @@ public class Questions implements Initializable {
             event.acceptTransferModes(TransferMode.COPY);
         }
         event.consume();
+        file = dragboard.getFiles().toString().substring(1, dragboard.getFiles().toString().length() - 1);
 
-        String file = dragboard.getFiles().toString().substring(1, dragboard.getFiles().toString().length() - 1);
-        System.out.println(file);
     }
 
     @Override
@@ -97,7 +98,8 @@ public class Questions implements Initializable {
     }
 
     public void handleDragDropped(DragEvent event) {
-
+        file_name.setText(event.getDragboard().getFiles().toString());
+        file_name.setVisible(true);
     }
 
     public void fileChooser(ActionEvent event) {

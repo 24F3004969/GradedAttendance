@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.leaderboard.SeatingPlan">
+<StackPane xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.leaderboard.SeatingPlan">
    <children>
       <VBox alignment="TOP_CENTER" style="-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.12, -1.0, 2.0); -fx-background-color: #fafafa; -fx-background-radius: 10;">
          <children>
@@ -21,67 +21,67 @@
                   <Insets top="10.0" />
                </VBox.margin>
             </Label>
-            <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" style="-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.12, -1.0, 2.0);">
+            <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0">
                <children>
-                  <VBox fx:id="timing" alignment="TOP_CENTER" spacing="10.0">
+                  <VBox fx:id="timing" alignment="TOP_CENTER" spacing="7.0">
                      <children>
-                        <HBox alignment="CENTER" minHeight="56.0" minWidth="120.0" style="-fx-background-color: #cdd5e2; -fx-background-radius: 5;">
+                        <HBox alignment="CENTER" minHeight="46.0" minWidth="120.0" style="-fx-background-color: #cdd5e2; -fx-background-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5;">
                            <children>
                               <Label text="Timing">
                                  <font>
-                                    <Font name="System Bold" size="20.0" />
+                                    <Font name="System Bold" size="16.0" />
                                  </font>
                               </Label>
                            </children>
                         </HBox>
                      </children>
                   </VBox>
-                  <VBox fx:id="grade" alignment="TOP_CENTER" spacing="10.0">
+                  <VBox fx:id="grade" alignment="TOP_CENTER" spacing="7.0">
                      <children>
-                        <HBox alignment="CENTER" minHeight="56.0" minWidth="120.0" style="-fx-background-color: #cdd5e2; -fx-background-radius: 5;">
+                        <HBox alignment="CENTER" minHeight="46.0" minWidth="120.0" style="-fx-background-color: #cdd5e2; -fx-background-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5;">
                            <children>
                               <Label text="Class">
                                  <font>
-                                    <Font name="System Bold" size="20.0" />
+                                    <Font name="System Bold" size="16.0" />
                                  </font>
                               </Label>
                            </children>
                         </HBox>
                      </children>
                   </VBox>
-                  <VBox fx:id="room_no" alignment="TOP_CENTER" spacing="10.0">
+                  <VBox fx:id="room_no" alignment="TOP_CENTER" spacing="7.0">
                      <children>
-                        <HBox alignment="CENTER" minHeight="56.0" minWidth="120.0" style="-fx-background-color: #cdd5e2; -fx-background-radius: 5;">
+                        <HBox alignment="CENTER" minHeight="46.0" minWidth="120.0" style="-fx-background-color: #cdd5e2; -fx-background-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5;">
                            <children>
                               <Label text="Room No.">
                                  <font>
-                                    <Font name="System Bold" size="20.0" />
+                                    <Font name="System Bold" size="16.0" />
                                  </font>
                               </Label>
                            </children>
                         </HBox>
                      </children>
                   </VBox>
-                  <VBox fx:id="subject" alignment="TOP_CENTER" spacing="10.0">
+                  <VBox fx:id="subject" alignment="TOP_CENTER" spacing="7.0">
                      <children>
-                        <HBox alignment="CENTER" minHeight="56.0" minWidth="120.0" style="-fx-background-color: #cdd5e2; -fx-background-radius: 5;">
+                        <HBox alignment="CENTER" minHeight="46.0" minWidth="120.0" style="-fx-background-color: #cdd5e2; -fx-background-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5;">
                            <children>
                               <Label text="Subject">
                                  <font>
-                                    <Font name="System Bold" size="20.0" />
+                                    <Font name="System Bold" size="16.0" />
                                  </font>
                               </Label>
                            </children>
                         </HBox>
                      </children>
                   </VBox>
-                  <VBox fx:id="teacher" alignment="TOP_CENTER" spacing="10.0">
+                  <VBox fx:id="teacherView" alignment="TOP_CENTER" spacing="7.0">
                      <children>
-                        <HBox fx:id="teacher" alignment="CENTER" minHeight="56.0" minWidth="120.0" style="-fx-background-color: #cdd5e2; -fx-background-radius: 5;">
+                        <HBox fx:id="teacher" alignment="CENTER" minHeight="46.0" minWidth="120.0" style="-fx-background-color: #cdd5e2; -fx-background-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5;">
                            <children>
                               <Label text="Teacher">
                                  <font>
-                                    <Font name="System Bold" size="20.0" />
+                                    <Font name="System Bold" size="16.0" />
                                  </font>
                               </Label>
                            </children>
@@ -93,11 +93,15 @@
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </padding>
             </HBox>
-            <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../icons/leaderboard/my-logo.png" />
-               </image>
-            </ImageView>
+            <VBox alignment="BOTTOM_CENTER" VBox.vgrow="ALWAYS">
+               <children>
+                  <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../icons/leaderboard/my-logo.png" />
+                     </image>
+                  </ImageView>
+               </children>
+            </VBox>
          </children>
          <StackPane.margin>
             <Insets bottom="20.0" left="200.0" right="200.0" top="20.0" />

@@ -45,7 +45,10 @@ public enum R {
     leaderboard1("fxml/leaderboard/leader_board_view12.fxml"),
     leaderboard2("fxml/leaderboard/leader_board_view12.fxml"),
     seating_plan("fxml/seating_plan.fxml"),
-    dashboard("fxml/dashboard.fxml");
+    dashboard("fxml/dashboard.fxml"),
+    question_option("fxml/question-options.fxmlf"),
+    timer("fxml/leaderboard/timer.fxml"),
+    animationTimer("fxml/leaderboard/layout_animator_timer.fxml");
     private final String path;
 
     R(String path) {

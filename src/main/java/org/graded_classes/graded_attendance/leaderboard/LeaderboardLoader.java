@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.graded_classes.graded_attendance.controller.MainController;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,10 +20,16 @@ import java.util.stream.Stream;
 public class LeaderboardLoader {
 
 
-    public static ArrayList<String> preview = new ArrayList<>();
-    public static LinkedHashMap<String, AnimationDuration> defaultAnimationDuration = new LinkedHashMap<>();
+    public ArrayList<String> preview = new ArrayList<>();
+    public LinkedHashMap<String, AnimationDuration> defaultAnimationDuration = new LinkedHashMap<>();
+    public MainController mainController;
+    public DurationReaderData duration;
 
-    public static Scene load(StackPane leader1, StackPane leader2) throws Exception {
+    public LeaderboardLoader(MainController mainController) {
+        this.mainController = mainController;
+    }
+
+    public Scene load(StackPane leader1, StackPane leader2) {
         var treeMap = listOfWinners("Winners");
         var list = brandList("Branding");
         ArrayList<StackPane> panes = new ArrayList<>();
@@ -39,16 +46,17 @@ public class LeaderboardLoader {
             panes.add(new ImageSliderShow(a).getSliderPane());
             preview.add(a.substring(a.lastIndexOf('\\') + 1, a.lastIndexOf('.')));
         }
-        DurationReaderData.init();
+        duration = new DurationReaderData(mainController, this);
+        duration.init();
         System.out.println("File things are done");
         StackPane root = new StackPane();
         Scene scene = new Scene(root);
-        LayoutAnimator layoutAnimator = new LayoutAnimator(root, panes.toArray(new StackPane[0]));
+        LayoutAnimator layoutAnimator = new LayoutAnimator(root, this, panes.toArray(new StackPane[0]));
         layoutAnimator.animate();
         return scene;
     }
 
-    public static TreeMap<Integer, WinnerInfo> listOfWinners(String path) {
+    public TreeMap<Integer, WinnerInfo> listOfWinners(String path) {
         TreeMap<Integer, WinnerInfo> brandList = new TreeMap<>();
         try (Stream<Path> paths = Files.walk(Paths.get("G:/My Drive/" + path))) {
             paths.filter(Files::isRegularFile).forEach(p -> {
@@ -65,7 +73,7 @@ public class LeaderboardLoader {
         return brandList;
     }
 
-    public static ArrayList<String> brandList(String path) {
+    public ArrayList<String> brandList(String path) {
         ArrayList<String> brandList = new ArrayList<>();
         try (Stream<Path> paths = Files.walk(Paths.get("G:/My Drive/" + path))) {
             paths.filter(Files::isRegularFile).forEach(p -> {
@@ -77,7 +85,7 @@ public class LeaderboardLoader {
         return brandList;
     }
 
-    public static void generateDefaultAnimationDuration() {
+    public void generateDefaultAnimationDuration() {
         defaultAnimationDuration.put(preview.getFirst(), new AnimationDuration(Duration.seconds(18).toSeconds(), Duration.seconds(2).toSeconds()));
         defaultAnimationDuration.put(preview.get(1), new AnimationDuration(Duration.seconds(18).toSeconds(), Duration.seconds(2).toSeconds()));
         for (int i = 2; i < preview.size(); i++) {

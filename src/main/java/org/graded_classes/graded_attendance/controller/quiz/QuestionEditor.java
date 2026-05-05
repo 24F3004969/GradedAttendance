@@ -8,12 +8,15 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.controller.MainController;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class QuestionEditor implements Initializable {
@@ -78,7 +81,23 @@ public class QuestionEditor implements Initializable {
                     editor.setContent(listOfQuestions.get(questionCount).root);
                     listOfQuestions.get(questionCount).status = l;
                 } else if (l.getText().equals("Preview")) {
-                    editor.setContent(mainController.gradedFxmlLoader.createView(R.question_preview));
+                    var toggleGroup = new ToggleGroup();
+                    editor.setContent(mainController.gradedFxmlLoader.createView(R.question_preview,
+                            new QuestionPreview("C:\\Users\\hilal\\OneDrive\\Pictures\\Screenshots 1\\Screenshot 2026-04-30 144956.png",
+                                    "", new ArrayList<>(List.of(
+                                    mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("A", """
+                                             \\frac{\\pi + 1}{\\pi + 2} \\\\
+                                            """, "", toggleGroup)),
+                                    mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("B", """
+                                             \\frac{\\pi + 2}{\\pi + 1} \\\\
+                                            """, "", toggleGroup)),
+                                    mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("C", """
+                                              \\frac{\\pi}{\\pi + 1} \\\\
+                                            """, "", toggleGroup)),
+                                    mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("D", """
+                                              \\frac{\\pi + 2}{\\pi}
+                                            """, "", toggleGroup))
+                            )))));
                     listOfQuestions.get(questionCount).status = l;
                 }
             }

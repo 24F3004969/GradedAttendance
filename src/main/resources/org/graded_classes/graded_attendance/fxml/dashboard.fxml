@@ -19,7 +19,7 @@
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<VBox prefHeight="788.0" prefWidth="1052.0" style="-fx-background-radius: 5;" stylesheets="@../css/dashboard-style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="788.0" prefWidth="1052.0" style="-fx-background-radius: 5;" stylesheets="@../css/dashboard-style.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.Dashboard">
    <padding>
       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
    </padding>
@@ -186,7 +186,7 @@
                               </HBox>
                               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                                  <children>
-                                    <Label style="-fx-font-size: 33;" text="250">
+                                    <Label fx:id="studentNo" style="-fx-font-size: 33;" text="250">
                                        <font>
                                           <Font size="33.0" />
                                        </font>
@@ -225,7 +225,7 @@
                               </HBox>
                               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" VBox.vgrow="ALWAYS">
                                  <children>
-                                    <Label style="-fx-font-size: 33;" text="20" HBox.hgrow="ALWAYS">
+                                    <Label fx:id="teacherNumber" style="-fx-font-size: 33;" text="20" HBox.hgrow="ALWAYS">
                                        <font>
                                           <Font size="33.0" />
                                        </font>
@@ -264,7 +264,7 @@
                               </HBox>
                               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                                  <children>
-                                    <Label style="-fx-font-size: 33;" text="35" HBox.hgrow="ALWAYS">
+                                    <Label fx:id="classScheduled" style="-fx-font-size: 33;" text="35" HBox.hgrow="ALWAYS">
                                        <font>
                                           <Font size="33.0" />
                                        </font>
@@ -303,7 +303,7 @@
                               </HBox>
                               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                                  <children>
-                                    <Label style="-fx-font-size: 33;" text="92%">
+                                    <Label fx:id="attendanceRate" style="-fx-font-size: 33;" text="92%">
                                        <font>
                                           <Font size="33.0" />
                                        </font>
@@ -341,7 +341,7 @@
                               </HBox>
                               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                                  <children>
-                                    <Label style="-fx-font-size: 33;" text=" ₹ 1,25,000" HBox.hgrow="ALWAYS">
+                                    <Label fx:id="monthlyRevenue" style="-fx-font-size: 33;" text=" ₹ 1,25,000" HBox.hgrow="ALWAYS">
                                        <font>
                                           <Font size="33.0" />
                                        </font>
@@ -380,7 +380,7 @@
                               </HBox>
                               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                                  <children>
-                                    <Label style="-fx-font-size: 33;" text="95" HBox.hgrow="ALWAYS">
+                                    <Label fx:id="paymentNumber" style="-fx-font-size: 33;" text="95" HBox.hgrow="ALWAYS">
                                        <font>
                                           <Font size="33.0" />
                                        </font>
@@ -410,39 +410,35 @@
                      <children>
                         <HBox>
                            <children>
-                              <Label style="-fx-font-family: Gilroy-Bold;" text="Performance Overview">
-                                 <font>
-                                    <Font size="28.0" />
-                                 </font>
-                              </Label>
+                              <Label style="-fx-font-family: Gilroy-Bold; -fx-font-size: 28;" text="Performance Overview" />
                            </children>
                         </HBox>
                         <HBox VBox.vgrow="ALWAYS">
                            <children>
-                              <BarChart title="Student Attendance">
+                              <BarChart fx:id="attendanceGraph" title="Student Attendance">
                                 <xAxis>
-                                  <CategoryAxis side="BOTTOM" />
+                                  <CategoryAxis label="Months" side="BOTTOM" />
                                 </xAxis>
                                 <yAxis>
-                                  <NumberAxis side="LEFT" />
+                                  <NumberAxis label="Percent %" side="LEFT" />
                                 </yAxis>
                               </BarChart>
                               <Separator orientation="VERTICAL" prefHeight="200.0" />
-                              <AreaChart title="Revenue Trends">
+                              <AreaChart fx:id="revenueTrendGraph" title="Revenue Trends">
                                 <xAxis>
-                                  <CategoryAxis side="BOTTOM" />
+                                  <CategoryAxis label="Months" side="BOTTOM" />
                                 </xAxis>
                                 <yAxis>
-                                  <NumberAxis side="LEFT" />
+                                  <NumberAxis label="Amount" side="LEFT" />
                                 </yAxis>
                               </AreaChart>
                               <Separator orientation="VERTICAL" prefHeight="200.0" />
-                              <LineChart title="Admission Rate">
+                              <LineChart fx:id="admissionRateGraph" title="Admission Rate">
                                 <xAxis>
-                                  <CategoryAxis side="BOTTOM" />
+                                  <CategoryAxis label="Months" side="BOTTOM" />
                                 </xAxis>
                                 <yAxis>
-                                  <NumberAxis side="LEFT" />
+                                  <NumberAxis label="Admission No" side="LEFT" />
                                 </yAxis>
                               </LineChart>
                            </children>

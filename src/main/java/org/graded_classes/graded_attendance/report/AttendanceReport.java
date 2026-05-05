@@ -46,6 +46,7 @@ public class AttendanceReport {
             System.err.println("Connection error: " + e.getMessage());
             e.printStackTrace();
         }
+        System.out.println(studentAttendanceReport);
 
     }
 }

@@ -8,12 +8,14 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.graded_classes.graded_attendance.GradedFxmlLoader;
 import org.graded_classes.graded_attendance.R;
@@ -39,28 +41,31 @@ public class PointsTable implements Initializable {
     ArrayList<String> sqlQueries = new ArrayList<>();
     ObservableList<Map<String, Object>> items = FXCollections.observableArrayList();
     Stage stage2 = new Stage();
-    LeaderBoard2 l2;
+    SeatingPlan l2;
     Leaderboard1 l1;
+    LeaderboardLoader lb_loader;
     MainController mainController;
 
-    public PointsTable(StudentDataLoader studentDataLoader, Leaderboard1 l1, LeaderBoard2 l2, MainController mainController) {
+    public PointsTable(StudentDataLoader studentDataLoader, Leaderboard1 l1, SeatingPlan l2, MainController mainController) {
         this.studentDataLoader = studentDataLoader;
         this.l1 = l1;
         this.l2 = l2;
         l1customView = l1.customViews;
-        l2customView = l2.customViews;
+        /*l2customView = l2.customViews;*/
         this.mainController = mainController;
     }
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        lb_loader=new LeaderboardLoader(mainController);
+        var loadedVal=lb_loader.load((StackPane) mainController.gradedFxmlLoader.createView(R.seating_plan, l2),
+                (StackPane) mainController.gradedFxmlLoader.createView(R.seating_plan, l2));
         mainController.getStage().getScene().setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.P) {
                 stage2.setTitle("Leaderboard");
                 try {
-                    stage2.setScene(LeaderboardLoader.load((StackPane) mainController.gradedFxmlLoader.createView(R.leaderboard1),
-                            (StackPane) mainController.gradedFxmlLoader.createView(R.leaderboard2)));
+                    stage2.setScene(loadedVal);
 
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -128,13 +133,13 @@ public class PointsTable implements Initializable {
                 }
                 object = new Operators(event.getNewValue()).solve() + "";
                 studentScore.setPoints(Double.parseDouble(object));
-                update( object, listKey);
+                update(object, listKey);
             }
             default -> throw new IllegalStateException("Unexpected value: " + key);
         }
         event.getTableView().getItems().get(event.getTablePosition().getRow()).put(key, object);
         var newSortedStudentList = studentDataLoader.getSortedStudentList();
-        for (int i = 0; i < 24; i++) {
+      /*  for (int i = 0; i < 24; i++) {
             if (i < 12) {
                 l1customView.get(i).getText1().setText(newSortedStudentList.get(i).getName());
                 l1customView.get(i).getText2().setText(newSortedStudentList.get(i).getGrade());
@@ -146,7 +151,7 @@ public class PointsTable implements Initializable {
             }
 
         }
-
+*/
 
     }
 
@@ -219,16 +224,14 @@ public class PointsTable implements Initializable {
     void changeDuration() {
         Stage timerStage = new Stage();
         timerStage.setTitle("Animation Duration");
-        try {
-            var layout = new FXMLLoader(LeaderboardResourcesLoader.loadURL("fxml/timer.fxml"));
-            layout.setControllerFactory(_ -> new Timer(timerStage));
-            timerStage.setScene(new Scene(layout.load(), 1100, 720));
-            timerStage.getIcons().add(new Image(Objects.requireNonNull(getClass().
-                    getResourceAsStream("icons/__logo.png"))));
+            //var layout = new FXMLLoader(LeaderboardResourcesLoader.loadURL("fxml/leaderboard/timer.fxml"));
+            //layout.setControllerFactory(_ -> new Timer(timerStage,lb_loader));
+            timerStage.setScene(new Scene((VBox) mainController.gradedFxmlLoader.createView(R.timer,
+                    new Timer(timerStage,lb_loader)), 1100, 720));
+         /*   timerStage.getIcons().add(new Image(Objects.requireNonNull(getClass().
+                    getResourceAsStream("icons/__logo.png"))));*/
             timerStage.show();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+
     }
 
 }

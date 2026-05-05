@@ -44,6 +44,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class FeeReport implements Initializable {
+    Map<String, FeeData> sortedFeeRecords;
     @FXML
     TableColumn<FeeData, String> amount, dueData, ed_no,
             grade, mode, name, payDate, payID, referenceNo,
@@ -99,8 +100,23 @@ public class FeeReport implements Initializable {
         for (var keys : feeRecords.keySet()) {
             items.add(feeRecords.get(keys));
         }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        sortedFeeRecords = feeRecords.entrySet()
+                .stream()
+                .sorted((e1, e2) -> {
+                    LocalDate date1 = LocalDate.parse(e1.getValue().paidOn().getValue(), formatter);
+                    LocalDate date2 = LocalDate.parse(e2.getValue().paidOn().getValue(), formatter);
+                    return date1.compareTo(date2);
+                })
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue,
+                        LinkedHashMap::new // Maintains the sorted order
+                ));
         duePaymentRecord.clear();
-        feeRepository.duePaymentRecord(mainController.
+        duePaymentRecord = feeRepository.duePaymentRecord(mainController.
                 gradedDataLoader.databaseLoader.getConnection());
         double totalSumOfMoney = mainController.gradedDataLoader.getStudentData().
                 values().stream().filter(sd ->
@@ -207,7 +223,7 @@ public class FeeReport implements Initializable {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 // 2. Sort the TreeMap entries by the payDate field inside FeeData
-        Map<String, FeeData> sortedFeeRecords = feeRecords.entrySet()
+        sortedFeeRecords = feeRecords.entrySet()
                 .stream()
                 .sorted((e1, e2) -> {
                     LocalDate date1 = LocalDate.parse(e1.getValue().paidOn().getValue(), formatter);
@@ -238,12 +254,12 @@ public class FeeReport implements Initializable {
                     sendNotification.setVisible(true);
                     sendNotification.setCellValueFactory(arg0 -> {
                         Button button = new Button("Send Notification");
-                        button.setPadding(new Insets(5,5,5,5));
+                        button.setPadding(new Insets(5, 5, 5, 5));
                         button.getStyleClass().add(Styles.SUCCESS);
                         FeeData studentInfo = arg0.getValue();
                         button.setOnMouseClicked(a -> {
-                            String edNo=studentInfo.edNo().getValue();
-                            String telegramID=mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id();
+                            String edNo = studentInfo.edNo().getValue();
+                            String telegramID = mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id();
                             mainController.messageSender.sendMessage("Your fee due date has passed.Please pay by " + LocalDate.now() + ".\nPlease pay on time as this helps us to deliver the best" +
                                     " possible coaching experience/uninterrupted service you expect.", Long.parseLong(telegramID));
                         });
@@ -285,6 +301,19 @@ public class FeeReport implements Initializable {
             }
         });
         FilteredList<FeeData> filteredData = new FilteredList<>(items, _ -> true);
+        filterText.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredData.setPredicate(val -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+                String upperCase = newValue.toUpperCase();
+                return switch (filterMenu.getText()) {
+                    case "ED No." -> val.edNo().getValue().trim().contains(upperCase);
+                    case "Name" -> val.name().getValue().contains(upperCase);
+                    default -> false;
+                };
+            });
+        });
 
         feePaidData.setItems(filteredData);
     }

@@ -58,7 +58,7 @@
             </VBox>
          </children>
       </StackPane>
-      <Label text="Label" visible="false" />
+      <Label fx:id="file_name" text="Label" visible="false" />
       <Label text="Answer Type">
          <font>
             <Font name="HelveticaRounded-Bold" size="20.0" />

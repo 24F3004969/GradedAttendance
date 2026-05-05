@@ -187,7 +187,7 @@ public class AddStudent implements Initializable {
     }
 
     public String generate(String endKey) {
-        long l = Long.parseLong(endKey.replaceAll("ED", "")) + 1;
+        long l = Long.parseLong(endKey.replace("ED", "")) + 1;
         return l < 10 ? "ED0" + l : "ED" + l;
     }
 

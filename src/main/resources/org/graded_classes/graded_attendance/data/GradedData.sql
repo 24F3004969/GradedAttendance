@@ -24,7 +24,8 @@ CREATE TABLE if not exists StudentData
     telegram_id       TEXT,
     last_payment_date TEXT,
     fee               REAL NOT NULL default (0),
-    points            REAL          DEFAULT 0
+    points            REAL          DEFAULT 0,
+    board             TEXT CHECK (board IN ('ICSE', 'CBSE') ) DEFAULT 'ICSE'
 );
 
 

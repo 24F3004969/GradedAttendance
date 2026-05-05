@@ -27,14 +27,8 @@ import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.calender.CalendarApp;
 import org.graded_classes.graded_attendance.controller.quiz.QuizGenerator;
-import org.graded_classes.graded_attendance.data.Formatter;
-import org.graded_classes.graded_attendance.data.GradedDataLoader;
-import org.graded_classes.graded_attendance.data.MessageSender;
-import org.graded_classes.graded_attendance.data.Student;
-import org.graded_classes.graded_attendance.leaderboard.LeaderBoard2;
-import org.graded_classes.graded_attendance.leaderboard.Leaderboard1;
-import org.graded_classes.graded_attendance.leaderboard.PointsTable;
-import org.graded_classes.graded_attendance.leaderboard.StudentDataLoader;
+import org.graded_classes.graded_attendance.data.*;
+import org.graded_classes.graded_attendance.leaderboard.*;
 import org.graded_classes.graded_attendance.planner.Planner;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignH;
@@ -42,10 +36,12 @@ import org.kordamp.ikonli.materialdesign2.MaterialDesignH;
 import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -75,7 +71,7 @@ public class MainController implements Initializable {
     public MessageSender messageSender;
     StudentDataLoader studentDataLoader;
     Leaderboard1 l1;
-    LeaderBoard2 l2;
+    SeatingPlan l2;
 
     public MainController(Stage stage) {
         this.stage = stage;
@@ -96,12 +92,8 @@ public class MainController implements Initializable {
         messageSender = new MessageSender(gradedDataLoader.databaseLoader, this, getToken());
         studentDataLoader = new StudentDataLoader(gradedDataLoader.getStudentData());
         l1 = new Leaderboard1(studentDataLoader);
-        l2 = new LeaderBoard2(studentDataLoader);
+        l2 = new SeatingPlan(getSeatingPlan());
         notificationInit();
-        /*ArrayList<StudentScore> students = getStudentsWithFeeDateIsWeekAfter();
-        if (!students.isEmpty()) {
-            sendNotification("Some students with ED No. .... have there fee dues date in a week", Styles.ACCENT, students);
-        }*/
     }
 
     private ArrayList<Student> getStudentsWithFeeDateIsWeekAfter() {
@@ -187,7 +179,7 @@ public class MainController implements Initializable {
 
     private Node navigateView(String id) {
         return switch (id) {
-            case "dashboard"->gradedFxmlLoader.createView(R.dashboard);
+            case "dashboard" -> gradedFxmlLoader.createView(R.dashboard, new Dashboard());
             case "home" -> home;
             case "chat" -> chat;
             case "calender" -> calendar;
@@ -202,6 +194,35 @@ public class MainController implements Initializable {
             case "setting" -> gradedFxmlLoader.createView(R.quiz_taker);
             default -> null;
         };
+    }
+
+    private LinkedHashMap<String, ArrayList<DailyTimeTable>> getSeatingPlan() {
+        LinkedHashMap<String, ArrayList<DailyTimeTable>> tables = new LinkedHashMap<>();
+        try {
+            var stmt = gradedDataLoader.databaseLoader.getConnection();
+            String sql = "SELECT * FROM SLOT_%s".formatted(LocalDate.now().getDayOfWeek().toString().substring(0,3));
+            PreparedStatement pst = stmt.prepareStatement(sql);
+            ResultSet r = pst.executeQuery();
+            while (r.next()) {
+                if (tables.containsKey(r.getString("Time"))) {
+                    tables.get(r.getString("Time")).add(new DailyTimeTable(r.getString("Time"),
+                            r.getString("Class"),
+                            r.getString("Room_No"), r.getString("Subject"),
+                            r.getString("Teacher")));
+                } else {
+                    ArrayList<DailyTimeTable> list = new ArrayList<>();
+                    list.add(new DailyTimeTable(r.getString("Time"),
+                            r.getString("Class"),
+                            r.getString("Room_No"), r.getString("Subject"),
+                            r.getString("Teacher")));
+                    tables.put(r.getString("Time"), list);
+                }
+            }
+
+        } catch (SQLException _) {
+
+        }
+        return tables;
     }
 
     private void toggleIn(HBox root, Rectangle rectangle, FontIcon fontIcon) {

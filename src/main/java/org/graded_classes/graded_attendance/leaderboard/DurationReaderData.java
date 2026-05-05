@@ -1,28 +1,25 @@
 package org.graded_classes.graded_attendance.leaderboard;
 
+import org.graded_classes.graded_attendance.controller.MainController;
+
 import java.sql.*;
 import java.util.ArrayList;
 
-import static org.graded_classes.graded_attendance.leaderboard.LeaderboardLoader.defaultAnimationDuration;
-import static org.graded_classes.graded_attendance.leaderboard.LeaderboardLoader.preview;
-
 
 public class DurationReaderData {
-    private static final String DB_URL = "jdbc:sqlite:G:/My Drive/LeaderBoard.db";
+    MainController mainController;
+    LeaderboardLoader leaderboardLoader;
 
-    private static Connection getConnection() {
-        try {
-            return DriverManager.getConnection(DB_URL);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    public DurationReaderData(MainController mainController, LeaderboardLoader loader) {
+        this.mainController = mainController;
+        this.leaderboardLoader = loader;
     }
 
-    public static void init() {
+    public void init() {
         try {
-            if (!tableExists(getConnection())) {
-                LeaderboardLoader.generateDefaultAnimationDuration();
-                try (Statement stmt = getConnection().createStatement()) {
+            if (!tableExists(mainController.gradedDataLoader.databaseLoader.getConnection())) {
+                leaderboardLoader.generateDefaultAnimationDuration();
+                try (Statement stmt = mainController.gradedDataLoader.databaseLoader.getConnection().createStatement()) {
                     String sql = "CREATE TABLE IF NOT EXISTS durations (" +
                             "key TEXT PRIMARY KEY, " +
                             "layout_duration DOUBLE, " +
@@ -41,24 +38,25 @@ public class DurationReaderData {
         }
     }
 
-    public static void updateDurationInDatabase() {
-        try (Connection conn = getConnection();
+    public void updateDurationInDatabase() {
+        try {
+            Connection conn = mainController.gradedDataLoader.databaseLoader.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(
-                     "INSERT OR REPLACE INTO durations (key, layout_duration, fade_time) VALUES (?, ?, ?)")) {
+                     "INSERT OR REPLACE INTO durations (key, layout_duration, fade_time) VALUES (?, ?, ?)");
 
-            AnimationDuration lastDuration = defaultAnimationDuration.isEmpty()
+            AnimationDuration lastDuration = leaderboardLoader.defaultAnimationDuration.isEmpty()
                     ? new AnimationDuration(0.0, 0.0)
-                    : defaultAnimationDuration.lastEntry().getValue();
+                    : leaderboardLoader.defaultAnimationDuration.lastEntry().getValue();
 
-            for (String key : preview) {
-                AnimationDuration duration = defaultAnimationDuration.getOrDefault(key, lastDuration);
+            for (String key : leaderboardLoader.preview) {
+                AnimationDuration duration = leaderboardLoader.defaultAnimationDuration.getOrDefault(key, lastDuration);
                 pstmt.setString(1, key);
                 pstmt.setDouble(2, duration.getLayoutDuration());
                 pstmt.setDouble(3, duration.getFadeTime());
                 pstmt.executeUpdate();
 
-                if (!defaultAnimationDuration.containsKey(key)) {
-                    defaultAnimationDuration.put(key, new AnimationDuration(
+                if (!leaderboardLoader.defaultAnimationDuration.containsKey(key)) {
+                    leaderboardLoader.defaultAnimationDuration.put(key, new AnimationDuration(
                             lastDuration.getLayoutDuration(),
                             lastDuration.getFadeTime()));
                 }
@@ -68,16 +66,17 @@ public class DurationReaderData {
         }
     }
 
-    public static void durationReader() {
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT key, layout_duration, fade_time FROM durations")) {
+    public void durationReader() {
+        try {
+            Connection conn = mainController.gradedDataLoader.databaseLoader.getConnection();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT key, layout_duration, fade_time FROM durations");
             // Collect keys to delete (those not in preview)
             ArrayList<String> keysToDelete = new ArrayList<>();
             while (rs.next()) {
                 String key = rs.getString("key");
-                if (preview.contains(key)) {
-                    defaultAnimationDuration.put(key, new AnimationDuration(
+                if (leaderboardLoader.preview.contains(key)) {
+                    leaderboardLoader.defaultAnimationDuration.put(key, new AnimationDuration(
                             rs.getDouble("layout_duration"),
                             rs.getDouble("fade_time")));
                 } else {
@@ -86,11 +85,14 @@ public class DurationReaderData {
 
             }
             // Delete keys that are not in preview
-            try (PreparedStatement pstmt = conn.prepareStatement("DELETE FROM durations WHERE key = ?")) {
+            try {
+                PreparedStatement pstmt = conn.prepareStatement("DELETE FROM durations WHERE key = ?");
                 for (String key : keysToDelete) {
                     pstmt.setString(1, key);
                     pstmt.executeUpdate();
                 }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
 
         } catch (SQLException e) {
@@ -100,13 +102,16 @@ public class DurationReaderData {
     }
 
     // Check if a table exists in the SQLite database
-    private static boolean tableExists(Connection conn) throws SQLException {
-        try (PreparedStatement pstmt = conn.prepareStatement(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name=?")) {
+    private boolean tableExists(Connection conn) throws SQLException {
+        try {
+            PreparedStatement pstmt = conn.prepareStatement(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name=?");
             pstmt.setString(1, "durations");
             try (ResultSet rs = pstmt.executeQuery()) {
                 return rs.next();
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

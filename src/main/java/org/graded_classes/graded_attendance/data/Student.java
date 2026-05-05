@@ -181,7 +181,7 @@ public class Student {
                 "bloodGroup, guardian_phone, aadhaar_no, father_name, mother_name, " +
                 "class, gender, dob, address, father_occ, mother_occ, " +
                 "previous_ins_name, reason_leaving, school_n, suggestions, " +
-                "subjects, telegram_id,last_payment_date,fee,points) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)";
+                "subjects, telegram_id,last_payment_date,fee,points,board) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, ed_no);
             stmt.setString(2, name);

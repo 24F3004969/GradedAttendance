@@ -10,7 +10,7 @@ public class ImageSliderShow {
     final StackPane sliderPane;
 
     public ImageSliderShow(String name, String grade, String src_path) {
-        FXMLLoader loader = new FXMLLoader(LeaderboardResourcesLoader.loadURL("fxml/winners.fxml"));
+        FXMLLoader loader = new FXMLLoader(LeaderboardResourcesLoader.loadURL("fxml/leaderboard/winners.fxml"));
         loader.setControllerFactory(_ -> new Winners(name, grade, src_path));
         try {
             sliderPane = loader.load();

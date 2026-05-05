@@ -34,7 +34,7 @@
                               <Insets left="2.0" top="30.0" />
                            </VBox.margin>
                         </Button>
-                        <HBox id="dashboard" fx:id="selectedTab1" alignment="CENTER_LEFT" fillHeight="false" onMouseClicked="#navigation" prefWidth="200.0" spacing="2.0" style="-fx-background-color: #1C75BC; -fx-background-radius: 0 5 5 0;">
+                        <HBox id="dashboard" fx:id="selectedTab1" alignment="CENTER_LEFT" fillHeight="false" onMouseClicked="#navigation" prefWidth="200.0" spacing="2.0" style="-fx-background-radius: 0 5 5 0;">
                            <children>
                               <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#fafafa" height="24.0" stroke="BLACK" strokeWidth="0.0" width="4.0" />
                               <FontIcon iconLiteral="mdal-home" />

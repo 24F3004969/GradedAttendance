@@ -8,17 +8,19 @@ import javafx.event.EventHandler;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 
-import static org.graded_classes.graded_attendance.leaderboard.LeaderboardLoader.defaultAnimationDuration;
+import java.util.Arrays;
 
 
 public class LayoutAnimator {
     private final Pane[] nodes;
     private int imgIndex = 0;
     private final Pane pane;
+    LeaderboardLoader leaderboardLoader;
 
-    public LayoutAnimator(Pane pane, Pane... nodes) {
+    public LayoutAnimator(Pane pane, LeaderboardLoader leaderboardLoader,Pane... nodes) {
         this.nodes = nodes;
         this.pane = pane;
+        this.leaderboardLoader = leaderboardLoader;
     }
 
 
@@ -54,13 +56,14 @@ public class LayoutAnimator {
     private Timeline getDefaultTimeline(EventHandler<ActionEvent> eventHandler) {
         KeyFrame[] keyFrames = new KeyFrame[nodes.length];
         int index = 0;
-        double previous_duration = defaultAnimationDuration.firstEntry().getValue().layoutDuration;
+        double previous_duration = leaderboardLoader.defaultAnimationDuration.firstEntry().getValue().layoutDuration;
+        IO.println(previous_duration);
         keyFrames[0] = new KeyFrame(Duration.seconds(previous_duration), eventHandler);
 
-        for (var key : defaultAnimationDuration.keySet()) {
+        for (var key : leaderboardLoader.defaultAnimationDuration.keySet()) {
             if (index != 0) {
-                keyFrames[index] = new KeyFrame(Duration.seconds(defaultAnimationDuration.get(key).layoutDuration + previous_duration), eventHandler);
-                previous_duration = defaultAnimationDuration.get(key).layoutDuration + previous_duration;
+                keyFrames[index] = new KeyFrame(Duration.seconds(leaderboardLoader.defaultAnimationDuration.get(key).layoutDuration + previous_duration), eventHandler);
+                previous_duration = leaderboardLoader.defaultAnimationDuration.get(key).layoutDuration + previous_duration;
             }
             index++;
         }

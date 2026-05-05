@@ -24,7 +24,7 @@ public class CoverVideoNoGaps extends Application {
 
         FXMLLoader fxmlLoader = new FXMLLoader(GradedResourceLoader.loadURL("fxml/new_login.fxml"));
         StackPane root = fxmlLoader.load();
-        String url = new File("C:/Users/hilal/Downloads/Add3 (2).mp4").toURI().toString();
+        String url = new File("G:/My Drive/Video Project 1.mp4").toURI().toString();
 
         Media media = new Media(url);
         MediaPlayer player = new MediaPlayer(media);
