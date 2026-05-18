@@ -59,7 +59,7 @@ public class PointsTable implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         lb_loader=new LeaderboardLoader(mainController);
-        var loadedVal=lb_loader.load((StackPane) mainController.gradedFxmlLoader.createView(R.seating_plan, l2),
+        var loadedVal=lb_loader.load((StackPane) mainController.gradedFxmlLoader.createView(R.leaderboard1,l1),
                 (StackPane) mainController.gradedFxmlLoader.createView(R.seating_plan, l2));
         mainController.getStage().getScene().setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.P) {

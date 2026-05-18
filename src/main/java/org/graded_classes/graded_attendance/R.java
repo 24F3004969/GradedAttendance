@@ -46,9 +46,13 @@ public enum R {
     leaderboard2("fxml/leaderboard/leader_board_view12.fxml"),
     seating_plan("fxml/seating_plan.fxml"),
     dashboard("fxml/dashboard.fxml"),
-    question_option("fxml/question-options.fxmlf"),
+    question_option("fxml/question-options.fxml"),
     timer("fxml/leaderboard/timer.fxml"),
-    animationTimer("fxml/leaderboard/layout_animator_timer.fxml");
+    animationTimer("fxml/leaderboard/layout_animator_timer.fxml"),
+    leader_view("fxml/leaderboard/leader_view.fxml"),
+    question_taker_with_op("fxml/question_taker_with_op.fxml"),
+    exam_conductor("fxml/exam-conductor.fxml"),
+    exam_create("fxml/exam-create.fxml"),;
     private final String path;
 
     R(String path) {

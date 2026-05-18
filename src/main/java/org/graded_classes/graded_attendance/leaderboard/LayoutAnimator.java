@@ -57,9 +57,8 @@ public class LayoutAnimator {
         KeyFrame[] keyFrames = new KeyFrame[nodes.length];
         int index = 0;
         double previous_duration = leaderboardLoader.defaultAnimationDuration.firstEntry().getValue().layoutDuration;
-        IO.println(previous_duration);
         keyFrames[0] = new KeyFrame(Duration.seconds(previous_duration), eventHandler);
-
+        System.out.println(leaderboardLoader.defaultAnimationDuration);
         for (var key : leaderboardLoader.defaultAnimationDuration.keySet()) {
             if (index != 0) {
                 keyFrames[index] = new KeyFrame(Duration.seconds(leaderboardLoader.defaultAnimationDuration.get(key).layoutDuration + previous_duration), eventHandler);

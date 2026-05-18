@@ -54,15 +54,19 @@
             <artifactId>batik-transcoder</artifactId>
             <version>1.18</version>
         </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/org.telegram/telegrambots-longpolling -->
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots-longpolling</artifactId>
-            <version>9.1.0</version>
+            <version>9.6.0</version>
+            <scope>compile</scope>
         </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/org.telegram/telegrambots-client -->
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots-client</artifactId>
-            <version>9.1.0</version>
+            <version>9.6.0</version>
+            <scope>compile</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.calendarfx/view -->
         <dependency>
@@ -154,6 +158,13 @@
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
             <version>3.0.7</version>
+        </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/com.dlsc.gemsfx/gemsfx -->
+        <dependency>
+            <groupId>com.dlsc.gemsfx</groupId>
+            <artifactId>gemsfx</artifactId>
+            <version>4.0.5</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.dlsc.fxmlkit</groupId>

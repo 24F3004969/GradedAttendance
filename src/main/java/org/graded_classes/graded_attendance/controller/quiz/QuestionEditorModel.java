@@ -5,10 +5,11 @@ import javafx.scene.layout.VBox;
 
 public class QuestionEditorModel {
     public VBox root;
-    ToggleLabel status;
-
-    public QuestionEditorModel(VBox root, ToggleLabel status) {
+    public ToggleLabel status;
+    public Questions question;
+    public QuestionEditorModel(VBox root, Questions question, ToggleLabel status) {
         this.root = root;
+        this.question = question;
         this.status = status;
     }
 }

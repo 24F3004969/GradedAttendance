@@ -4,6 +4,7 @@ import com.calendarfx.model.Calendar;
 import com.calendarfx.model.CalendarSource;
 import com.calendarfx.view.CalendarView;
 import javafx.application.Platform;
+import org.graded_classes.graded_attendance.GradedResourceLoader;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -24,7 +25,7 @@ public class CalendarApp  {
         calendarView.getCalendarSources().addAll(myCalendarSource); // (5)
 
         calendarView.setRequestedTime(LocalTime.now());
-
+        calendarView.getStylesheets().clear();
         Thread updateTimeThread = getThread(calendarView);
         updateTimeThread.start();
         return calendarView;

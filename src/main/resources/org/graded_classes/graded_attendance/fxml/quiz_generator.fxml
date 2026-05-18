@@ -15,7 +15,7 @@
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane fx:id="quiz_gen_layout" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-background-color: #fafafa95;" stylesheets="@../css/quiz_gen.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.QuizGenerator">
+<BorderPane fx:id="quiz_gen_layout" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-background-color: #fafafa95;" stylesheets="@../css/quiz_gen.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.QuizGenerator">
    <top>
       <HBox style="-fx-background-color: white; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-style: solid solid solid hidden;" BorderPane.alignment="CENTER">
          <children>
@@ -34,23 +34,53 @@
             </HBox>
             <HBox HBox.hgrow="ALWAYS">
                <children>
-                  <HBox alignment="CENTER_LEFT" spacing="20.0" HBox.hgrow="ALWAYS">
+                  <HBox alignment="CENTER_LEFT" spacing="10.0" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label text="Dashboard">
-                           <font>
-                              <Font name="HelveticaRounded-Bold" size="16.0" />
-                           </font>
-                        </Label>
-                        <Label text="Quizzes">
-                           <font>
-                              <Font name="HelveticaRounded-Bold" size="16.0" />
-                           </font>
-                        </Label>
-                        <Label text="Student">
-                           <font>
-                              <Font name="HelveticaRounded-Bold" size="16.0" />
-                           </font>
-                        </Label>
+                        <HBox id="dashboard" alignment="CENTER" maxHeight="40.0" maxWidth="96.0" minHeight="40.0" minWidth="120.0" onMouseClicked="#changeView">
+                           <children>
+                              <Label text="Dashboard">
+                                 <font>
+                                    <Font name="HelveticaRounded-Bold" size="16.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
+                        </HBox>
+                        <HBox id="quizGen" alignment="CENTER" maxHeight="40.0" maxWidth="96.0" minHeight="40.0" minWidth="120.0" onMouseClicked="#changeView" styleClass="tab_selector">
+                           <children>
+                              <Label text="Quiz Gen">
+                                 <font>
+                                    <Font name="HelveticaRounded-Bold" size="16.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
+                        </HBox>
+                        <HBox id="exam" alignment="CENTER" maxHeight="40.0" maxWidth="96.0" minHeight="40.0" minWidth="120.0" onMouseClicked="#changeView">
+                           <children>
+                              <Label text="Exam">
+                                 <font>
+                                    <Font name="HelveticaRounded-Bold" size="16.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
+                        </HBox>
                      </children>
                      <HBox.margin>
                         <Insets left="20.0" right="20.0" />
@@ -92,44 +122,49 @@
          </children>
       </HBox>
    </top>
-   <left>
-      <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-style: hidden solid solid hidden;" BorderPane.alignment="CENTER">
-         <children>
-            <Label text="Create New Quiz">
-               <font>
-                  <Font name="HelveticaRounded-Bold" size="20.0" />
-               </font>
-               <VBox.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </VBox.margin>
-            </Label>
-            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onNewTopic" styleClass="button-outlined" text="Add New Topic">
-               <VBox.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </VBox.margin>
-               <graphic>
-                  <FontIcon style="-fx-icon-code: mdal-add; -fx-font-size: 28; -fx-icon-color: #1C75BC;" />
-               </graphic>
-               <font>
-                  <Font name="HelveticaRounded-Bold" size="16.0" />
-               </font>
-            </Button>
-            <TreeView fx:id="quizTree" showRoot="false" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 2;" styleClass="alt-icon" VBox.vgrow="ALWAYS">
-               <VBox.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </VBox.margin></TreeView>
-         </children>
-      </VBox>
-   </left>
    <center>
-      <TabPane id="tabs" BorderPane.alignment="CENTER">
-         <tabs>
-            <Tab text="Welcome Screen">
-               <content>
-                  <StackPane id="default_pane" />
-               </content>
-            </Tab>
-         </tabs>
-      </TabPane>
+      <BorderPane fx:id="innerPane" BorderPane.alignment="CENTER">
+         <center>
+            <TabPane id="tabs">
+               <tabs>
+                  <Tab text="Welcome Screen">
+                     <content>
+                        <StackPane id="default_pane" />
+                     </content>
+                  </Tab>
+               </tabs>
+            </TabPane>
+         </center>
+         <left>
+            <VBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-style: hidden solid solid hidden;" BorderPane.alignment="CENTER">
+               <children>
+                  <Label text="Create New Quiz">
+                     <font>
+                        <Font name="HelveticaRounded-Bold" size="20.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onNewTopic" styleClass="button-outlined" text="Add New Topic">
+                     <VBox.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </VBox.margin>
+                     <graphic>
+                        <FontIcon style="-fx-icon-code: mdal-add; -fx-font-size: 28; -fx-icon-color: #1C75BC;" />
+                     </graphic>
+                     <font>
+                        <Font name="HelveticaRounded-Bold" size="16.0" />
+                     </font>
+                  </Button>
+                  <TreeView fx:id="quizTree" showRoot="false" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 2;" styleClass="alt-icon" VBox.vgrow="ALWAYS">
+                     <VBox.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </VBox.margin>
+                  </TreeView>
+               </children>
+            </VBox>
+         </left>
+      </BorderPane>
    </center>
 </BorderPane>

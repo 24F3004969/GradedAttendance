@@ -14,6 +14,7 @@ import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.controller.MainController;
 
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,15 +42,15 @@ public class QuestionEditor implements Initializable {
     @FXML
     void onBasicAction(ActionEvent event) {
         String buttonText = ((Button) event.getSource()).getText();
-        System.out.println(listOfQuestions);
         int totalQuestionNumber = listOfQuestions.size() - 1;
         if (buttonText.equals("Next")) {
             if (questionCount == totalQuestionNumber) {
                 questionCount = totalQuestionNumber + 1;
-                var content = (VBox) mainController.gradedFxmlLoader.createView(R.question, new Questions(mainController,
-                        "Question " + (questionCount + 1)));
+                Questions controller = new Questions(mainController,
+                        "Question " + (questionCount + 1));
+                var content = (VBox) mainController.gradedFxmlLoader.createView(R.question, controller);
                 editor.setContent(content);
-                listOfQuestions.add(new QuestionEditorModel(content, segmentControl.getSegments().getFirst()));
+                listOfQuestions.add(new QuestionEditorModel(content, controller, segmentControl.getSegments().getFirst()));
             } else {
                 if (questionCount <= totalQuestionNumber) {
                     questionCount++;
@@ -64,17 +65,24 @@ public class QuestionEditor implements Initializable {
                 segmentControl.getToggleGroup().selectToggle(listOfQuestions.get(questionCount).status);
 
             }
+        } else if (buttonText.equals("Save")) {
+            for(var QE:listOfQuestions){
+                var q=new QuestionData("1","1","1", LocalDate.now().toString(),
+                        "mcq","medium",QE.question.getQuestion_text().getText(),"",null);
+                System.out.println(q);
+            }
+            System.out.println("Saved");
         }
-        System.out.println((listOfQuestions.size() - 1) + "  " + questionCount);
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         segmentControl.getSegments().add(new ToggleLabel("Edit"));
         segmentControl.getSegments().add(new ToggleLabel("Preview"));
+        Questions controller = new Questions(mainController, "Question " + (questionCount + 1));
         var content = (VBox) mainController.gradedFxmlLoader.createView(R.question,
-                new Questions(mainController, "Question " + (questionCount + 1)));
-        listOfQuestions.add(new QuestionEditorModel(content, segmentControl.getSegments().getFirst()));
+                controller);
+        listOfQuestions.add(new QuestionEditorModel(content, controller, segmentControl.getSegments().getFirst()));
         segmentControl.getToggleGroup().selectedToggleProperty().subscribe(toggle -> {
             if (toggle instanceof ToggleLabel l) {
                 if (l.getText().equals("Edit")) {
@@ -85,16 +93,16 @@ public class QuestionEditor implements Initializable {
                     editor.setContent(mainController.gradedFxmlLoader.createView(R.question_preview,
                             new QuestionPreview("C:\\Users\\hilal\\OneDrive\\Pictures\\Screenshots 1\\Screenshot 2026-04-30 144956.png",
                                     "", new ArrayList<>(List.of(
-                                    mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("A", """
+                                    mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("A)", """
                                              \\frac{\\pi + 1}{\\pi + 2} \\\\
                                             """, "", toggleGroup)),
-                                    mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("B", """
+                                    mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("B)", """
                                              \\frac{\\pi + 2}{\\pi + 1} \\\\
                                             """, "", toggleGroup)),
-                                    mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("C", """
+                                    mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("C)", """
                                               \\frac{\\pi}{\\pi + 1} \\\\
                                             """, "", toggleGroup)),
-                                    mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("D", """
+                                    mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("D)", """
                                               \\frac{\\pi + 2}{\\pi}
                                             """, "", toggleGroup))
                             )))));

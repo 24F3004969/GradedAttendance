@@ -1,67 +1,97 @@
 package org.graded_classes.graded_attendance.leaderboard;
 
 
-import javafx.collections.FXCollections;
+import atlantafx.base.util.Animations;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ListView;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
+import org.graded_classes.graded_attendance.R;
+import org.graded_classes.graded_attendance.controller.MainController;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.Executors;
 
 public class Leaderboard1 implements Initializable {
     public Text title;
     @FXML
-    VBox root_layout;
+    private VBox board;
     @FXML
-    ListView<CustomView> customListView;
+    private ImageView level1Img, level3Img, level2Img;
+    @FXML
+    private Label level2Name, level2Title, level1Title, level1Name, level3Name;
+    @FXML
+    private Label level1Point, level2Point, level3Point;
     StudentDataLoader studentDataLoader;
     public ArrayList<CustomView> customViews = new ArrayList<>();
-    public Leaderboard1(){}
-    public Leaderboard1(StudentDataLoader studentDataLoader) {
+    MainController mainController;
+
+    public Leaderboard1(StudentDataLoader studentDataLoader, MainController mainController) {
         this.studentDataLoader = studentDataLoader;
+        this.mainController = mainController;
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            executor.execute(() -> {
-                var vr = studentDataLoader.getSortedStudentList();
-                firstThree(vr);
-                for (int i = 3; i <15; i++) {
-                    var k = vr.get(i);
-                    customViews.add(new CustomView(i+1,
-                            Name.make_word_name(k.name().trim()), "Class " + k.grade(),
-                            "" + (int) k.points(), "#68926d20"));
-                }
-                var list = FXCollections.observableList(customViews);
-                customListView.setItems(list);
+        startLoop();
+    }
+
+    private void startLoop() {
+
+        Timeline cycle = new Timeline(
+                new KeyFrame(Duration.ZERO, e -> addItems()),
+                new KeyFrame(Duration.seconds(5), e -> removeItems())
+        );
+
+        cycle.setCycleCount(Animation.INDEFINITE);
+        cycle.play();
+    }
+
+    private void addItems() {
+
+        for (int i = 0; i <=4; i++) {
+
+            int index = i;
+
+            Timeline delay = new Timeline(
+                    new KeyFrame(Duration.millis(150 * index), ev -> {
+
+                        var msg = mainController.gradedFxmlLoader.createView(R.leader_view);
+
+                        board.getChildren().add(msg);
+                        board.setFillWidth(true);
+                        board.setMinHeight(300);
+                        Platform.runLater(() -> {
+                            Animations.slideInLeft(msg, Duration.millis(250)).playFromStart();
+                        });
+
+                    })
+            );
+
+            delay.play();
+        }
+    }
+
+    private void removeItems() {
+
+        for (Node node : board.getChildren()) {
+
+            Platform.runLater(() -> {
+                var out = Animations.slideOutRight(node, Duration.millis(250));
+
+                out.setOnFinished(e -> board.getChildren().remove(node));
+
+                out.playFromStart();
             });
         }
-
     }
-
-    private void firstThree(List<StudentScore> vr) {
-        var k1 = vr.get(0);
-        var k2 = vr.get(1);
-        var k3 = vr.get(2);
-        customViews.add(new CustomView(1, "icons/leaderboard/b1.svg",
-                Name.make_word_name(k1.name()), "Class " + k1.grade(),
-                "" + (int) k1.points(), "#C29B0C20"));
-        customViews.add(new CustomView(2,
-                "icons/leaderboard/b2.svg", Name.make_word_name(k2.name()),
-                "Class " + k2.grade(),
-                "" + (int) k2.points(), "#98afcf20"));
-        customViews.add(new CustomView(3,
-                "icons/leaderboard/b3.svg", Name.make_word_name(k3.name()),
-                "Class " + k3.grade(),
-                "" + (int) k3.points(), "#99422720"));
-
-    }
-
 }

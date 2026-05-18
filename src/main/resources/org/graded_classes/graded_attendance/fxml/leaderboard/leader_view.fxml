@@ -10,7 +10,7 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-<HBox alignment="CENTER_LEFT" prefHeight="100.0" spacing="20.0" style="-fx-background-color: #1d1d37; -fx-background-radius: 5;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<HBox alignment="CENTER_LEFT" maxHeight="100.0" minHeight="130.0" prefHeight="100.0" spacing="20.0" style="-fx-background-color: #1d1d37; -fx-background-radius: 5;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Label text="4" textFill="#f8f8f8">
          <font>

@@ -3,7 +3,9 @@ package org.graded_classes.graded_attendance.controller.quiz;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.controller.MainController;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -17,6 +19,8 @@ public class QuizGenerator implements Initializable {
     MainController mainController;
     @FXML
     public BorderPane quiz_gen_layout;
+    @FXML
+    private BorderPane innerPane;
     TreeItem<String> rootItem = new TreeItem<>("New Topic");
 
     public QuizGenerator(MainController mainController) {
@@ -25,7 +29,7 @@ public class QuizGenerator implements Initializable {
 
     @FXML
     void onNewTopic() {
-        var newTopic = mainController.gradedFxmlLoader.createView(R.newTopic, new QuizTopic(rootItem,mainController.modalPane));
+        var newTopic = mainController.gradedFxmlLoader.createView(R.newTopic, new QuizTopic(rootItem, mainController.modalPane));
         mainController.modalPane.show(newTopic);
     }
 
@@ -98,5 +102,16 @@ public class QuizGenerator implements Initializable {
             mainController.modalPane.show(newQuiz);
         });
         return addQuiz;
+    }
+
+    @FXML
+    void changeView(MouseEvent event) {
+        String id = ((HBox) event.getSource()).getId();
+        switch (id) {
+            case "dashboard" -> System.out.println();
+            case "quizGen" -> System.out.println("dfgdfgfg");
+            case "exam" -> quiz_gen_layout.setCenter(mainController.
+                    gradedFxmlLoader.createView(R.exam_conductor,new ConductExam(mainController)));
+        }
     }
 }

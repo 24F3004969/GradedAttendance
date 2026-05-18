@@ -85,7 +85,7 @@ public class AttendanceDataView implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         var dueReport = new FeeReport.FeeRepository().
-                duePaymentRecord(studentAttendance.mainController.gradedDataLoader.databaseLoader.getConnection());
+                duePaymentRecord(studentAttendance.mainController.gradedDataLoader.databaseLoader.getConnection(), FeeReport.FeeRepository.toAbbrevFromNumber(LocalDate.now().getMonthValue()-1).name());
         if (dueReport.containsKey(ed_no.trim()))
             reminder.setText("Fee is not paid " + " due date is " + dueReport.get(ed_no.trim()).nextFeeDate().getValue());
 

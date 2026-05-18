@@ -26,7 +26,6 @@ public class NewQuiz implements Initializable {
 
     @FXML
     private Label quizName;
-
     @FXML
     private TilePane selectorDisplay;
     TreeItem<String> target;

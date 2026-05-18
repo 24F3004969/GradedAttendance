@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="10.0" stylesheets="@../../css/leaderboard/main_style.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.leaderboard.PointsTable">
+<VBox spacing="10.0" stylesheets="@../../css/leaderboard/main_style.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.leaderboard.PointsTable">
    <children>
       <HBox spacing="5.0">
          <children>
@@ -49,13 +49,22 @@
       </TableView>
       <HBox alignment="CENTER_RIGHT" spacing="20.0">
          <children>
-            <HBox HBox.hgrow="ALWAYS">
+            <HBox spacing="10.0" HBox.hgrow="ALWAYS">
                <children>
                   <Button mnemonicParsing="false" onAction="#changeDuration" text="Animation duration">
                      <graphic>
                         <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@../../icons/leaderboard/timer.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  <Button mnemonicParsing="false" onAction="#changeDuration" text="Show Leaderboard">
+                     <graphic>
+                        <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../../icons/teaching_progress_normal.png" />
                            </image>
                         </ImageView>
                      </graphic>

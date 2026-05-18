@@ -78,7 +78,7 @@ public class FeeReport implements Initializable {
         paidStudentData(FeeRepository.toAbbrevFromNumber(LocalDate.now().getMonthValue()).name());
 
         duePaymentRecord = feeRepository.duePaymentRecord(mainController.
-                gradedDataLoader.databaseLoader.getConnection());
+                gradedDataLoader.databaseLoader.getConnection(), FeeRepository.toAbbrevFromNumber(LocalDate.now().getMonthValue() - 1).name());
         last_10_day = getUpcomingFees();
     }
 
@@ -92,7 +92,8 @@ public class FeeReport implements Initializable {
             }
         }
         checkMenuItem.setSelected(true);
-
+        segmentControl.getSegments().get(segmentControl.getSegments().size() - 2).
+                setDisable(StudentFeeLayout.generateMonthMapInt().get(checkMenuItem.getText()) != LocalDate.now().getMonthValue() - 1);
         monthList.setText(checkMenuItem.getText());
         feeRecords.clear();
         paidStudentData(checkMenuItem.getText());
@@ -116,11 +117,17 @@ public class FeeReport implements Initializable {
                         LinkedHashMap::new // Maintains the sorted order
                 ));
         duePaymentRecord.clear();
+        segmentControl.getSegments().getFirst().setSelected(true);
         duePaymentRecord = feeRepository.duePaymentRecord(mainController.
-                gradedDataLoader.databaseLoader.getConnection());
-        double totalSumOfMoney = mainController.gradedDataLoader.getStudentData().
-                values().stream().filter(sd ->
-                        isValidMonth(sd.getDoa(), checkMenuItem.getText())).mapToDouble(sd -> Double.parseDouble(sd.getFee())).sum();
+                gradedDataLoader.databaseLoader.getConnection(), FeeRepository.toAbbrevFromNumber(StudentFeeLayout.generateMonthMapInt().get(checkMenuItem.getText())).name());
+        double totalSumOfMoney;
+        if (checkMenuItem.getText().equals(FeeRepository.toAbbrevFromNumber(LocalDate.now().getMonthValue()).name())) {
+            totalSumOfMoney = mainController.gradedDataLoader.getStudentData().
+                    values().stream().filter(sd ->
+                            isValidMonth(sd.getDoa(), checkMenuItem.getText())).mapToDouble(sd -> Double.parseDouble(sd.getFee())).sum();
+        } else {
+            totalSumOfMoney = getCollection("" + LocalDate.now().getYear(), checkMenuItem.getText());
+        }
         double totalCollection = feeRecords.
                 values().stream().mapToDouble(FeeData::amount).sum();
         feeCollected.setText("₹" + String.format("%,d", (long) totalCollection));
@@ -130,6 +137,48 @@ public class FeeReport implements Initializable {
     private boolean isValidMonth(String doa, String currentMonth) {
         LocalDate givenDate = LocalDate.parse(doa);
         return givenDate.getMonthValue() - 1 <= StudentFeeLayout.generateMonthMapInt().get(currentMonth);
+    }
+
+    public double getCollection(String year, String month) {
+        double collection = 0.0;
+
+        String sql = "SELECT collection FROM monthly_collection WHERE year = ? AND month = ?";
+
+        try (PreparedStatement pstmt = mainController.gradedDataLoader.databaseLoader.getConnection().prepareStatement(sql)) {
+
+            pstmt.setString(1, year);
+            pstmt.setString(2, month);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                collection = rs.getDouble("collection");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return collection;
+    }
+
+    public void setCollection(String year, String month, double collection) {
+
+        String sql = "INSERT INTO monthly_collection (year, month, collection) " +
+                "VALUES (?, ?, ?) " +
+                "ON CONFLICT(year, month) DO UPDATE SET collection = excluded.collection";
+
+        try (PreparedStatement pstmt = mainController.gradedDataLoader.databaseLoader.getConnection().prepareStatement(sql)) {
+
+            pstmt.setString(1, year);
+            pstmt.setString(2, month);
+            pstmt.setDouble(3, collection);
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -160,10 +209,12 @@ public class FeeReport implements Initializable {
                     gradedDataLoader.databaseLoader.
                     getConnection().prepareStatement(sql);
             ResultSet r = ps.executeQuery();
+            int k=0;
+            String edNo;
             while (r.next()) {
                 String paidOn = r.getString("paid_on");
                 String nextFeeDate = r.getString("next_fee_date");
-                String edNo = r.getString("ed_no");
+                edNo = r.getString("ed_no")==null?"Left "+(++k):r.getString("ed_no");
                 FeeData fee = new FeeData(
                         r.getObject("payment_id") != null ?
                                 r.getInt("payment_id") : null,
@@ -179,10 +230,9 @@ public class FeeReport implements Initializable {
                         new SimpleStringProperty(r.getString("reference_no")),
                         new SimpleStringProperty(r.getString("due_amount"))
                 );
-                var edNumber = r.getString("ed_no");
-                if (edNumber != null)
-                    feeRecords.put(edNumber, fee);
+                    feeRecords.put(edNo, fee);
             }
+
         } catch (SQLException exception) {
             System.out.println("SQLException: " + exception.getMessage());
         }
@@ -199,6 +249,7 @@ public class FeeReport implements Initializable {
         feePaidData.setFixedCellSize(35);
         double totalSumOfMoney = mainController.gradedDataLoader.getStudentData().
                 values().stream().mapToDouble(sd -> Double.parseDouble(sd.getFee())).sum();
+        setCollection("" + LocalDate.now().getYear(), FeeRepository.toAbbrevFromNumber(LocalDate.now().getMonthValue()).name(), totalSumOfMoney);
         double totalCollection = feeRecords.
                 values().stream().
                 mapToDouble(FeeData::amount).sum();
@@ -242,6 +293,8 @@ public class FeeReport implements Initializable {
                     total_num.setText("");
                     items.clear();
                     payID.setVisible(true);
+                    payDate.setVisible(true);
+                    dueData.setVisible(false);
                     sendNotification.setVisible(false);
                     referenceNo.setVisible(true);
                     for (var keys : sortedFeeRecords.keySet()) {
@@ -251,6 +304,8 @@ public class FeeReport implements Initializable {
                     total_num.setText("");
                     items.clear();
                     payID.setVisible(false);
+                    payDate.setVisible(false);
+                    dueData.setVisible(true);
                     sendNotification.setVisible(true);
                     sendNotification.setCellValueFactory(arg0 -> {
                         Button button = new Button("Send Notification");
@@ -272,6 +327,9 @@ public class FeeReport implements Initializable {
                 } else if (l.getText().equals("Online")) {
                     items.clear();
                     double sum = 0;
+                    sendNotification.setVisible(false);
+                    payDate.setVisible(true);
+                    dueData.setVisible(false);
                     for (var keys : sortedFeeRecords.keySet()) {
                         if (feeRecords.get(keys).paymentMode().equals(FeeData.PaymentMode.Online)) {
                             items.add(feeRecords.get(keys));
@@ -282,6 +340,9 @@ public class FeeReport implements Initializable {
                 } else if (l.getText().equals("Offline")) {
                     items.clear();
                     double sum = 0;
+                    payDate.setVisible(true);
+                    sendNotification.setVisible(false);
+                    dueData.setVisible(false);
                     for (var keys : sortedFeeRecords.keySet()) {
                         if (feeRecords.get(keys).paymentMode().equals(FeeData.PaymentMode.Offline)) {
                             items.add(feeRecords.get(keys));
@@ -292,6 +353,9 @@ public class FeeReport implements Initializable {
                 } else if (l.getText().equals("Due Date in 10 days")) {
                     referenceNo.setVisible(false);
                     mode.setVisible(false);
+                    payDate.setVisible(false);
+                    sendNotification.setVisible(false);
+                    dueData.setVisible(true);
                     items.clear();
                     for (var keys : last_10_day.keySet()) {
                         total_num.setText("");
@@ -324,6 +388,7 @@ public class FeeReport implements Initializable {
         segmentControl.getSegments().add(new ToggleLabel("Online"));
         segmentControl.getSegments().add(new ToggleLabel("Offline"));
         segmentControl.getSegments().add(new ToggleLabel("Due Date in 10 days"));
+        segmentControl.getSegments().add(new ToggleLabel("Fine"));
     }
 
     private String format(String date) {
@@ -343,7 +408,7 @@ public class FeeReport implements Initializable {
          * @return TreeMap<String, FeeData> keyed by ed_no
          * @throws SQLException on DB errors
          */
-        public TreeMap<String, FeeData> duePaymentRecord(Connection conn) {
+        public TreeMap<String, FeeData> duePaymentRecord(Connection conn, String monthName) {
 
             // Safer than NATURAL JOIN + SELECT *:
             //  - Picks the exact columns needed for FeeData
@@ -364,9 +429,10 @@ public class FeeReport implements Initializable {
                         fp.due_amount          AS due_amount
                     FROM fee_payments fp
                     JOIN DueDate dd USING (ed_no)
-                    WHERE DATE('now') > DATE(dd.last_due_date)
+                    WHERE DATE('now') >= DATE(dd.last_due_date)
+                      and month='%s'
                       AND DATE(dd.last_due_date) = DATE(fp.next_fee_date)
-                    """;
+                    """.formatted(monthName);
 
             TreeMap<String, FeeData> map = new TreeMap<>();
 
@@ -408,7 +474,6 @@ public class FeeReport implements Initializable {
 
                     // Key by ed_no (change to something else if you prefer)
                     map.put(edNo, data);
-                    IO.println("MAP:    " + map);
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -524,7 +589,7 @@ public class FeeReport implements Initializable {
             };
         }
 
-        static FeeData.MonthAbbrev toAbbrevFromNumber(int m) {
+        public static FeeData.MonthAbbrev toAbbrevFromNumber(int m) {
             if (m < 1 || m > 12) return FeeData.MonthAbbrev.Jan;
             return switch (m) {
                 case 1 -> FeeData.MonthAbbrev.Jan;

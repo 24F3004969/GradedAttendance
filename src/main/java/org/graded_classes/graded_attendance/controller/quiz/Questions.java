@@ -43,6 +43,10 @@ public class Questions implements Initializable {
     MainController mainController;
     String questionNumber;
 
+    public CustomTextField getQuestion_text() {
+        return question_text;
+    }
+
     public Questions(MainController mainController, String questionNumber) {
         this.mainController = mainController;
         this.questionNumber = questionNumber;

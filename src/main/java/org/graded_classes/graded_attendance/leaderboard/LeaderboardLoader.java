@@ -30,18 +30,12 @@ public class LeaderboardLoader {
     }
 
     public Scene load(StackPane leader1, StackPane leader2) {
-        var treeMap = listOfWinners("Winners");
         var list = brandList("Branding");
         ArrayList<StackPane> panes = new ArrayList<>();
         panes.add(leader1);
         panes.add(leader2);
-        preview.add("Leaderboard1");
+       preview.add("Leaderboard1");
         preview.add("Leaderboard2");
-        for (var m : treeMap.keySet()) {
-            panes.add(new ImageSliderShow(treeMap.get(m).name,
-                    treeMap.get(m).garde, treeMap.get(m).img_path).
-                    getSliderPane());
-        }
         for (var a : list) {
             panes.add(new ImageSliderShow(a).getSliderPane());
             preview.add(a.substring(a.lastIndexOf('\\') + 1, a.lastIndexOf('.')));
@@ -55,24 +49,6 @@ public class LeaderboardLoader {
         layoutAnimator.animate();
         return scene;
     }
-
-    public TreeMap<Integer, WinnerInfo> listOfWinners(String path) {
-        TreeMap<Integer, WinnerInfo> brandList = new TreeMap<>();
-        try (Stream<Path> paths = Files.walk(Paths.get("G:/My Drive/" + path))) {
-            paths.filter(Files::isRegularFile).forEach(p -> {
-                String filename = p.getFileName().toString();
-                int id = Integer.parseInt(filename.substring(0, filename.indexOf('-')));
-                String _class = filename.substring(filename.indexOf('-') + 1, filename.lastIndexOf('-'));
-                String name = filename.substring(filename.lastIndexOf('-') + 1, filename.lastIndexOf('.'));
-                brandList.put(id, new WinnerInfo(name, _class, p.toAbsolutePath().toString()));
-            });
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return brandList;
-    }
-
     public ArrayList<String> brandList(String path) {
         ArrayList<String> brandList = new ArrayList<>();
         try (Stream<Path> paths = Files.walk(Paths.get("G:/My Drive/" + path))) {

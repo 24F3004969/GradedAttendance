@@ -11,3 +11,11 @@
     -fx-background-radius: 5;
     -fx-border-radius: 5;
 }
+.tab_selector{
+    -fx-background-color: #1C75BC;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+}
+.tab_selector .label {
+    -fx-text-fill: white;
+}

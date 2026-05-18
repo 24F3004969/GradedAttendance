@@ -5,7 +5,6 @@ import atlantafx.base.controls.Notification;
 import atlantafx.base.theme.Styles;
 import atlantafx.base.util.Animations;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -14,8 +13,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
@@ -23,11 +20,14 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.graded_classes.graded_attendance.GradedFxmlLoader;
-import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.calender.CalendarApp;
 import org.graded_classes.graded_attendance.controller.quiz.QuizGenerator;
-import org.graded_classes.graded_attendance.data.*;
+import org.graded_classes.graded_attendance.controller.quiz.QuizTaker;
+import org.graded_classes.graded_attendance.data.Formatter;
+import org.graded_classes.graded_attendance.data.GradedDataLoader;
+import org.graded_classes.graded_attendance.data.MessageSender;
+import org.graded_classes.graded_attendance.data.Student;
 import org.graded_classes.graded_attendance.leaderboard.*;
 import org.graded_classes.graded_attendance.planner.Planner;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -42,7 +42,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
@@ -91,7 +90,7 @@ public class MainController implements Initializable {
         Tooltip.install(selectedTab, tooltip);
         messageSender = new MessageSender(gradedDataLoader.databaseLoader, this, getToken());
         studentDataLoader = new StudentDataLoader(gradedDataLoader.getStudentData());
-        l1 = new Leaderboard1(studentDataLoader);
+        l1 = new Leaderboard1(studentDataLoader,this);
         l2 = new SeatingPlan(getSeatingPlan());
         notificationInit();
     }
@@ -186,12 +185,12 @@ public class MainController implements Initializable {
             case "database" -> gradedFxmlLoader.createView(R.database_layout, new DataBaseController(this));
             case "lesson" -> gradedFxmlLoader.createView(R.lesson_planner, new Planner(gradedDataLoader, modalPane));
             case "quizCreator" -> gradedFxmlLoader.createView(R.quiz_creator, new QuizGenerator(this));
-            case "quiz_taker" -> gradedFxmlLoader.createView(R.quiz_taker);
+            case "quiz_taker" -> gradedFxmlLoader.createView(R.quiz_taker,new QuizTaker(this));
             case "leaderboard" -> gradedFxmlLoader.createView(R.points_table, new PointsTable(studentDataLoader,
                     l1,
                     l2,
                     this));
-            case "setting" -> gradedFxmlLoader.createView(R.quiz_taker);
+           /* case "setting" -> gradedFxmlLoader.createView(R.quiz_taker);*/
             default -> null;
         };
     }
@@ -343,6 +342,7 @@ public class MainController implements Initializable {
         button.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.ACCENT, Styles.FLAT);
         button.setOnMouseClicked(event -> {
             modalPane.hide();
+            modalPane.setAlignment(Pos.CENTER);
         });
         modalPane.show(box);
         modalPane.setAlignment(Pos.TOP_LEFT);
