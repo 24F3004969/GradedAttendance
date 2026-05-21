@@ -31,6 +31,8 @@ module org.graded_classes.graded_attendance {
     requires org.apache.pdfbox;
     requires com.dlsc.fxmlkit;
     requires com.dlsc.gemsfx;
+    requires com.lottie4j.core;
+    requires com.lottie4j.fxplayer;
 
 
     opens org.graded_classes.graded_attendance.controller to javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc, java.sql;
@@ -38,7 +40,6 @@ module org.graded_classes.graded_attendance {
 
     opens org.graded_classes.graded_attendance.planner to javafx.fxml;
     opens org.graded_classes.graded_attendance.controller.fee to javafx.fxml,java.sql;
-    opens org.graded_classes.graded_attendance.data to java.sql, org.xerial.sqlitejdbc;
     opens org.graded_classes.graded_attendance.messaging;
     exports org.graded_classes.graded_attendance;
     opens org.graded_classes.graded_attendance;
@@ -49,4 +50,5 @@ module org.graded_classes.graded_attendance {
     exports org.graded_classes.graded_attendance.test;
     opens org.graded_classes.graded_attendance.test;
     opens org.graded_classes.graded_attendance.controller.quiz to java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
+    opens org.graded_classes.graded_attendance.data to java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
 }

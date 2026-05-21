@@ -35,6 +35,12 @@
             <artifactId>javafx-media</artifactId>
             <version>26</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.lottie4j</groupId>
+            <artifactId>fxplayer</artifactId>
+            <version>1.2.3</version>
+        </dependency>
         <!-- Source: https://mvnrepository.com/artifact/io.github.mkpaz/atlantafx-base -->
         <dependency>
             <groupId>io.github.mkpaz</groupId>

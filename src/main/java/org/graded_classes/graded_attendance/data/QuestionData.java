@@ -1,4 +1,4 @@
-package org.graded_classes.graded_attendance.controller.quiz;
+package org.graded_classes.graded_attendance.data;
 
 public record QuestionData(String question_id,
                            String topic_id,

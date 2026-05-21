@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.RadioButton?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.ToggleGroup?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-<?import org.graded_classes.graded_attendance.components.LatexView?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import org.graded_classes.graded_attendance.components.*?>
 
-<SplitPane dividerPositions="0.5" orientation="VERTICAL" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.QuestionTakerWthOp">
+<SplitPane dividerPositions="0.5" orientation="VERTICAL" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.QuestionTakerWthOp">
    <items>
       <SplitPane dividerPositions="0.8">
          <items>
@@ -37,14 +31,14 @@
          <content>
             <VBox spacing="10.0">
                <children>
-                  <HBox alignment="CENTER_LEFT" spacing="5.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" VBox.vgrow="ALWAYS">
+                  <HBox alignment="CENTER_LEFT" onMouseClicked="#whenOptionClicked" spacing="5.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" VBox.vgrow="ALWAYS">
                      <children>
                         <Label text="A)">
                            <font>
                               <Font size="24.0" />
                            </font>
                         </Label>
-                        <RadioButton mnemonicParsing="false">
+                        <RadioButton id="radio" mnemonicParsing="false">
                            <toggleGroup>
                               <ToggleGroup fx:id="ans" />
                            </toggleGroup>
@@ -55,42 +49,42 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </padding>
                   </HBox>
-                  <HBox alignment="CENTER_LEFT" spacing="5.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" VBox.vgrow="ALWAYS">
+                  <HBox alignment="CENTER_LEFT" onMouseClicked="#whenOptionClicked" spacing="5.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" VBox.vgrow="ALWAYS">
                      <children>
                         <Label text="B)">
                            <font>
                               <Font size="24.0" />
                            </font>
                         </Label>
-                        <RadioButton mnemonicParsing="false" toggleGroup="$ans" />
+                        <RadioButton id="radio" mnemonicParsing="false" toggleGroup="$ans" />
                         <LatexView fx:id="opt2" formula="x = 0 \text{ and } x = -1" size="28" />
                      </children>
                      <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </padding>
                   </HBox>
-                  <HBox alignment="CENTER_LEFT" spacing="5.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" VBox.vgrow="ALWAYS">
+                  <HBox alignment="CENTER_LEFT" onMouseClicked="#whenOptionClicked" spacing="5.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" VBox.vgrow="ALWAYS">
                      <children>
                         <Label text="C)">
                            <font>
                               <Font size="24.0" />
                            </font>
                         </Label>
-                        <RadioButton mnemonicParsing="false" toggleGroup="$ans" />
+                        <RadioButton id="radio" mnemonicParsing="false" toggleGroup="$ans" />
                         <LatexView fx:id="opt3" formula="x = 12 \text{ and } x = 0" size="28" />
                      </children>
                      <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </padding>
                   </HBox>
-                  <HBox alignment="CENTER_LEFT" spacing="5.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" VBox.vgrow="ALWAYS">
+                  <HBox alignment="CENTER_LEFT" onMouseClicked="#whenOptionClicked" spacing="5.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" VBox.vgrow="ALWAYS">
                      <children>
                         <Label text="D)">
                            <font>
                               <Font size="24.0" />
                            </font>
                         </Label>
-                        <RadioButton mnemonicParsing="false" toggleGroup="$ans" />
+                        <RadioButton id="radio" mnemonicParsing="false" toggleGroup="$ans" />
                         <LatexView fx:id="opt4" formula="x = 7 \text{ and } x = -3" size="28" />
                         <ImageView pickOnBounds="true" preserveRatio="true" />
                      </children>

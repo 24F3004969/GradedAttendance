@@ -60,7 +60,7 @@
                         </ImageView>
                      </graphic>
                   </Button>
-                  <Button mnemonicParsing="false" onAction="#changeDuration" text="Show Leaderboard">
+                  <Button mnemonicParsing="false" onAction="#showLeaderBoard" text="Show Leaderboard">
                      <graphic>
                         <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                            <image>

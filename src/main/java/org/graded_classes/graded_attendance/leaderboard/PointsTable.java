@@ -6,22 +6,17 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import org.graded_classes.graded_attendance.GradedFxmlLoader;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.controller.MainController;
 
-import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.*;
@@ -55,27 +50,17 @@ public class PointsTable implements Initializable {
         this.mainController = mainController;
     }
 
+    Scene loadedVal;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        lb_loader=new LeaderboardLoader(mainController);
-        var loadedVal=lb_loader.load((StackPane) mainController.gradedFxmlLoader.createView(R.leaderboard1,l1),
+        lb_loader = new LeaderboardLoader(mainController);
+        loadedVal = lb_loader.load((StackPane) mainController.gradedFxmlLoader.createView(R.leaderboard1, l1),
                 (StackPane) mainController.gradedFxmlLoader.createView(R.seating_plan, l2));
         mainController.getStage().getScene().setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.P) {
-                stage2.setTitle("Leaderboard");
-                try {
-                    stage2.setScene(loadedVal);
-
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                stage2.show();
+                launchLeaderBoard();
             }
-            stage2.getScene().setOnKeyPressed(event1 -> {
-                stage2.setFullScreen(event1.getCode() == KeyCode.F11 && !mainController.getStage().isFullScreen());
-
-            });
 
         });
         name_column.setCellValueFactory(map -> getValues(map, "Name"));
@@ -109,6 +94,22 @@ public class PointsTable implements Initializable {
         });
         points_table.setItems(filteredData);
 
+    }
+
+    private void launchLeaderBoard() {
+
+        stage2.setTitle("Leaderboard");
+        try {
+            stage2.setScene(loadedVal);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        stage2.show();
+        stage2.getScene().setOnKeyPressed(event1 -> {
+            stage2.setFullScreen(event1.getCode() == KeyCode.F11 && !mainController.getStage().isFullScreen());
+
+        });
     }
 
     private void eventResolver(TableColumn.CellEditEvent<Map<String, Object>, String> event, String key) {
@@ -224,14 +225,20 @@ public class PointsTable implements Initializable {
     void changeDuration() {
         Stage timerStage = new Stage();
         timerStage.setTitle("Animation Duration");
-            //var layout = new FXMLLoader(LeaderboardResourcesLoader.loadURL("fxml/leaderboard/timer.fxml"));
-            //layout.setControllerFactory(_ -> new Timer(timerStage,lb_loader));
-            timerStage.setScene(new Scene((VBox) mainController.gradedFxmlLoader.createView(R.timer,
-                    new Timer(timerStage,lb_loader)), 1100, 720));
+        //var layout = new FXMLLoader(LeaderboardResourcesLoader.loadURL("fxml/leaderboard/timer.fxml"));
+        //layout.setControllerFactory(_ -> new Timer(timerStage,lb_loader));
+        timerStage.setScene(new Scene((VBox) mainController.gradedFxmlLoader.createView(R.timer,
+                new Timer(timerStage, lb_loader)), 1100, 720));
          /*   timerStage.getIcons().add(new Image(Objects.requireNonNull(getClass().
                     getResourceAsStream("icons/__logo.png"))));*/
-            timerStage.show();
+        timerStage.show();
 
+    }
+
+    @FXML
+    void showLeaderBoard(ActionEvent event) {
+
+        launchLeaderBoard();
     }
 
 }

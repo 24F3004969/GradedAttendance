@@ -1,4 +1,4 @@
-package org.graded_classes.graded_attendance.controller.quiz;
+package org.graded_classes.graded_attendance.data;
 
 import java.util.ArrayList;
 

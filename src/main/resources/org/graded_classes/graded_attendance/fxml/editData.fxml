@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.DatePicker?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import impl.com.calendarfx.view.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<ScrollPane id="container" fitToHeight="true" fitToWidth="true" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.EditStudentData">
+<ScrollPane id="container" fitToHeight="true" fitToWidth="true" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.EditStudentData">
    <content>
       <VBox fx:id="formBox" spacing="10.0">
          <children>
@@ -22,10 +16,30 @@
             </Label>
             <HBox alignment="CENTER_LEFT" spacing="20.0">
                <children>
-                  <TextField fx:id="ed_no" editable="false" prefWidth="132.0" promptText="ED No." />
-                  <DatePicker fx:id="dob" prefWidth="190.0" promptText="Date of birth" />
-                  <ComboBox fx:id="gender" prefWidth="138.0" promptText="Gender" />
-                  <ComboBox fx:id="blood_group" prefWidth="157.0" promptText="Blood Group" />
+                  <VBox>
+                     <children>
+                        <Label text="ED No." />
+                        <TextField fx:id="ed_no" editable="false" prefWidth="132.0" promptText="ED No." />
+                     </children>
+                  </VBox>
+                  <VBox>
+                     <children>
+                        <Label text="Date of birth" />
+                        <DatePicker fx:id="dob" prefWidth="190.0" promptText="Date of birth" />
+                     </children>
+                  </VBox>
+                  <VBox>
+                     <children>
+                        <Label text="Gender" />
+                        <ComboBox fx:id="gender" prefWidth="138.0" promptText="Gender" />
+                     </children>
+                  </VBox>
+                  <VBox>
+                     <children>
+                        <Label text="Blood Group" />
+                        <ComboBox fx:id="blood_group" prefWidth="157.0" promptText="Blood Group" />
+                     </children>
+                  </VBox>
                </children>
                <VBox.margin>
                   <Insets bottom="5.0" left="30.0" right="30.0" top="5.0" />
@@ -33,9 +47,24 @@
             </HBox>
             <HBox alignment="CENTER_LEFT" spacing="20.0">
                <children>
-                  <TextField fx:id="first_name" promptText="First Name" />
-                  <TextField fx:id="last_name" promptText="Last Name" />
-                  <ComboBox fx:id="_class" prefWidth="150.0" promptText="Class" />
+                  <VBox>
+                     <children>
+                        <Label text="First Name" />
+                        <TextField fx:id="first_name" promptText="First Name" />
+                     </children>
+                  </VBox>
+                  <VBox>
+                     <children>
+                        <Label text="Last Name" />
+                        <TextField fx:id="last_name" promptText="Last Name" />
+                     </children>
+                  </VBox>
+                  <VBox>
+                     <children>
+                        <Label text="Class" />
+                        <ComboBox fx:id="_class" prefWidth="150.0" promptText="Class" />
+                     </children>
+                  </VBox>
                </children>
                <VBox.margin>
                   <Insets bottom="5.0" left="30.0" right="30.0" top="5.0" />
@@ -43,9 +72,24 @@
             </HBox>
             <HBox alignment="CENTER_LEFT" spacing="20.0">
                <children>
-                  <TextField fx:id="father_f_name" promptText="Father first Name" />
-                  <TextField fx:id="father_l_name" promptText="Father last Name" />
-                  <TextField fx:id="father_occ" promptText="Father's Occupation" />
+                  <VBox>
+                     <children>
+                        <Label text="Father first Name" />
+                        <TextField fx:id="father_f_name" promptText="Father first Name" />
+                     </children>
+                  </VBox>
+                  <VBox>
+                     <children>
+                        <Label text="First last Name" />
+                        <TextField fx:id="father_l_name" promptText="Father last Name" />
+                     </children>
+                  </VBox>
+                  <VBox>
+                     <children>
+                        <Label text="Father's Occupation" />
+                        <TextField fx:id="father_occ" promptText="Father's Occupation" />
+                     </children>
+                  </VBox>
                </children>
                <VBox.margin>
                   <Insets bottom="5.0" left="30.0" right="30.0" top="5.0" />
@@ -53,9 +97,24 @@
             </HBox>
             <HBox alignment="CENTER_LEFT" spacing="20.0">
                <children>
-                  <TextField fx:id="mother_f_name" promptText="Mother first Name" />
-                  <TextField fx:id="mother_l_name" promptText="Mother last Name" />
-                  <TextField fx:id="mother_occ" promptText="Mother 's Occupation" />
+                  <VBox>
+                     <children>
+                        <Label text="Month first Name" />
+                        <TextField fx:id="mother_f_name" promptText="Mother first Name" />
+                     </children>
+                  </VBox>
+                  <VBox>
+                     <children>
+                        <Label text="Mother last Name" />
+                        <TextField fx:id="mother_l_name" promptText="Mother last Name" />
+                     </children>
+                  </VBox>
+                  <VBox>
+                     <children>
+                        <Label text="Mother 's Occupation" />
+                        <TextField fx:id="mother_occ" promptText="Mother 's Occupation" />
+                     </children>
+                  </VBox>
                </children>
                <VBox.margin>
                   <Insets bottom="5.0" left="30.0" right="30.0" top="5.0" />
@@ -63,8 +122,18 @@
             </HBox>
             <HBox alignment="CENTER_LEFT" spacing="20.0">
                <children>
-                  <TextField fx:id="aadhaar_no" prefWidth="283.0" promptText="Adahar No." />
-                  <TextField fx:id="email_id" prefWidth="271.0" promptText="Email" />
+                  <VBox>
+                     <children>
+                        <Label text="Adahar No." />
+                        <TextField fx:id="aadhaar_no" prefWidth="283.0" promptText="Adahar No." />
+                     </children>
+                  </VBox>
+                  <VBox>
+                     <children>
+                        <Label text="Email" />
+                        <TextField fx:id="email_id" prefWidth="271.0" promptText="Email" />
+                     </children>
+                  </VBox>
                </children>
                <VBox.margin>
                   <Insets bottom="5.0" left="30.0" right="30.0" top="5.0" />
@@ -72,9 +141,24 @@
             </HBox>
             <HBox alignment="CENTER_LEFT" spacing="20.0">
                <children>
-                  <TextField fx:id="g_num" prefWidth="185.0" promptText="Guardian Phone No." />
-                  <TextField fx:id="school_n" prefWidth="282.0" promptText="School name" />
-                  <TextField fx:id="telegram_id" prefWidth="157.0" promptText="Telegram user Id" />
+                  <VBox>
+                     <children>
+                        <Label text="Gurdian Phone No." />
+                        <TextField fx:id="g_num" prefWidth="185.0" promptText="Guardian Phone No." />
+                     </children>
+                  </VBox>
+                  <VBox>
+                     <children>
+                        <Label text="School Name" />
+                        <TextField fx:id="school_n" prefWidth="282.0" promptText="School name" />
+                     </children>
+                  </VBox>
+                  <VBox>
+                     <children>
+                        <Label text="Telegram Id" />
+                        <TextField fx:id="telegram_id" prefWidth="157.0" promptText="Telegram user Id" />
+                     </children>
+                  </VBox>
                </children>
                <VBox.margin>
                   <Insets bottom="5.0" left="30.0" right="30.0" top="5.0" />
@@ -122,6 +206,19 @@
                </children>
                <VBox.margin>
                   <Insets bottom="5.0" left="30.0" right="30.0" top="5.0" />
+               </VBox.margin>
+            </HBox>
+            <HBox>
+               <children>
+                  <VBox>
+                     <children>
+                        <Label text="Fee" />
+                        <NumericTextField fx:id="currentFee" />
+                     </children>
+                  </VBox>
+               </children>
+               <VBox.margin>
+                  <Insets bottom="10.0" left="30.0" right="30.0" top="5.0" />
                </VBox.margin>
             </HBox>
          </children>

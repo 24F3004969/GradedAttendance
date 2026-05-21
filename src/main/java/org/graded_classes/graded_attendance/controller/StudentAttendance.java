@@ -165,7 +165,8 @@ public class StudentAttendance implements Initializable {
             listViewStudents = new ListViewStudents(this);
             x.setControllerFactory(c -> listViewStudents);
             box = x.load();
-            Button feeReportButton = (Button) outer_main_box.getParent().lookup("#reportButton");
+            Button feeReportButton = (Button) outer_main_box.
+                    getParent().lookup("#reportButton");
             feeReportButton.setVisible(id.equals("st_fee"));
         } catch (IOException e) {
             throw new RuntimeException(e);

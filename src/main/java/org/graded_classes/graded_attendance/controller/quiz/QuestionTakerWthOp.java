@@ -2,19 +2,17 @@ package org.graded_classes.graded_attendance.controller.quiz;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import org.graded_classes.graded_attendance.components.LatexView;
+import org.graded_classes.graded_attendance.data.QuestionData;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class QuestionTakerWthOp implements Initializable {
-
-
-    @FXML
-    private ToggleGroup ans;
 
     @FXML
     private LatexView opt1;
@@ -43,6 +41,14 @@ public class QuestionTakerWthOp implements Initializable {
         opt2.setFormula("\\text{%s}".formatted(questionData.option_data().options().get(1)));
         opt3.setFormula("\\text{%s}".formatted(questionData.option_data().options().get(2)));
         opt4.setFormula("\\text{%s}".formatted(questionData.option_data().options().getLast()));
+
+    }
+
+    @FXML
+    public void whenOptionClicked(MouseEvent mouseEvent) {
+        HBox hBox = (HBox) mouseEvent.getSource();
+        RadioButton rd = (RadioButton) hBox.lookup("#radio");
+        rd.setSelected(true);
 
     }
 }

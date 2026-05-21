@@ -52,7 +52,8 @@ public enum R {
     leader_view("fxml/leaderboard/leader_view.fxml"),
     question_taker_with_op("fxml/question_taker_with_op.fxml"),
     exam_conductor("fxml/exam-conductor.fxml"),
-    exam_create("fxml/exam-create.fxml"),;
+    exam_create("fxml/exam-create.fxml"),
+    exam_login("fxml/exam-login.fxml"),;
     private final String path;
 
     R(String path) {

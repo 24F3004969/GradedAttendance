@@ -26,7 +26,7 @@ public class EditStudentData implements Initializable {
     private TextField aadhaar_no, ed_no, email_id,
             father_f_name, father_l_name, father_occ, first_name,
             g_num, last_name, mother_f_name, mother_l_name,
-            mother_occ, school_n, telegram_id;
+            mother_occ, school_n, telegram_id, currentFee;
     @FXML
     private TextArea address;
     @FXML
@@ -66,9 +66,9 @@ public class EditStudentData implements Initializable {
         if (studentData.get(edNumber).bloodGroup() != null)
             blood_group.getSelectionModel().select(studentData.get(edNumber).bloodGroup());
         if (studentData.get(edNumber).father_name() != null) {
-            father_f_name.setText(studentData.get(edNumber).name().
+            father_f_name.setText(studentData.get(edNumber).father_name().
                     substring(0, studentData.get(edNumber).father_name().indexOf(' ')));
-            father_l_name.setText(studentData.get(edNumber).name().
+            father_l_name.setText(studentData.get(edNumber).father_name().
                     substring(studentData.get(edNumber).father_name().indexOf(' ') + 1));
         }
         if (studentData.get(edNumber).mother_name() != null) {
@@ -94,6 +94,8 @@ public class EditStudentData implements Initializable {
             email_id.setText(studentData.get(edNumber).email());
         if (studentData.get(edNumber).guardian_phone() != null)
             g_num.setText(studentData.get(edNumber).guardian_phone());
+        if (studentData.get(edNumber).getFee() != null)
+            currentFee.setText(studentData.get(edNumber).getFee());
         var v = studentData.get(edNumber).subjects();
         for (var s : v) {
             var x = (CheckBox) formBox.lookup("#" + s);
@@ -136,7 +138,13 @@ public class EditStudentData implements Initializable {
         student.setSchool_n(school_n.getText());
         student.setSubjects(list_of_subjects.toArray(new String[0]));
         student.setTelegram_id(telegram_id.getText());
+        student.setFee(currentFee.getText());
+        var alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Information");
+        alert.setHeaderText("Got updated");
+        alert.show();
         student.updateAll(connection);
     }
+
 
 }

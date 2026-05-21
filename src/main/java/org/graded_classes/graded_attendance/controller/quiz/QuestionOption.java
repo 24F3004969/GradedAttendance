@@ -7,6 +7,7 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import org.graded_classes.graded_attendance.components.LatexView;
 
 import java.io.File;
@@ -37,11 +38,12 @@ public class QuestionOption implements Initializable {
     private LatexView option_text;
     @FXML
     private RadioButton radio;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         name.setText(optionName);
         option_text.setFormula(latexText);
-       // option_image.setImage(new Image(new File(imagePath).toURI().toString()));
+        // option_image.setImage(new Image(new File(imagePath).toURI().toString()));
         radio.setToggleGroup(toggleGroup);
     }
 }

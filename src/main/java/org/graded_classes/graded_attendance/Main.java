@@ -12,6 +12,7 @@ import org.graded_classes.graded_attendance.test.SnapshotUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -33,7 +34,11 @@ public class Main extends Application {
 
         ZoneId zone = ZoneId.of("Asia/Kolkata");
         LocalDate date = instant.atZone(zone).toLocalDate();
-        System.out.println(date);
+        try {
+            System.out.println(Main.class.getResource("css/motivation.json").toURI());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
 
         //scene.setFill(Paint.valueOf("#fafafa00"));
         stage.setTitle("Graded Management");

@@ -12,12 +12,12 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.controller.MainController;
+import org.graded_classes.graded_attendance.data.QuestionData;
 
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 public class QuestionEditor implements Initializable {

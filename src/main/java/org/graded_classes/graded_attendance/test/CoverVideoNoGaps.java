@@ -22,7 +22,7 @@ public class CoverVideoNoGaps extends Application {
     @Override
     public void start(Stage stage) throws IOException {
 
-        FXMLLoader fxmlLoader = new FXMLLoader(GradedResourceLoader.loadURL("fxml/new_login.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(GradedResourceLoader.loadURL("fxml/exam-login.fxml"));
         StackPane root = fxmlLoader.load();
         String url = new File("C:/Users/hilal/Downloads/13721064_1080_1920_60fps.mp4").toURI().toString();
 

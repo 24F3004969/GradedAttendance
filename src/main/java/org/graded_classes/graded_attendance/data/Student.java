@@ -228,7 +228,7 @@ public class Student {
         String sql = "UPDATE StudentData SET "
                 + "name = ?, class = ?, email = ?, bloodGroup = ?, guardian_phone = ?, "
                 + "aadhaar_no = ?, father_name = ?, mother_name = ?, gender = ?, dob = ?, "
-                + "address = ?, father_occ = ?, mother_occ = ?, school_n = ?, subjects = ?, telegram_id = ? "
+                + "address = ?, father_occ = ?, mother_occ = ?, school_n = ?, subjects = ?, telegram_id = ?,fee=? "
                 + "WHERE ed_no = ?";
 
 
@@ -250,7 +250,8 @@ public class Student {
             pstmt.setString(14, school_n);
             pstmt.setString(15, String.join(", ", subjects));
             pstmt.setString(16, telegram_id);
-            pstmt.setString(17, ed_no);
+            pstmt.setString(17, fee);
+            pstmt.setString(18, ed_no);
 
             pstmt.executeUpdate();
             System.out.println("Row updated successfully.");
