@@ -1,6 +1,7 @@
 package org.graded_classes.graded_attendance.controller.quiz;
 
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.InputMethodEvent;
@@ -10,11 +11,13 @@ import org.graded_classes.graded_attendance.components.LatexView;
 import org.graded_classes.graded_attendance.controller.MainController;
 
 
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.ResourceBundle;
 
 import static org.graded_classes.graded_attendance.GradedResourceLoader.loadURL;
 
-public class LatexEditor {
+public class LatexEditor implements Initializable {
     MainController mainController;
     ArrayList<String> text = new ArrayList<>();
     int selectedButton = -1;
@@ -140,4 +143,8 @@ public class LatexEditor {
     }
 
 
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
+    }
 }

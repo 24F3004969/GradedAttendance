@@ -185,7 +185,6 @@ public class MainController implements Initializable {
             case "database" -> gradedFxmlLoader.createView(R.database_layout, new DataBaseController(this));
             case "lesson" -> gradedFxmlLoader.createView(R.lesson_planner, new Planner(gradedDataLoader, modalPane));
             case "quizCreator" -> gradedFxmlLoader.createView(R.quiz_creator, new QuizGenerator(this));
-            case "quiz_taker" -> gradedFxmlLoader.createView(R.quiz_taker,new QuizTaker(this));
             case "leaderboard" -> gradedFxmlLoader.createView(R.points_table, new PointsTable(studentDataLoader,
                     l1,
                     l2,

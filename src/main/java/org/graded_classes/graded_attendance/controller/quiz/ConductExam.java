@@ -68,32 +68,68 @@ public class ConductExam implements Initializable {
             button.getStyleClass().add(Styles.SUCCESS);
             ExamData studentInfo = arg0.getValue();
             button.setOnMouseClicked(a -> {
-                        ExamLogin examLogin = new ExamLogin(mainController);
-                        examLogin.showLoginScreen();
+                mainController.modalPane.show(mainController.gradedFxmlLoader
+                        .createView(R.exam_entry_login, new LoginBeforeEntry(mainController)));
             });
             return new SimpleObjectProperty<>(button);
         });
 
-        ExamData mathExam = new ExamData(
+        ExamData exam1 = new ExamData(
                 "1",
-                "V,VI,VI",               // Roman numeral class
+                "VI",               // Roman numeral class
                 LocalDate.now().toString(),      // date of exam
                 "Room 3D",
                 "Math",
                 LocalTime.now().plusHours(1).format(DateTimeFormatter.ofPattern("hh:mm:ss a")),
-                "Integer"
+                "Number System"
         );
 
-        ExamData physicsExam = new ExamData(
+        ExamData exam2 = new ExamData(
                 "2",
-                "IX,X",              // Roman numeral class
+                "VII",              // Roman numeral class
                 LocalDate.now().toString(),
                 "Room 3D",
-                "Physics",
+                "Math",
                 LocalTime.now().plusHours(2).format(DateTimeFormatter.ofPattern("hh:mm:ss a")),
-                "General Physics"
+                "Integer"
         );
-        items.addAll(mathExam, physicsExam);
+        ExamData exam3 = new ExamData(
+                "3",
+                "VIII",              // Roman numeral class
+                LocalDate.now().toString(),
+                "Room 3D",
+                "Math",
+                LocalTime.now().plusHours(2).format(DateTimeFormatter.ofPattern("hh:mm:ss a")),
+                "Rational Number"
+        );
+        ExamData exam4 = new ExamData(
+                "4",
+                "IX",              // Roman numeral class
+                LocalDate.now().toString(),
+                "Room 3D",
+                "Math",
+                LocalTime.now().plusHours(2).format(DateTimeFormatter.ofPattern("hh:mm:ss a")),
+                "Indices"
+        );
+        ExamData exam5 = new ExamData(
+                "5",
+                "X(ICSE)",              // Roman numeral class
+                LocalDate.now().toString(),
+                "Room 3D",
+                "Math",
+                LocalTime.now().plusHours(2).format(DateTimeFormatter.ofPattern("hh:mm:ss a")),
+                "Factorization"
+        );
+        ExamData exam6 = new ExamData(
+                "6",
+                "X(CBSE)",              // Roman numeral class
+                LocalDate.now().toString(),
+                "Room 3D",
+                "Math",
+                LocalTime.now().plusHours(2).format(DateTimeFormatter.ofPattern("hh:mm:ss a")),
+                "Quadratic Equation"
+        );
+        items.addAll(exam1, exam2, exam3, exam4, exam5,exam6);
         scheduleTable.setItems(items);
     }
 

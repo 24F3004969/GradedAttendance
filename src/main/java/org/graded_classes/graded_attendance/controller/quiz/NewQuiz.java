@@ -54,7 +54,8 @@ public class NewQuiz implements Initializable {
         }
         target.getChildren().add(newChild);
         TabPane tabPane = (TabPane) quizGenerator.quiz_gen_layout.lookup("#tabs");
-        var tb = mainController.gradedFxmlLoader.createView(R.question_editor, new QuestionEditor(mainController));
+        var tb = mainController.gradedFxmlLoader.createView(R.question_editor,
+                new QuestionEditor(mainController));
         Tab tab = new Tab(quizName.getText());
         tab.setContent(tb);
         tabPane.getTabs().add(tab);
@@ -65,7 +66,8 @@ public class NewQuiz implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        quizName.setText("Draft_" + LocalDate.now() + "_" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+        quizName.setText("Draft_" + LocalDate.now() + "_" + LocalTime.now().
+                format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         SpinnerValueFactory<Integer> valueFactory =
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(5, 30, 5, 1);
         NoOfQuestion.setValueFactory(valueFactory);

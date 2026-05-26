@@ -53,7 +53,8 @@ public enum R {
     question_taker_with_op("fxml/question_taker_with_op.fxml"),
     exam_conductor("fxml/exam-conductor.fxml"),
     exam_create("fxml/exam-create.fxml"),
-    exam_login("fxml/exam-login.fxml"),;
+    exam_login("fxml/exam-login.fxml"),
+    exam_entry_login("fxml/exam-entry-login.fxml"),;
     private final String path;
 
     R(String path) {

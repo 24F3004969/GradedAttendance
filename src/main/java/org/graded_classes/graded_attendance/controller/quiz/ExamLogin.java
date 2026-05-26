@@ -18,19 +18,24 @@ import org.graded_classes.graded_attendance.controller.MainController;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ExamLogin {
     MainController mainController;
+    String rollCode;
+    String name;
+    String seatNo;
 
-    public ExamLogin(MainController mainController) {
+    public ExamLogin(MainController mainController, String rollCode, String name, String seatNo) {
         this.mainController = mainController;
+        this.rollCode = rollCode;
+        this.name = name;
+        this.seatNo = seatNo;
     }
 
     private static final int PARTICLE_COUNT = 90;
     private static final double MAX_LINK_DIST = 140.0;
-    ModalPane modalPane ;
+    ModalPane modalPane;
     private final List<Particle> particles = new ArrayList<>(PARTICLE_COUNT);
     Stage stage = new Stage();
     StackPane root;
@@ -41,7 +46,8 @@ public class ExamLogin {
         login = (StackPane)
                 mainController.gradedFxmlLoader.
                         createView(R.exam_login,
-                                new StudentExamLogin(mainController, stage, this));
+                                new StudentExamLogin(mainController,
+                                        stage, this));
         Canvas canvas = new Canvas(800, 600);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
@@ -170,19 +176,19 @@ public class ExamLogin {
     }
 
     public void showPasswordDialog() {
-       Label label = new Label("Please enter your password:");
+        Label label = new Label("Please enter your password:");
         PasswordField passwordField = new PasswordField();
         passwordField.setPromptText("Enter password");
         Button submitBtn = new Button("Unlock");
         Label message = new Label();
 
-        VBox content = new VBox(10, label,passwordField, submitBtn, message);
+        VBox content = new VBox(10, label, passwordField, submitBtn, message);
 
         content.setStyle("""
-        -fx-padding: 20;
-        -fx-background-color: #fafafa;
-        -fx-background-radius: 10;
-    """);
+                    -fx-padding: 20;
+                    -fx-background-color: #fafafa;
+                    -fx-background-radius: 10;
+                """);
 
         content.setMaxWidth(300);
         content.setMaxHeight(200);

@@ -3,14 +3,13 @@ package org.graded_classes.graded_attendance.controller.quiz;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import org.graded_classes.graded_attendance.components.LatexView;
 import org.graded_classes.graded_attendance.data.QuestionData;
 
 import java.net.URL;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class QuestionTakerWthOp implements Initializable {
 
@@ -29,9 +28,11 @@ public class QuestionTakerWthOp implements Initializable {
     @FXML
     private LatexView questionText;
     QuestionData questionData;
+    LinkedHashMap<QuestionData, ArrayList<Integer>> selectedOptions;
 
-    public QuestionTakerWthOp(QuestionData questionData) {
+    public QuestionTakerWthOp(QuestionData questionData, LinkedHashMap<QuestionData, ArrayList<Integer>> selectedOptions) {
         this.questionData = questionData;
+        this.selectedOptions = selectedOptions;
     }
 
     @Override
@@ -47,8 +48,13 @@ public class QuestionTakerWthOp implements Initializable {
     @FXML
     public void whenOptionClicked(MouseEvent mouseEvent) {
         HBox hBox = (HBox) mouseEvent.getSource();
+        int optionId = Integer.parseInt(hBox.getId().replace("option", ""));
         RadioButton rd = (RadioButton) hBox.lookup("#radio");
         rd.setSelected(true);
+       /* if (selectedOptions.containsKey(optionId)) {
+            selectedOptions.get(optionId).add(questionData.option_data().options().get(optionId - 1));
+        }*/
+            selectedOptions.put(questionData, new ArrayList<>(List.of(optionId)));
 
     }
 }

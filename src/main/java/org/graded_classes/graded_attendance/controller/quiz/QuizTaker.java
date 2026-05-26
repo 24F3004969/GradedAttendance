@@ -5,7 +5,6 @@ import com.lottie4j.core.model.animation.Animation;
 import com.lottie4j.fxplayer.LottiePlayer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -30,6 +29,7 @@ import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.controller.MainController;
 import org.graded_classes.graded_attendance.data.OptionData;
 import org.graded_classes.graded_attendance.data.QuestionData;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,19 +38,22 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class QuizTaker implements Initializable {
 
-    @FXML
-    private ToggleGroup ans;
     Timeline timeline;
     LocalTime totalTime;
     @FXML
@@ -67,6 +70,7 @@ public class QuizTaker implements Initializable {
     MainController mainController;
     ArrayList<QuestionData> questionList = new ArrayList<>();
     ArrayList<SplitPane> listOfSplitPane = new ArrayList<>();
+    LinkedHashMap<QuestionData, ArrayList<Integer>> selectedOptions = new LinkedHashMap<>();
 
     public QuizTaker(MainController mainController) {
         this.mainController = mainController;
@@ -76,7 +80,7 @@ public class QuizTaker implements Initializable {
     private void initDb() {
         try {
             var connection = mainController.gradedDataLoader.databaseLoader.getConnection();
-            var sql = "select * from Questions where user_id=2";
+            var sql = "select * from Questions where user_id=1";
             PreparedStatement pst = connection.prepareStatement(sql);
             var rs = pst.executeQuery();
             while (rs.next()) {
@@ -91,7 +95,7 @@ public class QuizTaker implements Initializable {
                     options.add(_rs.getString("option_text"));
                     var id = _rs.getInt("is_correct");
                     if (id == 1)
-                        correctId = options.size() - 1;
+                        correctId = options.size();
                 }
                 questionOption = new OptionData(correctId, options);
                 QuestionData questionData = new QuestionData(rs.getString("question_id"),
@@ -120,8 +124,10 @@ public class QuizTaker implements Initializable {
     }
 
     @FXML
-    void onQuizSubmit(ActionEvent event) {
-
+    void onQuizSubmit() {
+        totalTime = LocalTime.parse("00:00:00",
+                DateTimeFormatter.ofPattern("HH:mm:ss"));
+        saveQuizInstance("ED01", selectedOptions);
     }
 
     @FXML
@@ -136,30 +142,42 @@ public class QuizTaker implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         for (QuestionData questionData : questionList) {
-            var qp = new QuestionTakerWthOp(questionData);
+            var qp = new QuestionTakerWthOp(questionData, selectedOptions);
             var qop = (SplitPane) mainController.gradedFxmlLoader.createView(R.question_taker_with_op, qp);
             listOfSplitPane.add(qop);
         }
         VBox.setVgrow(listOfSplitPane.getFirst(), Priority.ALWAYS);
         questionStack.getChildren().set(1, listOfSplitPane.getFirst());
         for (int i = 0; i < questionList.size(); i++) {
-            Button button = new Button();
-            button.setText((i + 1) + "");
-            button.setPrefHeight(50);
-            button.setPrefWidth(50);
+            Button button = getButton(i);
             questionNum.getChildren().add(button);
         }
-        System.out.println();
+    }
+
+    private @NotNull Button getButton(int i) {
+        Button button = new Button();
+        button.setText((i + 1) + "");
+        button.setOnAction(event -> {
+            indexOfQuestion = Integer.parseInt(button.getText()) - 1;
+            int index = indexOfQuestion;
+            VBox.setVgrow(listOfSplitPane.get(index), Priority.ALWAYS);
+            questionStack.getChildren().set(1, listOfSplitPane.get(index));
+            question_num.setText("Question " + (index + 1));
+        });
+        button.setPrefHeight(50);
+        button.setPrefWidth(50);
+        return button;
     }
 
     public void startQuiz(ExamLogin login, Stage stage) {
         quizName.setText("Quiz");
-        totalTime = LocalTime.parse("00:00:10", DateTimeFormatter.ofPattern("HH:mm:ss"));
+        totalTime = LocalTime.parse("00:15:10", DateTimeFormatter.ofPattern("HH:mm:ss"));
 
         timeline = new Timeline(
                 new KeyFrame(Duration.seconds(1), event -> {
                     if (totalTime.equals(LocalTime.MIDNIGHT)) {
                         timeline.stop();
+                        onQuizSubmit();
                         stage.setTitle("Exam Login");
                         stage.setFullScreen(true);
                         animationLottie4j(login.root);
@@ -188,6 +206,7 @@ public class QuizTaker implements Initializable {
 
     }
 
+    //Be careful it this function is AI written
     public void animationLottie4j(StackPane stackPane) {
 
         // ✅ Use the *actual* resource path as it exists in the jar.
@@ -222,7 +241,8 @@ public class QuizTaker implements Initializable {
         leb.setFont(Font.font(30));
         leb.maxWidthProperty().bind(box.widthProperty().multiply(0.8));
         box.getChildren().add(leb);
-
+        IO.println(GradedResourceLoader.load("icons/my-logo.svg"));
+        IO.println(GradedResourceLoader.load("css/motivation.json"));
         ImageView imageView = new ImageView(new Image(GradedResourceLoader.load("icons/my-logo.svg")));
         imageView.setFitWidth(200);
         imageView.setFitHeight(80);
@@ -237,10 +257,43 @@ public class QuizTaker implements Initializable {
         lottiePlayer.play();
     }
 
+    public void saveQuizInstance(String studentEd, LinkedHashMap<QuestionData, ArrayList<Integer>>
+            selectedOptions) {
+        String url = "jdbc:sqlite:" + "G:/My Drive/GradeEd_Exam_2026/" + studentEd + ".db";
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement()) {
+            for (QuestionData question : selectedOptions.keySet()) {
+                String createTableSQL = """
+                        INSERT INTO answers (
+                            exam_id,
+                            question_id,
+                            selected_option_id,
+                            time_slot,
+                            start_time,
+                            end_time,
+                            created_at
+                        ) VALUES (%s, %s, %s, '%s', '%s', '%s', '%s');
+                        """.formatted(
+                        "1",
+                        question.question_id(),
+                        question.option_data().option_index(),
+                        "",
+                        "",
+                        "",
+                        ""
+                );
+                stmt.execute(createTableSQL);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Extract a classpath resource (even when inside a jar / jpackage image)
      * into a real temp file and return it.
      */
+    //Be careful it this function is AI written
     private static File extractResourceToTempFile(String resourcePath, String prefix, String suffix) throws IOException {
         try (InputStream in = QuizTaker.class.getResourceAsStream(resourcePath)) {
             if (in == null) {
