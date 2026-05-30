@@ -9,6 +9,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.VBox;
 import org.graded_classes.graded_attendance.GradedFxmlLoader;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.data.GradedDataLoader;
@@ -25,7 +26,6 @@ public class Planner extends GradedFxmlLoader implements Initializable {
     Breadcrumbs<String> breadCrumb;
     @FXML
     ScrollPane div;
-    LinkedHashMap<String, String> subjectMap = new LinkedHashMap<>();
     Breadcrumbs.BreadCrumbItem<String> root;
     Node classView, subjectView;
     String[] items = {"Class", "Subjects", "Math"};

@@ -1,7 +1,8 @@
-create table if not exists Topics
+
+CREATE TABLE IF NOT EXISTS Topics
 (
-    topic_id        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    class           NOT NULL,
-    subject         NOT NULL,
+    topic_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    class TEXT NOT NULL,
+    subject TEXT NOT NULL,
     topic_name TEXT NOT NULL
 );

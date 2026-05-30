@@ -230,7 +230,7 @@ public class QuizTaker implements Initializable {
         box.getChildren().add(lottiePlayer);
 
         Label leb = new Label(
-                "“You survived the test — and that already deserves a medal 🏅! " +
+                "“You survived the done_using_ai — and that already deserves a medal 🏅! " +
                         "Remember, even pencils make mistakes but they keep going. " +
                         "So whether you nailed it or just wrestled with it… you showed up, " +
                         "and that’s what winners do! Now go celebrate — you’ve earned it!”"

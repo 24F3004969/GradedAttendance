@@ -1,8 +1,7 @@
-package org.graded_classes.graded_attendance.test;
+package org.graded_classes.graded_attendance.done_using_ai;
 
 import atlantafx.base.theme.PrimerLight;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

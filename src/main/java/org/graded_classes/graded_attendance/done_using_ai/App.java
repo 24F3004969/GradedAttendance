@@ -1,4 +1,4 @@
-package org.graded_classes.graded_attendance.test;
+package org.graded_classes.graded_attendance.done_using_ai;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;

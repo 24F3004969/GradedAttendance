@@ -1,8 +1,8 @@
 package org.graded_classes.graded_attendance.planner;
 
 import atlantafx.base.controls.CustomTextField;
-import atlantafx.base.controls.ModalPane;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -15,11 +15,13 @@ import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
 
 public class TopicCreator implements Initializable {
-    private final Planner planner;
+    final Planner planner;
     private final String subject;
     private final String className;
     private final String topic;
@@ -28,59 +30,46 @@ public class TopicCreator implements Initializable {
     private CustomTextField subtopicName;
     @FXML
     TitledPane titledPane;
-    ArrayList<HBox> subtopicList = new ArrayList<>();
-    String topic_id;
+    ObservableList<HBox> observableSubtopics = FXCollections.observableArrayList();
+    LinkedHashMap<Integer, HBox> integerHBoxLinkedHashMap = new LinkedHashMap<>();
+    int topic_id;
+    Lesson lesson;
 
-    public TopicCreator(Planner planner, String subject, String className, String topic, String topic_id) {
+    public TopicCreator(Planner planner, String subject, String className, String topic, int topic_id, Lesson lesson) {
         this.planner = planner;
         this.subject = subject;
         this.className = className;
         this.topic = topic;
         this.topic_id = topic_id;
+        this.lesson = lesson;
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        IO.println(subject + " " + className + " " + topic + " " + topic_id);
         titledPane.setText(topic);
         var listOfSubtopics = getSubtopic();
-        IO.println(listOfSubtopics);
         if (listOfSubtopics != null && !listOfSubtopics.isEmpty()) {
-            var v = listOfSubtopics.split(",");
-            for (var x : v) {
-                HBox node = (HBox) planner.createView(R.add_subtopic, new SubtopicCreator(planner, x));
-                subtopicList.add(node);
-                subtopicListView.setItems(FXCollections.observableList(subtopicList));
+            for (var x : listOfSubtopics) {
+                HBox node = (HBox) planner.createView(R.add_subtopic, new SubtopicCreator(this, x.name(), x.id()));
+                integerHBoxLinkedHashMap.put(x.id(), node);
             }
         }
+        observableSubtopics.addAll(integerHBoxLinkedHashMap.values());
+        subtopicListView.setItems(observableSubtopics);
     }
 
     @FXML
     void editTopic() {
         planner.modalPane.setAlignment(Pos.CENTER);
-        planner.modalPane.show(planner.createView(R.edit_topic));
+        planner.modalPane.show(planner.createView(R.edit_topic,new EditTopic(this)));
     }
 
     @FXML
     void removeTopic() {
-
-    }
-
-    public void addSubTopic() {
-        String name = subtopicName.getText();
-        HBox node = (HBox) planner.createView(R.add_subtopic, new SubtopicCreator(planner, name));
-        subtopicList.add(node);
-        subtopicListView.setItems(FXCollections.observableList(subtopicList));
-        updateSubtopic(name);
-    }
-
-    public void updateSubtopic(String newSubtopic) {
-        String sql = "UPDATE Subtopics SET subtopic_name = ? WHERE subject = ? AND subject = ? AND topic_id = ?";
+        lesson.viewBox.getChildren().remove(lesson.topicHashMap.get(topic_id));
+        String sql = "delete from Topics where topic_id = ?";
         try (PreparedStatement pst = planner.gradedDataLoader.databaseLoader.getConnection().prepareStatement(sql)) {
-            pst.setString(1, addNewSubtopic(newSubtopic));
-            pst.setString(2, className);
-            pst.setString(3, subject);
-            pst.setString(4, topic);
+            pst.setInt(1, topic_id);
 
             int rowsAffected = pst.executeUpdate();
             if (rowsAffected > 0) {
@@ -93,29 +82,58 @@ public class TopicCreator implements Initializable {
         }
     }
 
-    private String addNewSubtopic(String newSubtopic) {
-        var previousSubtopic = getSubtopic();
-        if (previousSubtopic != null) {
-            return previousSubtopic + "," + newSubtopic;
+    public void addSubTopic() {
+        String name = subtopicName.getText();
+        int id = addSubtopic(name);
+        if (id != -1) {
+            HBox node = (HBox) planner.createView(R.add_subtopic, new SubtopicCreator(this, name, id));
+            integerHBoxLinkedHashMap.put(id, node);
+            observableSubtopics.add(node);
         }
-        return newSubtopic;
+    }
+    public int addSubtopic(String newSubtopic) {
+
+        String insertSql = "INSERT INTO Subtopics (subtopic_name, subject, topic_id) VALUES (?, ?, ?)";
+
+        try (PreparedStatement pst = planner.gradedDataLoader.databaseLoader
+                .getConnection().prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
+
+            pst.setString(1, newSubtopic);
+            pst.setString(2, subject);
+            pst.setInt(3, topic_id);
+
+            int affectedRows = pst.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet rs = pst.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        int generatedId = rs.getInt(1);
+                        System.out.println("New subtopic inserted with ID: " + generatedId);
+                        return generatedId;
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return -1; // fallback if insert failed
     }
 
-    public String getSubtopic() {
-        String subtopic = "";
-        String sql = "SELECT subtopic_name FROM Subtopics WHERE subject = ? AND topic_id = ?";
-
+    public ArrayList<SubTopic> getSubtopic() {
+        ArrayList<SubTopic> subtopic = new ArrayList<>();
+        String sql = "SELECT * FROM Subtopics WHERE subject = ? AND topic_id = ?";
         try (PreparedStatement pst = planner.gradedDataLoader.databaseLoader.getConnection().prepareStatement(sql)) {
 
             pst.setString(1, subject);
-            pst.setInt(2, Integer.parseInt(topic_id));
+            pst.setInt(2, topic_id);
 
             ResultSet rs = pst.executeQuery();
 
-            if (rs.next()) {
-                subtopic = rs.getString("subtopic_name");
+            while (rs.next()) {
+                subtopic.add(new SubTopic(rs.getInt("subtopic_id"), rs.getString("subtopic_name")));
             }
-            IO.println(subtopic+"   kjkl;j;lj;");
 
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());

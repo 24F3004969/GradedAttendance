@@ -1,17 +1,12 @@
-package org.graded_classes.graded_attendance.test;
+package org.graded_classes.graded_attendance.done_using_ai;
 
-import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.*;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.transform.Transform;
-import javafx.stage.Stage;
-import org.graded_classes.graded_attendance.GradedResourceLoader;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

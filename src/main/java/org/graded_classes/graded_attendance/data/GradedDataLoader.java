@@ -37,6 +37,8 @@ public class GradedDataLoader {
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/Questions.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/DailyTopics.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/fee_data.sql").getQuery());
+            databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/Topic.sql").getQuery());
+            databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/SubTopic.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/dueDates.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/token.sql").getQuery());
 

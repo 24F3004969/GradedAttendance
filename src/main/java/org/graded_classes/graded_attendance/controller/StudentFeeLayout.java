@@ -14,7 +14,7 @@ import javafx.util.Duration;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.controller.fee.FeeReceipt;
 import org.graded_classes.graded_attendance.data.FeeData;
-import org.graded_classes.graded_attendance.test.SnapshotUtil;
+import org.graded_classes.graded_attendance.done_using_ai.SnapshotUtil;
 
 import java.io.File;
 import java.net.URL;

@@ -1,8 +1,11 @@
-create table if not exists Subtopics
+
+CREATE TABLE IF NOT EXISTS Subtopics
 (
-    subtopic_id        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    subject            NOT NULL,
+    subtopic_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    subject TEXT NOT NULL,
     subtopic_name TEXT NOT NULL,
-    topic_id           NOT NULL,
-    FOREIGN KEY (topic_id) REFERENCES Topics (topic_id) ON DELETE CASCADE
+    topic_id INTEGER NOT NULL,
+    FOREIGN KEY (topic_id)
+        REFERENCES Topics (topic_id)
+        ON DELETE CASCADE
 );

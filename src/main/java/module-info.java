@@ -48,8 +48,8 @@ module org.graded_classes.graded_attendance {
     opens org.graded_classes.graded_attendance.calender;
     exports org.graded_classes.graded_attendance.components;
     opens org.graded_classes.graded_attendance.components;
-    exports org.graded_classes.graded_attendance.test;
-    opens org.graded_classes.graded_attendance.test;
+    exports org.graded_classes.graded_attendance.done_using_ai;
+    opens org.graded_classes.graded_attendance.done_using_ai;
     opens org.graded_classes.graded_attendance.controller.quiz to java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
     opens org.graded_classes.graded_attendance.data to java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
 }

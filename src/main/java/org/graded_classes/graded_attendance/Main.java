@@ -8,15 +8,12 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.graded_classes.graded_attendance.controller.MainController;
-import org.graded_classes.graded_attendance.test.SnapshotUtil;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.Objects;
 
 public class Main extends Application {

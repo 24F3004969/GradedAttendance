@@ -57,7 +57,7 @@
                         <VBox>
                            <children>
                               <Label text="Topic" />
-                              <SearchField fx:id="topicName" />
+                              <SearchField fx:id="topicName" stylesheets="@../css/atlantafx.css" />
                            </children>
                         </VBox>
                         <VBox>

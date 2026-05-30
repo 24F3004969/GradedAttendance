@@ -31,4 +31,4 @@ BEGIN
     )
     WHERE payment_id = NEW.payment_id;
 END;
--- Clear for repeatable test (optional in dev)
+-- Clear for repeatable done_using_ai (optional in dev)

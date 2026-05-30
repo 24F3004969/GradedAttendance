@@ -42,7 +42,7 @@
                     <Insets />
                 </VBox.margin>
                 <CustomTextField fx:id="topic" maxHeight="36.0" prefHeight="36.0" prefWidth="497.0" promptText="Topic" />
-                <Button id="add" mnemonicParsing="false" onAction="#addSubtopic" text="Add">
+                <Button id="add" mnemonicParsing="false" onAction="#addTopic" text="Add">
                     <graphic>
                         <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                             <Image url="@../icons/add.png" />
