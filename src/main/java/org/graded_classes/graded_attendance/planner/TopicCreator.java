@@ -68,7 +68,8 @@ public class TopicCreator implements Initializable {
     void removeTopic() {
         lesson.viewBox.getChildren().remove(lesson.topicHashMap.get(topic_id));
         String sql = "delete from Topics where topic_id = ?";
-        try (PreparedStatement pst = planner.gradedDataLoader.databaseLoader.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement pst = planner.gradedDataLoader.databaseLoader.getConnection().
+                prepareStatement(sql)) {
             pst.setInt(1, topic_id);
 
             int rowsAffected = pst.executeUpdate();

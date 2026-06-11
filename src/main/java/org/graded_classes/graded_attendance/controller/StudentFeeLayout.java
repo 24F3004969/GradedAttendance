@@ -49,7 +49,8 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
     private TextField reference_no;
     @FXML
     private ComboBox<String> mode;
-
+    @FXML
+    private DatePicker next_date;
     @FXML
     private TextField name_of_receiver;
     @FXML
@@ -62,13 +63,16 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
     MainController mainController;
     Node paymentNode;
     String name;
+    String nextDate;
 
     public StudentFeeLayout(MainController mainController, String ed, String name) {
         super(mainController.gradedDataLoader, ed);
         this.mainController = mainController;
         this.ed = ed;
         this.name = name;
+        nextDate = loadFeeData(ed);
     }
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -81,8 +85,27 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
         if (paymentNode != null) {
             splitPane.getItems().set(1, paymentNode);
         }
+        amount_to_pay.setText(mainController.gradedDataLoader.getStudentData().get(ed).getFee());
+        next_date.setValue(nextDate == null ? LocalDate.parse(mainController.gradedDataLoader.getStudentData().get(ed).getDoa()).plusDays(30) : LocalDate.parse(nextDate).plusDays(30));
         updateColorCode();
         startClock();
+    }
+
+    private String loadFeeData(String id) {
+        String dueDate = null;
+        try {
+            var stmt = mainController.gradedDataLoader.databaseLoader.getConnection();
+            String sql = "SELECT * FROM DueDate WHERE ed_no = ?";
+            PreparedStatement pst = stmt.prepareStatement(sql);
+            pst.setString(1, id);
+            ResultSet r = pst.executeQuery();
+            while (r.next()) {
+                dueDate = r.getString("last_due_date");
+            }
+        } catch (SQLException _) {
+
+        }
+        return dueDate;
     }
 
     private void updateColorCode() {
@@ -91,17 +114,28 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
         Map<Integer, String> map = generateMonthMap();
         if (!listOfMonthPaid.isEmpty()) {
             for (int i = 0; i < 12; i++) {
+                Button button = (Button) monthsGrid.getChildren().get(i);
+                int m = LocalDate.parse(mainController.gradedDataLoader.getStudentData().get(ed).getDoa()).getMonthValue();
+                if (i<m-1)
+                    button.setDisable(true);
                 if (listOfMonthPaid.contains(map.get(i))) {
-                    Button button = (Button) monthsGrid.getChildren().get(i);
                     button.getStylesheets().clear();
                     button.getStylesheets().add(loadURL("css/paid.css").toExternalForm());
                 } else if (!listOfMonthPaid.contains(map.get(i)) && rMap.get(map.get(i)) <=
                         rMap.get(listOfMonthPaid.getLast()) &&
                         rMap.get(map.get(i)) >= rMap.get(listOfMonthPaid.getFirst())) {
-                    Button button = (Button) monthsGrid.getChildren().get(i);
+                    button = (Button) monthsGrid.getChildren().get(i);
                     button.getStylesheets().clear();
                     button.getStylesheets().add(loadURL("css/unpaid.css").toExternalForm());
                 }
+            }
+        }
+        else {
+            for (int i = 0; i < 12; i++) {
+                Button button = (Button) monthsGrid.getChildren().get(i);
+                int m = LocalDate.parse(mainController.gradedDataLoader.getStudentData().get(ed).getDoa()).getMonthValue();
+                if (i<m-1)
+                    button.setDisable(true);
             }
         }
     }
@@ -281,8 +315,8 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
         final String dueAmount = due_amount.getText().isBlank() ? "0" : due_amount.getText().trim();
 
         // Use LocalDate for date columns (if DB column is DATE); if TEXT, stringify later.
-        final java.time.LocalDate today = java.time.LocalDate.now();
-        final java.time.LocalDate nextFeeDate = today.plusDays(30);
+        //final java.time.LocalDate today = LocalDate.parse(nextDate);
+        final java.time.LocalDate nextFeeDate = next_date.getValue();
         Parent node;
 
         node = (Parent) mainController.gradedFxmlLoader.createView(R.fee_receipt,
@@ -345,7 +379,7 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
                                 java.sql.PreparedStatement pst =
                                         conn.prepareStatement("UPDATE StudentData SET last_payment_date = ? WHERE ed_no = ?");
                                 // If last_payment_date is DATE:
-                                pst.setString(1, String.valueOf(today));
+                                pst.setString(1, String.valueOf(nextFeeDate.toString()));
                                 // If TEXT: pst.setString(1, today.toString());
                                 pst.setString(2, edNo);
                                 pst.executeUpdate();
@@ -406,7 +440,7 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
                                 """.formatted(mon,
                                 studentLite.name == null ? "" : studentLite.name,
                                 amount.toPlainString(),
-                                today);
+                                LocalDate.now());
 
                        /* mainController.messageSender.sendMessage(
                                 message,

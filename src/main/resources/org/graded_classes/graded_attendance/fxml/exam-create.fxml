@@ -56,17 +56,27 @@
                      <children>
                         <VBox>
                            <children>
-                              <Label text="Topic" />
-                              <SearchField fx:id="topicName" stylesheets="@../css/atlantafx.css" />
-                           </children>
-                        </VBox>
-                        <VBox>
-                           <children>
                               <Label text="Class" />
                               <ComboBox fx:id="classNum" prefWidth="150.0" />
                            </children>
                         </VBox>
                         <VBox>
+                           <children>
+                              <Label text="Board" />
+                              <ComboBox fx:id="board" prefWidth="150.0" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+                  <HBox spacing="20.0">
+                     <children>
+                        <VBox HBox.hgrow="ALWAYS">
+                           <children>
+                              <Label text="Topic" />
+                              <SearchField fx:id="topicName" stylesheets="@../css/atlantafx.css" />
+                           </children>
+                        </VBox>
+                        <VBox HBox.hgrow="ALWAYS">
                            <children>
                               <Label text="Subject" />
                               <SearchField fx:id="subject" />

@@ -29,7 +29,6 @@ import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.controller.MainController;
 import org.graded_classes.graded_attendance.data.OptionData;
 import org.graded_classes.graded_attendance.data.QuestionData;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -154,7 +153,7 @@ public class QuizTaker implements Initializable {
         }
     }
 
-    private @NotNull Button getButton(int i) {
+    private Button getButton(int i) {
         Button button = new Button();
         button.setText((i + 1) + "");
         button.setOnAction(event -> {

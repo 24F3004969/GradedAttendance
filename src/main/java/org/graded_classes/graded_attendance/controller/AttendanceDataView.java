@@ -3,6 +3,8 @@ package org.graded_classes.graded_attendance.controller;
 import atlantafx.base.controls.MaskTextField;
 import atlantafx.base.controls.ToggleSwitch;
 import atlantafx.base.theme.Styles;
+import com.dlsc.gemsfx.DialogPane;
+import com.dlsc.gemsfx.util.ControlsFXAtlantaFX;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,6 +14,9 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Region;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.TextAlignment;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.controller.fee.FeeReport;
@@ -33,6 +38,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.ResourceBundle;
+
 
 import static org.graded_classes.graded_attendance.GradedResourceLoader.loadURL;
 
@@ -85,11 +91,18 @@ public class AttendanceDataView implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         var dueReport = new FeeReport.FeeRepository().
-                duePaymentRecord(studentAttendance.mainController.gradedDataLoader.databaseLoader.getConnection(), FeeReport.FeeRepository.toAbbrevFromNumber(LocalDate.now().getMonthValue()-1).name());
+                duePaymentRecord(studentAttendance.mainController.gradedDataLoader.databaseLoader.getConnection(), FeeReport.FeeRepository.toAbbrevFromNumber(LocalDate.now().getMonthValue() - 1).name());
         if (dueReport.containsKey(ed_no.trim()))
             reminder.setText("Fee is not paid " + " due date is " + dueReport.get(ed_no.trim()).nextFeeDate().getValue());
 
         var x = studentAttendance.mainController.gradedDataLoader;
+        System.out.println(x.getStudentData().get(ed_no).getLastPaymentDate());
+        if (x.getStudentData().get(ed_no).getLastPaymentDate().isEmpty() ||
+                x.getStudentData().get(ed_no).getLastPaymentDate().isBlank()) {
+
+            reminder.setText("Fee is unpied and admission is not done");
+            showWarningDialog();
+        }
         Student student = x.getStudentData().get(ed_no);
         uId.setText(student.ed_no());
         uName.setText(firstLetterToUpperCase(student.name()));
@@ -109,6 +122,27 @@ public class AttendanceDataView implements Initializable {
         }
         update();
         edit.setOnSelectionChanged(_ -> extracted());
+    }
+
+    private void showWarningDialog() {
+
+        com.dlsc.gemsfx.DialogPane dialogPane = new com.dlsc.gemsfx.DialogPane();
+        com.dlsc.gemsfx.DialogPane.Dialog<ButtonType> dialog = new DialogPane.Dialog<>(dialogPane, DialogPane.Type.ERROR);
+        dialog.setTitle("Fee Pending Warning");
+        dialog.setContentAlignment(Pos.CENTER);
+        Label content = new Label("""    
+                Your admission is confirmed, but the fee is still unpaid. Please clear the dues immediately to avoid cancellation.
+                Admission Date %s
+                """.formatted(studentAttendance.mainController.gradedDataLoader.
+                getStudentData().get(ed_no).getDoa()));
+        content.setTextAlignment(TextAlignment.CENTER);
+        content.setPrefSize(400, 300);
+        content.setWrapText(true);
+        content.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+        content.setOnMouseClicked(e -> dialog.cancel());
+        dialog.setContent(content);
+        studentAttendance.mainController.stackPane.getChildren().add(dialogPane);
+        dialog.show();
     }
 
     private void makeAttendance() {

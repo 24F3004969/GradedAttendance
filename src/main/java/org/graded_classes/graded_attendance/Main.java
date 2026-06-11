@@ -10,7 +10,6 @@ import javafx.stage.Stage;
 import org.graded_classes.graded_attendance.controller.MainController;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -25,24 +24,14 @@ public class Main extends Application {
         fxmlLoader.setControllerFactory(_ -> new MainController(stage));
         Parent root = fxmlLoader.load();
         var scene = new Scene(root);
-
         long millis = 1773253800000L;
         Instant instant = Instant.ofEpochMilli(millis);
-
         ZoneId zone = ZoneId.of("Asia/Kolkata");
         LocalDate date = instant.atZone(zone).toLocalDate();
-        try {
-            System.out.println(Main.class.getResource("css/motivation.json").toURI());
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-
-        //scene.setFill(Paint.valueOf("#fafafa00"));
         stage.setTitle("Graded Management");
         Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
         stage.setScene(scene);
         stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("icons/app_icon.png"))));
-        //stage.initStyle(StageStyle.TRANSPARENT);
         stage.setOnCloseRequest(_ -> System.exit(1));
         stage.centerOnScreen();
         stage.show();

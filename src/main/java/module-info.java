@@ -33,7 +33,7 @@ module org.graded_classes.graded_attendance {
     requires com.dlsc.gemsfx;
     requires com.lottie4j.core;
     requires com.lottie4j.fxplayer;
-    requires org.jetbrains.annotations;
+
 
 
     opens org.graded_classes.graded_attendance.controller to javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc, java.sql;

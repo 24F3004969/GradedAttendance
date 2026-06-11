@@ -11,10 +11,6 @@ import static org.graded_classes.graded_attendance.GradedResourceLoader.loadURL;
 
 public class AddPeople {
    HomeController homeController;
-   // @FXML
-   // private WebView body_pane_back;
-    //WebEngine webEngine1;
-
     public AddPeople(HomeController homeController) {
 
       this.homeController = homeController;
@@ -22,8 +18,6 @@ public class AddPeople {
 
     @FXML
     void initialize() {
-        //webEngine1 = body_pane_back.getEngine();
-        //webEngine1.load(loadURL("fxml/app.html").toString());
     }
 
     @FXML

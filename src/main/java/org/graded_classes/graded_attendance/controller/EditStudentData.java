@@ -98,9 +98,13 @@ public class EditStudentData implements Initializable {
             currentFee.setText(studentData.get(edNumber).getFee());
         var v = studentData.get(edNumber).subjects();
         for (var s : v) {
-            var x = (CheckBox) formBox.lookup("#" + s);
-            if (x != null)
+            System.out.println(s);
+            var x = (CheckBox) formBox.lookup("#" + s.trim());
+            System.out.println(x);
+            if (x != null){
+                System.out.println(x.getId());
                 x.setSelected(true);
+            }
             list_of_subjects.add(s);
         }
     }

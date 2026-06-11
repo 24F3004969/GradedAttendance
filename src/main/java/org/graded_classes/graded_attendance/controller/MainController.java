@@ -65,7 +65,7 @@ public class MainController implements Initializable {
     public ModalPane modalPane;
     public GradedFxmlLoader gradedFxmlLoader = new GradedFxmlLoader();
     @FXML
-    BorderPane main_view;
+    public BorderPane main_view;
     public GradedDataLoader gradedDataLoader = new GradedDataLoader(this);
     public MessageSender messageSender;
     StudentDataLoader studentDataLoader;

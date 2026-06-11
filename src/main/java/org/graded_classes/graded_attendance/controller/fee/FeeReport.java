@@ -52,7 +52,7 @@ public class FeeReport implements Initializable {
     @FXML
     TableColumn<FeeData, Button> sendNotification;
     ObservableList<FeeData> items = FXCollections.observableList(new ArrayList<>());
-    TreeMap<String, FeeData> duePaymentRecord, last_10_day;
+    TreeMap<String, FeeData> duePaymentRecord, last_10_day,fine;
 
     @FXML
     private Label current_date;
@@ -119,17 +119,21 @@ public class FeeReport implements Initializable {
         duePaymentRecord.clear();
         segmentControl.getSegments().getFirst().setSelected(true);
         duePaymentRecord = feeRepository.duePaymentRecord(mainController.
-                gradedDataLoader.databaseLoader.getConnection(), FeeRepository.toAbbrevFromNumber(StudentFeeLayout.generateMonthMapInt().get(checkMenuItem.getText())).name());
+                gradedDataLoader.databaseLoader.getConnection(), FeeRepository.toAbbrevFromNumber
+                (StudentFeeLayout.generateMonthMapInt().get(checkMenuItem.getText())).name());
+        fine=feeRepository.duePaymentRecordMoreThanOneMonth(mainController. gradedDataLoader.databaseLoader.getConnection());
         double totalSumOfMoney;
         if (checkMenuItem.getText().equals(FeeRepository.toAbbrevFromNumber(LocalDate.now().getMonthValue()).name())) {
             totalSumOfMoney = mainController.gradedDataLoader.getStudentData().
                     values().stream().filter(sd ->
-                            isValidMonth(sd.getDoa(), checkMenuItem.getText())).mapToDouble(sd -> Double.parseDouble(sd.getFee())).sum();
+                            isValidMonth(sd.getDoa(), checkMenuItem.getText())).mapToDouble(sd ->
+                            Double.parseDouble(sd.getFee())).sum();
         } else {
             totalSumOfMoney = getCollection("" + LocalDate.now().getYear(), checkMenuItem.getText());
         }
         double totalCollection = feeRecords.
                 values().stream().mapToDouble(FeeData::amount).sum();
+        System.out.println(totalCollection);
         feeCollected.setText("₹" + String.format("%,d", (long) totalCollection));
         feeLeft.setText("₹" + String.format("%,d", (int) (totalSumOfMoney - totalCollection)));
     }
@@ -144,7 +148,8 @@ public class FeeReport implements Initializable {
 
         String sql = "SELECT collection FROM monthly_collection WHERE year = ? AND month = ?";
 
-        try (PreparedStatement pstmt = mainController.gradedDataLoader.databaseLoader.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement pstmt = mainController.gradedDataLoader.databaseLoader.
+                getConnection().prepareStatement(sql)) {
 
             pstmt.setString(1, year);
             pstmt.setString(2, month);
@@ -168,7 +173,8 @@ public class FeeReport implements Initializable {
                 "VALUES (?, ?, ?) " +
                 "ON CONFLICT(year, month) DO UPDATE SET collection = excluded.collection";
 
-        try (PreparedStatement pstmt = mainController.gradedDataLoader.databaseLoader.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement pstmt = mainController.gradedDataLoader.databaseLoader.getConnection().
+                prepareStatement(sql)) {
 
             pstmt.setString(1, year);
             pstmt.setString(2, month);
@@ -271,6 +277,8 @@ public class FeeReport implements Initializable {
         dueAmount.setCellValueFactory(map -> map.getValue().dueAmount());
         referenceNo.setCellValueFactory(map -> map.getValue().referenceNo() == null ?
                 new SimpleStringProperty("") : map.getValue().referenceNo());
+        fine=feeRepository.duePaymentRecordMoreThanOneMonth(mainController. gradedDataLoader.databaseLoader.getConnection());
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 // 2. Sort the TreeMap entries by the payDate field inside FeeData
@@ -300,7 +308,7 @@ public class FeeReport implements Initializable {
                     for (var keys : sortedFeeRecords.keySet()) {
                         items.add(feeRecords.get(keys));
                     }
-                } else if (l.getText().equals("Unpaid")) {
+                } else if (l.getText().equals("Unpaid for current month")) {
                     total_num.setText("");
                     items.clear();
                     payID.setVisible(false);
@@ -362,10 +370,22 @@ public class FeeReport implements Initializable {
                         items.add(last_10_day.get(keys));
                     }
                 }
+                else if (l.getText().equals("All Dues")) {
+                    referenceNo.setVisible(false);
+                    mode.setVisible(false);
+                    payDate.setVisible(false);
+                    sendNotification.setVisible(false);
+                    dueData.setVisible(true);
+                    items.clear();
+                    for (var keys : fine.keySet()) {
+                        total_num.setText("");
+                        items.add(fine.get(keys));
+                    }
+                }
             }
         });
         FilteredList<FeeData> filteredData = new FilteredList<>(items, _ -> true);
-        filterText.textProperty().addListener((observable, oldValue, newValue) -> {
+        filterText.textProperty().addListener((_, _, newValue) -> {
             filteredData.setPredicate(val -> {
                 if (newValue == null || newValue.isEmpty()) {
                     return true;
@@ -384,11 +404,11 @@ public class FeeReport implements Initializable {
 
     private void addSegmentControl() {
         segmentControl.getSegments().add(new ToggleLabel("Paid"));
-        segmentControl.getSegments().add(new ToggleLabel("Unpaid"));
+        segmentControl.getSegments().add(new ToggleLabel("Unpaid for current month"));
         segmentControl.getSegments().add(new ToggleLabel("Online"));
         segmentControl.getSegments().add(new ToggleLabel("Offline"));
         segmentControl.getSegments().add(new ToggleLabel("Due Date in 10 days"));
-        segmentControl.getSegments().add(new ToggleLabel("Fine"));
+        segmentControl.getSegments().add(new ToggleLabel("All Dues"));
     }
 
     private String format(String date) {
@@ -433,6 +453,79 @@ public class FeeReport implements Initializable {
                       and month='%s'
                       AND DATE(dd.last_due_date) = DATE(fp.next_fee_date)
                     """.formatted(monthName);
+
+            TreeMap<String, FeeData> map = new TreeMap<>();
+
+            try {
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery();
+
+                while (rs.next()) {
+                    Integer paymentId = getInteger(rs, "payment_id");
+                    String edNo = rs.getString("ed_no");
+                    String monthRaw = rs.getString("month");
+                    double amount = rs.getDouble("amount");
+                    String paidOn = rs.getString("paid_on");
+                    String nextFeeDate = rs.getString("next_fee_date");
+                    String collectedByName = rs.getString("collected_by_name");
+                    String paymentModeRaw = rs.getString("payment_mode");
+                    String gatewayRaw = rs.getString("gateway");
+                    String referenceNo = rs.getString("reference_no");
+                    String dueAmount = rs.getString("due_amount");
+
+                    FeeData.MonthAbbrev month = parseMonthAbbrev(monthRaw);
+                    FeeData.PaymentMode mode = parsePaymentMode(paymentModeRaw);
+                    FeeData.Gateway gateway = parseGateway(gatewayRaw);
+
+                    FeeData data = new FeeData(
+                            paymentId,
+                            edNo,
+                            rs.getString("student_name"),
+                            month,
+                            amount,
+                            nullToEmpty(paidOn),
+                            nullToEmpty(nextFeeDate),
+                            nullToEmpty(collectedByName),
+                            mode,
+                            gateway,
+                            nullToEmpty(referenceNo),
+                            nullToEmpty(dueAmount)
+                    );
+
+                    // Key by ed_no (change to something else if you prefer)
+                    map.put(edNo, data);
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+            return map;
+        }
+
+        public TreeMap<String, FeeData> duePaymentRecordMoreThanOneMonth(Connection conn) {
+
+            // Safer than NATURAL JOIN + SELECT *:
+            //  - Picks the exact columns needed for FeeData
+            //  - Ensures date comparison is on real dates, not plain text
+            final String sql = """
+                    SELECT
+                        fp.payment_id          AS payment_id,
+                        fp.ed_no               AS ed_no,
+                        fp.student_name        AS student_name,
+                        fp.month               AS month,           -- can be 'Jan'.. or numeric; we'll parse
+                        fp.amount              AS amount,
+                        fp.paid_on             AS paid_on,
+                        fp.next_fee_date       AS next_fee_date,
+                        fp.collected_by_name   AS collected_by_name,
+                        fp.payment_mode        AS payment_mode,    -- 'Online' / 'Offline'
+                        fp.gateway             AS gateway,         -- 'UPI','Card','NetBanking','Cash','Cheque'
+                        fp.reference_no        AS reference_no,
+                        fp.due_amount          AS due_amount
+                    FROM fee_payments fp
+                             JOIN DueDate dd USING (ed_no)
+                    WHERE DATE('now') >= DATE(dd.last_due_date)
+                      AND DATE(dd.last_due_date) = DATE(fp.next_fee_date)
+                    """;
 
             TreeMap<String, FeeData> map = new TreeMap<>();
 

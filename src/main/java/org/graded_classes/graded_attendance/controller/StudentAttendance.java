@@ -17,6 +17,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.graded_classes.graded_attendance.GradedFxmlLoader;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
+import org.graded_classes.graded_attendance.controller.fee.FeeReport;
 import org.graded_classes.graded_attendance.data.Attendance;
 import org.graded_classes.graded_attendance.data.DailyTopics;
 
@@ -81,10 +82,10 @@ public class StudentAttendance implements Initializable {
         this.gradedFxmlLoader = gradedFxmlLoader;
         this.outer_main_box = outer_main_box;
         this.id = id;
-        init();
+        loadAttendanceData();
     }
 
-    private void init() {
+    private void loadAttendanceData() {
         String date = LocalDate.now().toString();
         try {
             var stmt = mainController.gradedDataLoader.databaseLoader.getConnection();
@@ -93,18 +94,17 @@ public class StudentAttendance implements Initializable {
             pst.setString(1, date);
             ResultSet r = pst.executeQuery();
             while (r.next()) {
-
                 attendanceMap.put(r.getString("ed_no"),
                         new Attendance(r.getString("check_in"),
                                 r.getString("check_out"),
-                                getAsRequired(r.getString("homework")), r.getString("topic_taught")));
+                                getAsRequired(r.getString("homework")),
+                                r.getString("topic_taught")));
             }
-            System.out.println(attendanceMap);
-
         } catch (SQLException _) {
 
         }
     }
+
 
 
     private Boolean getAsRequired(String homework) {

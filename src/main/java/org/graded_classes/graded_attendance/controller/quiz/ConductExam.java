@@ -6,10 +6,10 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -39,15 +39,18 @@ public class ConductExam implements Initializable {
 
     @FXML
     private Label today;
+    private final ArrayList<ExamData> examSchedular;
 
-    public ConductExam(MainController mainController) {
+    public ConductExam(MainController mainController, ArrayList<ExamData> examSchedular) {
         this.mainController = mainController;
+        this.examSchedular = examSchedular;
     }
 
     @FXML
-    void addNewExam(ActionEvent event) {
+    void addNewExam() {
         mainController.modalPane.setPersistent(true);
-        mainController.modalPane.show(mainController.gradedFxmlLoader.createView(R.exam_create, new ExamCreator(mainController)));
+        Node node = mainController.gradedFxmlLoader.createView(R.exam_create, new ExamCreator(mainController,this));
+        mainController.modalPane.show(node);
     }
 
     @Override
@@ -73,63 +76,9 @@ public class ConductExam implements Initializable {
             });
             return new SimpleObjectProperty<>(button);
         });
-
-        ExamData exam1 = new ExamData(
-                "1",
-                "VI",               // Roman numeral class
-                LocalDate.now().toString(),      // date of exam
-                "Room 3D",
-                "Math",
-                LocalTime.now().plusHours(1).format(DateTimeFormatter.ofPattern("hh:mm:ss a")),
-                "Number System"
-        );
-
-        ExamData exam2 = new ExamData(
-                "2",
-                "VII",              // Roman numeral class
-                LocalDate.now().toString(),
-                "Room 3D",
-                "Math",
-                LocalTime.now().plusHours(2).format(DateTimeFormatter.ofPattern("hh:mm:ss a")),
-                "Integer"
-        );
-        ExamData exam3 = new ExamData(
-                "3",
-                "VIII",              // Roman numeral class
-                LocalDate.now().toString(),
-                "Room 3D",
-                "Math",
-                LocalTime.now().plusHours(2).format(DateTimeFormatter.ofPattern("hh:mm:ss a")),
-                "Rational Number"
-        );
-        ExamData exam4 = new ExamData(
-                "4",
-                "IX",              // Roman numeral class
-                LocalDate.now().toString(),
-                "Room 3D",
-                "Math",
-                LocalTime.now().plusHours(2).format(DateTimeFormatter.ofPattern("hh:mm:ss a")),
-                "Indices"
-        );
-        ExamData exam5 = new ExamData(
-                "5",
-                "X(ICSE)",              // Roman numeral class
-                LocalDate.now().toString(),
-                "Room 3D",
-                "Math",
-                LocalTime.now().plusHours(2).format(DateTimeFormatter.ofPattern("hh:mm:ss a")),
-                "Factorization"
-        );
-        ExamData exam6 = new ExamData(
-                "6",
-                "X(CBSE)",              // Roman numeral class
-                LocalDate.now().toString(),
-                "Room 3D",
-                "Math",
-                LocalTime.now().plusHours(2).format(DateTimeFormatter.ofPattern("hh:mm:ss a")),
-                "Quadratic Equation"
-        );
-        items.addAll(exam1, exam2, exam3, exam4, exam5,exam6);
+        for (var sec : examSchedular) {
+            items.addAll(sec);
+        }
         scheduleTable.setItems(items);
     }
 

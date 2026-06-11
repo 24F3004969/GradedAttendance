@@ -48,7 +48,8 @@ VALUES (101, 2, 2, '2026-05-10', 'MCQ', 'Easy', 'What is the SI unit of force?',
        (119, 2, 2, '2026-05-10', 'MCQ', 'Medium', 'In a step-down transformer:', NULL),
        (120, 2, 2, '2026-05-10', 'MCQ', 'Medium', 'A sound wave has frequency 256 Hz. What is its time period?', NULL);
 
-INSERT INTO QuestionOptions (question_id, option_text, option_img_path, option_order, is_correct) VALUES
+INSERT INTO QuestionOptions (question_id, option_text, option_img_path, option_order, is_correct)
+VALUES
 -- Q1
 (1, '5', NULL, 1, 1),
 (1, '-5', NULL, 2, 0),
@@ -78,7 +79,6 @@ INSERT INTO QuestionOptions (question_id, option_text, option_img_path, option_o
 (5, '-35', NULL, 2, 0),
 (5, '0', NULL, 3, 0),
 (5, '1', NULL, 4, 0),
-
 -- Q6
 (6, '-3', NULL, 1, 0),
 (6, '-7', NULL, 2, 0),
@@ -169,7 +169,8 @@ INSERT INTO QuestionOptions (question_id, option_text, option_img_path, option_o
 (20, '-15', NULL, 3, 0),
 (20, '15', NULL, 4, 0);
 
-INSERT INTO QuestionOptions (question_id, option_text, option_img_path, option_order, is_correct) VALUES
+INSERT INTO QuestionOptions (question_id, option_text, option_img_path, option_order, is_correct)
+VALUES
 -- Q101
 (101, 'Newton', NULL, 1, 1),
 (101, 'Joule', NULL, 2, 0),
