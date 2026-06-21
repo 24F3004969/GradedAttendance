@@ -3,6 +3,7 @@ package org.graded_classes.graded_attendance.controller.quiz;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import org.graded_classes.graded_attendance.components.LatexView;
@@ -12,7 +13,8 @@ import java.net.URL;
 import java.util.*;
 
 public class QuestionTakerWthOp implements Initializable {
-
+    @FXML
+    public ToggleGroup ans;
     @FXML
     private LatexView opt1;
 
@@ -54,7 +56,8 @@ public class QuestionTakerWthOp implements Initializable {
        /* if (selectedOptions.containsKey(optionId)) {
             selectedOptions.get(optionId).add(questionData.option_data().options().get(optionId - 1));
         }*/
-            selectedOptions.put(questionData, new ArrayList<>(List.of(optionId)));
+        selectedOptions.put(questionData, new ArrayList<>(List.of(optionId)));
+
 
     }
 }

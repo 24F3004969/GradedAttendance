@@ -139,7 +139,7 @@ public class QuizGenerator implements Initializable {
         }
     }
 
-     ArrayList<ExamData> initExamSchedule() {
+    ArrayList<ExamData> initExamSchedule() {
 
         ArrayList<ExamData> examList = new ArrayList<>();
 
@@ -151,6 +151,7 @@ public class QuizGenerator implements Initializable {
                            e.subject,
                            e.start_time,
                            e.end_time,
+                           t.topic_id,
                            t.topic_name
                     FROM ExamScheduler e
                     LEFT JOIN Topics t ON e.topic_id = t.topic_id
@@ -167,7 +168,8 @@ public class QuizGenerator implements Initializable {
                 String room = rs.getString("room_no");
                 String subject = rs.getString("subject");
                 String time = rs.getString("start_time") + " - " + rs.getString("end_time");
-                String topic = rs.getString("topic_name");
+                String topic_id = rs.getString("topic_id");
+                String topic_name = rs.getString("topic_name");
                 ExamData exam = new ExamData(
                         id,
                         classes,
@@ -175,7 +177,8 @@ public class QuizGenerator implements Initializable {
                         room,
                         subject,
                         time,
-                        topic
+                        topic_id,
+                        topic_name
                 );
                 examList.add(exam);
             }

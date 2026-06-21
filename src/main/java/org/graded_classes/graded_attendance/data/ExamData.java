@@ -5,5 +5,6 @@ public record ExamData(String id,
                        String room,
                        String subject,
                        String time,
-                       String topic) {
+                       String topic_id,
+                       String topic_name) {
 }

@@ -59,8 +59,9 @@ public class ExamCreator implements Initializable {
 
     ));
     MainController mainController;
-ConductExam conductExam;
-    public ExamCreator(MainController mainController,ConductExam conductExam) {
+    ConductExam conductExam;
+
+    public ExamCreator(MainController mainController, ConductExam conductExam) {
         this.mainController = mainController;
         this.conductExam = conductExam;
         init();
@@ -93,8 +94,8 @@ ConductExam conductExam;
 
     @FXML
     void create() {
-        var exam=initDb();
-        if (exam!=null) {
+        var exam = initDb();
+        if (exam != null) {
             conductExam.items.add(exam);
         }
         mainController.modalPane.hide();
@@ -112,13 +113,13 @@ ConductExam conductExam;
             PreparedStatement pstmt = conn.prepareStatement(sql);
             String classValue = classNum.getValue();
             String subjectValue = subject.getSelectedItem();
-            String topicValue = topicName.getSelectedItem();
+            String topicName = this.topicName.getSelectedItem();
             String roomValue = roomNo.getValue();
 
             String examDate = exam.getValue().toString();
             String start = startTime.getTime().toString();
             String end = endTime.getTime().toString();
-            int topicId = getTopicId(conn, topicValue, subjectValue, classValue);
+            int topicId = getTopicId(conn, topicName, subjectValue, classValue);
             pstmt.setInt(1, topicId);
             pstmt.setString(2, subjectValue);
             pstmt.setString(3, classValue);
@@ -130,23 +131,58 @@ ConductExam conductExam;
             pstmt.executeUpdate();
 
             ResultSet rs = pstmt.getGeneratedKeys();
-            int generatedId=-1;
+            int generatedId = -1;
             if (rs.next()) {
                 generatedId = rs.getInt(1);
             }
-
+            createExamQuestion(conn, generatedId, topicId);
             return new ExamData(
-                    ""+generatedId,
+                    "" + generatedId,
                     classValue,
                     examDate,
                     roomValue,
                     subjectValue,
-                    start+"-"+end,topicValue
+                    start + "-" + end,
+                    "" + topicId,
+                    topicName
             );
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private void createExamQuestion(Connection conn, int generatedId, int topicId) {
+        String sql = """
+                   select * from Questions where topic_id = ?;
+                """;
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, topicId);
+            ResultSet rs = pstmt.executeQuery();
+            int count = 1;
+            while (rs.next()) {
+                int quesId = rs.getInt("question_id");
+                String innerSql = """
+                            INSERT INTO ExamQuestion
+                            (exam_id,question_id)
+                            VALUES (?, ?)
+                        """;
+                try {
+                    PreparedStatement innerPst = conn.prepareStatement(innerSql);
+                    innerPst.setInt(1, generatedId);
+                    innerPst.setInt(2, quesId);
+                    innerPst.executeUpdate();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                count++;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     private int getTopicId(Connection conn, String topic, String subject, String className) {

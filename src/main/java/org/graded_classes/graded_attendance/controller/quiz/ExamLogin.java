@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.components.KeyHook;
 import org.graded_classes.graded_attendance.controller.MainController;
+import org.graded_classes.graded_attendance.data.ExamData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,12 +26,14 @@ public class ExamLogin {
     String rollCode;
     String name;
     String seatNo;
+    ExamData examInfo;
 
-    public ExamLogin(MainController mainController, String rollCode, String name, String seatNo) {
+    public ExamLogin(MainController mainController, String rollCode, String name, String seatNo, ExamData examInfo) {
         this.mainController = mainController;
         this.rollCode = rollCode;
         this.name = name;
         this.seatNo = seatNo;
+        this.examInfo = examInfo;
     }
 
     private static final int PARTICLE_COUNT = 90;

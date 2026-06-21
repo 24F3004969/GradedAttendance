@@ -1,5 +1,6 @@
 package org.graded_classes.graded_attendance.controller.quiz;
 
+import atlantafx.base.theme.Styles;
 import com.lottie4j.core.file.LottieFileLoader;
 import com.lottie4j.core.model.animation.Animation;
 import com.lottie4j.fxplayer.LottiePlayer;
@@ -9,10 +10,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -29,6 +27,8 @@ import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.controller.MainController;
 import org.graded_classes.graded_attendance.data.OptionData;
 import org.graded_classes.graded_attendance.data.QuestionData;
+import org.jetbrains.annotations.NotNull;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -46,15 +46,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
-import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class QuizTaker implements Initializable {
-
     Timeline timeline;
     LocalTime totalTime;
+    ArrayList<ToggleGroup> groups = new ArrayList<>();
     @FXML
     private TilePane questionNum;
     @FXML
@@ -65,27 +64,38 @@ public class QuizTaker implements Initializable {
     private VBox questionStack;
     @FXML
     private Label timer;
+    Button[] QNumBox;
     int indexOfQuestion = 0;
     MainController mainController;
     ArrayList<QuestionData> questionList = new ArrayList<>();
     ArrayList<SplitPane> listOfSplitPane = new ArrayList<>();
     LinkedHashMap<QuestionData, ArrayList<Integer>> selectedOptions = new LinkedHashMap<>();
+    int selectedButtonIndex = 0;
+    StudentExamLogin studentExamLogin;
 
-    public QuizTaker(MainController mainController) {
+    public QuizTaker(MainController mainController, StudentExamLogin studentExamLogin) {
         this.mainController = mainController;
+        this.studentExamLogin = studentExamLogin;
         CompletableFuture.runAsync(this::initDb);
     }
 
     private void initDb() {
         try {
             var connection = mainController.gradedDataLoader.databaseLoader.getConnection();
-            var sql = "select * from Questions where user_id=1";
+            var sql = """
+                    select *
+                    from ExamQuestion
+                             join Questions on Questions.question_id = ExamQuestion.question_id
+                    where exam_id = %s
+                    """.
+                    formatted(studentExamLogin.examLogin.examInfo.id());
             PreparedStatement pst = connection.prepareStatement(sql);
             var rs = pst.executeQuery();
             while (rs.next()) {
                 var inner_sql = "Select * from QuestionOptions where question_id=?";
                 PreparedStatement _pst = connection.prepareStatement(inner_sql);
-                _pst.setString(1, rs.getString("question_id"));
+                String questionId = rs.getString("question_id");
+                _pst.setString(1, questionId);
                 var _rs = _pst.executeQuery();
                 OptionData questionOption = null;
                 ArrayList<String> options = new ArrayList<>();
@@ -97,7 +107,7 @@ public class QuizTaker implements Initializable {
                         correctId = options.size();
                 }
                 questionOption = new OptionData(correctId, options);
-                QuestionData questionData = new QuestionData(rs.getString("question_id"),
+                QuestionData questionData = new QuestionData(questionId,
                         rs.getString("topic_id"),
                         rs.getString("user_id"),
                         rs.getString("date_of_making"),
@@ -119,7 +129,35 @@ public class QuizTaker implements Initializable {
                 ++indexOfQuestion : listOfSplitPane.size() - 1;
         VBox.setVgrow(listOfSplitPane.get(index), Priority.ALWAYS);
         questionStack.getChildren().set(1, listOfSplitPane.get(index));
-        question_num.setText("Question " + (index + 1));
+        if (selectedOptions.containsKey(questionList.get(index - 1))) {
+            if (QNumBox[index - 1].getStyleClass().size() < 3)
+                QNumBox[index - 1].getStyleClass().
+                        addAll(Styles.SUCCESS);
+            else
+                QNumBox[index - 1].getStyleClass().
+                        set(2, Styles.SUCCESS);
+        }
+        if (!selectedOptions.containsKey(questionList.get(index))) {
+            if (QNumBox[index].getStyleClass().size() < 3)
+                QNumBox[index].getStyleClass().
+                        addAll(Styles.DANGER);
+            else
+                QNumBox[index].getStyleClass().
+                        set(2, Styles.DANGER);
+            question_num.setText("Question " + (index + 1));
+        } else {
+            if (QNumBox[index].getStyleClass().size() < 3)
+                QNumBox[index].getStyleClass().
+                        addAll(Styles.SUCCESS);
+            else
+                QNumBox[index].getStyleClass().
+                        set(2, Styles.SUCCESS);
+            question_num.setText("Question " + (index + 1));
+        }
+        selectedButtonIndex = index;
+        QNumBox[index - 1].setGraphic(null);
+        QNumBox[selectedButtonIndex].setGraphic(getFontIcon());
+        QNumBox[selectedButtonIndex].setContentDisplay(ContentDisplay.BOTTOM);
     }
 
     @FXML
@@ -135,6 +173,10 @@ public class QuizTaker implements Initializable {
         VBox.setVgrow(listOfSplitPane.get(index), Priority.ALWAYS);
         questionStack.getChildren().set(1, listOfSplitPane.get(index));
         question_num.setText("Question " + (index + 1));
+        QNumBox[index + 1].setGraphic(null);
+        selectedButtonIndex = index;
+        QNumBox[selectedButtonIndex].setGraphic(getFontIcon());
+        QNumBox[selectedButtonIndex].setContentDisplay(ContentDisplay.BOTTOM);
     }
 
 
@@ -144,13 +186,29 @@ public class QuizTaker implements Initializable {
             var qp = new QuestionTakerWthOp(questionData, selectedOptions);
             var qop = (SplitPane) mainController.gradedFxmlLoader.createView(R.question_taker_with_op, qp);
             listOfSplitPane.add(qop);
+            groups.add(qp.ans);
         }
         VBox.setVgrow(listOfSplitPane.getFirst(), Priority.ALWAYS);
         questionStack.getChildren().set(1, listOfSplitPane.getFirst());
+        QNumBox = new Button[questionList.size()];
         for (int i = 0; i < questionList.size(); i++) {
-            Button button = getButton(i);
-            questionNum.getChildren().add(button);
+            QNumBox[i] = getButton(i);
+            QNumBox[i].getStyleClass().addAll(Styles.BUTTON_OUTLINED);
+            questionNum.getChildren().add(QNumBox[i]);
         }
+        FontIcon icon = getFontIcon();
+        QNumBox[0].setGraphic(icon);
+        QNumBox[0].setContentDisplay(ContentDisplay.BOTTOM);
+    }
+
+    @NotNull
+    private static FontIcon getFontIcon() {
+        FontIcon icon = new FontIcon();
+        icon.setStyle("""
+                -fx-icon-code: "mdal-lens";
+                -fx-icon-size:6;
+                """);
+        return icon;
     }
 
     private Button getButton(int i) {
@@ -159,9 +217,18 @@ public class QuizTaker implements Initializable {
         button.setOnAction(event -> {
             indexOfQuestion = Integer.parseInt(button.getText()) - 1;
             int index = indexOfQuestion;
+            if (!selectedOptions.containsKey(questionList.get(index)) && button.getStyleClass().size() < 3)
+                button.getStyleClass().addAll(Styles.DANGER);
+            else if (!selectedOptions.containsKey(questionList.get(index)))
+                button.getStyleClass().set(2, Styles.DANGER);
             VBox.setVgrow(listOfSplitPane.get(index), Priority.ALWAYS);
             questionStack.getChildren().set(1, listOfSplitPane.get(index));
             question_num.setText("Question " + (index + 1));
+            QNumBox[selectedButtonIndex].setGraphic(null);
+            selectedButtonIndex = index;
+            QNumBox[selectedButtonIndex].setGraphic(getFontIcon());
+            QNumBox[selectedButtonIndex].setContentDisplay(ContentDisplay.BOTTOM);
+
         });
         button.setPrefHeight(50);
         button.setPrefWidth(50);
@@ -229,7 +296,7 @@ public class QuizTaker implements Initializable {
         box.getChildren().add(lottiePlayer);
 
         Label leb = new Label(
-                "“You survived the done_using_ai — and that already deserves a medal 🏅! " +
+                "“You survived the Test — and that already deserves a medal 🏅! " +
                         "Remember, even pencils make mistakes but they keep going. " +
                         "So whether you nailed it or just wrestled with it… you showed up, " +
                         "and that’s what winners do! Now go celebrate — you’ve earned it!”"
@@ -308,5 +375,11 @@ public class QuizTaker implements Initializable {
             return tmp.toFile();
         }
 
+    }
+
+    public void clearRespond() {
+        groups.get(selectedButtonIndex).selectToggle(null);
+        if (QNumBox[selectedButtonIndex].getStyleClass().size() >= 3)
+            QNumBox[selectedButtonIndex].getStyleClass().removeLast();
     }
 }

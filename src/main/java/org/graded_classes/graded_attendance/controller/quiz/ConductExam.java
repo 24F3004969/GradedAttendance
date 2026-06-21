@@ -20,8 +20,6 @@ import org.graded_classes.graded_attendance.data.ExamData;
 
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
@@ -64,15 +62,16 @@ public class ConductExam implements Initializable {
         room.setCellValueFactory(map -> new SimpleStringProperty(map.getValue().room()));
         subject.setCellValueFactory(map -> new SimpleStringProperty(map.getValue().subject()));
         time.setCellValueFactory(map -> new SimpleStringProperty(map.getValue().time()));
-        topic.setCellValueFactory(map -> new SimpleStringProperty(map.getValue().topic()));
+        topic.setCellValueFactory(map -> new SimpleStringProperty(map.getValue().topic_name()));
         action.setCellValueFactory(arg0 -> {
             Button button = new Button("Start Exam");
+
             button.setPadding(new Insets(5, 5, 5, 5));
             button.getStyleClass().add(Styles.SUCCESS);
-            ExamData studentInfo = arg0.getValue();
-            button.setOnMouseClicked(a -> {
+            ExamData examInfo = arg0.getValue();
+            button.setOnMouseClicked(_ -> {
                 mainController.modalPane.show(mainController.gradedFxmlLoader
-                        .createView(R.exam_entry_login, new LoginBeforeEntry(mainController)));
+                        .createView(R.exam_entry_login, new LoginBeforeEntry(mainController,examInfo)));
             });
             return new SimpleObjectProperty<>(button);
         });

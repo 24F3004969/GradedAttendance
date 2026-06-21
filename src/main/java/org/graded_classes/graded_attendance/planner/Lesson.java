@@ -88,7 +88,7 @@ public class Lesson implements Initializable {
             ResultSet rs = pst.getGeneratedKeys();
             if (rs.next()) {
                 int generatedId = rs.getInt(1);
-                System.out.println("Inserted topic ID: " + generatedId);
+                System.out.println("Inserted topic_id ID: " + generatedId);
                 return generatedId;
             }
 

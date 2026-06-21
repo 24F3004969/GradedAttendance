@@ -35,7 +35,7 @@ public class StudentExamLogin implements Initializable {
 
     @FXML
     private void login() {
-        var taker = new QuizTaker(mainController);
+        var taker = new QuizTaker(mainController,this);
         Parent view = (Parent) mainController.gradedFxmlLoader.createView(R.quiz_taker, taker);
         stage.getScene().setRoot(view);
         stage.setTitle("Exam");

@@ -6,15 +6,18 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 import org.graded_classes.graded_attendance.controller.MainController;
+import org.graded_classes.graded_attendance.data.ExamData;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class LoginBeforeEntry implements Initializable {
     MainController mainController;
+    ExamData examInfo;
 
-    public LoginBeforeEntry(MainController mainController) {
+    public LoginBeforeEntry(MainController mainController, ExamData examInfo) {
         this.mainController = mainController;
+        this.examInfo = examInfo;
     }
 
     @FXML
@@ -37,7 +40,7 @@ public class LoginBeforeEntry implements Initializable {
     @FXML
     void create() {
         if (validateBeforeLogin()) {
-            ExamLogin examLogin = new ExamLogin(mainController, rollCode.getText(), name.getText(), seatNo.getText());
+            ExamLogin examLogin = new ExamLogin(mainController, rollCode.getText(), name.getText(), seatNo.getText(),examInfo);
             examLogin.showLoginScreen();
         }
     }
