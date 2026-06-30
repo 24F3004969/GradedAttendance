@@ -10,10 +10,11 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <StackPane id="data_viewer" maxHeight="400.0" maxWidth="400.0" minHeight="400.0" minWidth="400.0" prefHeight="400.0" prefWidth="400.0" stylesheets="@../css/login.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.StudentExamLogin">
    <children>
-      <VBox alignment="TOP_CENTER" maxHeight="400.0" maxWidth="400.0" minHeight="400.0" minWidth="100.0" prefHeight="400.0" prefWidth="400.0" spacing="10.0">
+      <VBox alignment="TOP_CENTER" maxHeight="400.0" maxWidth="400.0" minHeight="400.0" minWidth="100.0" prefHeight="400.0" prefWidth="400.0" spacing="5.0">
          <children>
             <Label style="-fx-font-size: 40; -fx-font-family: Gilroy-Bold;" text="Login">
                <VBox.margin>
@@ -43,12 +44,17 @@
                   <Button mnemonicParsing="false" onAction="#login" styleClass="accent" text="Login" />
                </children>
             </HBox>
+            <Label fx:id="error" text="Incorrect Password" textFill="RED" visible="false">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
             <ImageView fitHeight="41.0" fitWidth="203.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../icons/my-logo.svg" />
                </image>
                <VBox.margin>
-                  <Insets top="10.0" />
+                  <Insets top="5.0" />
                </VBox.margin>
             </ImageView>
          </children>

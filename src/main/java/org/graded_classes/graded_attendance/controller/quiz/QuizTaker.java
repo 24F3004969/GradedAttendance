@@ -41,11 +41,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -64,14 +63,18 @@ public class QuizTaker implements Initializable {
     private VBox questionStack;
     @FXML
     private Label timer;
+    @FXML
+    Button submitButton;
     Button[] QNumBox;
     int indexOfQuestion = 0;
     MainController mainController;
+    LocalTime startTime;
     ArrayList<QuestionData> questionList = new ArrayList<>();
     ArrayList<SplitPane> listOfSplitPane = new ArrayList<>();
     LinkedHashMap<QuestionData, ArrayList<Integer>> selectedOptions = new LinkedHashMap<>();
     int selectedButtonIndex = 0;
     StudentExamLogin studentExamLogin;
+    LocalTime leftOverTime;
 
     public QuizTaker(MainController mainController, StudentExamLogin studentExamLogin) {
         this.mainController = mainController;
@@ -121,12 +124,19 @@ public class QuizTaker implements Initializable {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        randomizeList(questionList);
+    }
+
+    // This function randomizes the original list directly
+    public static <T> void randomizeList(List<T> list) {
+        Collections.shuffle(list);
     }
 
     @FXML
     void nextQuestion() {
         var index = indexOfQuestion < listOfSplitPane.size() - 1 ?
                 ++indexOfQuestion : listOfSplitPane.size() - 1;
+
         VBox.setVgrow(listOfSplitPane.get(index), Priority.ALWAYS);
         questionStack.getChildren().set(1, listOfSplitPane.get(index));
         if (selectedOptions.containsKey(questionList.get(index - 1))) {
@@ -162,9 +172,12 @@ public class QuizTaker implements Initializable {
 
     @FXML
     void onQuizSubmit() {
-        totalTime = LocalTime.parse("00:00:00",
-                DateTimeFormatter.ofPattern("HH:mm:ss"));
-        saveQuizInstance("ED01", selectedOptions);
+        if (leftOverTime.equals(LocalTime.MIDNIGHT)) {
+            totalTime = LocalTime.parse("00:00:00",
+                    DateTimeFormatter.ofPattern("HH:mm:ss"));
+            CompletableFuture.runAsync(() -> saveQuizInstance(studentExamLogin.studentEDNo.getText(), selectedOptions));
+            submitButton.setDisable(true);
+        }
     }
 
     @FXML
@@ -188,6 +201,7 @@ public class QuizTaker implements Initializable {
             listOfSplitPane.add(qop);
             groups.add(qp.ans);
         }
+
         VBox.setVgrow(listOfSplitPane.getFirst(), Priority.ALWAYS);
         questionStack.getChildren().set(1, listOfSplitPane.getFirst());
         QNumBox = new Button[questionList.size()];
@@ -199,6 +213,8 @@ public class QuizTaker implements Initializable {
         FontIcon icon = getFontIcon();
         QNumBox[0].setGraphic(icon);
         QNumBox[0].setContentDisplay(ContentDisplay.BOTTOM);
+        startTime = LocalTime.now();
+        submitButton.setTooltip(new Tooltip("Submit After 00:40:00"));
     }
 
     @NotNull
@@ -237,13 +253,16 @@ public class QuizTaker implements Initializable {
 
     public void startQuiz(ExamLogin login, Stage stage) {
         quizName.setText("Quiz");
-        totalTime = LocalTime.parse("00:15:10", DateTimeFormatter.ofPattern("HH:mm:ss"));
-
+        totalTime = LocalTime.parse("00:45:00", DateTimeFormatter.ofPattern("HH:mm:ss"));
+        leftOverTime = LocalTime.parse("00:40:00", DateTimeFormatter.ofPattern("HH:mm:ss"));
+        Tooltip value = new Tooltip("Submit After " + leftOverTime);
+        submitButton.setTooltip(value);
         timeline = new Timeline(
-                new KeyFrame(Duration.seconds(1), event -> {
+                new KeyFrame(Duration.seconds(1), _ -> {
                     if (totalTime.equals(LocalTime.MIDNIGHT)) {
                         timeline.stop();
-                        onQuizSubmit();
+                        if (!submitButton.isDisable())
+                            onQuizSubmit();
                         stage.setTitle("Exam Login");
                         stage.setFullScreen(true);
                         animationLottie4j(login.root);
@@ -251,6 +270,11 @@ public class QuizTaker implements Initializable {
                         System.out.println("Time is up!");
                     } else {
                         totalTime = totalTime.minusSeconds(1);
+                        if (!leftOverTime.equals(LocalTime.MIDNIGHT)) {
+                            leftOverTime = leftOverTime.minusSeconds(1);
+                            value.setText("Submit After " + leftOverTime);
+                        } else
+                            value.setText("Submit");
                         timer.setText(totalTime.toString());
                     }
                 })
@@ -274,10 +298,6 @@ public class QuizTaker implements Initializable {
 
     //Be careful it this function is AI written
     public void animationLottie4j(StackPane stackPane) {
-
-        // ✅ Use the *actual* resource path as it exists in the jar.
-        // From your log, it is:
-        // /org/graded_classes/graded_attendance/css/motivation.json
         final String resource = "/org/graded_classes/graded_attendance/css/motivation.json";
 
         final Animation animationFile;
@@ -296,7 +316,7 @@ public class QuizTaker implements Initializable {
         box.getChildren().add(lottiePlayer);
 
         Label leb = new Label(
-                "“You survived the Test — and that already deserves a medal 🏅! " +
+                "“You survived the Test — and that already deserves a medal ! " +
                         "Remember, even pencils make mistakes but they keep going. " +
                         "So whether you nailed it or just wrestled with it… you showed up, " +
                         "and that’s what winners do! Now go celebrate — you’ve earned it!”"
@@ -325,6 +345,8 @@ public class QuizTaker implements Initializable {
 
     public void saveQuizInstance(String studentEd, LinkedHashMap<QuestionData, ArrayList<Integer>>
             selectedOptions) {
+        String endTime = LocalTime.now().toString();
+
         String url = "jdbc:sqlite:" + "G:/My Drive/GradeEd_Exam_2026/" + studentEd + ".db";
         try (Connection conn = DriverManager.getConnection(url);
              Statement stmt = conn.createStatement()) {
@@ -340,13 +362,13 @@ public class QuizTaker implements Initializable {
                             created_at
                         ) VALUES (%s, %s, %s, '%s', '%s', '%s', '%s');
                         """.formatted(
-                        "1",
+                        studentExamLogin.examLogin.examInfo.id(),
                         question.question_id(),
-                        question.option_data().option_index(),
+                        selectedOptions.get(question).getFirst(),
                         "",
-                        "",
-                        "",
-                        ""
+                        startTime.toString(),
+                        endTime,
+                        LocalDate.now()
                 );
                 stmt.execute(createTableSQL);
             }
@@ -379,7 +401,9 @@ public class QuizTaker implements Initializable {
 
     public void clearRespond() {
         groups.get(selectedButtonIndex).selectToggle(null);
-        if (QNumBox[selectedButtonIndex].getStyleClass().size() >= 3)
+        if (QNumBox[selectedButtonIndex].getStyleClass().size() >= 3) {
             QNumBox[selectedButtonIndex].getStyleClass().removeLast();
+            selectedOptions.remove(questionList.get(selectedButtonIndex));
+        }
     }
 }

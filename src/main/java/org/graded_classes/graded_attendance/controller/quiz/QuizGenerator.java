@@ -10,13 +10,18 @@ import javafx.scene.layout.HBox;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.controller.MainController;
 import org.graded_classes.graded_attendance.data.ExamData;
+import org.graded_classes.graded_attendance.data.OptionData;
+import org.graded_classes.graded_attendance.data.QuestionData;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
 
 public class QuizGenerator implements Initializable {
     @FXML
@@ -44,23 +49,59 @@ public class QuizGenerator implements Initializable {
         mainController.modalPane.show(newTopic);
     }
 
+    TreeMap<Integer, String> map = new TreeMap<>();
+    TreeMap<Integer, TreeMap<Integer, QuestionData>> allQuestions = new TreeMap<>();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        TreeItem<String> webItem = new TreeItem<>("Integer");
-        webItem.setGraphic(new FontIcon("mdi2f-folder"));
-        TreeItem<String> javaItem = new TreeItem<>("Fraction");
-        javaItem.setGraphic(new FontIcon("mdi2f-folder"));
-        rootItem.getChildren().add(webItem);
-        rootItem.getChildren().add(javaItem);
-        quizTree.setRoot(rootItem);
-        quizTree.setShowRoot(true);
-        quizTree.setCellFactory(_ -> getTreeCell());
-        quizTree.setShowRoot(false);
+
+        CompletableFuture.runAsync(() -> {
+            allQuestions = extractAllQuestionData();
+            map = generateTopicMapping();
+            generateTreeMap();
+        });
+    }
+
+    private TreeMap<Integer, String> generateTopicMapping() {
+        TreeMap<Integer, String> map = new TreeMap<>();
+        String sql = "select * from Topics";
+        try {
+            var conn = mainController.gradedDataLoader.databaseLoader.getConnection();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                int topicId = rs.getInt("topic_id");
+                String topicName = rs.getString("topic_name");
+                map.put(topicId, topicName);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return map;
+    }
+
+    private void generateTreeMap() {
+        for (var entry : map.keySet()) {
+            TreeItem<String> item = new TreeItem<>(map.get(entry));
+            item.setGraphic(new FontIcon("mdi2f-folder"));
+            int size = allQuestions.get(entry).size();
+            for (int i = 1; i <= size; i++) {
+                TreeItem<String> e = new TreeItem<>("Question " + i, new FontIcon("mdi2n-note"));
+                item.getChildren().add(e);
+
+            }
+            rootItem.getChildren().add(item);
+            quizTree.setRoot(rootItem);
+            quizTree.setShowRoot(true);
+            quizTree.setCellFactory(_ -> getTreeCell());
+            quizTree.setShowRoot(false);
+
+        }
+
     }
 
     private TreeCell<String> getTreeCell() {
-        return new TreeCell<>() {
+        var cell = new TreeCell<String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -83,6 +124,22 @@ public class QuizGenerator implements Initializable {
                     setContextMenu(createMenu(ti, ti.getValue()));
             }
         };
+
+
+        cell.setOnMouseClicked(event -> {
+            if (!cell.isEmpty() && event.getClickCount() == 2) {
+                TabPane tabPane = (TabPane) quiz_gen_layout.lookup("#tabs");
+                System.out.println(cell.getIndex() + 1);
+                var tb = mainController.gradedFxmlLoader.createView(R.question_editor,
+                        new QuestionEditor(mainController, allQuestions.get(cell.getIndex() + 1)));
+                Tab tab = new Tab(cell.getItem());
+                tab.setContent(tb);
+                tabPane.getTabs().add(tab);
+                tabPane.getSelectionModel().select(tab);
+            }
+        });
+
+        return cell;
     }
 
     private ContextMenu createMenu(TreeItem<String> target, String name) {
@@ -112,6 +169,59 @@ public class QuizGenerator implements Initializable {
             mainController.modalPane.show(newQuiz);
         });
         return addQuiz;
+    }
+
+    public TreeMap<Integer, TreeMap<Integer, QuestionData>> extractAllQuestionData() {
+        TreeMap<Integer, TreeMap<Integer, QuestionData>> mapOfQuestion = new TreeMap<>();
+        String sql = """
+                select *
+                    from QuestionOptions
+                             join Questions on Questions.question_id = QuestionOptions.question_id
+                """;
+        try {
+            var conn = mainController.gradedDataLoader.databaseLoader.getConnection();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            int id=0;
+            while (rs.next()) {
+                int topicId = rs.getInt("topic_id");
+                int questionId = rs.getInt("question_id");
+                if (mapOfQuestion.containsKey(topicId)) {
+                    if (mapOfQuestion.get(topicId).containsKey(questionId)) {
+                        mapOfQuestion.get(topicId).get(questionId).
+                                option_data().options().add(rs.getString("option_text"));
+                    } else {
+                        id++;
+                        mapOfQuestion.get(topicId).put(questionId, new QuestionData("" + questionId,
+                                rs.getString("topic_id"),
+                                rs.getString("user_id"),
+                                rs.getString("date_of_making"),
+                                rs.getString("type"),
+                                rs.getString("level"),
+                                rs.getString("question_txt"),
+                                rs.getString("question_img_path"), new OptionData(
+                                0, new ArrayList<>(List.of(rs.getString("option_text")))
+                        )));
+                    }
+
+                } else {
+                    var map = new TreeMap<Integer, QuestionData>();
+                    map.put(questionId, new QuestionData("" + questionId,
+                            rs.getString("topic_id"),
+                            rs.getString("user_id"),
+                            rs.getString("date_of_making"),
+                            rs.getString("type"),
+                            rs.getString("level"),
+                            rs.getString("question_txt"),
+                            rs.getString("question_img_path"), new OptionData(
+                            0, new ArrayList<>(List.of(rs.getString("option_text"))))));
+                    mapOfQuestion.put(topicId, map);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return mapOfQuestion;
     }
 
     @FXML

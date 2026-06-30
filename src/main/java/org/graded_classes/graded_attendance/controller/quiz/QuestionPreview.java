@@ -38,19 +38,7 @@ public class QuestionPreview implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         questionImage.setImage(new Image(new File(imagePath).toURI().toString()));
-        questionLatexView.setFormula("""
-                \\[
-                \\text{Two identical long current-carrying wires \\\\are bent into the shapes shown in the figure.}
-                \\]
-                \\\\
-                \\[
-                \\text{If the magnitude of magnetic fields at the centres } P\s
-                \\text{ and } Q \\\\ \\text{ of the semicircular arc are } B_1\s
-                \\text{ and } B_2,\\text{ find }
-                \\frac{B_1}{B_2}.
-                \\]
-                """);
-
+        questionLatexView.setFormula(latexQuestion);
         for (var option : optionList) {
             optionBox.getChildren().add(option);
         }

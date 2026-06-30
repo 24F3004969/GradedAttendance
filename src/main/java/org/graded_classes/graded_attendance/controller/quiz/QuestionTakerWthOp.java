@@ -1,5 +1,6 @@
 package org.graded_classes.graded_attendance.controller.quiz;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.RadioButton;
@@ -54,10 +55,20 @@ public class QuestionTakerWthOp implements Initializable {
         RadioButton rd = (RadioButton) hBox.lookup("#radio");
         rd.setSelected(true);
        /* if (selectedOptions.containsKey(optionId)) {
-            selectedOptions.get(optionId).add(questionData.option_data().options().get(optionId - 1));
+            selectedOptions.get(optionId).add(questionData.option_data().options().
+            get(optionId - 1));
         }*/
         selectedOptions.put(questionData, new ArrayList<>(List.of(optionId)));
+    }
 
+    @FXML
+    public void onRadioClicked(ActionEvent actionEvent) {
+        RadioButton rd = (RadioButton) actionEvent.getSource();
+        HBox hBox = (HBox) rd.getParent();
+        int optionId = Integer.parseInt(hBox.getId().replace("option", ""));
 
+        if (rd.isSelected()) {
+            selectedOptions.put(questionData, new ArrayList<>(List.of(optionId)));
+        }
     }
 }

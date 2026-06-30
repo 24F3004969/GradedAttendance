@@ -70,10 +70,6 @@ public class ExamLogin {
         ChangeListener<Number> resizeListener = (obs, oldV, newV) -> clampParticles(canvas.getWidth(), canvas.getHeight());
         canvas.widthProperty().addListener(resizeListener);
         canvas.heightProperty().addListener(resizeListener);
-
-// VERY IMPORTANT: add LAST so it's on top
-
-
         // Animation loop (like requestAnimationFrame)
         AnimationTimer timer = new AnimationTimer() {
             @Override
@@ -195,8 +191,6 @@ public class ExamLogin {
 
         content.setMaxWidth(300);
         content.setMaxHeight(200);
-
-        // ✅ SHOW inside existing modalPane (DON'T CREATE NEW ONE)
         modalPane.show(content);
 
         passwordField.requestFocus();

@@ -16,6 +16,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.controller.MainController;
+import org.graded_classes.graded_attendance.data.QuestionData;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.File;
@@ -42,7 +43,7 @@ public class Questions implements Initializable {
     private ToggleGroup t_options;
     MainController mainController;
     String questionNumber;
-
+    QuestionData questionData;
     public CustomTextField getQuestion_text() {
         return question_text;
     }
@@ -50,6 +51,14 @@ public class Questions implements Initializable {
     public Questions(MainController mainController, String questionNumber) {
         this.mainController = mainController;
         this.questionNumber = questionNumber;
+    }
+    public Questions(MainController mainController, String questionNumber,
+                     QuestionData questionData) {
+        this.mainController = mainController;
+        this.questionNumber = questionNumber;
+        this.questionData = questionData;
+
+
     }
 
     @FXML
@@ -78,6 +87,7 @@ public class Questions implements Initializable {
             var editor = mainController.gradedFxmlLoader.createView(R.latex_editor, new LatexEditor(mainController));
             mainController.modalPane.show(editor);
         });
+        question_text.setText(questionData.question_txt());
         opt1.setRight(new FontIcon("mdi2a-arrow-expand"));
         opt2.setRight(new FontIcon("mdi2a-arrow-expand"));
         opt3.setRight(new FontIcon("mdi2a-arrow-expand"));
@@ -86,6 +96,10 @@ public class Questions implements Initializable {
         opt2.getRight().setCursor(Cursor.DEFAULT);
         opt3.getRight().setCursor(Cursor.DEFAULT);
         opt4.getRight().setCursor(Cursor.DEFAULT);
+        opt1.setText(questionData.option_data().options().getFirst());
+        opt2.setText(questionData.option_data().options(). get(1));
+        opt3.setText(questionData.option_data().options().get(2));
+        opt4.setText(questionData.option_data().options().get(3));
         expand(opt1, opt2);
         expand(opt3, opt4);
     }

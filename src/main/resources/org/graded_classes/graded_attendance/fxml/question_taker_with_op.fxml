@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.RadioButton?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.ToggleGroup?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-<?import org.graded_classes.graded_attendance.components.LatexView?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import org.graded_classes.graded_attendance.components.*?>
 
-<SplitPane dividerPositions="0.5" orientation="VERTICAL" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.QuestionTakerWthOp">
+<SplitPane dividerPositions="0.5" orientation="VERTICAL" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.QuestionTakerWthOp">
    <items>
       <SplitPane dividerPositions="0.8">
          <items>
@@ -44,7 +38,7 @@
                               <Font size="24.0" />
                            </font>
                         </Label>
-                        <RadioButton id="radio" mnemonicParsing="false">
+                        <RadioButton id="radio" mnemonicParsing="false" onAction="#onRadioClicked">
                            <toggleGroup>
                               <ToggleGroup fx:id="ans" />
                            </toggleGroup>
@@ -62,7 +56,7 @@
                               <Font size="24.0" />
                            </font>
                         </Label>
-                        <RadioButton id="radio" mnemonicParsing="false" toggleGroup="$ans" />
+                        <RadioButton id="radio" mnemonicParsing="false" onAction="#onRadioClicked" toggleGroup="$ans" />
                         <LatexView fx:id="opt2" formula="x = 0 \text{ and } x = -1" size="28" />
                      </children>
                      <padding>
@@ -76,7 +70,7 @@
                               <Font size="24.0" />
                            </font>
                         </Label>
-                        <RadioButton id="radio" mnemonicParsing="false" toggleGroup="$ans" />
+                        <RadioButton id="radio" mnemonicParsing="false" onAction="#onRadioClicked" toggleGroup="$ans" />
                         <LatexView fx:id="opt3" formula="x = 12 \text{ and } x = 0" size="28" />
                      </children>
                      <padding>
@@ -90,7 +84,7 @@
                               <Font size="24.0" />
                            </font>
                         </Label>
-                        <RadioButton id="radio" mnemonicParsing="false" toggleGroup="$ans" />
+                        <RadioButton id="radio" mnemonicParsing="false" onAction="#onRadioClicked" toggleGroup="$ans" />
                         <LatexView fx:id="opt4" formula="x = 7 \text{ and } x = -3" size="28" />
                         <ImageView pickOnBounds="true" preserveRatio="true" />
                      </children>

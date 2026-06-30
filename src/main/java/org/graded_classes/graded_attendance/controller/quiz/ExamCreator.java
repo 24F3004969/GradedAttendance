@@ -17,9 +17,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ExamCreator implements Initializable {
@@ -153,37 +151,41 @@ public class ExamCreator implements Initializable {
     }
 
     private void createExamQuestion(Connection conn, int generatedId, int topicId) {
-        String sql = """
-                   select * from Questions where topic_id = ?;
-                """;
+        String selectSql = "SELECT question_id FROM Questions WHERE topic_id = ?";
+        String insertSql = "INSERT INTO ExamQuestion (exam_id, question_id) VALUES (?, ?)";
 
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        List<Integer> questionIds = new ArrayList<>();
+
+        // 1. Fetch all question IDs matching the topic
+        try (PreparedStatement pstmt = conn.prepareStatement(selectSql)) {
             pstmt.setInt(1, topicId);
-            ResultSet rs = pstmt.executeQuery();
-            int count = 1;
-            while (rs.next()) {
-                int quesId = rs.getInt("question_id");
-                String innerSql = """
-                            INSERT INTO ExamQuestion
-                            (exam_id,question_id)
-                            VALUES (?, ?)
-                        """;
-                try {
-                    PreparedStatement innerPst = conn.prepareStatement(innerSql);
-                    innerPst.setInt(1, generatedId);
-                    innerPst.setInt(2, quesId);
-                    innerPst.executeUpdate();
-                } catch (Exception e) {
-                    e.printStackTrace();
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    questionIds.add(rs.getInt("question_id"));
                 }
-                count++;
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return; // Exit if the select query fails
         }
 
+        // 2. Randomize the sequence of the question IDs
+        Collections.shuffle(questionIds);
 
+        // 3. Batch insert the randomized questions into ExamQuestion
+        try (PreparedStatement innerPst = conn.prepareStatement(insertSql)) {
+            for (int i = 0; i < questionIds.size() && i < 20; i++) {
+                int quesId = questionIds.get(i);
+                innerPst.setInt(1, generatedId);
+                innerPst.setInt(2, quesId);
+                innerPst.addBatch(); // Add to batch instead of executing one by one
+            }
+            innerPst.executeBatch(); // Execute all insertions at once
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
 
     private int getTopicId(Connection conn, String topic, String subject, String className) {
 

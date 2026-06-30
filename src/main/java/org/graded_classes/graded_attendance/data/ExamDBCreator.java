@@ -46,6 +46,6 @@ public class ExamDBCreator {
     }
 
     public static void main(String[] args) {
-        createDatabasesWithTable(79, "G:/My Drive/GradeEd_Exam_2026");
+        createDatabasesWithTable(90, "G:/My Drive/GradeEd_Exam_2026");
     }
 }

@@ -112,7 +112,7 @@
             </ScrollPane>
             <HBox alignment="CENTER_RIGHT" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-style: solid hidden hidden hidden;">
                <children>
-                  <Button mnemonicParsing="false" onAction="#onQuizSubmit" styleClass="accent" text="Submit">
+                  <Button fx:id="submitButton" mnemonicParsing="false" onAction="#onQuizSubmit" styleClass="accent" text="Submit">
                      <font>
                         <Font name="HelveticaRounded-Bold" size="12.0" />
                      </font></Button>

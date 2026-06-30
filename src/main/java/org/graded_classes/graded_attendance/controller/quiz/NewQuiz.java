@@ -1,7 +1,6 @@
 package org.graded_classes.graded_attendance.controller.quiz;
 
 import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -39,7 +38,7 @@ public class NewQuiz implements Initializable {
     }
 
     @FXML
-    void onButtonClick(ActionEvent event) {
+    void onButtonClick() {
         var newChild = new TreeItem<>(quizName.getText());
         FontIcon node = new FontIcon();
         newChild.setGraphic(
@@ -47,7 +46,7 @@ public class NewQuiz implements Initializable {
         node.getStyleClass().add("ikonli-font-icon");
         node.setStyle("""
                     -fx-icon-code:mdi2f-folder;
-                    -fx-icon-color:#964B00;
+                    -fx-icon-color:#944a00;
                     """);
         for (int i = 1; i <= 5; i++) {
             newChild.getChildren().add(new TreeItem<>("Question " + i,new FontIcon("mdi2n-note")));

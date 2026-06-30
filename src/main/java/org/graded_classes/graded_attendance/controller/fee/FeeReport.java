@@ -495,7 +495,9 @@ public class FeeReport implements Initializable {
                     // Key by ed_no (change to something else if you prefer)
                     map.put(edNo, data);
                 }
-            } catch (SQLException e) {
+            }
+
+            catch (SQLException e) {
                 throw new RuntimeException(e);
             }
 
