@@ -51,7 +51,7 @@ public class FeeDataView {
                     String nextFeeDate = r.getString("next_fee_date");
                     String edNo = r.getString("ed_no");
                     System.out.println(paidOn + "  " + nextFeeDate);
-                    FeeData fee = new FeeData(
+                    FeeData fee = new FeeData(new StringBuilder(""+(feeRecordsForTheCurrentMonth.size()+1)),
                             r.getObject("payment_id") != null ? r.getInt("payment_id") : null,
                             edNo,
                             r.getString("student_name"),
@@ -63,7 +63,7 @@ public class FeeDataView {
                             FeeData.PaymentMode.valueOf(r.getString("payment_mode")),
                             parseGateway(r.getString("gateway")),
                             r.getString("reference_no"),
-                            r.getString("due_amount")
+                            r.getString("due_amount"),new StringBuilder()
                     );
                     feeRecordsForTheCurrentMonth.put(r.getString("ed_no"), fee);
                 }

@@ -149,6 +149,7 @@
       <children>
          <TableView fx:id="feePaidData" editable="true" stylesheets="@../css/time_table.css" StackPane.alignment="CENTER">
             <columns>
+               <TableColumn fx:id="s_no" prefWidth="75.0" text="S No." />
                <TableColumn fx:id="payID" text="Pay Id" />
                <TableColumn fx:id="ed_no" text="ED No." />
                <TableColumn fx:id="name" text="Name" />
@@ -158,8 +159,9 @@
                <TableColumn fx:id="payDate" text="Pay Date" />
                <TableColumn fx:id="dueData" text="Due Date" />
                <TableColumn fx:id="mode" text="Mode" />
-               <TableColumn fx:id="referenceNo" text="Reference No." />
+               <TableColumn fx:id="referenceNo" text="Reference No" />
                <TableColumn fx:id="sendNotification" text="Send Notification" visible="false" />
+               <TableColumn fx:id="phone_no" prefWidth="75.0" text="Phone No" />
             </columns>
             <columnResizePolicy>
                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

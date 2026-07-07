@@ -10,7 +10,7 @@
 <?import org.graded_classes.graded_attendance.components.LatexView?>
 
 <?import javafx.scene.text.Font?>
-<VBox spacing="10" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.done_using_ai.LatexTest">
+<VBox spacing="10" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.new_features_and_ai_slop.LatexTest">
 
     <padding>
         <Insets bottom="10" left="10" right="10" top="10" />

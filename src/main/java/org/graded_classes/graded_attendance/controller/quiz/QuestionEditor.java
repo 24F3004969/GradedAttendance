@@ -5,10 +5,7 @@ import atlantafx.base.controls.ToggleLabel;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.controller.MainController;
@@ -26,6 +23,8 @@ public class QuestionEditor implements Initializable {
     ArrayList<QuestionEditorModel> listOfQuestions = new ArrayList<>();
     MainController mainController;
     TreeMap<Integer, QuestionData> integerQuestionDataTreeMap;
+    ToggleLabel edit = new ToggleLabel("Edit");
+    ToggleLabel preview = new ToggleLabel("Preview");
 
     public QuestionEditor(MainController mainController) {
         this.mainController = mainController;
@@ -55,31 +54,41 @@ public class QuestionEditor implements Initializable {
                 if (questionCount == totalQuestionNumber) {
                     questionCount = totalQuestionNumber + 1;
                     Questions controller;
-                    /*if (!questionIdSet.isEmpty()) {
-                        controller = new Questions(mainController,
-                                "Question " + (questionCount + 1));
-                    } else*/
                     controller = new Questions(mainController,
                             "Question " + (questionCount + 1), questionSet.get(questionCount));
                     var content = (VBox) mainController.gradedFxmlLoader.createView(R.question, controller);
-                    editor.setContent(content);
                     listOfQuestions.add(new QuestionEditorModel(content, controller,
                             segmentControl.getSegments().getFirst()));
+                    if (segmentControl.getToggleGroup().getSelectedToggle() instanceof ToggleLabel l) {
+                        if (l.getText().equals("Edit")) {
+                            edit(l);
+                        } else if (l.getText().equals("Preview")) {
+                            preview(l);
+                        }
+                    }
                 } else {
                     if (questionCount <= totalQuestionNumber) {
                         questionCount++;
-                        editor.setContent(listOfQuestions.get(questionCount).root);
-                        segmentControl.getToggleGroup().selectToggle(listOfQuestions.
-                                get(questionCount).status);
+                        if (segmentControl.getToggleGroup().getSelectedToggle() instanceof ToggleLabel l) {
+                            if (l.getText().equals("Edit")) {
+                                edit(l);
+                            } else if (l.getText().equals("Preview")) {
+                                preview(l);
+                            }
+                        }
                     }
                 }
             }
             case "Previous" -> {
                 if (questionCount >= 1) {
                     questionCount--;
-                    editor.setContent(listOfQuestions.get(questionCount).root);
-                    segmentControl.getToggleGroup().selectToggle(listOfQuestions.get(questionCount).status);
-
+                    if (segmentControl.getToggleGroup().getSelectedToggle() instanceof ToggleLabel l) {
+                        if (l.getText().equals("Edit")) {
+                            edit(l);
+                        } else if (l.getText().equals("Preview")) {
+                            preview(l);
+                        }
+                    }
                 }
             }
             case "Save" -> {
@@ -94,42 +103,58 @@ public class QuestionEditor implements Initializable {
         }
     }
 
+    List<QuestionData> list;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         System.out.println(integerQuestionDataTreeMap);
-        segmentControl.getSegments().add(new ToggleLabel("Edit"));
-        segmentControl.getSegments().add(new ToggleLabel("Preview"));
-        Questions controller = new Questions(mainController, "Question " + (questionCount + 1),
-                integerQuestionDataTreeMap.sequencedValues().getFirst());
+        segmentControl.getSegments().add(edit);
+        segmentControl.getSegments().add(preview);
+        Questions controller;
+        if (integerQuestionDataTreeMap != null) {
+             controller = new Questions(mainController, "Question " + (questionCount + 1),
+                    integerQuestionDataTreeMap.sequencedValues().getFirst());
+            list = integerQuestionDataTreeMap.sequencedValues().stream().toList();
+        }
+        else
+            controller = new Questions(mainController, "Question " + (questionCount + 1));
         var content = (VBox) mainController.gradedFxmlLoader.createView(R.question,
                 controller);
-        var list = integerQuestionDataTreeMap.sequencedValues().stream().toList();
         listOfQuestions.add(new QuestionEditorModel(content, controller, segmentControl.getSegments().getFirst()));
         segmentControl.getToggleGroup().selectedToggleProperty().subscribe(toggle -> {
             if (toggle instanceof ToggleLabel l) {
                 if (l.getText().equals("Edit")) {
-                    editor.setContent(listOfQuestions.get(questionCount).root);
-                    listOfQuestions.get(questionCount).status = l;
+                    edit(l);
                 } else if (l.getText().equals("Preview")) {
-                    var toggleGroup = new ToggleGroup();
-                    var data = list.get(questionCount);
-                    editor.setContent(mainController.gradedFxmlLoader.createView(R.question_preview,
-                            new QuestionPreview("",
-                                    "\\text{%s}".formatted(data.question_txt()), new ArrayList<>(List.of(
-                                    mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("A)",
-                                            "\\text{%s}".formatted(data.option_data().options().getFirst()), "", toggleGroup)),
-                                    mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("B)",
-                                            "\\text{%s}".formatted(data.option_data().options().get(1)), "", toggleGroup)),
-                                    mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("C)",
-                                            "\\text{%s}".formatted(data.option_data().options().get(2)), "", toggleGroup)),
-                                    mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("D)",
-                                            "\\text{%s}".formatted(data.option_data().options().get(3)), "", toggleGroup))
-                            )))));
-                    listOfQuestions.get(questionCount).status = l;
+                    preview(l);
                 }
             }
         });
 
     }
 
+    private void edit(ToggleLabel l) {
+        editor.setContent(listOfQuestions.get(questionCount).root);
+    }
+
+    private void preview(ToggleLabel l) {
+        var toggleGroup = new ToggleGroup();
+        var data = list.get(questionCount);
+        editor.setContent(mainController.gradedFxmlLoader.createView(R.question_preview,
+                new QuestionPreview("",
+                        "\\text{%s}".formatted(data.question_txt()), new ArrayList<>(List.of(
+                        mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("A)",
+                                "\\text{%s}".formatted(data.option_data().options().getFirst()), "", toggleGroup)),
+                        mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("B)",
+                                "\\text{%s}".formatted(data.option_data().options().get(1)), "", toggleGroup)),
+                        mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("C)",
+                                "\\text{%s}".formatted(data.option_data().options().get(2)), "", toggleGroup)),
+                        mainController.gradedFxmlLoader.createView(R.question_option, new QuestionOption("D)",
+                                "\\text{%s}".formatted(data.option_data().options().get(3)), "", toggleGroup))
+                )))));
+    }
+
+    public void onEditOrSave() {
+cqṣṁ§CQCṢṀ"c"
+    }
 }

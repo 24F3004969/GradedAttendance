@@ -3,6 +3,7 @@ package org.graded_classes.graded_attendance.data;
 import javafx.beans.property.SimpleStringProperty;
 
 public record FeeData(
+        StringBuilder s_no,
         Integer paymentId,
         SimpleStringProperty edNo,
         SimpleStringProperty name,
@@ -14,9 +15,10 @@ public record FeeData(
         PaymentMode paymentMode,
         Gateway gateway,
         SimpleStringProperty referenceNo,
-        SimpleStringProperty dueAmount
+        SimpleStringProperty dueAmount,
+        SimpleStringProperty phone_no
 ) {
-    public FeeData(Integer paymentId,
+    public FeeData(StringBuilder s_no, Integer paymentId,
                    String edNo,
                    String name,
                    MonthAbbrev month,
@@ -27,10 +29,11 @@ public record FeeData(
                    PaymentMode paymentMode,
                    Gateway gateway,
                    String referenceNo,
-                   String dueAmount) {
-        this(paymentId, new SimpleStringProperty(edNo), new SimpleStringProperty(name), month, amount, new SimpleStringProperty(paidOn),
+                   String dueAmount,StringBuilder phone_no) {
+        this(s_no, paymentId, new SimpleStringProperty(edNo), new SimpleStringProperty(name), month, amount, new SimpleStringProperty(paidOn),
                 new SimpleStringProperty(nextFeeDate), new SimpleStringProperty(collectedByName),
-                paymentMode, gateway, new SimpleStringProperty(referenceNo), new SimpleStringProperty(dueAmount));
+                paymentMode, gateway, new SimpleStringProperty(referenceNo), new SimpleStringProperty(dueAmount),
+                new SimpleStringProperty(phone_no.toString()));
     }
 
     public enum MonthAbbrev {

@@ -35,6 +35,7 @@ module org.graded_classes.graded_attendance {
     requires com.lottie4j.fxplayer;
     requires org.kordamp.ikonli.bootstrapicons;
     requires annotations;
+    requires opencv;
 
 
     opens org.graded_classes.graded_attendance.controller to javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc, java.sql;
@@ -49,8 +50,8 @@ module org.graded_classes.graded_attendance {
     opens org.graded_classes.graded_attendance.calender;
     exports org.graded_classes.graded_attendance.components;
     opens org.graded_classes.graded_attendance.components;
-    exports org.graded_classes.graded_attendance.done_using_ai;
-    opens org.graded_classes.graded_attendance.done_using_ai;
+    exports org.graded_classes.graded_attendance.new_features_and_ai_slop;
+    opens org.graded_classes.graded_attendance.new_features_and_ai_slop;
     opens org.graded_classes.graded_attendance.controller.quiz to java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
     opens org.graded_classes.graded_attendance.data to java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
 }

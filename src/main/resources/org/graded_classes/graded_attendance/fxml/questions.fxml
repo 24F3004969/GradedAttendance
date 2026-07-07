@@ -13,7 +13,7 @@
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<VBox spacing="10.0" style="-fx-background-radius: 10;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.Questions">
+<VBox spacing="10.0" style="-fx-background-radius: 10;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.Questions">
    <children>
       <Label fx:id="QNum" text="Question 1">
          <font>
@@ -128,7 +128,7 @@
                   <CustomTextField fx:id="opt1" promptText="Option A" HBox.hgrow="ALWAYS" />
                   <HBox alignment="CENTER_LEFT" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" HBox.hgrow="ALWAYS">
                      <children>
-                        <CheckBox mnemonicParsing="false" text="Correct">
+                        <CheckBox fx:id="cOp1" mnemonicParsing="false" text="Correct">
                            <HBox.margin>
                               <Insets left="5.0" />
                            </HBox.margin>
@@ -151,7 +151,7 @@
                   <CustomTextField fx:id="opt2" promptText="Option B" HBox.hgrow="ALWAYS" />
                   <HBox alignment="CENTER_LEFT" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" HBox.hgrow="ALWAYS">
                      <children>
-                        <CheckBox mnemonicParsing="false" text="Correct">
+                        <CheckBox fx:id="cOp2" mnemonicParsing="false" text="Correct">
                            <HBox.margin>
                               <Insets left="5.0" />
                            </HBox.margin>
@@ -174,7 +174,7 @@
                   <CustomTextField fx:id="opt3" promptText="Option C" HBox.hgrow="ALWAYS" />
                   <HBox alignment="CENTER_LEFT" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" HBox.hgrow="ALWAYS">
                      <children>
-                        <CheckBox mnemonicParsing="false" text="Correct">
+                        <CheckBox fx:id="cOp3" mnemonicParsing="false" text="Correct">
                            <HBox.margin>
                               <Insets left="5.0" />
                            </HBox.margin>
@@ -197,7 +197,7 @@
                   <CustomTextField fx:id="opt4" promptText="Option D" HBox.hgrow="ALWAYS" />
                   <HBox alignment="CENTER_LEFT" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" HBox.hgrow="ALWAYS">
                      <children>
-                        <CheckBox mnemonicParsing="false" text="Correct">
+                        <CheckBox fx:id="cOp4" mnemonicParsing="false" text="Correct">
                            <HBox.margin>
                               <Insets left="5.0" />
                            </HBox.margin>

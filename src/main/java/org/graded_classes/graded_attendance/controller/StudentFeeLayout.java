@@ -14,7 +14,7 @@ import javafx.util.Duration;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.controller.fee.FeeReceipt;
 import org.graded_classes.graded_attendance.data.FeeData;
-import org.graded_classes.graded_attendance.done_using_ai.SnapshotUtil;
+import org.graded_classes.graded_attendance.new_features_and_ai_slop.SnapshotUtil;
 
 import java.io.File;
 import java.net.URL;
@@ -266,7 +266,6 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
 
     @FXML
     void pay() {
-        // ---- 1) Validate on FX thread (same as before) ----
         if (selectedMonth == null) {
             showError("Some data is missing (no month selected).");
             return;
@@ -320,14 +319,14 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
         Parent node;
 
         node = (Parent) mainController.gradedFxmlLoader.createView(R.fee_receipt,
-                new FeeReceipt(name, new FeeData(0, ed, "", FeeData.MonthAbbrev.valueOf(mon), amount.doubleValue(),
+                new FeeReceipt(name, new FeeData(new StringBuilder("0"),0, ed, "", FeeData.MonthAbbrev.valueOf(mon), amount.doubleValue(),
                         LocalDate.now().toString(),
                         nextFeeDate.toString(),
                         collectedByName,
                         FeeData.PaymentMode.valueOf(paymentMode),
                         FeeData.Gateway.valueOf(gateway),
                         referenceNo,
-                        dueAmount)));
+                        dueAmount,new StringBuilder())));
 
         try {
             SnapshotUtil.exportFxmlNodeAsPngOffscreen(node, new File(System.getProperty("user.home") + "\\" + "export.png"), 6);
@@ -336,7 +335,6 @@ public class StudentFeeLayout extends FeeDataView implements Initializable {
         }
         java.util.concurrent.CompletableFuture<StudentLite> dbFuture =
                 java.util.concurrent.CompletableFuture.supplyAsync(() -> {
-                    // Return a minimal student object for later Telegram (id + name). Adjust to your model.
                     try {
                         java.sql.Connection conn = gradedDataLoader.databaseLoader.getConnection();
                         boolean origAuto = conn.getAutoCommit();

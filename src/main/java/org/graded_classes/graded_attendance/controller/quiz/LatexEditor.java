@@ -21,7 +21,6 @@ public class LatexEditor implements Initializable {
     MainController mainController;
     ArrayList<String> text = new ArrayList<>();
     int selectedButton = -1;
-
     public LatexEditor(MainController mainController) {
         this.mainController = mainController;
     }

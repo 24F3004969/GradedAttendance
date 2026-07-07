@@ -1,5 +1,6 @@
 package org.graded_classes.graded_attendance;
 
+import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -8,6 +9,8 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.graded_classes.graded_attendance.controller.MainController;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
 
 import java.io.IOException;
 import java.time.Instant;

@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -48,11 +49,11 @@ public class FeeReport implements Initializable {
     @FXML
     TableColumn<FeeData, String> amount, dueData, ed_no,
             grade, mode, name, payDate, payID, referenceNo,
-            dueAmount;
+            dueAmount, s_no,phone_no;
     @FXML
     TableColumn<FeeData, Button> sendNotification;
     ObservableList<FeeData> items = FXCollections.observableList(new ArrayList<>());
-    TreeMap<String, FeeData> duePaymentRecord, last_10_day,fine;
+    TreeMap<String, FeeData> duePaymentRecord, last_10_day, fine;
 
     @FXML
     private Label current_date;
@@ -121,7 +122,7 @@ public class FeeReport implements Initializable {
         duePaymentRecord = feeRepository.duePaymentRecord(mainController.
                 gradedDataLoader.databaseLoader.getConnection(), FeeRepository.toAbbrevFromNumber
                 (StudentFeeLayout.generateMonthMapInt().get(checkMenuItem.getText())).name());
-        fine=feeRepository.duePaymentRecordMoreThanOneMonth(mainController. gradedDataLoader.databaseLoader.getConnection());
+        fine = feeRepository.duePaymentRecordMoreThanOneMonth(mainController.gradedDataLoader.databaseLoader.getConnection());
         double totalSumOfMoney;
         if (checkMenuItem.getText().equals(FeeRepository.toAbbrevFromNumber(LocalDate.now().getMonthValue()).name())) {
             totalSumOfMoney = mainController.gradedDataLoader.getStudentData().
@@ -215,13 +216,13 @@ public class FeeReport implements Initializable {
                     gradedDataLoader.databaseLoader.
                     getConnection().prepareStatement(sql);
             ResultSet r = ps.executeQuery();
-            int k=0;
+            int k = 0;
             String edNo;
             while (r.next()) {
                 String paidOn = r.getString("paid_on");
                 String nextFeeDate = r.getString("next_fee_date");
-                edNo = r.getString("ed_no")==null?"Left "+(++k):r.getString("ed_no");
-                FeeData fee = new FeeData(
+                edNo = r.getString("ed_no") == null ? "Left " + (++k) : r.getString("ed_no");
+                FeeData fee = new FeeData(new StringBuilder(feeRecords.size() + 1),
                         r.getObject("payment_id") != null ?
                                 r.getInt("payment_id") : null,
                         new SimpleStringProperty(edNo),
@@ -234,9 +235,10 @@ public class FeeReport implements Initializable {
                         FeeData.PaymentMode.valueOf(r.getString("payment_mode")),
                         parseGateway(r.getString("gateway")),
                         new SimpleStringProperty(r.getString("reference_no")),
-                        new SimpleStringProperty(r.getString("due_amount"))
+                        new SimpleStringProperty(r.getString("due_amount")),
+                        new SimpleStringProperty()
                 );
-                    feeRecords.put(edNo, fee);
+                feeRecords.put(edNo, fee);
             }
 
         } catch (SQLException exception) {
@@ -250,8 +252,11 @@ public class FeeReport implements Initializable {
         return FeeData.Gateway.valueOf(g);
     }
 
+    int index = 1;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
         feePaidData.setFixedCellSize(35);
         double totalSumOfMoney = mainController.gradedDataLoader.getStudentData().
                 values().stream().mapToDouble(sd -> Double.parseDouble(sd.getFee())).sum();
@@ -277,11 +282,10 @@ public class FeeReport implements Initializable {
         dueAmount.setCellValueFactory(map -> map.getValue().dueAmount());
         referenceNo.setCellValueFactory(map -> map.getValue().referenceNo() == null ?
                 new SimpleStringProperty("") : map.getValue().referenceNo());
-        fine=feeRepository.duePaymentRecordMoreThanOneMonth(mainController. gradedDataLoader.databaseLoader.getConnection());
-
+        fine = feeRepository.duePaymentRecordMoreThanOneMonth(mainController.gradedDataLoader.databaseLoader.getConnection());
+        s_no.setCellValueFactory(map -> new SimpleStringProperty(map.getValue().s_no().toString()));
+        phone_no.setCellValueFactory(map->map.getValue().phone_no());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-// 2. Sort the TreeMap entries by the payDate field inside FeeData
         sortedFeeRecords = feeRecords.entrySet()
                 .stream()
                 .sorted((e1, e2) -> {
@@ -293,7 +297,7 @@ public class FeeReport implements Initializable {
                         Map.Entry::getKey,
                         Map.Entry::getValue,
                         (oldValue, newValue) -> oldValue,
-                        LinkedHashMap::new // Maintains the sorted order
+                        LinkedHashMap::new
                 ));
         segmentControl.getToggleGroup().selectedToggleProperty().subscribe(toggle -> {
             if (toggle instanceof ToggleLabel l) {
@@ -305,7 +309,11 @@ public class FeeReport implements Initializable {
                     dueData.setVisible(false);
                     sendNotification.setVisible(false);
                     referenceNo.setVisible(true);
+                    int dex = 1;
                     for (var keys : sortedFeeRecords.keySet()) {
+                        var st = feeRecords.get(keys).s_no();
+                        feeRecords.get(keys).s_no().
+                                replace(0, st.length(), "" + (dex++));
                         items.add(feeRecords.get(keys));
                     }
                 } else if (l.getText().equals("Unpaid for current month")) {
@@ -314,13 +322,16 @@ public class FeeReport implements Initializable {
                     payID.setVisible(false);
                     payDate.setVisible(false);
                     dueData.setVisible(true);
+                    dueAmount.setVisible(false);
+                    referenceNo.setVisible(false);
+                    phone_no.setVisible(true);
                     sendNotification.setVisible(true);
                     sendNotification.setCellValueFactory(arg0 -> {
                         Button button = new Button("Send Notification");
                         button.setPadding(new Insets(5, 5, 5, 5));
                         button.getStyleClass().add(Styles.SUCCESS);
                         FeeData studentInfo = arg0.getValue();
-                        button.setOnMouseClicked(a -> {
+                        button.setOnMouseClicked(_ -> {
                             String edNo = studentInfo.edNo().getValue();
                             String telegramID = mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id();
                             mainController.messageSender.sendMessage("Your fee due date has passed.Please pay by " + LocalDate.now() + ".\nPlease pay on time as this helps us to deliver the best" +
@@ -328,8 +339,12 @@ public class FeeReport implements Initializable {
                         });
                         return new SimpleObjectProperty<>(button);
                     });
-                    referenceNo.setVisible(false);
+                    int vex = 1;
                     for (var keys : duePaymentRecord.keySet()) {
+                        var st = duePaymentRecord.get(keys).s_no();
+                        duePaymentRecord.get(keys).phone_no().set(mainController.gradedDataLoader.getStudentData().get(keys).guardian_phone());
+                        duePaymentRecord.get(keys).s_no().
+                                replace(0, st.length(), "" + (vex++));
                         items.add(duePaymentRecord.get(keys));
                     }
                 } else if (l.getText().equals("Online")) {
@@ -338,8 +353,12 @@ public class FeeReport implements Initializable {
                     sendNotification.setVisible(false);
                     payDate.setVisible(true);
                     dueData.setVisible(false);
+                    int tex=1;
                     for (var keys : sortedFeeRecords.keySet()) {
                         if (feeRecords.get(keys).paymentMode().equals(FeeData.PaymentMode.Online)) {
+                            var st = sortedFeeRecords.get(keys).s_no();
+                            sortedFeeRecords.get(keys).s_no().
+                                    replace(0, st.length(), "" + (tex++));
                             items.add(feeRecords.get(keys));
                             sum += feeRecords.get(keys).amount();
                         }
@@ -351,8 +370,12 @@ public class FeeReport implements Initializable {
                     payDate.setVisible(true);
                     sendNotification.setVisible(false);
                     dueData.setVisible(false);
+                    int tex=1;
                     for (var keys : sortedFeeRecords.keySet()) {
                         if (feeRecords.get(keys).paymentMode().equals(FeeData.PaymentMode.Offline)) {
+                            var st = sortedFeeRecords.get(keys).s_no();
+                            sortedFeeRecords.get(keys).s_no().
+                                    replace(0, st.length(), "" + (tex++));
                             items.add(feeRecords.get(keys));
                             sum += feeRecords.get(keys).amount();
                         }
@@ -365,19 +388,26 @@ public class FeeReport implements Initializable {
                     sendNotification.setVisible(false);
                     dueData.setVisible(true);
                     items.clear();
+                    int tex=1;
                     for (var keys : last_10_day.keySet()) {
+                        var st = last_10_day.get(keys).s_no();
+                        last_10_day.get(keys).s_no().
+                                replace(0, st.length(), "" + (tex++));
                         total_num.setText("");
                         items.add(last_10_day.get(keys));
                     }
-                }
-                else if (l.getText().equals("All Dues")) {
+                } else if (l.getText().equals("All Dues")) {
                     referenceNo.setVisible(false);
                     mode.setVisible(false);
                     payDate.setVisible(false);
                     sendNotification.setVisible(false);
                     dueData.setVisible(true);
                     items.clear();
+                    int tex=1;
                     for (var keys : fine.keySet()) {
+                        var st = fine.get(keys).s_no();
+                        fine.get(keys).s_no().
+                                replace(0, st.length(), "" + (tex++));
                         total_num.setText("");
                         items.add(fine.get(keys));
                     }
@@ -478,6 +508,7 @@ public class FeeReport implements Initializable {
                     FeeData.Gateway gateway = parseGateway(gatewayRaw);
 
                     FeeData data = new FeeData(
+                            new StringBuilder(map.size() + 1),
                             paymentId,
                             edNo,
                             rs.getString("student_name"),
@@ -489,15 +520,14 @@ public class FeeReport implements Initializable {
                             mode,
                             gateway,
                             nullToEmpty(referenceNo),
-                            nullToEmpty(dueAmount)
+                            nullToEmpty(dueAmount),
+                            new StringBuilder()
                     );
 
                     // Key by ed_no (change to something else if you prefer)
                     map.put(edNo, data);
                 }
-            }
-
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
 
@@ -553,6 +583,7 @@ public class FeeReport implements Initializable {
                     FeeData.Gateway gateway = parseGateway(gatewayRaw);
 
                     FeeData data = new FeeData(
+                            new StringBuilder(map.size() + 1),
                             paymentId,
                             edNo,
                             rs.getString("student_name"),
@@ -564,7 +595,7 @@ public class FeeReport implements Initializable {
                             mode,
                             gateway,
                             nullToEmpty(referenceNo),
-                            nullToEmpty(dueAmount)
+                            nullToEmpty(dueAmount),new StringBuilder()
                     );
 
                     // Key by ed_no (change to something else if you prefer)
@@ -713,7 +744,13 @@ public class FeeReport implements Initializable {
 
         // 2) Create a multi-page A4 PDF with margins and automatic vertical tiling
         try {
-            Path pdfPath = Files.createTempFile("fee-table-", ".pdf");
+            String fileName = "fee-table-" + System.currentTimeMillis() + ".pdf";
+
+            Path pdfPath = Paths.get(
+                    System.getProperty("user.home"),
+                    "",
+                    fileName
+            );
             createPdfFromImageTiled(awtImg, PDRectangle.A4, 36f /*0.5" margin*/, pdfPath);
             // Optionally open or show a success message
         } catch (IOException ex) {
@@ -855,10 +892,10 @@ public class FeeReport implements Initializable {
                     getConnection().createStatement();
             rs = stmt.executeQuery(sql);
             while (rs.next()) {
-                FeeData data = new FeeData(rs.getInt("payment_id"), rs.getString("ed_no"),
+                FeeData data = new FeeData(new StringBuilder(results.size() + 1), rs.getInt("payment_id"), rs.getString("ed_no"),
                         rs.getString("student_name"), FeeData.MonthAbbrev.Jan, rs.getDouble("amount"),
                         rs.getString("paid_on"), rs.getString("last_due_date"), "Helal", FeeData.PaymentMode.Offline, FeeData.Gateway.UPI,
-                        "", rs.getString("due_amount"));
+                        "", rs.getString("due_amount"),new StringBuilder());
                 results.put(rs.getString("ed_no"), data);
             }
         } catch (SQLException e) {

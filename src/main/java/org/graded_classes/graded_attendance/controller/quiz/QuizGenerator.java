@@ -17,10 +17,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class QuizGenerator implements Initializable {
@@ -51,7 +48,7 @@ public class QuizGenerator implements Initializable {
 
     TreeMap<Integer, String> map = new TreeMap<>();
     TreeMap<Integer, TreeMap<Integer, QuestionData>> allQuestions = new TreeMap<>();
-
+    TreeMap<String, Integer> invertedMap;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -59,6 +56,11 @@ public class QuizGenerator implements Initializable {
             allQuestions = extractAllQuestionData();
             map = generateTopicMapping();
             generateTreeMap();
+            invertedMap = new TreeMap<>();
+
+            for (Map.Entry<Integer, String> entry : map.entrySet()) {
+                invertedMap.put(entry.getValue(), entry.getKey());
+            }
         });
     }
 
@@ -129,9 +131,8 @@ public class QuizGenerator implements Initializable {
         cell.setOnMouseClicked(event -> {
             if (!cell.isEmpty() && event.getClickCount() == 2) {
                 TabPane tabPane = (TabPane) quiz_gen_layout.lookup("#tabs");
-                System.out.println(cell.getIndex() + 1);
                 var tb = mainController.gradedFxmlLoader.createView(R.question_editor,
-                        new QuestionEditor(mainController, allQuestions.get(cell.getIndex() + 1)));
+                        new QuestionEditor(mainController, allQuestions.get(invertedMap.get(cell.getItem()))));
                 Tab tab = new Tab(cell.getItem());
                 tab.setContent(tb);
                 tabPane.getTabs().add(tab);
@@ -190,6 +191,10 @@ public class QuizGenerator implements Initializable {
                     if (mapOfQuestion.get(topicId).containsKey(questionId)) {
                         mapOfQuestion.get(topicId).get(questionId).
                                 option_data().options().add(rs.getString("option_text"));
+                        if (rs.getInt("is_correct")==1)
+                            mapOfQuestion.get(topicId).get(questionId).
+                                    option_data().setOption_index(mapOfQuestion.get(topicId).
+                                            get(questionId).option_data().options().size()-1);
                     } else {
                         id++;
                         mapOfQuestion.get(topicId).put(questionId, new QuestionData("" + questionId,

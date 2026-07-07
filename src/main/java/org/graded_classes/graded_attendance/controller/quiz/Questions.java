@@ -5,10 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.Label;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -32,18 +29,18 @@ public class Questions implements Initializable {
     private CustomTextField opt1, opt2, opt3, opt4;
 
     @FXML
-    private ToggleGroup q_options;
-
+    private ToggleGroup q_options, t_options;
+    @FXML
+    private CheckBox cOp1, cOp2, cOp3, cOp4;
     @FXML
     private Label file_name;
     @FXML
     private CustomTextField question_text;
     String file;
-    @FXML
-    private ToggleGroup t_options;
     MainController mainController;
     String questionNumber;
     QuestionData questionData;
+
     public CustomTextField getQuestion_text() {
         return question_text;
     }
@@ -52,6 +49,7 @@ public class Questions implements Initializable {
         this.mainController = mainController;
         this.questionNumber = questionNumber;
     }
+
     public Questions(MainController mainController, String questionNumber,
                      QuestionData questionData) {
         this.mainController = mainController;
@@ -87,7 +85,6 @@ public class Questions implements Initializable {
             var editor = mainController.gradedFxmlLoader.createView(R.latex_editor, new LatexEditor(mainController));
             mainController.modalPane.show(editor);
         });
-        question_text.setText(questionData.question_txt());
         opt1.setRight(new FontIcon("mdi2a-arrow-expand"));
         opt2.setRight(new FontIcon("mdi2a-arrow-expand"));
         opt3.setRight(new FontIcon("mdi2a-arrow-expand"));
@@ -96,12 +93,26 @@ public class Questions implements Initializable {
         opt2.getRight().setCursor(Cursor.DEFAULT);
         opt3.getRight().setCursor(Cursor.DEFAULT);
         opt4.getRight().setCursor(Cursor.DEFAULT);
-        opt1.setText(questionData.option_data().options().getFirst());
-        opt2.setText(questionData.option_data().options(). get(1));
-        opt3.setText(questionData.option_data().options().get(2));
-        opt4.setText(questionData.option_data().options().get(3));
         expand(opt1, opt2);
         expand(opt3, opt4);
+        if (questionData != null) {
+            selectCorrect();
+            question_text.setText(questionData.question_txt());
+            t_options.getToggles().get(getTypeId(questionData.level())).setSelected(true);
+            opt1.setText(questionData.option_data().options().getFirst());
+            opt2.setText(questionData.option_data().options().get(1));
+            opt3.setText(questionData.option_data().options().get(2));
+            opt4.setText(questionData.option_data().options().get(3));
+        }
+    }
+
+    private void selectCorrect() {
+        switch (questionData.option_data().option_index()) {
+            case 0 -> cOp1.setSelected(true);
+            case 1 -> cOp2.setSelected(true);
+            case 2 -> cOp3.setSelected(true);
+            case 3 -> cOp4.setSelected(true);
+        }
     }
 
     private void expand(CustomTextField opt1, CustomTextField opt2) {
@@ -113,6 +124,14 @@ public class Questions implements Initializable {
             var editor = mainController.gradedFxmlLoader.createView(R.latex_editor, new LatexEditor(mainController));
             mainController.modalPane.show(editor);
         });
+    }
+
+    public int getTypeId(String level) {
+        return switch (level) {
+            case "Medium", "medium" -> 1;
+            case "Hard", "very difficult" -> 2;
+            default -> 0;
+        };
     }
 
     public void handleDragDropped(DragEvent event) {

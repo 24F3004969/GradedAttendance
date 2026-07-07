@@ -2,6 +2,7 @@ package org.graded_classes.graded_attendance.controller;
 
 
 import atlantafx.base.theme.Styles;
+import com.dlsc.gemsfx.CalendarPicker;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -44,7 +45,7 @@ public class AddStudent implements Initializable {
     @FXML
     private Button cancel;
     @FXML
-    private DatePicker dob;
+    private CalendarPicker dob;
     private final String[] blood_groups_list = {"A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"};
     private final String[] gender_list = {"Male", "Female"};
     private final String[] classes_list = {"I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"};
