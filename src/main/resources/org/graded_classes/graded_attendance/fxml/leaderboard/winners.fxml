@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<StackPane stylesheets="@../../css/leaderboard/main_style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.leaderboard.Winners">
+<StackPane stylesheets="@../../css/leaderboard/main_style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.leaderboard.Winners">
     <ImageView fx:id="winner_img" fitHeight="1920.0" fitWidth="1080.0" pickOnBounds="true" preserveRatio="true" />
     <VBox id="poster" maxHeight="600.0" StackPane.alignment="BOTTOM_CENTER">
         <Text fx:id="winner_name" fill="#fafafa" strokeType="OUTSIDE" strokeWidth="0.0" text="Name">

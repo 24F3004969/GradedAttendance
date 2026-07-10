@@ -8,7 +8,7 @@
 <?import javafx.scene.text.*?>
 <?import org.kordamp.ikonli.javafx.*?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.planner.EditSubTopic">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.planner.EditSubTopic">
    <children>
       <HBox alignment="CENTER_RIGHT">
          <VBox.margin>

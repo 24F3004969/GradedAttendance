@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane alignment="TOP_CENTER" stylesheets="@../../css/leaderboard/main_style.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.leaderboard.Leaderboard1">
+<StackPane alignment="TOP_CENTER" stylesheets="@../../css/leaderboard/main_style.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.leaderboard.Leaderboard1">
    <StackPane id="layer" alignment="TOP_CENTER" stylesheets="@../../css/leaderboard/main_style.css" StackPane.alignment="TOP_CENTER" />
    <StackPane id="layer1" alignment="TOP_CENTER" stylesheets="@../../css/leaderboard/main_style.css" StackPane.alignment="TOP_CENTER" />
    <VBox alignment="TOP_CENTER" StackPane.alignment="TOP_CENTER">

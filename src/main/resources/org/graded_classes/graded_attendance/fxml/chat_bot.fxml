@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="root_box" stylesheets="@../css/chat_bot.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.ChatController">
+<BorderPane fx:id="root_box" stylesheets="@../css/chat_bot.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.chat.ChatController">
    <center>
       <VBox id="message_box" alignment="CENTER" BorderPane.alignment="CENTER">
          <children>

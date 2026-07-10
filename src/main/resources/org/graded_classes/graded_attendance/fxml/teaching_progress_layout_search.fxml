@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" maxWidth="400.0" minWidth="300.0" onMouseExited="#hide_search" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.StudentAttendance">
+<VBox alignment="CENTER" maxWidth="400.0" minWidth="300.0" onMouseExited="#hide_search" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.home.StudentAttendance">
    <children>
       <VBox id="search" fx:id="search_box" maxWidth="400.0" minWidth="300.0" stylesheets="@../css/list_view_style.css">
          <children>

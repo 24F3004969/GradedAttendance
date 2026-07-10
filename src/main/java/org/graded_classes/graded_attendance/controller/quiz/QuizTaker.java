@@ -24,7 +24,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.R;
-import org.graded_classes.graded_attendance.controller.MainController;
+import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.data.OptionData;
 import org.graded_classes.graded_attendance.data.QuestionData;
 import org.jetbrains.annotations.NotNull;

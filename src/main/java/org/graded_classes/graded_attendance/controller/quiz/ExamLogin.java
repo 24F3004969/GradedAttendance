@@ -14,7 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.components.KeyHook;
-import org.graded_classes.graded_attendance.controller.MainController;
+import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.data.ExamData;
 
 import java.util.ArrayList;

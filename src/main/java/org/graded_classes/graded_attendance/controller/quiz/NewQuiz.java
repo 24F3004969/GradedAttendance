@@ -6,7 +6,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.TilePane;
 import org.graded_classes.graded_attendance.R;
-import org.graded_classes.graded_attendance.controller.MainController;
+import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;

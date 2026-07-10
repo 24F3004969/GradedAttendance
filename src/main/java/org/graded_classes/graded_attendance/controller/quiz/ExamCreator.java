@@ -9,7 +9,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
-import org.graded_classes.graded_attendance.controller.MainController;
+import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.data.ExamData;
 
 import java.net.URL;

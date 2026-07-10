@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox minHeight="-Infinity" minWidth="-Infinity" stylesheets="@../css/time_table.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.TimeTableView">
+<VBox minHeight="-Infinity" minWidth="-Infinity" stylesheets="@../css/time_table.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.home.TimeTableView">
    <children>
        <HBox alignment="CENTER" style="-fx-background-color: #fafafa;" stylesheets="@../css/time_table.css">
            <Label id="heading" fx:id="heading" alignment="CENTER" text="Class" />

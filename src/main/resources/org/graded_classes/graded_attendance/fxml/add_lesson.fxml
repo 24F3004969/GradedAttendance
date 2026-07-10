@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane alignment="TOP_LEFT" prefHeight="248.0" prefWidth="678.0" stylesheets="@../css/lesson_planner.css" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.planner.Lesson">
+<StackPane alignment="TOP_LEFT" prefHeight="248.0" prefWidth="678.0" stylesheets="@../css/lesson_planner.css" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.planner.Lesson">
     <VBox spacing="5.0">
         <Label fx:id="subjectName" text="SubjectName">
             <VBox.margin>

@@ -8,7 +8,7 @@
 
 <HBox alignment="CENTER" fillHeight="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
       minWidth="-Infinity" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="org.graded_classes.graded_attendance.leaderboard.LayoutAnimatorTimer">
+      fx:controller="org.graded_classes.graded_attendance.controller.leaderboard.LayoutAnimatorTimer">
    <Text fx:id="node_name" strokeType="OUTSIDE" strokeWidth="0.0" text="Name" wrappingWidth="100.0">
       <HBox.margin>
          <Insets left="10.0"/>

@@ -5,7 +5,7 @@ import com.dlsc.gemsfx.EnhancedPasswordField;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
-import org.graded_classes.graded_attendance.controller.MainController;
+import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.data.ExamData;
 
 import java.net.URL;

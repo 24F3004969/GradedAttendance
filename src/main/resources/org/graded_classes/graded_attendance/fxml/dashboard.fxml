@@ -19,7 +19,7 @@
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<VBox prefHeight="788.0" prefWidth="1052.0" style="-fx-background-radius: 5;" stylesheets="@../css/dashboard-style.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.Dashboard">
+<VBox prefHeight="788.0" prefWidth="1052.0" style="-fx-background-radius: 5;" stylesheets="@../css/dashboard-style.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.dashboard.Dashboard">
    <padding>
       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
    </padding>

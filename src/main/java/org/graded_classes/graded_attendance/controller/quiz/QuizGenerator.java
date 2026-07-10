@@ -8,7 +8,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import org.graded_classes.graded_attendance.R;
-import org.graded_classes.graded_attendance.controller.MainController;
+import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.data.ExamData;
 import org.graded_classes.graded_attendance.data.OptionData;
 import org.graded_classes.graded_attendance.data.QuestionData;

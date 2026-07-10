@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane alignment="TOP_LEFT" stylesheets="@../css/lesson_planner.css" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.planner.Planner">
+<StackPane alignment="TOP_LEFT" stylesheets="@../css/lesson_planner.css" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.planner.Planner">
    <children>
       <VBox>
          <Breadcrumbs fx:id="breadCrumb" onCrumbAction="#whenBreadCrumbClicked" prefHeight="20.0" viewOrder="10.0" />

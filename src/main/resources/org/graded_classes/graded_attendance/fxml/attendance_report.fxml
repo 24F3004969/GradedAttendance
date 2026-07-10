@@ -5,7 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="TOP_CENTER" maxHeight="600.0" maxWidth="700.0" minHeight="600.0" minWidth="700.0" prefHeight="600.0" prefWidth="700.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5;" stylesheets="@../css/chartStyle.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.AttendanceReportController">
+<VBox alignment="TOP_CENTER" maxHeight="600.0" maxWidth="700.0" minHeight="600.0" minWidth="700.0" prefHeight="600.0" prefWidth="700.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5;" stylesheets="@../css/chartStyle.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.home.AttendanceReportController">
     <Label fx:id="nameLabel" text="Name">
       <VBox.margin>
          <Insets top="10.0" />

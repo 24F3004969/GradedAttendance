@@ -20,7 +20,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox maxWidth="750.0" styleClass="data_viewer" stylesheets="@../css/data-view-style.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.StudentFeeLayout">
+<VBox maxWidth="750.0" styleClass="data_viewer" stylesheets="@../css/data-view-style.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.home.StudentFeeLayout">
    <children>
       <ScrollPane fitToHeight="true" fitToWidth="true">
          <VBox alignment="CENTER">

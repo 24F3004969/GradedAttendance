@@ -1,7 +1,6 @@
 package org.graded_classes.graded_attendance.data;
 
-import atlantafx.base.theme.Styles;
-import org.graded_classes.graded_attendance.controller.MainController;
+import org.graded_classes.graded_attendance.controller.home.MainController;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

@@ -13,7 +13,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<StackPane fx:id="stackPane" stylesheets="@../css/side_navigation.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.MainController">
+<StackPane fx:id="stackPane" stylesheets="@../css/side_navigation.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.home.MainController">
    <children>
       <AnchorPane minWidth="41.0">
          <children>

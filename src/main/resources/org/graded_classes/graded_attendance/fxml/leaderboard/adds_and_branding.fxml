@@ -3,6 +3,6 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.StackPane?>
 
-<StackPane id="poster" fx:id="root" maxHeight="Infinity" maxWidth="Infinity" prefHeight="540.0" prefWidth="900.0" stylesheets="@../../css/leaderboard/presenter.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.leaderboard.AddsAndBranding">
+<StackPane id="poster" fx:id="root" maxHeight="Infinity" maxWidth="Infinity" prefHeight="540.0" prefWidth="900.0" stylesheets="@../../css/leaderboard/presenter.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.leaderboard.AddsAndBranding">
     <ImageView fx:id="branding" pickOnBounds="true" />
 </StackPane>

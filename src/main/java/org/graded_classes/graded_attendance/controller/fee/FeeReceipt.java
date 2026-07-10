@@ -2,20 +2,9 @@ package org.graded_classes.graded_attendance.controller.fee;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-import javafx.scene.transform.Rotate;
-import org.graded_classes.graded_attendance.GradedResourceLoader;
-import org.graded_classes.graded_attendance.controller.StudentFeeLayout;
+import org.graded_classes.graded_attendance.controller.home.StudentFeeLayout;
 import org.graded_classes.graded_attendance.data.FeeData;
 
 import java.net.URL;

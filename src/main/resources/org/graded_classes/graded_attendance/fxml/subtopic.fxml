@@ -7,7 +7,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 
-<HBox id="sub-topic-item" alignment="CENTER" maxWidth="1.7976931348623157E308" stylesheets="@../css/lesson_planner.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.planner.SubtopicCreator">
+<HBox id="sub-topic-item" alignment="CENTER" maxWidth="1.7976931348623157E308" stylesheets="@../css/lesson_planner.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.planner.SubtopicCreator">
    <children>
       <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
          <children>

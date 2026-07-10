@@ -4,11 +4,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
-import javafx.scene.input.InputMethodEvent;
 import javafx.scene.layout.TilePane;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.components.LatexView;
-import org.graded_classes.graded_attendance.controller.MainController;
+import org.graded_classes.graded_attendance.controller.home.MainController;
 
 
 import java.net.URL;

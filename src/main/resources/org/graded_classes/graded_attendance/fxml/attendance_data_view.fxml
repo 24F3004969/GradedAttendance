@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox alignment="TOP_CENTER" maxWidth="1000.0" prefHeight="410.0" prefWidth="560.0" styleClass="data_viewer" stylesheets="@../css/data-view-style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.AttendanceDataView">
+<VBox alignment="TOP_CENTER" maxWidth="1000.0" prefHeight="410.0" prefWidth="560.0" styleClass="data_viewer" stylesheets="@../css/data-view-style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.home.AttendanceDataView">
     <TabPane fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
         <tabs>
             <Tab fx:id="info" text="Info">

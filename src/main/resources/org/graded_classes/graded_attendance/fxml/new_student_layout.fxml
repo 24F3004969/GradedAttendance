@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="body_new_pane" maxHeight="750.0" maxWidth="800.0" minHeight="750.0" minWidth="800.0" stylesheets="@../css/new-admission.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.AddStudent">
+<AnchorPane id="body_new_pane" maxHeight="750.0" maxWidth="800.0" minHeight="750.0" minWidth="800.0" stylesheets="@../css/new-admission.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.home.AddStudent">
     <children>
         <ScrollPane id="container" maxHeight="750.0" maxWidth="760.0" minHeight="750.0" minWidth="770.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
             <content>

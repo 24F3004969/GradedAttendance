@@ -2,7 +2,7 @@ package org.graded_classes.graded_attendance.data;
 
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
-import org.graded_classes.graded_attendance.controller.MainController;
+import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.messaging.TelegramBot;
 import org.telegram.telegrambots.longpolling.TelegramBotsLongPollingApplication;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;

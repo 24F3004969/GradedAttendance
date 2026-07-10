@@ -2,11 +2,9 @@ package org.graded_classes.graded_attendance.data;
 
 import atlantafx.base.theme.Styles;
 import javafx.application.Platform;
-import org.graded_classes.graded_attendance.controller.MainController;
+import org.graded_classes.graded_attendance.controller.home.MainController;
 
 import java.sql.Statement;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 public class MessageData {
     Statement statement;
