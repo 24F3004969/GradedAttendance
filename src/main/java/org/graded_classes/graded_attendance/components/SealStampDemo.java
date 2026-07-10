@@ -1,4 +1,4 @@
-package org.graded_classes.graded_attendance.new_features_and_ai_slop;
+package org.graded_classes.graded_attendance.components;
 
 import javafx.application.Application;
 import javafx.geometry.Pos;
@@ -20,9 +20,7 @@ import java.io.File;
 
 public class SealStampDemo extends Application {
 
-    // Source - https://stackoverflow.com/a/38409590
-// Posted by fabian, modified by community. See post 'Timeline' for change history
-// Retrieved 2026-03-15, License - CC BY-SA 3.0
+
 
     @Override
     public void start(Stage primaryStage) {

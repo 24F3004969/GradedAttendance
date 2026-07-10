@@ -9,10 +9,10 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.AnchorPane;
 import org.graded_classes.graded_attendance.components.FilterComboBox;
-import org.graded_classes.graded_attendance.controller.MainController;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -22,45 +22,28 @@ public class QuizTopic implements Initializable {
     public ComboBox<String> filterBox;
     public FilterComboBox filterComboBox;
     ObservableList<String> observableList = FXCollections.observableArrayList(List.of(
-            "English", "Hindi", "Math", "History", "Physics", "Chemistry", "Biology",
-            "Geography", "Civics", "Economics", "Computer Science", "Information Technology",
-            "Environmental Science", "General Science", "Social Science", "Political Science",
-            "Psychology", "Sociology", "Philosophy", "Literature", "Grammar", "Creative Writing",
-            "Statistics", "Algebra", "Geometry", "Trigonometry", "Calculus", "Number Theory",
-            "Discrete Mathematics", "Applied Mathematics", "Astronomy", "Geology", "Meteorology",
-            "Botany", "Zoology", "Biotechnology", "Microbiology", "Genetics", "Human Anatomy",
-            "Physiology", "Biochemistry", "Organic Chemistry", "Inorganic Chemistry",
-            "Physical Chemistry", "Analytical Chemistry", "Nuclear Physics", "Quantum Physics",
-            "Thermodynamics", "Optics", "Electromagnetism", "Mechanics", "Fluid Mechanics",
-            "Electronics", "Electrical Engineering Basics", "Robotics", "Artificial Intelligence",
-            "Machine Learning", "Data Science", "Database Management", "Networking",
-            "Cyber Security", "Web Development", "Mobile App Development", "Cloud Computing",
-            "Operating Systems", "Software Engineering", "Data Structures", "Algorithms",
-            "Accountancy", "Business Studies", "Commerce", "Entrepreneurship", "Marketing",
-            "Finance", "Management", "Human Resource Management", "Law", "Constitutional Law",
-            "International Relations", "Public Administration", "Journalism", "Mass Communication",
-            "Art", "Drawing", "Painting", "Music", "Dance", "Drama", "Theatre",
-            "Physical Education", "Health Education", "Yoga", "Sports Science",
-            "Home Science", "Nutrition", "Food Science", "Hospitality Management",
-            "Tourism", "Agriculture", "Horticulture"
+
     ));
     TreeItem<String> rootItem;
     ModalPane modalPane;
-    public QuizTopic(TreeItem<String> rootItem, ModalPane modalPane) {
+
+    public QuizTopic(TreeItem<String> rootItem, ModalPane modalPane, Collection<String> values) {
         this.rootItem = rootItem;
         this.modalPane = modalPane;
+        observableList.addAll(values);
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         AnchorPane parent = (AnchorPane) filterBox.getParent();
-        filterComboBox=new FilterComboBox(observableList);
-        parent.getChildren().set(parent.getChildren().indexOf(filterBox),filterComboBox);
+        filterComboBox = new FilterComboBox(observableList);
+        parent.getChildren().set(parent.getChildren().indexOf(filterBox), filterComboBox);
         filterComboBox.setPromptText("Subject");
     }
+
     @FXML
     void addTopic() {
-        var item=new TreeItem<>(filterComboBox.getValue());
+        var item = new TreeItem<>(filterComboBox.getValue());
         item.setGraphic(new FontIcon("mdi2f-folder"));
         rootItem.getChildren().add(item);
         modalPane.hide();

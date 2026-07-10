@@ -155,6 +155,5 @@ public class QuestionEditor implements Initializable {
     }
 
     public void onEditOrSave() {
-cqṣṁ§CQCṢṀ"c"
     }
 }

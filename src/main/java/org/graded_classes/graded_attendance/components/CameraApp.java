@@ -1,4 +1,4 @@
-package org.graded_classes.graded_attendance.new_features_and_ai_slop;
+package org.graded_classes.graded_attendance.components;
 
 
 import javafx.application.Application;

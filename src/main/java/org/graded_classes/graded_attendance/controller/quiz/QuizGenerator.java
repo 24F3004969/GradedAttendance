@@ -42,7 +42,7 @@ public class QuizGenerator implements Initializable {
     @FXML
     void onNewTopic() {
         var newTopic = mainController.gradedFxmlLoader.createView(R.newTopic,
-                new QuizTopic(rootItem, mainController.modalPane));
+                new QuizTopic(rootItem, mainController.modalPane,map.values()));
         mainController.modalPane.show(newTopic);
     }
 
