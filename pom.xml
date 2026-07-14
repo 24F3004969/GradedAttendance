@@ -128,6 +128,20 @@
             <artifactId>fxgraphics2d</artifactId>
             <version>1.7</version>
         </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/org.bytedeco/javacv -->
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv</artifactId>
+            <version>1.5.13</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/org.bytedeco/opencv-platform -->
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>opencv-platform</artifactId>
+            <version>4.13.0-1.5.13</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>org.scilab.forge</groupId>
             <artifactId>jlatexmath</artifactId>

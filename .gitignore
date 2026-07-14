@@ -4,7 +4,9 @@ target/
 !**/src/test/**/target/
 .mvn
 out
-
+/data
+/attendance_model.yml
+student.jpg
 ### IntelliJ IDEA ###
 .idea
 .idea/modules.xml

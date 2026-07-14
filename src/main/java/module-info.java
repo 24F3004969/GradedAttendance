@@ -35,7 +35,7 @@ module org.graded_classes.graded_attendance {
     requires com.lottie4j.fxplayer;
     requires org.kordamp.ikonli.bootstrapicons;
     requires annotations;
-    requires opencv;
+    requires org.bytedeco.opencv;
 
 
     opens org.graded_classes.graded_attendance.controller.leaderboard to javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc, java.sql;

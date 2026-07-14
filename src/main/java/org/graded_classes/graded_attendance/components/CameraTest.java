@@ -6,17 +6,20 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 
-import org.opencv.core.*;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
-import org.opencv.objdetect.CascadeClassifier;
-import org.opencv.videoio.VideoCapture;
-import org.opencv.videoio.Videoio;
+import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.opencv.opencv_core.*;
+import org.bytedeco.opencv.opencv_face.LBPHFaceRecognizer;
+import org.bytedeco.opencv.opencv_objdetect.CascadeClassifier;
+import org.bytedeco.opencv.opencv_videoio.VideoCapture;
 
 import java.io.ByteArrayInputStream;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static org.bytedeco.opencv.global.opencv_imgcodecs.*;
+import static org.bytedeco.opencv.global.opencv_imgproc.*;
+import static org.bytedeco.opencv.global.opencv_videoio.*;
 
 public class CameraTest {
 
@@ -28,25 +31,24 @@ public class CameraTest {
 
     private VideoCapture camera;
     private ScheduledExecutorService timer;
-    private final Mat currentFrame = new Mat();
 
     private final Mat frame = new Mat();
-    private final Mat previewFrame = new Mat();
     private final Mat gray = new Mat();
-    private final MatOfRect faces = new MatOfRect();
 
     private CascadeClassifier faceDetector;
 
-    private Rect lastDetectedFace;
+    private Rect lastFace;
 
-    private int id = 1;
+    private int id = 108;
 
     @FXML
     public void initialize() {
+
         cameraView.fitWidthProperty().bind(root.widthProperty());
         cameraView.fitHeightProperty().bind(root.heightProperty());
+
         faceDetector = new CascadeClassifier(
-                "C:\\Users\\hilal\\GradedAttendance\\src\\main\\resources\\org\\graded_classes\\graded_attendance\\haarcascade_frontalface_default.xml"
+                "src/main/resources/org/graded_classes/graded_attendance/haarcascade_frontalface_default.xml"
         );
 
         if (faceDetector.empty()) {
@@ -54,23 +56,15 @@ public class CameraTest {
             return;
         }
 
-        camera = new VideoCapture(1);
+        camera = new VideoCapture(1, CAP_DSHOW);
 
         if (!camera.isOpened()) {
             System.out.println("Unable to open camera");
             return;
         }
 
-        // Request 4K
-        camera.set(Videoio.CAP_PROP_FRAME_WIDTH, 3840);
-        camera.set(Videoio.CAP_PROP_FRAME_HEIGHT, 2160);
-
-        System.out.println(
-                "Camera Resolution : "
-                        + camera.get(Videoio.CAP_PROP_FRAME_WIDTH)
-                        + " x "
-                        + camera.get(Videoio.CAP_PROP_FRAME_HEIGHT)
-        );
+        camera.set(CAP_PROP_FRAME_WIDTH, 1280);
+        camera.set(CAP_PROP_FRAME_HEIGHT, 720);
 
         timer = Executors.newSingleThreadScheduledExecutor();
 
@@ -80,169 +74,122 @@ public class CameraTest {
                 return;
             }
 
-            synchronized (currentFrame) {
-                frame.copyTo(currentFrame);
-            }
+            cvtColor(frame, gray, COLOR_BGR2GRAY);
 
-            // Preview at 720p
-            Imgproc.resize(
-                    frame,
-                    previewFrame,
-                    new Size(1280, 720)
-            );
+            RectVector faces = new RectVector();
 
-            Imgproc.cvtColor(
-                    previewFrame,
-                    gray,
-                    Imgproc.COLOR_BGR2GRAY
-            );
+            faceDetector.detectMultiScale(gray, faces);
 
-            Imgproc.equalizeHist(
-                    gray,
-                    gray
-            );
+            lastFace = null;
 
-            faceDetector.detectMultiScale(
-                    gray,
-                    faces,
-                    1.1,
-                    5,
-                    0,
-                    new Size(80, 80),
-                    new Size()
-            );
+            if (faces.size() > 0) {
 
-            Rect[] detectedFaces = faces.toArray();
+                Rect largestFace = faces.get(0);
 
-            lastDetectedFace = null;
+                for (long i = 1; i < faces.size(); i++) {
 
-            if (detectedFaces.length > 0) {
+                    Rect r = faces.get(i);
 
-                Rect largestFace = detectedFaces[0];
-
-                for (Rect rect : detectedFaces) {
-
-                    if (rect.area() > largestFace.area()) {
-                        largestFace = rect;
+                    if (r.area() > largestFace.area()) {
+                        largestFace = r;
                     }
                 }
 
-                lastDetectedFace = largestFace;
+                lastFace = largestFace;
 
-                Imgproc.rectangle(
-                        previewFrame,
+                rectangle(
+                        frame,
+                        new Point(largestFace.x(), largestFace.y()),
                         new Point(
-                                largestFace.x,
-                                largestFace.y
+                                largestFace.x() + largestFace.width(),
+                                largestFace.y() + largestFace.height()
                         ),
-                        new Point(
-                                largestFace.x + largestFace.width,
-                                largestFace.y + largestFace.height
-                        ),
-                        new Scalar(0, 255, 0),
-                        3
+                        new Scalar(0, 255, 0, 0),
+                        2,
+                        LINE_8,
+                        0
                 );
             }
 
-            Image image = matToImage(previewFrame);
+            Image image = matToImage(frame);
 
             Platform.runLater(() ->
                     cameraView.setImage(image));
 
-        }, 0, 33, TimeUnit.MILLISECONDS); // ~20 FPS
+        }, 0, 33, TimeUnit.MILLISECONDS);
     }
 
     private Image matToImage(Mat mat) {
 
-        MatOfByte buffer = new MatOfByte();
+        BytePointer buf = new BytePointer();
 
-        Imgcodecs.imencode(
-                ".jpg",
-                mat,
-                buffer
-        );
+        imencode(".jpg", mat, buf);
+
+        byte[] bytes = new byte[(int) buf.limit()];
+        buf.get(bytes);
 
         return new Image(
-                new ByteArrayInputStream(
-                        buffer.toArray()
-                )
+                new ByteArrayInputStream(bytes)
         );
     }
 
     @FXML
     public void captureImage() {
 
-        if (lastDetectedFace == null) {
-            System.out.println("No face detected");
+        if (lastFace == null) {
+            System.out.println("No face found");
             return;
         }
 
-        Mat original;
-
-        synchronized (currentFrame) {
-            original = currentFrame.clone();
-        }
-
-        double scaleX =
-                original.width() / 1280.0;
-
-        double scaleY =
-                original.height() / 720.0;
-
-        Rect face4k = new Rect(
-                (int) (lastDetectedFace.x * scaleX),
-                (int) (lastDetectedFace.y * scaleY),
-                (int) (lastDetectedFace.width * scaleX),
-                (int) (lastDetectedFace.height * scaleY)
+        Rect roi = new Rect(
+                lastFace.x(),
+                lastFace.y(),
+                lastFace.width(),
+                lastFace.height()
         );
 
-        int padding = 30;
+        Mat face = new Mat(frame, roi);
 
-        face4k.x = Math.max(0, face4k.x - padding);
-        face4k.y = Math.max(0, face4k.y - padding);
+        Mat faceGray = new Mat();
 
-        face4k.width = Math.min(
-                original.width() - face4k.x,
-                face4k.width + padding * 2
-        );
+        cvtColor(face, faceGray, COLOR_BGR2GRAY);
 
-        face4k.height = Math.min(
-                original.height() - face4k.y,
-                face4k.height + padding * 2
-        );
-
-        Mat face = new Mat(
-                original,
-                face4k
-        );
-
-        Mat grayFace = new Mat();
-
-        Imgproc.cvtColor(
-                face,
-                grayFace,
-                Imgproc.COLOR_BGR2GRAY
-        );
-
-        Mat resizedFace = new Mat();
-
-        Imgproc.resize(
-                grayFace,
-                resizedFace,
+        resize(
+                faceGray,
+                faceGray,
                 new Size(200, 200)
         );
 
         String fileName =
-                "student_" + id++ + ".jpg";
+                "student" + /*id++ + */".jpg";
 
-        Imgcodecs.imwrite(
-                fileName,
-                resizedFace
-        );
+        imwrite(fileName, faceGray);
 
         System.out.println(
-                "Saved : " + fileName
+                "Saved: " + fileName
         );
+        try (LBPHFaceRecognizer recognizer = LBPHFaceRecognizer.create()) {
+
+            recognizer.read("attendance_model.yml");
+
+            Mat testImage = imread("student.jpg", 0);
+
+            resize(testImage, testImage, new Size(200, 200));
+
+            int[] label = new int[1];
+            double[] confidence = new double[1];
+
+            recognizer.predict(testImage, label, confidence);
+
+            System.out.println("Label: " + label[0]);
+            System.out.println("Confidence: " + (100-confidence[0]));
+
+            if (label[0] == 1 && confidence[0] < 60) {
+                System.out.println("Attendance Marked");
+            } else {
+                System.out.println("Unknown Person");
+            }
+        }
     }
 
     public void stopCamera() {
@@ -251,9 +198,7 @@ public class CameraTest {
             timer.shutdown();
         }
 
-        if (camera != null &&
-                camera.isOpened()) {
-
+        if (camera != null) {
             camera.release();
         }
     }

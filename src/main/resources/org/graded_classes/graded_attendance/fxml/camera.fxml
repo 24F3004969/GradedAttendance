@@ -8,17 +8,16 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-
-<BorderPane xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.components.CameraTest">
+<BorderPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.components.CameraTest">
    <center>
       <StackPane fx:id="root">
          <children>
-             <ImageView fx:id="cameraView" fitHeight="400.0" fitWidth="600.0" preserveRatio="true" StackPane.alignment="CENTER" />
+             <ImageView fx:id="cameraView" preserveRatio="true" StackPane.alignment="CENTER" />
          </children>
       </StackPane>
    </center>
    <right>
-      <VBox prefWidth="227.0" BorderPane.alignment="CENTER">
+      <VBox BorderPane.alignment="CENTER">
          <children>
             <HBox alignment="CENTER">
                <children>

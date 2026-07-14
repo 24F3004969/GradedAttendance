@@ -12,7 +12,8 @@ public class CameraApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        OpenCVLoader.loadOpenCV();
+
+
         FXMLLoader loader =
                 new FXMLLoader(GradedResourceLoader.loadURL("fxml/camera.fxml"));
         cameraTest = new CameraTest();
