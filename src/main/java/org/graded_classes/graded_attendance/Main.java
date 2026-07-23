@@ -10,9 +10,6 @@ import javafx.stage.Stage;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 
 import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Objects;
 
 public class Main extends Application {
@@ -24,10 +21,6 @@ public class Main extends Application {
         fxmlLoader.setControllerFactory(_ -> new MainController(stage));
         Parent root = fxmlLoader.load();
         var scene = new Scene(root);
-        long millis = 1773253800000L;
-        Instant instant = Instant.ofEpochMilli(millis);
-        ZoneId zone = ZoneId.of("Asia/Kolkata");
-        LocalDate date = instant.atZone(zone).toLocalDate();
         stage.setTitle("Graded Management");
         Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
         stage.setScene(scene);

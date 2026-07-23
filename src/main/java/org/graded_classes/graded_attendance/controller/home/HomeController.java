@@ -1,12 +1,15 @@
 package org.graded_classes.graded_attendance.controller.home;
 
 import atlantafx.base.controls.ModalPane;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -14,10 +17,13 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.graded_classes.graded_attendance.GradedFxmlLoader;
 import org.graded_classes.graded_attendance.R;
+import org.graded_classes.graded_attendance.components.CameraController;
 import org.graded_classes.graded_attendance.controller.fee.FeeReport;
 import org.graded_classes.graded_attendance.data.GradedDataLoader;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.IOException;
 import java.net.URL;
@@ -53,7 +59,6 @@ public class HomeController implements Initializable {
     @FXML
     void onItemClick(MouseEvent mouseEvent) {
         VBox vBox = (VBox) mouseEvent.getSource();
-        System.out.println(vBox);
         if (vBox.getId().equals(stu_atten.getId())) {
             toggleOut(getIconPaths());
             toggleIn(vBox, "icons/attendance_student.png");
@@ -176,9 +181,27 @@ public class HomeController implements Initializable {
         modalPane.setAlignment(Pos.CENTER);
         modalPane.show(dialog);
     }
+
+    CameraController cameraController;
+
     @FXML
-    void onReport()
-    {
-        modalPane.show(mainController.gradedFxmlLoader.createView(R.fee_report,new FeeReport(mainController)));
+    void onReport(ActionEvent event) {
+        Button source = (Button) event.getSource();
+        FontIcon button = (FontIcon) source.getGraphic();
+        if (button.getStyleClass().contains("fee-report-icon"))
+            modalPane.show(mainController.gradedFxmlLoader.createView(R.fee_report, new FeeReport(mainController)));
+        else {
+            Stage stage = new Stage();
+            cameraController = new CameraController();
+            var cam = (Parent) mainController.gradedFxmlLoader.createView(R.camera, cameraController);
+            Scene scene = new Scene(cam);
+            stage.setTitle("OpenCV Camera Test");
+            stage.setScene(scene);
+            stage.show();
+            stage.setOnCloseRequest(event1 -> {
+                cameraController.stopCamera();
+            });
+        }
     }
+
 }

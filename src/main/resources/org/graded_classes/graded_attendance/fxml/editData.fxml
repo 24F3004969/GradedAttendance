@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import impl.com.calendarfx.view.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import impl.com.calendarfx.view.NumericTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<ScrollPane id="container" fitToHeight="true" fitToWidth="true" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.home.EditStudentData">
+<ScrollPane id="container" fitToHeight="true" fitToWidth="true" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.home.EditStudentData">
    <content>
       <VBox fx:id="formBox" spacing="10.0">
          <children>
@@ -200,8 +207,8 @@
                <children>
                   <CheckBox id="Accounts" mnemonicParsing="false" onAction="#onSubjectSelection" text="Accounts" />
                   <CheckBox id="Economics" mnemonicParsing="false" onAction="#onSubjectSelection" text="Economics" />
-                  <CheckBox id="Social Studies" mnemonicParsing="false" onAction="#onSubjectSelection" text="Social Studies" />
-                  <CheckBox id="Business Studies" mnemonicParsing="false" onAction="#onSubjectSelection" text="Business Studies" />
+                  <CheckBox id="SocialStudies" mnemonicParsing="false" onAction="#onSubjectSelection" text="Social Studies" />
+                  <CheckBox id="BusinessStudies" mnemonicParsing="false" onAction="#onSubjectSelection" text="Business Studies" />
                   <CheckBox id="Commerce" mnemonicParsing="false" onAction="#onSubjectSelection" text="Commerce" />
                </children>
                <VBox.margin>

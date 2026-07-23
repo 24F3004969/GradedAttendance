@@ -71,7 +71,6 @@ public class EditStudentData implements Initializable {
                     substring(studentData.get(edNumber).father_name().indexOf(' ') + 1));
         }
         if (studentData.get(edNumber).mother_name() != null) {
-            System.out.println(studentData.get(edNumber).mother_name());
             mother_f_name.setText(studentData.get(edNumber).mother_name().
                     substring(0, studentData.get(edNumber).mother_name().indexOf(' ')));
             mother_l_name.setText(studentData.get(edNumber).mother_name().
@@ -97,11 +96,8 @@ public class EditStudentData implements Initializable {
             currentFee.setText(studentData.get(edNumber).getFee());
         var v = studentData.get(edNumber).subjects();
         for (var s : v) {
-            System.out.println(s);
-            var x = (CheckBox) formBox.lookup("#" + s.trim());
-            System.out.println(x);
-            if (x != null){
-                System.out.println(x.getId());
+            var x = (CheckBox) formBox.lookup("#" + s.trim().replace(" ", ""));
+            if (x != null) {
                 x.setSelected(true);
             }
             list_of_subjects.add(s);

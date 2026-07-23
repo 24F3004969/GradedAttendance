@@ -1,17 +1,26 @@
 @import '../fonts/Fonts.css';
 
-#hhx:hover{
-     -fx-text-fill: red;
+#hhx:hover {
+    -fx-text-fill: red;
 }
-#floating-bar .button{
-     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.12, -1.0, 2.0);
-     -fx-background-color: rgb(28, 117, 188);
-     -fx-background-radius: 20;
+
+#floating-bar .button {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.12, -1.0, 2.0);
+    -fx-background-color: rgb(28, 117, 188);
+    -fx-background-radius: 20;
 }
-#root_back{
-     -fx-background-image: url('../icons/new-back1.svg');
-     -fx-background-size: cover;
-     -fx-background-repeat: no-repeat;
-     -fx-opacity: 0.06;
-     -fx-background-color: transparent;
+
+#root_back {
+    -fx-background-image: url('../icons/new-back1.svg');
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+    -fx-opacity: 0.06;
+    -fx-background-color: transparent;
+}
+
+.camera-icon {
+    -fx-icon-code: "mdomz-photo_camera";
+}
+.fee-report-icon {
+     -fx-icon-code: "mdi2c-chart-line";
 }

@@ -6,6 +6,7 @@ import org.bytedeco.opencv.opencv_face.LBPHFaceRecognizer;
 import java.io.File;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.bytedeco.opencv.global.opencv_core.CV_32SC1;
@@ -16,54 +17,150 @@ public class Training {
 
     public static void main(String[] args) {
 
-        String imageDir = "C:\\Users\\hey\\GradedAttendance\\data";
+        String dataPath =
+                "C:\\Users\\hey\\GradedAttendance\\data";
 
-        File folder = new File(imageDir);
-        File[] files = folder.listFiles();
+        File root = new File(dataPath);
 
-        if (files == null || files.length == 0) {
-            System.out.println("No images found!");
+        if (!root.exists()) {
+            System.out.println("Data folder not found");
             return;
         }
 
-        List<Mat> images = new ArrayList<>();
-        Mat labels = new Mat(files.length, 1, CV_32SC1);
+        List<Mat> imageList = new ArrayList<>();
+        List<Integer> labelList = new ArrayList<>();
 
-        IntBuffer labelBuffer = labels.createBuffer();
+        File[] studentFolders = root.listFiles(File::isDirectory);
 
-        int counter = 0;
+        if (studentFolders == null ||
+                studentFolders.length == 0) {
 
-        for (File file : files) {
+            System.out.println("No student folders found");
+            return;
+        }
 
-            Mat img = imread(file.getAbsolutePath(), 0); // grayscale
+        int totalImages = 0;
+        System.out.println(studentFolders.length);
+        for (File studentFolder : studentFolders) {
 
-            if (img.empty()) {
+            int label;
+
+            try {
+                label = Integer.parseInt(
+                        studentFolder.getName()
+                );
+            } catch (NumberFormatException e) {
                 continue;
             }
 
-            // Resize all images to same size
-            resize(img, img, new Size(200, 200));
+            File[] images = studentFolder.listFiles();
 
-            images.add(img);
+            if (images == null) {
+                continue;
+            }
 
-            labelBuffer.put(counter, 1); // same person label
-            counter++;
+            for (File imageFile : images) {
+
+                Mat image = imread(
+                        imageFile.getAbsolutePath(),
+                        0
+                );
+
+                if (image.empty()) {
+                    continue;
+                }
+
+                resize(
+                        image,
+                        image,
+                        new Size(200, 200)
+                );
+
+                equalizeHist(
+                        image,
+                        image
+                );
+
+                imageList.add(image);
+                labelList.add(label);
+
+                totalImages++;
+            }
         }
 
-        MatVector matVector = new MatVector(images.size());
+        if (imageList.isEmpty()) {
 
-        for (int i = 0; i < images.size(); i++) {
-            matVector.put(i, images.get(i));
+            System.out.println(
+                    "No valid training images found"
+            );
+            return;
         }
 
-        try (LBPHFaceRecognizer recognizer = LBPHFaceRecognizer.create()) {
+        MatVector images =
+                new MatVector(imageList.size());
 
-            recognizer.train(matVector, labels);
+        for (int i = 0; i < imageList.size(); i++) {
 
-            recognizer.save("attendance_model.yml");
+            images.put(
+                    i,
+                    imageList.get(i)
+            );
+        }
 
-            System.out.println("Training completed!");
+        Mat labels = new Mat(
+                labelList.size(),
+                1,
+                CV_32SC1
+        );
+
+        IntBuffer buffer =
+                labels.createBuffer();
+
+        for (int i = 0; i < labelList.size(); i++) {
+
+            buffer.put(
+                    i,
+                    labelList.get(i)
+            );
+        }
+
+        try (
+                LBPHFaceRecognizer recognizer =
+                        LBPHFaceRecognizer.create(
+                                1,      // radius
+                                8,      // neighbors
+                                8,      // gridX
+                                8,      // gridY
+                                80      // threshold
+                        )
+        ) {
+
+            recognizer.train(
+                    images,
+                    labels
+            );
+
+            recognizer.save(
+                    "attendance_model.yml"
+            );
+
+            System.out.println(
+                    "Training completed successfully"
+            );
+
+            System.out.println(
+                    "Students : "
+                            + studentFolders.length
+            );
+
+            System.out.println(
+                    "Images : "
+                            + totalImages
+            );
+
+            System.out.println(
+                    "Model : attendance_model.yml"
+            );
         }
     }
 }
-

@@ -1,0 +1,6 @@
+.border-circle-red > .box > .image-box > .border-circle {
+    -fx-stroke: red;
+}
+.border-circle-green > .box > .image-box > .border-circle {
+    -fx-stroke: green;
+}

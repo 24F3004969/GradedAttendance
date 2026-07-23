@@ -19,6 +19,8 @@ import org.graded_classes.graded_attendance.GradedFxmlLoader;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.data.Attendance;
 import org.graded_classes.graded_attendance.data.DailyTopics;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material2.Material2AL;
 
 import java.io.IOException;
 import java.net.URL;
@@ -105,7 +107,6 @@ public class StudentAttendance implements Initializable {
     }
 
 
-
     private Boolean getAsRequired(String homework) {
         return homework != null ? homework.equals("Submitted") : null;
     }
@@ -166,7 +167,12 @@ public class StudentAttendance implements Initializable {
             box = x.load();
             Button feeReportButton = (Button) outer_main_box.
                     getParent().lookup("#reportButton");
-            feeReportButton.setVisible(id.equals("st_fee"));
+            FontIcon icon = (FontIcon) feeReportButton.getGraphic();
+            if (id.equals("st_fee"))
+                icon.getStyleClass().set(0,"fee-report-icon");
+            else
+                icon.getStyleClass().set(0,"camera-icon");
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
