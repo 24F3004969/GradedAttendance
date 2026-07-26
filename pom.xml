@@ -172,7 +172,13 @@
             <artifactId>pdfviewfx</artifactId>
             <version>3.4.2</version>
         </dependency>
-
+        <!-- Source: https://mvnrepository.com/artifact/com.litongjava/sherpa-onnx-java-api -->
+        <dependency>
+            <groupId>com.litongjava</groupId>
+            <artifactId>sherpa-onnx-java-api</artifactId>
+            <version>1.0.1</version>
+            <scope>compile</scope>
+        </dependency>
         <!-- Apache PDFBox (3.x) -->
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
@@ -183,7 +189,7 @@
         <dependency>
             <groupId>com.dlsc.gemsfx</groupId>
             <artifactId>gemsfx</artifactId>
-            <version>4.1.0</version>
+            <version>4.3.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.dlsc.gemsfx.PhotoView?>
+<?import com.dlsc.gemsfx.SVGImageView?>
+<?import com.dlsc.gemsfx.SearchField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
@@ -11,63 +13,89 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane stylesheets="@../css/camera-style.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.components.CameraController">
-   <center>
-      <VBox alignment="CENTER">
-         <children>
-            <StackPane fx:id="root" VBox.vgrow="ALWAYS">
-               <PhotoView fx:id="cameraView" editable="false" maxHeight="256.0" maxWidth="256.0" minHeight="128.0" minWidth="128.0" styleClass="border-circle-green" StackPane.alignment="CENTER" />
-            </StackPane>
-            <HBox alignment="TOP_CENTER" VBox.vgrow="ALWAYS">
+
+<StackPane xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.camera.CameraController">
+   <children>
+      <SVGImageView fx:id="background" backgroundLoading="true" />
+      <BorderPane stylesheets="@../css/camera-style.css">
+         <center>
+            <VBox alignment="CENTER">
                <children>
-                  <Label text="Label" />
+                  <StackPane fx:id="root" VBox.vgrow="ALWAYS">
+                     <PhotoView fx:id="cameraView" editable="false" maxHeight="256.0" maxWidth="256.0" minHeight="128.0" minWidth="128.0" styleClass="border-circle-green" StackPane.alignment="CENTER" />
+                  </StackPane>
+                  <HBox alignment="TOP_CENTER" VBox.vgrow="ALWAYS">
+                     <children>
+                        <Label text="Welcome to GradeEd Attendance" wrapText="true">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <SVGImageView fx:id="myLogo" fitHeight="48.0" />
+                     </children>
+                  </HBox>
                </children>
-            </HBox>
-         </children>
-      </VBox>
-   </center>
-   <right>
-      <VBox spacing="5.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-style: hidden hidden hidden solid;" BorderPane.alignment="CENTER">
-         <VBox spacing="5.0">
-            <children>
-               <Label text="Modes" />
-               <HBox>
+            </VBox>
+         </center>
+         <right>
+            <VBox spacing="5.0" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-style: hidden hidden hidden solid;" BorderPane.alignment="CENTER">
+               <VBox spacing="5.0">
                   <children>
-                     <ToggleButton mnemonicParsing="false" selected="true" styleClass="left-pill" text="Training">
-                        <toggleGroup>
-                           <ToggleGroup fx:id="modes" />
-                        </toggleGroup></ToggleButton>
-                     <ToggleButton mnemonicParsing="false" styleClass="right-pill" text="Face Detector" toggleGroup="$modes" />
+                     <Label text="Modes" />
+                     <HBox>
+                        <children>
+                           <ToggleButton mnemonicParsing="false" onAction="#onModeChange" styleClass="left-pill" text="Training">
+                              <toggleGroup>
+                                 <ToggleGroup fx:id="modes" />
+                              </toggleGroup>
+                           </ToggleButton>
+                           <ToggleButton mnemonicParsing="false" onAction="#onModeChange" selected="true" styleClass="right-pill" text="Face Detector" toggleGroup="$modes" />
+                        </children>
+                     </HBox>
                   </children>
+                  <VBox.margin>
+                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                  </VBox.margin>
+               </VBox>
+               <HBox alignment="CENTER_LEFT" spacing="5.0">
+                  <VBox.margin>
+                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                  </VBox.margin>
+                  <Button fx:id="startCapture" mnemonicParsing="false" onAction="#captureImage" styleClass="success" text="Start Capture" />
+                  <Button fx:id="startTraining" disable="true" mnemonicParsing="false" text="Start Traning" />
                </HBox>
-            </children>
-            <VBox.margin>
-               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-            </VBox.margin>
-         </VBox>
-         <HBox alignment="CENTER_LEFT" spacing="5.0">
-            <VBox.margin>
-               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-            </VBox.margin>
-            <Button mnemonicParsing="false" onAction="#captureImage" styleClass="success" text="Start" />
-            <Button mnemonicParsing="false" text="Start Traning" />
-         </HBox>
-         <VBox>
-            <children>
-               <Label text="List of cameras" />
-               <ComboBox fx:id="cameraList" prefWidth="150.0" />
-            </children>
-            <VBox.margin>
-               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-            </VBox.margin>
-         </VBox>
-         <BorderPane.margin>
-            <Insets left="5.0" right="5.0" />
-         </BorderPane.margin>
-         <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </padding>
-      </VBox>
-   </right>
-</BorderPane>
+               <HBox alignment="CENTER_LEFT" spacing="5.0">
+                  <children>
+                     <SearchField />
+                     <Button fx:id="addStudent" disable="true" mnemonicParsing="false" onAction="#addNewTraining" text="Add Student" />
+                  </children>
+                  <VBox.margin>
+                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                  </VBox.margin>
+               </HBox>
+               <VBox>
+                  <children>
+                     <Label text="List of cameras" />
+                     <ComboBox fx:id="cameraList" prefWidth="150.0" />
+                  </children>
+                  <VBox.margin>
+                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                  </VBox.margin>
+               </VBox>
+               <BorderPane.margin>
+                  <Insets left="5.0" right="5.0" />
+               </BorderPane.margin>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </VBox>
+         </right>
+      </BorderPane>
+   </children>
+</StackPane>

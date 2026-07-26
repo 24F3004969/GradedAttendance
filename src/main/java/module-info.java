@@ -36,6 +36,7 @@ module org.graded_classes.graded_attendance {
     requires org.kordamp.ikonli.bootstrapicons;
     requires annotations;
     requires org.bytedeco.opencv;
+    requires sherpa.onnx.java.api;
 
 
     opens org.graded_classes.graded_attendance.controller.leaderboard to javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc, java.sql;
@@ -55,4 +56,6 @@ module org.graded_classes.graded_attendance {
     opens org.graded_classes.graded_attendance.controller.dashboard to java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
     opens org.graded_classes.graded_attendance.controller.database to java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
     opens org.graded_classes.graded_attendance.controller.home to java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
+    exports org.graded_classes.graded_attendance.controller.camera;
+    opens org.graded_classes.graded_attendance.controller.camera;
 }

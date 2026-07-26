@@ -48,8 +48,9 @@ public class NewQuiz implements Initializable {
                     -fx-icon-code:mdi2f-folder;
                     -fx-icon-color:#944a00;
                     """);
-        for (int i = 1; i <= 5; i++) {
-            newChild.getChildren().add(new TreeItem<>("Question " + i,new FontIcon("mdi2n-note")));
+        for (int i = 1; i <= NoOfQuestion.getValue(); i++) {
+            newChild.getChildren().add(
+                    new TreeItem<>("Question " + i,new FontIcon("mdi2n-note")));
         }
         target.getChildren().add(newChild);
         TabPane tabPane = (TabPane) quizGenerator.quiz_gen_layout.lookup("#tabs");

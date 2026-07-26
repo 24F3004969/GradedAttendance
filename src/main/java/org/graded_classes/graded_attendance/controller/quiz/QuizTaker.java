@@ -49,7 +49,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-public class QuizTaker implements Initializable {
+public class  QuizTaker implements Initializable {
     Timeline timeline;
     LocalTime totalTime;
     ArrayList<ToggleGroup> groups = new ArrayList<>();
@@ -382,7 +382,7 @@ public class QuizTaker implements Initializable {
      * into a real temp file and return it.
      */
     //Be careful it this function is AI written
-    private static File extractResourceToTempFile(String resourcePath, String prefix, String suffix) throws IOException {
+    public static File extractResourceToTempFile(String resourcePath, String prefix, String suffix) throws IOException {
         try (InputStream in = QuizTaker.class.getResourceAsStream(resourcePath)) {
             if (in == null) {
                 throw new FileNotFoundException(
