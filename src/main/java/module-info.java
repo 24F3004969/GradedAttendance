@@ -44,6 +44,7 @@ module org.graded_classes.graded_attendance {
     opens org.graded_classes.graded_attendance.controller.planner to javafx.fxml;
     opens org.graded_classes.graded_attendance.controller.fee to javafx.fxml,java.sql;
     opens org.graded_classes.graded_attendance.messaging;
+    exports org.graded_classes.graded_attendance.controller.home;
     exports org.graded_classes.graded_attendance;
     opens org.graded_classes.graded_attendance;
     exports org.graded_classes.graded_attendance.calender;

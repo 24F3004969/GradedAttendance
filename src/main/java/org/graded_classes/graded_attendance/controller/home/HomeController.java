@@ -194,7 +194,7 @@ public class HomeController implements Initializable {
             modalPane.show(mainController.gradedFxmlLoader.createView(R.fee_report, new FeeReport(mainController)));
         else {
             Stage stage = new Stage();
-            cameraController = new CameraController();
+            cameraController = new CameraController(mainController);
             var cam = (Parent) mainController.gradedFxmlLoader.createView(R.camera, cameraController);
             Scene scene = new Scene(cam);
             stage.setTitle("GradeEd Attendance");

@@ -2,33 +2,41 @@ package org.graded_classes.graded_attendance.controller.camera;
 
 import com.dlsc.gemsfx.PhotoView;
 import com.dlsc.gemsfx.SVGImageView;
+import com.dlsc.gemsfx.SearchField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.javacpp.indexer.DoubleIndexer;
 import org.bytedeco.opencv.opencv_core.*;
+import org.bytedeco.opencv.opencv_face.FacemarkLBF;
 import org.bytedeco.opencv.opencv_face.LBPHFaceRecognizer;
+import org.bytedeco.opencv.opencv_imgproc.Vec3fVector;
 import org.bytedeco.opencv.opencv_objdetect.CascadeClassifier;
 import org.bytedeco.opencv.opencv_videoio.VideoCapture;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
+import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.controller.tts.RealTimeTts;
+import org.graded_classes.graded_attendance.data.Student;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
-import static org.bytedeco.opencv.global.opencv_core.CV_32SC1;
-import static org.bytedeco.opencv.global.opencv_core.flip;
+import static org.bytedeco.opencv.global.opencv_calib3d.*;
+import static org.bytedeco.opencv.global.opencv_core.*;
 import static org.bytedeco.opencv.global.opencv_imgcodecs.imencode;
 import static org.bytedeco.opencv.global.opencv_imgcodecs.imread;
 import static org.bytedeco.opencv.global.opencv_imgproc.*;
@@ -44,8 +52,20 @@ public class CameraController {
     @FXML
     private Button addStudent;
     @FXML
-    private ComboBox<String> cameraList;
+    private ScrollPane srollAtt;
+    @FXML
+    private VBox glasses;
 
+    @FXML
+    private VBox hijab;
+    @FXML
+    private HBox checkBoxGroup;
+    @FXML
+    private ComboBox<String> cameraList;
+    private final AtomicBoolean processing =
+            new AtomicBoolean(false);
+    @FXML
+    private SearchField<String> searchBox;
     private VideoCapture camera;
     private ScheduledExecutorService timer;
 
@@ -58,6 +78,7 @@ public class CameraController {
     private final Object frameLock = new Object();
 
     private Rect lastFace;
+    ObservableList<String> studentData = FXCollections.observableArrayList(List.of());
 
     private static final int FACE_SIZE = 200;
     private static final double CONFIDENCE_THRESHOLD = 70;
@@ -69,6 +90,30 @@ public class CameraController {
     private Button startTraining;
     @FXML
     private SVGImageView background;
+    private Mat objectPoints;
+    private Mat imagePoints;
+    private Mat cameraMatrix;
+    MainController mainController;
+
+    public CameraController(MainController mainController) {
+        this.mainController = mainController;
+    }
+    @FXML
+    void onClicked(ActionEvent event) {
+        var box=(CheckBox)(event.getSource());
+        var text=box.getText();
+        if (text.equals("Glasses") && box.isSelected()) {
+            glasses.setDisable(false);
+        }
+        else if (text.equals("Hijab") && box.isSelected()) {
+            hijab.setDisable(false);
+        } else if (text.equals("Glasses") && !box.isSelected()) {
+            glasses.setDisable(true);
+        }
+        else if(text.equals("Hijab") && !box.isSelected()) {
+            glasses.setDisable(true);
+        }
+    }
     @FXML
     void onModeChange(ActionEvent event) {
         var toggle = (ToggleButton) event.getSource();
@@ -76,10 +121,40 @@ public class CameraController {
             startTraining.setDisable(false);
             startCapture.setDisable(true);
             addStudent.setDisable(false);
+            searchBox.setDisable(false);
+            srollAtt.setVisible(true);
+            checkBoxGroup.setVisible(true);
         } else if (toggle.getText().equals("Face Detector")) {
             startCapture.setDisable(false);
             startTraining.setDisable(true);
             addStudent.setDisable(true);
+            searchBox.setDisable(true);
+            srollAtt.setVisible(false);
+            checkBoxGroup.setVisible(false);
+        }
+    }
+
+    @FXML
+    void startCapturing(ActionEvent event) {
+        String buttonId = ((Button) event.getSource()).getId();
+        IO.println("Starting Capturing" + buttonId);
+    }
+
+    private FacemarkLBF facemark;
+
+    private void loadFacemark() {
+        try {
+            File modelFile = extractResourceToTempFile(
+                    "/org/graded_classes/graded_attendance/opencv/lbfmodel.yaml",
+                    "lbfmodel-",
+                    ".yaml"
+            );
+
+            facemark = FacemarkLBF.create();
+            facemark.loadModel(modelFile.getAbsolutePath());
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -90,6 +165,11 @@ public class CameraController {
 
     @FXML
     public void initialize() {
+        studentData.addAll(asList(mainController.gradedDataLoader.getStudentData().values()));
+        searchBox.setSuggestionProvider(request ->
+                studentData.stream().filter(country ->
+                                country.toLowerCase().contains(request.getUserText().toLowerCase())).
+                        collect(Collectors.toList()));
         background.setSvgUrl(GradedResourceLoader.load("icons/new-back1.svg"));
         background.setOpacity(0.3);
         myLogo.setSvgUrl(GradedResourceLoader.load("icons/my-logo.svg"));
@@ -105,7 +185,8 @@ public class CameraController {
 
         loadFaceDetector();
         loadRecognizer();
-
+        loadFacemark();
+        create3DModel();
         startCamera(0);
 
         cameraList.getSelectionModel()
@@ -120,6 +201,14 @@ public class CameraController {
 
                     startCamera(newValue.intValue());
                 });
+    }
+
+    private List<String> asList(Collection<Student> values) {
+        List<String> result = new ArrayList<>();
+        for (Student student : values) {
+            studentData.add(student.ed_no() + " " + student.name());
+        }
+        return result;
     }
 
     private void loadFaceDetector() {
@@ -268,9 +357,8 @@ public class CameraController {
                                 current;
                     }
                 }
-
+                faceMovementDetection(largestFace);
                 lastFace = largestFace;
-
                 rectangle(
                         frame,
                         new Point(
@@ -317,6 +405,170 @@ public class CameraController {
         }
     }
 
+    private void faceMovementDetection(Rect largestFace) {
+        try (RectVector faceVector = new RectVector(1)) {
+            faceVector.put(0, largestFace);
+            try (Point2fVectorVector landmarks = new Point2fVectorVector()) {
+                boolean success =
+                        facemark.fit(gray, faceVector, landmarks);
+
+                if (success && landmarks.size() > 0) {
+                    Point2fVector points = landmarks.get(0);
+                    createCorresponding2D(points);
+                    createCameraMatrix();
+
+                    Mat rvec = new Mat();
+                    Mat tvec = new Mat();
+
+                    solvePnP(
+                            objectPoints,
+                            imagePoints,
+                            cameraMatrix,
+                            new Mat(),
+                            rvec,
+                            tvec
+                    );
+                    Mat rotationMatrix = new Mat();
+
+                    Rodrigues(
+                            rvec,
+                            rotationMatrix
+                    );
+
+                    DoubleIndexer r = rotationMatrix.createIndexer();
+                    Mat mtxR = new Mat();
+                    Rodrigues(rvec, mtxR);
+
+                    Mat mtxQ = new Mat();
+                    Mat Qx = new Mat();
+                    Mat Qy = new Mat();
+                    Mat Qz = new Mat();
+
+                    Point3d angles = RQDecomp3x3(
+                            mtxR,
+                            mtxR,
+                            mtxR,
+                            Qx,
+                            Qy,
+                            Qz
+                    );
+                    double m00 = r.get(0, 0);
+                    double m01 = r.get(0, 1);
+                    double m02 = r.get(0, 2);
+
+                    double m10 = r.get(1, 0);
+                    double m11 = r.get(1, 1);
+                    double m12 = r.get(1, 2);
+
+                    double m20 = r.get(2, 0);
+                    double m21 = r.get(2, 1);
+                    double m22 = r.get(2, 2);
+                    double pitch = angles.get(0);
+                    double yaw = angles.get(1);
+                    double roll = angles.get(2);
+                    /*System.out.printf(
+                            "Yaw: %.1f  Pitch: %.1f  Roll: %.1f%n",
+                            yaw,
+                            pitch,
+                            roll
+                    );*/
+
+                    for (long i = 0; i < points.size(); i++) {
+
+                        Point2f p = points.get(i);
+
+                        circle(
+                                frame,
+                                new Point(
+                                        Math.round(p.x()),
+                                        Math.round(p.y())
+                                ),
+                                4,
+                                new Scalar(0, 255, 0, 0),
+                                FILLED,
+                                LINE_8,
+                                0
+                        );
+                    }
+                }
+
+            }
+        }
+    }
+
+    private void create3DModel() {
+        DoubleIndexer obj;
+        objectPoints = new Mat(6, 3, CV_64FC1);
+        obj = objectPoints.createIndexer();
+
+
+        obj.put(0, 0, 0.0);
+        obj.put(0, 1, 0.0);
+        obj.put(0, 2, 0.0);      // Nose
+        obj.put(1, 0, 0.0);
+        obj.put(1, 1, -330.0);
+        obj.put(1, 2, -65.0);    // Chin
+        obj.put(2, 0, -225.0);
+        obj.put(2, 1, 170.0);
+        obj.put(2, 2, -135.0);   // Left eye
+        obj.put(3, 0, 225.0);
+        obj.put(3, 1, 170.0);
+        obj.put(3, 2, -135.0);   // Right eye
+        obj.put(4, 0, -150.0);
+        obj.put(4, 1, -150.0);
+        obj.put(4, 2, -125.0);   // Left mouth
+        obj.put(5, 0, 150.0);
+        obj.put(5, 1, -150.0);
+        obj.put(5, 2, -125.0);   // Right mouth
+    }
+
+    void createCorresponding2D(Point2fVector points) {
+        Point2f nose = points.get(30);
+        Point2f chin = points.get(8);
+        Point2f leftEye = points.get(36);
+        Point2f rightEye = points.get(45);
+        Point2f leftMouth = points.get(48);
+        Point2f rightMouth = points.get(54);
+        imagePoints = new Mat(6, 2, CV_64FC1);
+
+        DoubleIndexer img = imagePoints.createIndexer();
+
+        img.put(0, 0, nose.x());
+        img.put(0, 1, nose.y());
+
+        img.put(1, 0, chin.x());
+        img.put(1, 1, chin.y());
+
+        img.put(2, 0, leftEye.x());
+        img.put(2, 1, leftEye.y());
+
+        img.put(3, 0, rightEye.x());
+        img.put(3, 1, rightEye.y());
+
+        img.put(4, 0, leftMouth.x());
+        img.put(4, 1, leftMouth.y());
+
+        img.put(5, 0, rightMouth.x());
+        img.put(5, 1, rightMouth.y());
+    }
+
+    private void createCameraMatrix() {
+
+        double focalLength = frame.cols();
+
+        cameraMatrix = Mat.eye(3, 3, CV_64FC1).asMat();
+
+        DoubleIndexer cam = cameraMatrix.createIndexer();
+
+        cam.put(0, 0, focalLength);
+        cam.put(1, 1, focalLength);
+
+        cam.put(0, 2, frame.cols() / 2.0);
+        cam.put(1, 2, frame.rows() / 2.0);
+
+        cam.put(2, 2, 1.0);
+    }
+
     private Image matToImage(Mat mat) {
 
         try (BytePointer buffer =
@@ -344,19 +596,16 @@ public class CameraController {
 
     @FXML
     public void captureImage() {
+        if (!processing.compareAndSet(false, true)) {
+            System.out.println("Recognition already running");
+            return;
 
+        }
         Mat capturedFace;
-        CompletableFuture.runAsync(() -> {
-            RealTimeTts realTimeTts=new RealTimeTts();
-            try {
-                realTimeTts.startNarration();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
         synchronized (frameLock) {
 
             if (lastFace == null) {
+                processing.set(false);
                 System.out.println("No face detected.");
                 return;
             }
@@ -368,12 +617,7 @@ public class CameraController {
                     lastFace.height()
             );
 
-            Mat capturedFrame = frame.clone();
-
-            capturedFace = new Mat(
-                    capturedFrame,
-                    roi
-            ).clone();
+            capturedFace = new Mat(frame, roi).clone();
         }
 
         executor.submit(() -> {
@@ -402,29 +646,32 @@ public class CameraController {
             );
 
             Platform.runLater(() -> {
-
-                System.out.println(
-                        "Student ID: "
-                                + label[0]
-                );
-
-                System.out.println(
-                        "Confidence: "
-                                + confidence[0]
-                );
-
-                if (confidence[0] < CONFIDENCE_THRESHOLD) {
-
+                try {
                     System.out.println(
-                            "Recognized Student "
+                            "Student ID: "
                                     + label[0]
                     );
 
-                } else {
-
                     System.out.println(
-                            "Unknown Person"
+                            "Confidence: "
+                                    + confidence[0]
                     );
+
+                    if (confidence[0] < CONFIDENCE_THRESHOLD) {
+
+                        System.out.println(
+                                "Recognized Student "
+                                        + label[0]
+                        );
+
+                    } else {
+
+                        System.out.println(
+                                "Unknown Person"
+                        );
+                    }
+                } finally {
+                    processing.set(false);
                 }
             });
         });
