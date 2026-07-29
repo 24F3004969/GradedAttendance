@@ -4,6 +4,7 @@ import com.k2fsa.sherpa.onnx.*;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,17 +13,9 @@ import java.nio.file.Paths;
 public class RealTimeTts {
 
     private static SourceDataLine line;
+    OfflineTts tts;
 
-    public void startNarration() throws Exception {
-        String[] prompts = {
-                "%s, please look directly at the camera.",
-                "%s, please turn slightly to the left.",
-                "%s, please turn slightly to the right.",
-                "%s, please look up.",
-                "%s, please look down.",
-                "%s, please return to the center.",
-                "Thank you %s. Your face registration is complete."
-        };
+    public void init() throws Exception {
         Path modelDir;
 
         Path devModelDir = Paths.get(
@@ -68,40 +61,34 @@ public class RealTimeTts {
                         .setModel(modelConfig)
                         .build();
 
-        OfflineTts tts = new OfflineTts(config);
+        tts = new OfflineTts(config);
+    }
 
-
+    public void readAloud(String text) throws LineUnavailableException {
         boolean audioInitialized = false;
-        for (String text : prompts) {
-            GeneratedAudio audio =
-                    tts.generateWithCallback(
-                            text.formatted("Rahul"),
-                            0,
-                            1.0f,
-                            samples -> 1
+        GeneratedAudio audio =
+                tts.generateWithCallback(
+                        text,
+                        0,
+                        1.0f,
+                        samples -> 1
+                );
+
+        if (!audioInitialized) {
+
+            AudioFormat format =
+                    new AudioFormat(
+                            audio.getSampleRate(),
+                            16,
+                            1,
+                            true,
+                            false
                     );
 
-            if (!audioInitialized) {
-
-                AudioFormat format =
-                        new AudioFormat(
-                                audio.getSampleRate(),
-                                16,
-                                1,
-                                true,
-                                false
-                        );
-
-                line = AudioSystem.getSourceDataLine(format);
-                line.open(format);
-                line.start();
-
-                audioInitialized = true;
-            }
-
+            line = AudioSystem.getSourceDataLine(format);
+            line.open(format);
+            line.start();
             playAudio(audio);
-
-            Thread.sleep(2000);
         }
 
         line.drain();
@@ -128,9 +115,5 @@ public class RealTimeTts {
         }
 
         line.write(pcm, 0, pcm.length);
-    }
-
-    static void main() throws Exception {
-        new RealTimeTts().startNarration();
     }
 }

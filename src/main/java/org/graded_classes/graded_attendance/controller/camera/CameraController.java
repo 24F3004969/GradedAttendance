@@ -37,8 +37,7 @@ import java.util.stream.Collectors;
 
 import static org.bytedeco.opencv.global.opencv_calib3d.*;
 import static org.bytedeco.opencv.global.opencv_core.*;
-import static org.bytedeco.opencv.global.opencv_imgcodecs.imencode;
-import static org.bytedeco.opencv.global.opencv_imgcodecs.imread;
+import static org.bytedeco.opencv.global.opencv_imgcodecs.*;
 import static org.bytedeco.opencv.global.opencv_imgproc.*;
 import static org.bytedeco.opencv.global.opencv_videoio.*;
 import static org.graded_classes.graded_attendance.controller.quiz.QuizTaker.extractResourceToTempFile;
@@ -76,7 +75,6 @@ public class CameraController {
     private final Mat gray = new Mat();
 
     private final Object frameLock = new Object();
-
     private Rect lastFace;
     ObservableList<String> studentData = FXCollections.observableArrayList(List.of());
 
@@ -94,26 +92,27 @@ public class CameraController {
     private Mat imagePoints;
     private Mat cameraMatrix;
     MainController mainController;
+    private final Mat cleanFrame = new Mat();
 
     public CameraController(MainController mainController) {
         this.mainController = mainController;
     }
+
     @FXML
     void onClicked(ActionEvent event) {
-        var box=(CheckBox)(event.getSource());
-        var text=box.getText();
+        var box = (CheckBox) (event.getSource());
+        var text = box.getText();
         if (text.equals("Glasses") && box.isSelected()) {
             glasses.setDisable(false);
-        }
-        else if (text.equals("Hijab") && box.isSelected()) {
+        } else if (text.equals("Hijab") && box.isSelected()) {
             hijab.setDisable(false);
         } else if (text.equals("Glasses") && !box.isSelected()) {
             glasses.setDisable(true);
-        }
-        else if(text.equals("Hijab") && !box.isSelected()) {
-            glasses.setDisable(true);
+        } else if (text.equals("Hijab") && !box.isSelected()) {
+            hijab.setDisable(true);
         }
     }
+
     @FXML
     void onModeChange(ActionEvent event) {
         var toggle = (ToggleButton) event.getSource();
@@ -136,8 +135,37 @@ public class CameraController {
 
     @FXML
     void startCapturing(ActionEvent event) {
+
         String buttonId = ((Button) event.getSource()).getId();
-        IO.println("Starting Capturing" + buttonId);
+
+        Mat captureFace;
+
+        synchronized (frameLock) {
+
+            if (lastFace == null) {
+                System.out.println("No face detected.");
+                return;
+            }
+
+            Rect roi = new Rect(
+                    lastFace.x(),
+                    lastFace.y(),
+                    lastFace.width(),
+                    lastFace.height()
+            );
+
+            captureFace = new Mat(cleanFrame, roi).clone();
+        }
+
+        Mat faceGray = new Mat();
+
+        cvtColor(
+                captureFace,
+                faceGray,
+                COLOR_BGR2GRAY
+        );
+        String fileName = imagePath + "/" + System.currentTimeMillis() + ".jpg";
+        imwrite(fileName, faceGray);
     }
 
     private FacemarkLBF facemark;
@@ -158,9 +186,20 @@ public class CameraController {
         }
     }
 
+    String imagePath;
+
     @FXML
     void addNewTraining(ActionEvent event) {
+        String id = searchBox.getText();
+        if (id.equals("")) {
 
+        } else {
+            imagePath = System.getProperty("user.home") + "/gardeEdAttendanceData/" + id.substring(0, id.indexOf(' '));
+            File f = new File(imagePath);
+            if (!f.exists()) {
+                f.mkdirs();
+            }
+        }
     }
 
     @FXML
@@ -180,14 +219,17 @@ public class CameraController {
             System.out.println("No camera found");
             return;
         }
-
-        cameraList.getSelectionModel().selectFirst();
-
         loadFaceDetector();
         loadRecognizer();
         loadFacemark();
         create3DModel();
-        startCamera(0);
+        if (cameras.size() > 1) {
+            startCamera(1);
+            cameraList.getSelectionModel().select(1);
+        } else {
+            startCamera(0);
+            cameraList.getSelectionModel().selectFirst();
+        }
 
         cameraList.getSelectionModel()
                 .selectedIndexProperty()
@@ -316,9 +358,9 @@ public class CameraController {
                 return;
             }
             flip(frame, frame, 1); // un-mirror webcam preview
-
+            frame.copyTo(cleanFrame);
             cvtColor(
-                    frame,
+                    cleanFrame,
                     gray,
                     COLOR_BGR2GRAY
             );
@@ -357,8 +399,8 @@ public class CameraController {
                                 current;
                     }
                 }
-                faceMovementDetection(largestFace);
                 lastFace = largestFace;
+                faceMovementDetection(largestFace);
                 rectangle(
                         frame,
                         new Point(
@@ -472,7 +514,6 @@ public class CameraController {
                             pitch,
                             roll
                     );*/
-
                     for (long i = 0; i < points.size(); i++) {
 
                         Point2f p = points.get(i);
@@ -491,7 +532,6 @@ public class CameraController {
                         );
                     }
                 }
-
             }
         }
     }
@@ -617,7 +657,7 @@ public class CameraController {
                     lastFace.height()
             );
 
-            capturedFace = new Mat(frame, roi).clone();
+            capturedFace = new Mat(cleanFrame, roi).clone();
         }
 
         executor.submit(() -> {
@@ -638,7 +678,6 @@ public class CameraController {
 
             int[] label = new int[1];
             double[] confidence = new double[1];
-
             recognizer.predict(
                     faceGray,
                     label,
