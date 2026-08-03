@@ -5,11 +5,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import org.graded_classes.graded_attendance.components.LatexView;
 import org.graded_classes.graded_attendance.data.QuestionData;
 
+import java.io.File;
 import java.net.URL;
 import java.util.*;
 
@@ -27,6 +30,8 @@ public class QuestionTakerWthOp implements Initializable {
 
     @FXML
     private LatexView opt4;
+    @FXML
+    private ImageView imageView;
 
     @FXML
     private LatexView questionText;
@@ -40,11 +45,15 @@ public class QuestionTakerWthOp implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        if (questionData.question_img_path() != null  && !questionData.question_img_path().isEmpty()) {
+            imageView.setImage(new Image(new File(questionData.question_img_path()).toURI().toString()));
+        }
+        List<String> list1 = questionData.option_data().options().values().stream().toList();
         questionText.setFormula("\\text{%s}".formatted(questionData.question_txt()));
-        opt1.setFormula("\\text{%s}".formatted(questionData.option_data().options().getFirst()));
-        opt2.setFormula("\\text{%s}".formatted(questionData.option_data().options().get(1)));
-        opt3.setFormula("\\text{%s}".formatted(questionData.option_data().options().get(2)));
-        opt4.setFormula("\\text{%s}".formatted(questionData.option_data().options().getLast()));
+        opt1.setFormula("\\text{%s}".formatted(list1.getFirst()));
+        opt2.setFormula("\\text{%s}".formatted(list1.get(1)));
+        opt3.setFormula("\\text{%s}".formatted(list1.get(2)));
+        opt4.setFormula("\\text{%s}".formatted(list1.getLast()));
 
     }
 

@@ -30,11 +30,13 @@ public class NewQuiz implements Initializable {
     TreeItem<String> target;
     QuizGenerator quizGenerator;
     MainController mainController;
+    int topicId;
 
-    public NewQuiz(TreeItem<String> target, QuizGenerator quizGenerator, MainController mainController) {
+    public NewQuiz(TreeItem<String> target, QuizGenerator quizGenerator, MainController mainController, int topicId) {
         this.target = target;
         this.quizGenerator = quizGenerator;
         this.mainController = mainController;
+        this.topicId = topicId;
     }
 
     @FXML
@@ -45,17 +47,17 @@ public class NewQuiz implements Initializable {
                 node);
         node.getStyleClass().add("ikonli-font-icon");
         node.setStyle("""
-                    -fx-icon-code:mdi2f-folder;
-                    -fx-icon-color:#944a00;
-                    """);
+                -fx-icon-code:mdi2f-folder;
+                -fx-icon-color:#944a00;
+                """);
         for (int i = 1; i <= NoOfQuestion.getValue(); i++) {
             newChild.getChildren().add(
-                    new TreeItem<>("Question " + i,new FontIcon("mdi2n-note")));
+                    new TreeItem<>("Question " + i, new FontIcon("mdi2n-note")));
         }
         target.getChildren().add(newChild);
         TabPane tabPane = (TabPane) quizGenerator.quiz_gen_layout.lookup("#tabs");
         var tb = mainController.gradedFxmlLoader.createView(R.question_editor,
-                new QuestionEditor(mainController));
+                new QuestionEditor(mainController, NoOfQuestion.getValue(), "" + topicId));
         Tab tab = new Tab(quizName.getText());
         tab.setContent(tb);
         tabPane.getTabs().add(tab);

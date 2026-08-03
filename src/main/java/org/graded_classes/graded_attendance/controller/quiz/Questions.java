@@ -17,24 +17,25 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.File;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class Questions implements Initializable {
     @FXML
-    private StackPane drag_area;
+    StackPane drag_area;
     @FXML
     Label QNum;
     @FXML
-    private CustomTextField opt1, opt2, opt3, opt4;
+    CustomTextField opt1, opt2, opt3, opt4;
 
     @FXML
-    private ToggleGroup q_options, t_options;
+    ToggleGroup q_options, t_options;
     @FXML
-    private CheckBox cOp1, cOp2, cOp3, cOp4;
+    CheckBox cOp1, cOp2, cOp3, cOp4;
     @FXML
-    private Label file_name;
+    Label file_name;
     @FXML
-    private CustomTextField question_text;
+    CustomTextField question_text;
     String file;
     MainController mainController;
     String questionNumber;
@@ -61,6 +62,10 @@ public class Questions implements Initializable {
     @FXML
     void onBasicAction(ActionEvent event) {
         fileChooser(event);
+    }
+
+    public File getFile() {
+        return new File(file);
     }
 
     @FXML
@@ -95,13 +100,14 @@ public class Questions implements Initializable {
         expand(opt1, opt2);
         expand(opt3, opt4);
         if (questionData != null) {
+            List<String> list1 = questionData.option_data().options().values().stream().toList();
             selectCorrect();
             question_text.setText(questionData.question_txt());
             t_options.getToggles().get(getTypeId(questionData.level())).setSelected(true);
-            opt1.setText(questionData.option_data().options().getFirst());
-            opt2.setText(questionData.option_data().options().get(1));
-            opt3.setText(questionData.option_data().options().get(2));
-            opt4.setText(questionData.option_data().options().get(3));
+            opt1.setText(list1.getFirst());
+            opt2.setText(list1.get(1));
+            opt3.setText(list1.get(2));
+            opt4.setText(list1.get(3));
         }
     }
 

@@ -6,6 +6,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,7 +16,7 @@ public class RealTimeTts {
     private static SourceDataLine line;
     OfflineTts tts;
 
-    public void init() throws Exception {
+    public void init(){
         Path modelDir;
 
         Path devModelDir = Paths.get(
@@ -29,12 +30,17 @@ public class RealTimeTts {
             modelDir = devModelDir;
         } else {
             // Running from packaged app
-            Path appDir = Paths.get(
-                            RealTimeTts.class.getProtectionDomain()
-                                    .getCodeSource()
-                                    .getLocation()
-                                    .toURI())
-                    .getParent();
+            Path appDir = null;
+            try {
+                appDir = Paths.get(
+                                RealTimeTts.class.getProtectionDomain()
+                                        .getCodeSource()
+                                        .getLocation()
+                                        .toURI())
+                        .getParent();
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
 
             modelDir = appDir
                     .resolve("models")
@@ -64,7 +70,7 @@ public class RealTimeTts {
         tts = new OfflineTts(config);
     }
 
-    public void readAloud(String text) throws LineUnavailableException {
+    public void readAloud(String text) {
         boolean audioInitialized = false;
         GeneratedAudio audio =
                 tts.generateWithCallback(
@@ -85,17 +91,19 @@ public class RealTimeTts {
                             false
                     );
 
-            line = AudioSystem.getSourceDataLine(format);
-            line.open(format);
+            try {
+                line = AudioSystem.getSourceDataLine(format);
+            } catch (LineUnavailableException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                line.open(format);
+            } catch (LineUnavailableException e) {
+                throw new RuntimeException(e);
+            }
             line.start();
             playAudio(audio);
         }
-
-        line.drain();
-        line.stop();
-        line.close();
-
-        tts.release();
     }
 
     private static void playAudio(GeneratedAudio audio) {
@@ -115,5 +123,12 @@ public class RealTimeTts {
         }
 
         line.write(pcm, 0, pcm.length);
+    }
+    public void stop() {
+        line.drain();
+        line.stop();
+        line.close();
+
+        tts.release();
     }
 }

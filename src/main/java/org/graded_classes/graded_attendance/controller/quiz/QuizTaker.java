@@ -49,7 +49,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-public class  QuizTaker implements Initializable {
+public class QuizTaker implements Initializable {
     Timeline timeline;
     LocalTime totalTime;
     ArrayList<ToggleGroup> groups = new ArrayList<>();
@@ -101,10 +101,10 @@ public class  QuizTaker implements Initializable {
                 _pst.setString(1, questionId);
                 var _rs = _pst.executeQuery();
                 OptionData questionOption = null;
-                ArrayList<String> options = new ArrayList<>();
+                LinkedHashMap<Integer, String> options = new LinkedHashMap<>();
                 int correctId = 0;
                 while (_rs.next()) {
-                    options.add(_rs.getString("option_text"));
+                    options.put(_rs.getInt("option_id"),_rs.getString("option_text"));
                     var id = _rs.getInt("is_correct");
                     if (id == 1)
                         correctId = options.size();

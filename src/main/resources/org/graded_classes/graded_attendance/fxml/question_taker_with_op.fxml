@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-<?import org.graded_classes.graded_attendance.components.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import org.graded_classes.graded_attendance.components.LatexView?>
 
-<SplitPane dividerPositions="0.5" orientation="VERTICAL" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.QuestionTakerWthOp">
+<SplitPane dividerPositions="0.5" orientation="VERTICAL" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.QuestionTakerWthOp">
    <items>
       <SplitPane dividerPositions="0.8">
          <items>
@@ -20,9 +26,12 @@
                   </VBox>
                </content>
             </ScrollPane>
-            <ScrollPane>
+            <ScrollPane fitToHeight="true" fitToWidth="true">
                <content>
-                  <StackPane prefHeight="150.0" prefWidth="200.0" />
+                  <StackPane>
+                     <children>
+                        <ImageView fx:id="imageView" pickOnBounds="true" preserveRatio="true" />
+                     </children></StackPane>
                </content>
             </ScrollPane>
          </items>

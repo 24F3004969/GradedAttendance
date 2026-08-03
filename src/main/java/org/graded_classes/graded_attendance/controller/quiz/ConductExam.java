@@ -29,6 +29,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 
@@ -114,7 +115,7 @@ public class ConductExam implements Initializable {
                 if (question.option_data() != null && question.option_data().option_index() == opId)
                     score = score + 4;
             }
-            System.out.println(st.ed_no() + ":    " + ((score <= 0) ? "Absent or not eligible" : score+"/80"+"       Name: "+st.name()));
+            System.out.println(st.ed_no() + ":    " + ((score <= 0) ? "Absent or not eligible" : score + "/80" + "       Name: " + st.name()));
         }
 
     }
@@ -141,10 +142,10 @@ public class ConductExam implements Initializable {
                     _pst.setString(1, questionId);
                     var _rs = _pst.executeQuery();
                     OptionData questionOption = null;
-                    ArrayList<String> options = new ArrayList<>();
+                    LinkedHashMap<Integer, String> options = new LinkedHashMap<>();
                     int correctId = 0;
                     while (_rs.next()) {
-                        options.add(_rs.getString("option_text"));
+                        options.put(_rs.getInt("option_id"), _rs.getString("option_text"));
                         var id = _rs.getInt("is_correct");
                         if (id == 1)
                             correctId = options.size();

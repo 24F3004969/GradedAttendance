@@ -42,22 +42,21 @@ public class QuizGenerator implements Initializable {
     @FXML
     void onNewTopic() {
         var newTopic = mainController.gradedFxmlLoader.createView(R.newTopic,
-                new QuizTopic(rootItem, mainController.modalPane,map.values()));
+                new QuizTopic(rootItem, mainController.modalPane, map.values()));
         mainController.modalPane.show(newTopic);
     }
 
     TreeMap<Integer, String> map = new TreeMap<>();
     TreeMap<Integer, TreeMap<Integer, QuestionData>> allQuestions = new TreeMap<>();
     TreeMap<String, Integer> invertedMap;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
         CompletableFuture.runAsync(() -> {
             allQuestions = extractAllQuestionData();
             map = generateTopicMapping();
             generateTreeMap();
             invertedMap = new TreeMap<>();
-
             for (Map.Entry<Integer, String> entry : map.entrySet()) {
                 invertedMap.put(entry.getValue(), entry.getKey());
             }
@@ -83,14 +82,17 @@ public class QuizGenerator implements Initializable {
     }
 
     private void generateTreeMap() {
+
         for (var entry : map.keySet()) {
             TreeItem<String> item = new TreeItem<>(map.get(entry));
             item.setGraphic(new FontIcon("mdi2f-folder"));
-            int size = allQuestions.get(entry).size();
-            for (int i = 1; i <= size; i++) {
-                TreeItem<String> e = new TreeItem<>("Question " + i, new FontIcon("mdi2n-note"));
-                item.getChildren().add(e);
+            if (allQuestions.containsKey(entry)) {
+                int size = allQuestions.get(entry).size();
+                for (int i = 1; i <= size; i++) {
+                    TreeItem<String> e = new TreeItem<>("Question " + i, new FontIcon("mdi2n-note"));
+                    item.getChildren().add(e);
 
+                }
             }
             rootItem.getChildren().add(item);
             quizTree.setRoot(rootItem);
@@ -132,7 +134,7 @@ public class QuizGenerator implements Initializable {
             if (!cell.isEmpty() && event.getClickCount() == 2) {
                 TabPane tabPane = (TabPane) quiz_gen_layout.lookup("#tabs");
                 var tb = mainController.gradedFxmlLoader.createView(R.question_editor,
-                        new QuestionEditor(mainController, allQuestions.get(invertedMap.get(cell.getItem()))));
+                        new QuestionEditor(mainController, allQuestions.get(invertedMap.get(cell.getItem())),""+invertedMap.get(cell.getItem())));
                 Tab tab = new Tab(cell.getItem());
                 tab.setContent(tb);
                 tabPane.getTabs().add(tab);
@@ -166,7 +168,7 @@ public class QuizGenerator implements Initializable {
         addQuiz.setGraphic(new FontIcon("mdi2n-note"));
         addQuiz.setOnAction(e -> {
             var newQuiz = mainController.gradedFxmlLoader.createView(R.newQuiz,
-                    new NewQuiz(target, this, mainController));
+                    new NewQuiz(target, this, mainController,invertedMap.get(name)));
             mainController.modalPane.show(newQuiz);
         });
         return addQuiz;
@@ -183,18 +185,18 @@ public class QuizGenerator implements Initializable {
             var conn = mainController.gradedDataLoader.databaseLoader.getConnection();
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
-            int id=0;
+            int id = 0;
             while (rs.next()) {
                 int topicId = rs.getInt("topic_id");
                 int questionId = rs.getInt("question_id");
                 if (mapOfQuestion.containsKey(topicId)) {
                     if (mapOfQuestion.get(topicId).containsKey(questionId)) {
                         mapOfQuestion.get(topicId).get(questionId).
-                                option_data().options().add(rs.getString("option_text"));
-                        if (rs.getInt("is_correct")==1)
+                                option_data().options().put(rs.getInt("option_id"),rs.getString("option_text"));
+                        if (rs.getInt("is_correct") == 1)
                             mapOfQuestion.get(topicId).get(questionId).
                                     option_data().setOption_index(mapOfQuestion.get(topicId).
-                                            get(questionId).option_data().options().size()-1);
+                                            get(questionId).option_data().options().size() - 1);
                     } else {
                         id++;
                         mapOfQuestion.get(topicId).put(questionId, new QuestionData("" + questionId,
@@ -205,8 +207,7 @@ public class QuizGenerator implements Initializable {
                                 rs.getString("level"),
                                 rs.getString("question_txt"),
                                 rs.getString("question_img_path"), new OptionData(
-                                0, new ArrayList<>(List.of(rs.getString("option_text")))
-                        )));
+                                0, new LinkedHashMap<>(Map.of(rs.getInt("option_id"),rs.getString("option_text"))))));
                     }
 
                 } else {
@@ -219,7 +220,7 @@ public class QuizGenerator implements Initializable {
                             rs.getString("level"),
                             rs.getString("question_txt"),
                             rs.getString("question_img_path"), new OptionData(
-                            0, new ArrayList<>(List.of(rs.getString("option_text"))))));
+                            0, new LinkedHashMap<>(Map.of(rs.getInt("option_id"),rs.getString("option_text"))))));
                     mapOfQuestion.put(topicId, map);
                 }
             }

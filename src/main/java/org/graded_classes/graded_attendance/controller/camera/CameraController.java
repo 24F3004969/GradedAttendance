@@ -24,7 +24,9 @@ import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.controller.tts.RealTimeTts;
 import org.graded_classes.graded_attendance.data.Student;
+import org.jetbrains.annotations.NotNull;
 
+import javax.sound.sampled.LineUnavailableException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.IntBuffer;
@@ -85,14 +87,14 @@ public class CameraController {
     @FXML
     private SVGImageView myLogo;
     @FXML
-    private Button startTraining;
-    @FXML
     private SVGImageView background;
     private Mat objectPoints;
     private Mat imagePoints;
     private Mat cameraMatrix;
     MainController mainController;
     private final Mat cleanFrame = new Mat();
+    @FXML
+    private Label gFront, hFront, ldFront, llFront, nFront, nDown, nLeft, nRight;
 
     public CameraController(MainController mainController) {
         this.mainController = mainController;
@@ -117,7 +119,6 @@ public class CameraController {
     void onModeChange(ActionEvent event) {
         var toggle = (ToggleButton) event.getSource();
         if (toggle.getText().equals("Training")) {
-            startTraining.setDisable(false);
             startCapture.setDisable(true);
             addStudent.setDisable(false);
             searchBox.setDisable(false);
@@ -125,7 +126,7 @@ public class CameraController {
             checkBoxGroup.setVisible(true);
         } else if (toggle.getText().equals("Face Detector")) {
             startCapture.setDisable(false);
-            startTraining.setDisable(true);
+
             addStudent.setDisable(true);
             searchBox.setDisable(true);
             srollAtt.setVisible(false);
@@ -134,10 +135,49 @@ public class CameraController {
     }
 
     @FXML
+    void play(ActionEvent event) {
+        String id = ((Button) event.getSource()).getId();
+        switch (id) {
+            case "normal" -> {
+                timeTts.readAloud(", , Normal mode , ,");
+            }
+            case "long" -> {
+                timeTts.readAloud(", , Long distance mode , ,");
+
+            }
+            case "low" -> {
+                timeTts.readAloud(", , Low Light mode , ,");
+
+            }
+            case "glasses" -> {
+                timeTts.readAloud(", , Glasses mode , ,");
+
+            }
+            case "hijab" -> {
+                timeTts.readAloud(", , Hijab mode , ,");
+
+            }
+        }
+    }
+
+    @FXML
     void startCapturing(ActionEvent event) {
+        Button source = (Button) event.getSource();
+        String buttonId = source.getId();
+        switch (buttonId) {
+            case "nf" -> {
+                int x = nFront.getText().contains(" ") ? (Integer.parseInt(nFront.getText().substring(nFront.getText().indexOf(' ')).trim()))+1 : 1;
+                nFront.setText("Front " + x);
+                clickThePhoto(buttonId);
+                if (x>=10)
+                    source.setDisable(true);
 
-        String buttonId = ((Button) event.getSource()).getId();
+            }
+        }
+        clickThePhoto(buttonId);
+    }
 
+    private void clickThePhoto(String id) {
         Mat captureFace;
 
         synchronized (frameLock) {
@@ -164,26 +204,12 @@ public class CameraController {
                 faceGray,
                 COLOR_BGR2GRAY
         );
-        String fileName = imagePath + "/" + System.currentTimeMillis() + ".jpg";
-        imwrite(fileName, faceGray);
-    }
-
-    private FacemarkLBF facemark;
-
-    private void loadFacemark() {
-        try {
-            File modelFile = extractResourceToTempFile(
-                    "/org/graded_classes/graded_attendance/opencv/lbfmodel.yaml",
-                    "lbfmodel-",
-                    ".yaml"
-            );
-
-            facemark = FacemarkLBF.create();
-            facemark.loadModel(modelFile.getAbsolutePath());
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        File f = new File(imagePath + "/" + id);
+        if (!f.exists()) {
+            f.mkdir();
         }
+        String fileName = imagePath + "/" + id + "/" + System.currentTimeMillis() + ".jpg";
+        imwrite(fileName, faceGray);
     }
 
     String imagePath;
@@ -194,13 +220,29 @@ public class CameraController {
         if (id.equals("")) {
 
         } else {
-            imagePath = System.getProperty("user.home") + "/gardeEdAttendanceData/" + id.substring(0, id.indexOf(' '));
-            File f = new File(imagePath);
-            if (!f.exists()) {
-                f.mkdirs();
-            }
+            Result result = getResult(id);
+            CompletableFuture.runAsync(() -> {
+                timeTts.readAloud(", , " + result.ed() + result.name() + "Welcome to GradeED Coaching Classes. Please be ready and stand in front of the camera.");
+            });
         }
     }
+
+    private Result getResult(String id) {
+        String ed = id.substring(0, id.indexOf(' '));
+        String name = id.substring(id.indexOf(' ') + 1).trim();
+        imagePath = System.getProperty("user.home") + "/gardeEdAttendanceData/" + id.substring(0, id.indexOf(' '));
+        File f = new File(imagePath);
+        if (!f.exists()) {
+            f.mkdirs();
+        }
+        Result result = new Result(ed, name);
+        return result;
+    }
+
+    private record Result(String ed, String name) {
+    }
+
+    RealTimeTts timeTts;
 
     @FXML
     public void initialize() {
@@ -214,7 +256,14 @@ public class CameraController {
         myLogo.setSvgUrl(GradedResourceLoader.load("icons/my-logo.svg"));
         ObservableList<String> cameras = getAvailableCameras();
         cameraList.setItems(cameras);
-
+        CompletableFuture.runAsync(() -> {
+            timeTts = new RealTimeTts();
+            try {
+                timeTts.init();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
         if (cameras.isEmpty()) {
             System.out.println("No camera found");
             return;
@@ -243,6 +292,106 @@ public class CameraController {
 
                     startCamera(newValue.intValue());
                 });
+    }
+
+    @FXML
+    public void tryToDetect() {
+        if (!processing.compareAndSet(false, true)) {
+            System.out.println("Recognition already running");
+            return;
+
+        }
+        Mat capturedFace;
+        synchronized (frameLock) {
+
+            if (lastFace == null) {
+                processing.set(false);
+                System.out.println("No face detected.");
+                return;
+            }
+
+            Rect roi = new Rect(
+                    lastFace.x(),
+                    lastFace.y(),
+                    lastFace.width(),
+                    lastFace.height()
+            );
+
+            capturedFace = new Mat(cleanFrame, roi).clone();
+        }
+
+        executor.submit(() -> {
+
+            Mat faceGray = new Mat();
+
+            cvtColor(
+                    capturedFace,
+                    faceGray,
+                    COLOR_BGR2GRAY
+            );
+
+            resize(
+                    faceGray,
+                    faceGray,
+                    new Size(FACE_SIZE, FACE_SIZE)
+            );
+
+            int[] label = new int[1];
+            double[] confidence = new double[1];
+            recognizer.predict(
+                    faceGray,
+                    label,
+                    confidence
+            );
+
+            Platform.runLater(() -> {
+                try {
+                    System.out.println(
+                            "Student ID: "
+                                    + label[0]
+                    );
+
+                    System.out.println(
+                            "Confidence: "
+                                    + confidence[0]
+                    );
+
+                    if (confidence[0] < CONFIDENCE_THRESHOLD) {
+
+                        System.out.println(
+                                "Recognized Student "
+                                        + label[0]
+                        );
+
+                    } else {
+
+                        System.out.println(
+                                "Unknown Person"
+                        );
+                    }
+                } finally {
+                    processing.set(false);
+                }
+            });
+        });
+    }
+
+    private FacemarkLBF facemark;
+
+    private void loadFacemark() {
+        try {
+            File modelFile = extractResourceToTempFile(
+                    "/org/graded_classes/graded_attendance/opencv/lbfmodel.yaml",
+                    "lbfmodel-",
+                    ".yaml"
+            );
+
+            facemark = FacemarkLBF.create();
+            facemark.loadModel(modelFile.getAbsolutePath());
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private List<String> asList(Collection<Student> values) {
@@ -634,87 +783,6 @@ public class CameraController {
         }
     }
 
-    @FXML
-    public void captureImage() {
-        if (!processing.compareAndSet(false, true)) {
-            System.out.println("Recognition already running");
-            return;
-
-        }
-        Mat capturedFace;
-        synchronized (frameLock) {
-
-            if (lastFace == null) {
-                processing.set(false);
-                System.out.println("No face detected.");
-                return;
-            }
-
-            Rect roi = new Rect(
-                    lastFace.x(),
-                    lastFace.y(),
-                    lastFace.width(),
-                    lastFace.height()
-            );
-
-            capturedFace = new Mat(cleanFrame, roi).clone();
-        }
-
-        executor.submit(() -> {
-
-            Mat faceGray = new Mat();
-
-            cvtColor(
-                    capturedFace,
-                    faceGray,
-                    COLOR_BGR2GRAY
-            );
-
-            resize(
-                    faceGray,
-                    faceGray,
-                    new Size(FACE_SIZE, FACE_SIZE)
-            );
-
-            int[] label = new int[1];
-            double[] confidence = new double[1];
-            recognizer.predict(
-                    faceGray,
-                    label,
-                    confidence
-            );
-
-            Platform.runLater(() -> {
-                try {
-                    System.out.println(
-                            "Student ID: "
-                                    + label[0]
-                    );
-
-                    System.out.println(
-                            "Confidence: "
-                                    + confidence[0]
-                    );
-
-                    if (confidence[0] < CONFIDENCE_THRESHOLD) {
-
-                        System.out.println(
-                                "Recognized Student "
-                                        + label[0]
-                        );
-
-                    } else {
-
-                        System.out.println(
-                                "Unknown Person"
-                        );
-                    }
-                } finally {
-                    processing.set(false);
-                }
-            });
-        });
-    }
 
     public void stopCamera() {
 

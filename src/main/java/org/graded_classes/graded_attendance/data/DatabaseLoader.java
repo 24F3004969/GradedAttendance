@@ -1,6 +1,7 @@
 package org.graded_classes.graded_attendance.data;
 
 import javafx.scene.control.Alert;
+import org.graded_classes.graded_attendance.Main;
 
 import java.io.File;
 import java.sql.Connection;
@@ -19,11 +20,15 @@ public class DatabaseLoader {
         if (new File(System.getProperty("user.home") + "\\" + name + ".db").exists()) {
             this.root_path = System.getProperty("user.home") + "\\";
         }
+
+        if (!new File(Main.getRootPath()+"My Drive" ,"imageData").exists()) {
+            System.out.println(new File(Main.getRootPath()+"My Drive" , "imageData").mkdirs());
+        }
         init();
     }
 
     public DatabaseLoader(String name) {
-        this("G:/My Drive/", name);
+        this(Main.getRootPath() + "My Drive/", name);
     }
 
     private void init() {

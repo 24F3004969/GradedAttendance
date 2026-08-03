@@ -1,5 +1,6 @@
 package org.graded_classes.graded_attendance;
 
+import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -9,6 +10,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -38,8 +40,14 @@ public class Main extends Application {
         }
         Application.launch(Main.class);
     }
+    public static String getRootPath() {
+        for (File r : File.listRoots()) {
+            File myDrive = new File(r, "My Drive");
+            if (myDrive.exists()) {
+               return r.toString();
+            }
+        }
+        return null;
+    }
 }
-
-
-
 

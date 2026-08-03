@@ -9,13 +9,14 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-radius: 5; -fx-background-color: #fafafa;" stylesheets="@../css/atlantafx.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.ExamCreator">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="600.0" style="-fx-background-radius: 5; -fx-background-color: #fafafa;" stylesheets="@../css/atlantafx.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.ExamCreator">
    <children>
       <HBox>
          <children>
@@ -84,6 +85,15 @@
                         </VBox>
                      </children>
                   </HBox>
+                  <ScrollPane fitToHeight="true" fitToWidth="true" minHeight="40.0" vbarPolicy="NEVER" VBox.vgrow="NEVER">
+                     <content>
+                        <HBox fx:id="topics" spacing="10.0">
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                        </HBox>
+                     </content>
+                  </ScrollPane>
                   <HBox spacing="20.0">
                      <children>
                         <VBox>
@@ -117,6 +127,7 @@
                         <Button mnemonicParsing="false" onAction="#create" styleClass="accent" text="Create" />
                      </children>
                   </HBox>
+                  <HBox prefHeight="100.0" prefWidth="200.0" />
                </children>
             </VBox>
             <HBox alignment="CENTER" maxHeight="150.0" maxWidth="150.0" minHeight="150.0" minWidth="150.0" prefHeight="150.0" prefWidth="150.0" style="-fx-background-color: rgba(0, 0, 0, 0.8); -fx-background-radius: 10;" visible="false" StackPane.alignment="CENTER">

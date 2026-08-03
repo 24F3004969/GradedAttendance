@@ -1,15 +1,16 @@
 package org.graded_classes.graded_attendance.data;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Objects;
 
 public final class OptionData {
     private  int option_index;
-    private final ArrayList<String> options;
+    private final LinkedHashMap<Integer,String> options;
 
     public OptionData(
             int option_index,
-            ArrayList<String> options
+            LinkedHashMap<Integer,String> options
     ) {
         this.option_index = option_index;
         this.options = options;
@@ -23,7 +24,7 @@ public final class OptionData {
         this.option_index = option_index;
     }
 
-    public ArrayList<String> options() {
+    public LinkedHashMap<Integer,String>  options() {
         return options;
     }
 
