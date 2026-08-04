@@ -9,6 +9,26 @@
     -fx-font-weight: bold;
     -fx-font-size: 20px;
 }
+.ring-progress-indicator > .container > .track {
+    -color-progress-indicator-track: rgba(0, 0, 0, 0.1);
+    -fx-stroke-width: 15px;
+}
 .ring-progress-indicator > .container > .ring {
-    -fx-stroke-width: 20px;
+    -fx-stroke-width: 15px;
+}
+.math > .container > .ring{
+     -color-progress-indicator-fill:#2563EB;
+}
+.phy > .container > .ring{
+    -color-progress-indicator-fill:#10B981;
+}
+.chem > .container > .ring{
+    -color-progress-indicator-fill:#7C3AED;
+}
+.bio > .container > .ring{
+    -color-progress-indicator-fill:#F59E0B;
+}
+
+.eng > .container > .ring{
+    -color-progress-indicator-fill:#06B6D4;
 }

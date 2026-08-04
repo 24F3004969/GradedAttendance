@@ -1,60 +1,498 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import atlantafx.base.controls.RingProgressIndicator?>
+<?import com.dlsc.gemsfx.SVGImageView?>
 <?import com.dlsc.gemsfx.SearchField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<VBox prefHeight="641.0" prefWidth="879.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" style="-fx-border-color: rgba(0, 0, 0, 0.2);">
+<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.ExamReport">
+   <content>
+      <VBox stylesheets="@../css/teaching_progress_view.css">
          <children>
-            <VBox>
+            <VBox prefHeight="641.0" prefWidth="879.0">
                <children>
-                  <Label fx:id="today" text="16 May 2026">
-                     <font>
-                        <Font name="System Bold" size="16.0" />
-                     </font>
-                  </Label>
-                  <Label text="Exam Report">
-                     <font>
-                        <Font size="48.0" />
-                     </font>
-                  </Label>
+                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" style="-fx-border-color: rgba(0, 0, 0, 0.2);">
+                     <children>
+                        <VBox>
+                           <children>
+                              <Label fx:id="today" text="16 May 2026">
+                                 <font>
+                                    <Font name="System Bold" size="16.0" />
+                                 </font>
+                              </Label>
+                              <Label text="Exam Report">
+                                 <font>
+                                    <Font size="48.0" />
+                                 </font>
+                                 <graphic>
+                                    <FontIcon style="-fx-icon-code: bi-file-bar-graph-fill; -fx-icon-color: #1c75bc; -fx-icon-size: 48;" />
+                                 </graphic>
+                              </Label>
+                           </children>
+                        </VBox>
+                        <HBox alignment="CENTER_RIGHT" spacing="10.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Button mnemonicParsing="false" styleClass="accent" text="Generate Report">
+                                 <padding>
+                                    <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                                 </padding>
+                                 <graphic>
+                                    <FontIcon style="-fx-icon-code: gmi-file-download; -fx-icon-size: 18;" />
+                                 </graphic>
+                              </Button>
+                              <Button mnemonicParsing="false" styleClass="success" text="Send all report">
+                                 <padding>
+                                    <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                                 </padding>
+                                 <graphic>
+                                    <FontIcon style="-fx-icon-code: bi-share-fill; -fx-icon-size: 18;" />
+                                 </graphic>
+                              </Button>
+                           </children>
+                           <HBox.margin>
+                              <Insets right="20.0" />
+                           </HBox.margin>
+                        </HBox>
+                     </children>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </HBox>
+                  <HBox alignment="CENTER" minHeight="20.0" prefHeight="30.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <SearchField prefWidth="400.0" promptText="ED No. or Name" />
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                     </VBox.margin>
+                  </HBox>
+                  <VBox VBox.vgrow="ALWAYS">
+                     <children>
+                        <HBox prefHeight="100.0" prefWidth="200.0" style="-fx-background-color: #fafafa; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;">
+                           <children>
+                              <HBox prefWidth="300.0" style="-fx-background-color: #fafafa;">
+                                 <children>
+                                    <StackPane maxHeight="80.0" maxWidth="80.0" minHeight="80.0" minWidth="80.0" style="-fx-background-color: #d3e0f7; -fx-background-radius: 50;">
+                                       <children>
+                                          <Text id="num" fx:id="ed" strokeType="OUTSIDE" strokeWidth="0.0" text="SU" StackPane.alignment="CENTER">
+                                             <font>
+                                                <Font name="System Bold" size="33.0" />
+                                             </font>
+                                          </Text>
+                                       </children>
+                                       <HBox.margin>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                       </HBox.margin>
+                                    </StackPane>
+                                    <VBox HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <Label id="name" fx:id="name_class" text="SIDRAH UFAQ">
+                                             <font>
+                                                <Font name="System Bold" size="16.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="recent_message" text="Class 10" />
+                                          <Label id="tel_id" fx:id="id_user" maxHeight="0.0" maxWidth="0.0" minHeight="0.0" minWidth="0.0" prefHeight="0.0" prefWidth="0.0" visible="false">
+                                             <font>
+                                                <Font name="System Bold" size="12.0" />
+                                             </font>
+                                          </Label>
+                                          <Label fx:id="recent_message1" text="Roll No. ED25" />
+                                       </children>
+                                       <HBox.margin>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                       </HBox.margin>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                              <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2);" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <Label text="Overall Percentage">
+                                             <font>
+                                                <Font name="System Bold" size="15.0" />
+                                             </font>
+                                          </Label>
+                                          <RingProgressIndicator maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.76" />
+                                          <Label text="Good">
+                                             <font>
+                                                <Font name="System Bold" size="14.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </padding>
+                                    </VBox>
+                                    <VBox alignment="CENTER" spacing="10.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2);" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <Label text="Total Marks">
+                                             <font>
+                                                <Font name="System Bold" size="15.0" />
+                                             </font>
+                                          </Label>
+                                          <HBox alignment="CENTER">
+                                             <children>
+                                                <Label text="456" textFill="#1c75bc">
+                                                   <font>
+                                                      <Font name="System Bold" size="36.0" />
+                                                   </font>
+                                                </Label>
+                                                <Label text=" / 600">
+                                                   <font>
+                                                      <Font name="System Bold" size="29.0" />
+                                                   </font>
+                                                </Label>
+                                             </children>
+                                          </HBox>
+                                          <Label text="Obtained">
+                                             <font>
+                                                <Font name="System Bold" size="15.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </VBox>
+                                    <VBox alignment="CENTER" spacing="10.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2);" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <Label text="Grade">
+                                             <font>
+                                                <Font name="System Bold" size="15.0" />
+                                             </font>
+                                          </Label>
+                                          <Label text="A" textFill="GREEN">
+                                             <font>
+                                                <Font name="System Bold" size="29.0" />
+                                             </font>
+                                          </Label>
+                                          <Label text="Excellent">
+                                             <font>
+                                                <Font name="System Bold" size="15.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </VBox>
+                                    <VBox alignment="CENTER" spacing="10.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2);" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <Label text="Rank">
+                                             <font>
+                                                <Font name="System Bold" size="15.0" />
+                                             </font>
+                                          </Label>
+                                          <Label text="7 / 38" textFill="#1c75bc">
+                                             <font>
+                                                <Font name="System Bold" size="29.0" />
+                                             </font>
+                                          </Label>
+                                          <Label text="In Class">
+                                             <font>
+                                                <Font name="System Bold" size="15.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
+                              </HBox>
+                           </children>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
+                        </HBox>
+                        <Label text="Student Performance">
+                           <font>
+                              <Font name="System Bold" size="19.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="10.0" right="5.0" top="5.0" />
+                           </VBox.margin>
+                        </Label>
+                        <HBox alignment="CENTER" spacing="10.0">
+                           <children>
+                              <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2);" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <HBox>
+                                       <children>
+                                          <Label graphicTextGap="10.0" text="Mathematics" textFill="#1c75bc">
+                                             <graphic>
+                                                <StackPane style="-fx-background-color: #1c75bc; -fx-background-radius: 50;">
+                                                   <children>
+                                                      <FontIcon style="-fx-icon-code: bi-calculator; -fx-icon-size: 28; -fx-icon-color: #fafafa;" />
+                                                   </children>
+                                                   <padding>
+                                                      <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                   </padding>
+                                                </StackPane>
+                                             </graphic>
+                                             <font>
+                                                <Font name="System Bold" size="14.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <RingProgressIndicator maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.72" styleClass="math" />
+                                    <Label text="Marks: 86 / 120">
+                                       <font>
+                                          <Font size="16.0" />
+                                       </font>
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <Separator prefWidth="200.0" />
+                                    <Label text="Grade: B+" textFill="#1c75bc">
+                                       <font>
+                                          <Font name="System Bold" size="13.0" />
+                                       </font>
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                 </children>
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                                 <padding>
+                                    <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                                 </padding>
+                              </VBox>
+                              <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2);" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <HBox>
+                                       <children>
+                                          <Label graphicTextGap="10.0" text="Physics" textFill="#10b981">
+                                             <graphic>
+                                                <StackPane style="-fx-background-color: #10B981; -fx-background-radius: 50;">
+                                                   <children>
+                                                      <FontIcon style="-fx-icon-code: mdi2a-atom; -fx-icon-size: 28; -fx-icon-color: #fafafa;" />
+                                                   </children>
+                                                   <padding>
+                                                      <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                   </padding>
+                                                </StackPane>
+                                             </graphic>
+                                             <font>
+                                                <Font name="System Bold" size="14.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <RingProgressIndicator maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.8" styleClass="phy" />
+                                    <Label text="Marks: 96 / 120">
+                                       <font>
+                                          <Font size="16.0" />
+                                       </font>
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <Separator prefWidth="200.0" />
+                                    <Label text="Grade: A" textFill="#22c55e">
+                                       <font>
+                                          <Font name="System Bold" size="13.0" />
+                                       </font>
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                                 </padding>
+                              </VBox>
+                              <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2);" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <HBox>
+                                       <children>
+                                          <Label graphicTextGap="10.0" text="Chemistry" textFill="#7c3aed">
+                                             <graphic>
+                                                <StackPane style="-fx-background-color: #7C3AED; -fx-background-radius: 50;">
+                                                   <children>
+                                                      <FontIcon style="-fx-icon-code: fa-flask; -fx-icon-size: 28; -fx-icon-color: #fafafa;" />
+                                                   </children>
+                                                   <padding>
+                                                      <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                   </padding>
+                                                </StackPane>
+                                             </graphic>
+                                             <font>
+                                                <Font name="System Bold" size="14.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <RingProgressIndicator maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.68" styleClass="chem" />
+                                    <Label text="Marks: 82 / 120">
+                                       <font>
+                                          <Font size="16.0" />
+                                       </font>
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <Separator prefWidth="200.0" />
+                                    <Label text="Grade: B" textFill="#3b82f6">
+                                       <font>
+                                          <Font name="System Bold" size="13.0" />
+                                       </font>
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                                 </padding>
+                              </VBox>
+                              <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2);" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <HBox>
+                                       <children>
+                                          <Label graphicTextGap="10.0" text="Biology" textFill="#f59e0b">
+                                             <graphic>
+                                                <StackPane style="-fx-background-color: #F59E0B; -fx-background-radius: 50;">
+                                                   <children>
+                                                      <FontIcon style="-fx-icon-code: mdi-dna; -fx-icon-size: 28; -fx-icon-color: #fafafa;" />
+                                                   </children>
+                                                   <padding>
+                                                      <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                   </padding>
+                                                </StackPane>
+                                             </graphic>
+                                             <font>
+                                                <Font name="System Bold" size="14.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <RingProgressIndicator maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.84" styleClass="bio" />
+                                    <Label text="Marks: 101 / 120">
+                                       <font>
+                                          <Font size="16.0" />
+                                       </font>
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <Separator prefWidth="200.0" />
+                                    <Label text="Grade: A" textFill="#22c55e">
+                                       <font>
+                                          <Font name="System Bold" size="13.0" />
+                                       </font>
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                                 </padding>
+                              </VBox>
+                              <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2);" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <HBox>
+                                       <children>
+                                          <Label graphicTextGap="10.0" text="English" textFill="#06b6d4">
+                                             <graphic>
+                                                <StackPane style="-fx-background-color: #06B6D4; -fx-background-radius: 50;">
+                                                   <children>
+                                                      <FontIcon style="-fx-icon-code: mdi2b-book-open-variant; -fx-icon-size: 28; -fx-icon-color: #fafafa;" />
+                                                   </children>
+                                                   <padding>
+                                                      <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                                   </padding>
+                                                </StackPane>
+                                             </graphic>
+                                             <font>
+                                                <Font name="System Bold" size="14.0" />
+                                             </font>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <RingProgressIndicator maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.74" styleClass="eng" />
+                                    <Label text="Marks: 91 / 120">
+                                       <font>
+                                          <Font size="16.0" />
+                                       </font>
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <Separator prefWidth="200.0" />
+                                    <Label text="Grade: B+" textFill="#2563eb">
+                                       <font>
+                                          <Font name="System Bold" size="13.0" />
+                                       </font>
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+                                 </padding>
+                              </VBox>
+                           </children>
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </VBox.margin>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </VBox.margin>
+                           <children>
+                              <StackPane style="-fx-background-color: #1c75bc20; -fx-background-radius: 5;">
+                                 <children>
+                                    <FontIcon style="-fx-icon-code: fa-star; -fx-icon-size: 36; -fx-icon-color: #1c75bc;" />
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </padding>
+                              </StackPane>
+                              <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <Label text="Teacher's Remark">
+                                       <font>
+                                          <Font name="System Bold" size="14.0" />
+                                       </font>
+                                    </Label>
+                                    <Label text="Outstanding performance across all subjects. Demonstrates strong understanding of concepts and consistent dedication to studies. Keep up the excellent work." />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </VBox.margin>
+                           <children>
+                              <SVGImageView fx:id="icons" fitHeight="48.0" layoutX="520.0" layoutY="10.0" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
                </children>
             </VBox>
-            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-               <children>
-                  <Button mnemonicParsing="false" onAction="#addNewExam" styleClass="accent" text="Generate the full report">
-                     <padding>
-                        <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
-                     </padding>
-                  </Button>
-               </children>
-               <HBox.margin>
-                  <Insets right="20.0" />
-               </HBox.margin>
-            </HBox>
          </children>
-         <VBox.margin>
-            <Insets />
-         </VBox.margin>
-         <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </padding>
-      </HBox>
-      <HBox alignment="CENTER">
-         <children>
-            <SearchField prefHeight="25.0" prefWidth="215.0" promptText="ED No. or Name" />
-         </children>
-         <VBox.margin>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </VBox.margin>
-      </HBox>
-      <StackPane prefHeight="150.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
-   </children>
-</VBox>
+      </VBox>
+   </content>
+</ScrollPane>

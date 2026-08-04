@@ -235,7 +235,14 @@ public class QuizGenerator implements Initializable {
         HBox source = (HBox) event.getSource();
         String id = source.getId();
         switch (id) {
-            case "dashboard" -> System.out.println();
+            case "dashboard" -> {
+                topRightQuizView.setVisible(false);
+                selectedTab.getStyleClass().clear();
+                source.getStyleClass().add("tab_selector");
+                selectedTab = source;
+                previouslySelectedNode = quiz_gen_layout.getCenter();
+                quiz_gen_layout.setCenter(mainController.gradedFxmlLoader.createView(R.exam_report));
+            }
             case "quizGen" -> {
                 topRightQuizView.setVisible(true);
                 selectedTab.getStyleClass().clear();
