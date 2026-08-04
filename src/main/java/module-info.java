@@ -37,8 +37,7 @@ module org.graded_classes.graded_attendance {
     requires annotations;
     requires org.bytedeco.opencv;
     requires sherpa.onnx.java.api;
-
-
+    
     opens org.graded_classes.graded_attendance.controller.leaderboard to javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc, java.sql;
 
     opens org.graded_classes.graded_attendance.controller.planner to javafx.fxml;

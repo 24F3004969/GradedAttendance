@@ -241,7 +241,7 @@ public class QuizGenerator implements Initializable {
                 source.getStyleClass().add("tab_selector");
                 selectedTab = source;
                 previouslySelectedNode = quiz_gen_layout.getCenter();
-                quiz_gen_layout.setCenter(mainController.gradedFxmlLoader.createView(R.exam_report));
+                quiz_gen_layout.setCenter(mainController.gradedFxmlLoader.createView(R.exam_report,new ExamReport(mainController)));
             }
             case "quizGen" -> {
                 topRightQuizView.setVisible(true);

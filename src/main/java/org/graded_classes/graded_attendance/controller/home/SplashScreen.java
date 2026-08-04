@@ -17,12 +17,10 @@ public class SplashScreen implements Initializable {
     ProgressBar progressBar;
     Timeline timeline;
     Stage stage;
-    //public GradedDataLoader gradedDataLoader = new GradedDataLoader();
     MessageSender messageSender;
 
     public SplashScreen(Stage stage) {
         this.stage = stage;
-        //messageSender = new MessageSender(getToken(),gradedDataLoader);
     }
 
     @Override
@@ -33,33 +31,9 @@ public class SplashScreen implements Initializable {
     private void startTimer() {
         timeline = new Timeline(new KeyFrame(Duration.millis(5), e -> {
             progressBar.setProgress(progressBar.getProgress() + 0.0007);
-            /*if (categoryMap != null) {
-                stage.close();
-                stage = new Stage();
-                stage.setTitle("Quiz Time");
-                stage.show();
-                timeline.stop();
-            }*/
         }));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
     }
-
-    /*public String getToken() {
-        String query = "SELECT id FROM token LIMIT 1";
-
-        try (PreparedStatement stmt = gradedDataLoader.databaseLoader.getConnection().prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
-
-            if (rs.next()) {
-                return rs.getString("id");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return null; // No token found or error occurred
-    }*/
 
 }
