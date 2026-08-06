@@ -33,7 +33,7 @@ public class DataBaseController implements Initializable {
     @FXML
     VBox database_tab;
     @FXML
-    private TableColumn<StudentInfo, String> doa, ed_no, grade, name;
+    private TableColumn<StudentInfo, String> doa, ed_no, grade, name, sno;
     @FXML
     private TableColumn<StudentInfo, String> last_fee;
     @FXML
@@ -50,11 +50,12 @@ public class DataBaseController implements Initializable {
     @FXML
     private TableColumn<StudentInfo, String> subjects;
     @FXML
-    private TableColumn<StudentInfo, String> board,fee;
+    private TableColumn<StudentInfo, String> board, fee;
 
     public DataBaseController(MainController mainController) {
         this.mainController = mainController;
     }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         studentsMap = mainController.gradedDataLoader.getStudentData();
@@ -107,6 +108,7 @@ public class DataBaseController implements Initializable {
         subjects.setCellValueFactory(map -> map.getValue().subjects());
         board.setCellValueFactory(map -> map.getValue().board());
         fee.setCellValueFactory(map -> map.getValue().fee());
+        sno.setCellValueFactory(map -> map.getValue().sno().asString());
 
         doa.setCellFactory(TextFieldTableCell.forTableColumn());
         doa.setOnEditCommit(event -> {
@@ -142,9 +144,10 @@ public class DataBaseController implements Initializable {
                 alert.showAndWait();
             }
         });
+        int count = 0;
         for (var keys : data.keySet()) {
             Student student = data.get(keys);
-            StudentInfo studentInfo = new StudentInfo(false,
+            StudentInfo studentInfo = new StudentInfo(++count, false,
                     student.ed_no(), student.name(),
                     student._class(), student.getDoa(), student.getLastPaymentDate(), student.fee,
                     Arrays.toString(student.getSubjects()).replace("[", "").replace("]", ""),
