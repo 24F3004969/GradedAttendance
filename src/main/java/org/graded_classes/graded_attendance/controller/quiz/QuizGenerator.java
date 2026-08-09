@@ -134,7 +134,7 @@ public class QuizGenerator implements Initializable {
             if (!cell.isEmpty() && event.getClickCount() == 2) {
                 TabPane tabPane = (TabPane) quiz_gen_layout.lookup("#tabs");
                 var tb = mainController.gradedFxmlLoader.createView(R.question_editor,
-                        new QuestionEditor(mainController, allQuestions.get(invertedMap.get(cell.getItem())),""+invertedMap.get(cell.getItem())));
+                        new QuestionEditor(mainController, allQuestions.get(invertedMap.get(cell.getItem())), "" + invertedMap.get(cell.getItem())));
                 Tab tab = new Tab(cell.getItem());
                 tab.setContent(tb);
                 tabPane.getTabs().add(tab);
@@ -168,7 +168,7 @@ public class QuizGenerator implements Initializable {
         addQuiz.setGraphic(new FontIcon("mdi2n-note"));
         addQuiz.setOnAction(e -> {
             var newQuiz = mainController.gradedFxmlLoader.createView(R.newQuiz,
-                    new NewQuiz(target, this, mainController,invertedMap.get(name)));
+                    new NewQuiz(target, this, mainController, invertedMap.get(name)));
             mainController.modalPane.show(newQuiz);
         });
         return addQuiz;
@@ -185,20 +185,18 @@ public class QuizGenerator implements Initializable {
             var conn = mainController.gradedDataLoader.databaseLoader.getConnection();
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
-            int id = 0;
             while (rs.next()) {
                 int topicId = rs.getInt("topic_id");
                 int questionId = rs.getInt("question_id");
                 if (mapOfQuestion.containsKey(topicId)) {
                     if (mapOfQuestion.get(topicId).containsKey(questionId)) {
                         mapOfQuestion.get(topicId).get(questionId).
-                                option_data().options().put(rs.getInt("option_id"),rs.getString("option_text"));
+                                option_data().options().put(rs.getInt("option_id"), rs.getString("option_text"));
                         if (rs.getInt("is_correct") == 1)
                             mapOfQuestion.get(topicId).get(questionId).
                                     option_data().setOption_index(mapOfQuestion.get(topicId).
                                             get(questionId).option_data().options().size() - 1);
                     } else {
-                        id++;
                         mapOfQuestion.get(topicId).put(questionId, new QuestionData("" + questionId,
                                 rs.getString("topic_id"),
                                 rs.getString("user_id"),
@@ -207,7 +205,7 @@ public class QuizGenerator implements Initializable {
                                 rs.getString("level"),
                                 rs.getString("question_txt"),
                                 rs.getString("question_img_path"), new OptionData(
-                                0, new LinkedHashMap<>(Map.of(rs.getInt("option_id"),rs.getString("option_text"))))));
+                                0, new LinkedHashMap<>(Map.of(rs.getInt("option_id"), rs.getString("option_text"))))));
                     }
 
                 } else {
@@ -220,7 +218,7 @@ public class QuizGenerator implements Initializable {
                             rs.getString("level"),
                             rs.getString("question_txt"),
                             rs.getString("question_img_path"), new OptionData(
-                            0, new LinkedHashMap<>(Map.of(rs.getInt("option_id"),rs.getString("option_text"))))));
+                            0, new LinkedHashMap<>(Map.of(rs.getInt("option_id"), rs.getString("option_text"))))));
                     mapOfQuestion.put(topicId, map);
                 }
             }
@@ -241,7 +239,7 @@ public class QuizGenerator implements Initializable {
                 source.getStyleClass().add("tab_selector");
                 selectedTab = source;
                 previouslySelectedNode = quiz_gen_layout.getCenter();
-                quiz_gen_layout.setCenter(mainController.gradedFxmlLoader.createView(R.exam_report,new ExamReport(mainController)));
+                quiz_gen_layout.setCenter(mainController.gradedFxmlLoader.createView(R.exam_report, new ExamReport(mainController)));
             }
             case "quizGen" -> {
                 topRightQuizView.setVisible(true);
@@ -275,7 +273,8 @@ public class QuizGenerator implements Initializable {
                            e.start_time,
                            e.end_time,
                            t.topic_id,
-                           t.topic_name
+                           t.topic_name,
+                           e.board
                     FROM ExamScheduler e
                     LEFT JOIN Topics t ON e.topic_id = t.topic_id
                     ORDER BY e.exam_date, e.start_time
@@ -293,6 +292,7 @@ public class QuizGenerator implements Initializable {
                 String time = rs.getString("start_time") + " - " + rs.getString("end_time");
                 String topic_id = rs.getString("topic_id");
                 String topic_name = rs.getString("topic_name");
+                String board = rs.getString("board");
                 ExamData exam = new ExamData(
                         id,
                         classes,
@@ -301,7 +301,8 @@ public class QuizGenerator implements Initializable {
                         subject,
                         time,
                         topic_id,
-                        topic_name
+                        topic_name,
+                        board
                 );
                 examList.add(exam);
             }

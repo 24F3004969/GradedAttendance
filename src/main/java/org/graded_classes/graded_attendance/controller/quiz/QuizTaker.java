@@ -1,6 +1,7 @@
 package org.graded_classes.graded_attendance.controller.quiz;
 
 import atlantafx.base.theme.Styles;
+import com.dlsc.gemsfx.DialogPane;
 import com.lottie4j.core.file.LottieFileLoader;
 import com.lottie4j.core.model.animation.Animation;
 import com.lottie4j.fxplayer.LottiePlayer;
@@ -14,10 +15,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.TilePane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
@@ -65,6 +63,8 @@ public class QuizTaker implements Initializable {
     private Label timer;
     @FXML
     Button submitButton;
+    @FXML
+    StackPane quiz;
     Button[] QNumBox;
     int indexOfQuestion = 0;
     MainController mainController;
@@ -79,6 +79,10 @@ public class QuizTaker implements Initializable {
     public QuizTaker(MainController mainController, StudentExamLogin studentExamLogin) {
         this.mainController = mainController;
         this.studentExamLogin = studentExamLogin;
+        String x = studentExamLogin.examLogin.examInfo.time();
+        var times = x.split("-");
+        var diff = java.time.Duration.between(LocalTime.parse(times[0].trim() + ":00"), LocalTime.parse(times[1].trim() + ":00"));
+        totalTime = LocalTime.parse(LocalTime.MIDNIGHT.plus(diff).format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         CompletableFuture.runAsync(this::initDb);
     }
 
@@ -104,7 +108,7 @@ public class QuizTaker implements Initializable {
                 LinkedHashMap<Integer, String> options = new LinkedHashMap<>();
                 int correctId = 0;
                 while (_rs.next()) {
-                    options.put(_rs.getInt("option_id"),_rs.getString("option_text"));
+                    options.put(_rs.getInt("option_id"), _rs.getString("option_text"));
                     var id = _rs.getInt("is_correct");
                     if (id == 1)
                         correctId = options.size();
@@ -173,11 +177,36 @@ public class QuizTaker implements Initializable {
     @FXML
     void onQuizSubmit() {
         if (leftOverTime.equals(LocalTime.MIDNIGHT)) {
-            totalTime = LocalTime.parse("00:00:00",
-                    DateTimeFormatter.ofPattern("HH:mm:ss"));
-            CompletableFuture.runAsync(() -> saveQuizInstance(studentExamLogin.studentEDNo.getText(), selectedOptions));
-            submitButton.setDisable(true);
+            showWarningDialog();
         }
+    }
+
+    private void showWarningDialog() {
+
+        com.dlsc.gemsfx.DialogPane dialogPane = new com.dlsc.gemsfx.DialogPane();
+        com.dlsc.gemsfx.DialogPane.Dialog<ButtonType> dialog = new com.dlsc.gemsfx.DialogPane.Dialog<>(dialogPane, DialogPane.Type.WARNING);
+        dialog.setTitle("Exit Warning");
+        dialog.setContentAlignment(Pos.CENTER);
+        dialog.setSameWidthButtons(true);
+        Label content = new Label("Are you sure you want to submit? This action cannot be undone.");
+        dialog.getButtonTypes().setAll(
+                ButtonType.OK,
+                ButtonType.CANCEL
+        );
+        dialog.setContent(new StackPane(content));
+        quiz.getChildren().add(dialogPane);
+        content.setOnMouseClicked(e -> dialog.cancel());
+        dialog.setOnClose(buttonType -> {
+            if (buttonType == ButtonType.OK) {
+                totalTime = LocalTime.parse("00:00:00",
+                        DateTimeFormatter.ofPattern("HH:mm:ss"));
+                CompletableFuture.runAsync(() -> saveQuizInstance(studentExamLogin.studentEDNo.getText(), selectedOptions));
+                submitButton.setDisable(true);
+            } else if (buttonType == ButtonType.CANCEL) {
+                System.out.println("Cancel pressed");
+            }
+        });
+        dialog.show();
     }
 
     @FXML
@@ -253,7 +282,7 @@ public class QuizTaker implements Initializable {
 
     public void startQuiz(ExamLogin login, Stage stage) {
         quizName.setText("Quiz");
-        totalTime = LocalTime.parse("00:45:00", DateTimeFormatter.ofPattern("HH:mm:ss"));
+        //totalTime = LocalTime.parse("00:45:00", DateTimeFormatter.ofPattern("HH:mm:ss"));
         leftOverTime = LocalTime.parse("00:40:00", DateTimeFormatter.ofPattern("HH:mm:ss"));
         Tooltip value = new Tooltip("Submit After " + leftOverTime);
         submitButton.setTooltip(value);

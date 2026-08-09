@@ -139,6 +139,7 @@ public class AttendanceDataView implements Initializable {
         content.setOnMouseClicked(e -> dialog.cancel());
         dialog.setContent(content);
         studentAttendance.mainController.stackPane.getChildren().add(dialogPane);
+
         dialog.show();
     }
 

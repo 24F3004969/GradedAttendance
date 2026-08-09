@@ -107,8 +107,8 @@ public class ExamCreator implements Initializable {
     private ExamData initDb() {
         String sql = """
                 INSERT INTO ExamScheduler
-                (topic_id, subject, class, exam_date, start_time, end_time, room_no)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                (topic_id, subject, class, exam_date, start_time, end_time, room_no,board)
+                VALUES (?, ?, ?, ?, ?, ?, ?,?)
                 """;
 
         try {
@@ -160,7 +160,7 @@ public class ExamCreator implements Initializable {
             pstmt.setString(5, start);
             pstmt.setString(6, end);
             pstmt.setString(7, roomValue);
-
+            pstmt.setString(8, board.getValue());
             pstmt.executeUpdate();
 
             ResultSet rs = pstmt.getGeneratedKeys();
@@ -187,7 +187,8 @@ public class ExamCreator implements Initializable {
                     subjectValue,
                     start + "-" + end,
                     topicIds.toString(),
-                    topicName
+                    topicName,
+                    board.getValue()
             );
 
         } catch (Exception e) {

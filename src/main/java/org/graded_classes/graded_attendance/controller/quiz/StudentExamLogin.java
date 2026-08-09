@@ -49,6 +49,7 @@ public class StudentExamLogin implements Initializable {
             stage.getScene().setRoot(view);
             stage.setTitle("Exam");
             stage.setFullScreen(true);
+
             taker.startQuiz(examLogin, stage);
         } else {
             error.setVisible(true);

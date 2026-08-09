@@ -17,7 +17,7 @@
     -fx-stroke-width: 15px;
 }
 .math > .container > .ring{
-     -color-progress-indicator-fill:#2563EB;
+     -color-progress-indicator-fill: #1c75bc;
 }
 .phy > .container > .ring{
     -color-progress-indicator-fill:#10B981;

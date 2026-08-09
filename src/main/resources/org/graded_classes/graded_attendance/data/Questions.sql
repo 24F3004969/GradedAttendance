@@ -46,4 +46,15 @@ create table if not exists ExamQuestion
             on delete cascade,
     primary key (exam_id, question_id)
 );
+CREATE TABLE IF NOT EXISTS ScoreCard
+(
+    exam_id      INTEGER REFERENCES ExamScheduler,
+    ed_no        TEXT REFERENCES StudentData,
+    subject      TEXT,
+    topic_name   TEXT,
+    marks_obtain INTEGER,
+    total_marks  INTEGER,
+    remark       TEXT,
 
+    PRIMARY KEY(exam_id, ed_no)
+);

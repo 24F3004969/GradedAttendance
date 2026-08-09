@@ -6,5 +6,6 @@ public record ExamData(String id,
                        String subject,
                        String time,
                        String topic_id,
-                       String topic_name) {
+                       String topic_name,
+                       String board) {
 }

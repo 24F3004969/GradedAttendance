@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import atlantafx.base.controls.RingProgressIndicator?>
+<?import com.dlsc.gemsfx.CalendarPicker?>
 <?import com.dlsc.gemsfx.SVGImageView?>
 <?import com.dlsc.gemsfx.SearchField?>
 <?import javafx.geometry.Insets?>
@@ -15,7 +16,7 @@
 <?import javafx.scene.text.Text?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<ScrollPane fitToWidth="true" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.ExamReport">
+<ScrollPane fitToWidth="true" stylesheets="@../css/atlantafx.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.ExamReport">
    <content>
       <VBox stylesheets="@../css/teaching_progress_view.css">
          <children>
@@ -42,6 +43,7 @@
                         </VBox>
                         <HBox alignment="CENTER_RIGHT" spacing="10.0" HBox.hgrow="ALWAYS">
                            <children>
+                              <CalendarPicker />
                               <Button mnemonicParsing="false" onAction="#generateReport" styleClass="accent" text="Generate Report">
                                  <padding>
                                     <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
@@ -81,13 +83,13 @@
                   </HBox>
                   <VBox fx:id="report" VBox.vgrow="ALWAYS">
                      <children>
-                        <HBox prefHeight="100.0" prefWidth="200.0" style="-fx-background-color: #fafafa; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;">
+                        <HBox prefHeight="100.0" prefWidth="200.0" style="-fx-background-color: #fafafa; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);">
                            <children>
                               <HBox prefWidth="300.0" style="-fx-background-color: #fafafa;">
                                  <children>
                                     <StackPane maxHeight="80.0" maxWidth="80.0" minHeight="80.0" minWidth="80.0" style="-fx-background-color: #d3e0f7; -fx-background-radius: 50;">
                                        <children>
-                                          <Text id="num" fx:id="ed" strokeType="OUTSIDE" strokeWidth="0.0" text="SU" StackPane.alignment="CENTER">
+                                          <Text id="num" fx:id="avatar" strokeType="OUTSIDE" strokeWidth="0.0" text="UN" StackPane.alignment="CENTER">
                                              <font>
                                                 <Font name="System Bold" size="33.0" />
                                              </font>
@@ -99,18 +101,18 @@
                                     </StackPane>
                                     <VBox HBox.hgrow="ALWAYS">
                                        <children>
-                                          <Label id="name" fx:id="name_class" text="SIDRAH UFAQ">
+                                          <Label id="name" fx:id="name_class" text="Unkown">
                                              <font>
                                                 <Font name="System Bold" size="16.0" />
                                              </font>
                                           </Label>
-                                          <Label fx:id="recent_message" text="Class 10" />
+                                          <Label fx:id="class_of" text="---" />
                                           <Label id="tel_id" fx:id="id_user" maxHeight="0.0" maxWidth="0.0" minHeight="0.0" minWidth="0.0" prefHeight="0.0" prefWidth="0.0" visible="false">
                                              <font>
                                                 <Font name="System Bold" size="12.0" />
                                              </font>
                                           </Label>
-                                          <Label fx:id="recent_message1" text="Roll No. ED25" />
+                                          <Label fx:id="roll_no" text="---" />
                                        </children>
                                        <HBox.margin>
                                           <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -127,8 +129,8 @@
                                                 <Font name="System Bold" size="15.0" />
                                              </font>
                                           </Label>
-                                          <RingProgressIndicator maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.76" />
-                                          <Label text="Good">
+                                          <RingProgressIndicator fx:id="allSubjectPercentage" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.0" />
+                                          <Label fx:id="totalRemark" text="---">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
@@ -147,12 +149,12 @@
                                           </Label>
                                           <HBox alignment="CENTER">
                                              <children>
-                                                <Label text="456" textFill="#1c75bc">
+                                                <Label fx:id="marks_obtain" text="---" textFill="#1c75bc">
                                                    <font>
                                                       <Font name="System Bold" size="36.0" />
                                                    </font>
                                                 </Label>
-                                                <Label text=" / 600">
+                                                <Label fx:id="total_marks" text="---">
                                                    <font>
                                                       <Font name="System Bold" size="29.0" />
                                                    </font>
@@ -173,12 +175,12 @@
                                                 <Font name="System Bold" size="15.0" />
                                              </font>
                                           </Label>
-                                          <Label text="A" textFill="GREEN">
+                                          <Label fx:id="grade" text="---" textFill="GREEN">
                                              <font>
                                                 <Font name="System Bold" size="29.0" />
                                              </font>
                                           </Label>
-                                          <Label text="Excellent">
+                                          <Label fx:id="overAllRemark" text="Excellent">
                                              <font>
                                                 <Font name="System Bold" size="15.0" />
                                              </font>
@@ -192,7 +194,7 @@
                                                 <Font name="System Bold" size="15.0" />
                                              </font>
                                           </Label>
-                                          <Label text="7 / 38" textFill="#1c75bc">
+                                          <Label fx:id="rank" text="---" textFill="#1c75bc">
                                              <font>
                                                 <Font name="System Bold" size="29.0" />
                                              </font>
@@ -227,7 +229,7 @@
                         </Label>
                         <HBox alignment="CENTER" spacing="10.0">
                            <children>
-                              <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2);" HBox.hgrow="ALWAYS">
+                              <VBox fx:id="mathResult" alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);" HBox.hgrow="ALWAYS">
                                  <children>
                                     <HBox>
                                        <children>
@@ -248,8 +250,8 @@
                                           </Label>
                                        </children>
                                     </HBox>
-                                    <RingProgressIndicator maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.72" styleClass="math" />
-                                    <Label text="Marks: 86 / 120">
+                                    <RingProgressIndicator id="percentage" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.0" styleClass="math" />
+                                    <Label id="marks" text="----">
                                        <font>
                                           <Font size="16.0" />
                                        </font>
@@ -258,7 +260,7 @@
                                        </VBox.margin>
                                     </Label>
                                     <Separator prefWidth="200.0" />
-                                    <Label text="Grade: B+" textFill="#1c75bc">
+                                    <Label id="garde" text="----" textFill="#1c75bc">
                                        <font>
                                           <Font name="System Bold" size="13.0" />
                                        </font>
@@ -274,7 +276,7 @@
                                     <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                                  </padding>
                               </VBox>
-                              <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2);" HBox.hgrow="ALWAYS">
+                              <VBox fx:id="physicsResult" alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);" HBox.hgrow="ALWAYS">
                                  <children>
                                     <HBox>
                                        <children>
@@ -295,8 +297,8 @@
                                           </Label>
                                        </children>
                                     </HBox>
-                                    <RingProgressIndicator maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.8" styleClass="phy" />
-                                    <Label text="Marks: 96 / 120">
+                                    <RingProgressIndicator id="percentage" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.0" styleClass="phy" />
+                                    <Label id="marks" text="----">
                                        <font>
                                           <Font size="16.0" />
                                        </font>
@@ -305,7 +307,7 @@
                                        </VBox.margin>
                                     </Label>
                                     <Separator prefWidth="200.0" />
-                                    <Label text="Grade: A" textFill="#22c55e">
+                                    <Label id="garde" text="----" textFill="#22c55e">
                                        <font>
                                           <Font name="System Bold" size="13.0" />
                                        </font>
@@ -318,7 +320,7 @@
                                     <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                                  </padding>
                               </VBox>
-                              <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2);" HBox.hgrow="ALWAYS">
+                              <VBox fx:id="chemistryResult" alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);" HBox.hgrow="ALWAYS">
                                  <children>
                                     <HBox>
                                        <children>
@@ -339,8 +341,8 @@
                                           </Label>
                                        </children>
                                     </HBox>
-                                    <RingProgressIndicator maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.68" styleClass="chem" />
-                                    <Label text="Marks: 82 / 120">
+                                    <RingProgressIndicator id="percentage" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.0" styleClass="chem" />
+                                    <Label id="marks" text="----">
                                        <font>
                                           <Font size="16.0" />
                                        </font>
@@ -349,7 +351,7 @@
                                        </VBox.margin>
                                     </Label>
                                     <Separator prefWidth="200.0" />
-                                    <Label text="Grade: B" textFill="#3b82f6">
+                                    <Label id="garde" text="----" textFill="#3b82f6">
                                        <font>
                                           <Font name="System Bold" size="13.0" />
                                        </font>
@@ -362,7 +364,7 @@
                                     <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                                  </padding>
                               </VBox>
-                              <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2);" HBox.hgrow="ALWAYS">
+                              <VBox fx:id="biologyResult" alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);" HBox.hgrow="ALWAYS">
                                  <children>
                                     <HBox>
                                        <children>
@@ -383,8 +385,8 @@
                                           </Label>
                                        </children>
                                     </HBox>
-                                    <RingProgressIndicator maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.84" styleClass="bio" />
-                                    <Label text="Marks: 101 / 120">
+                                    <RingProgressIndicator id="percentage" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.0" styleClass="bio" />
+                                    <Label id="marks" text="----">
                                        <font>
                                           <Font size="16.0" />
                                        </font>
@@ -393,7 +395,7 @@
                                        </VBox.margin>
                                     </Label>
                                     <Separator prefWidth="200.0" />
-                                    <Label text="Grade: A" textFill="#22c55e">
+                                    <Label id="garde" text="----" textFill="#22c55e">
                                        <font>
                                           <Font name="System Bold" size="13.0" />
                                        </font>
@@ -406,7 +408,7 @@
                                     <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                                  </padding>
                               </VBox>
-                              <VBox alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2);" HBox.hgrow="ALWAYS">
+                              <VBox fx:id="englishResult" alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);" HBox.hgrow="ALWAYS">
                                  <children>
                                     <HBox>
                                        <children>
@@ -427,8 +429,8 @@
                                           </Label>
                                        </children>
                                     </HBox>
-                                    <RingProgressIndicator maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.74" styleClass="eng" />
-                                    <Label text="Marks: 91 / 120">
+                                    <RingProgressIndicator id="percentage" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="150.0" minWidth="150.0" progress="0.0" styleClass="eng" />
+                                    <Label id="marks" text="----">
                                        <font>
                                           <Font size="16.0" />
                                        </font>
@@ -437,7 +439,7 @@
                                        </VBox.margin>
                                     </Label>
                                     <Separator prefWidth="200.0" />
-                                    <Label text="Grade: B+" textFill="#2563eb">
+                                    <Label id="garde" text="----" textFill="#2563eb">
                                        <font>
                                           <Font name="System Bold" size="13.0" />
                                        </font>
@@ -458,9 +460,9 @@
                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                            </padding>
                         </HBox>
-                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="20.0" style="-fx-background-color: #fafafa; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);">
                            <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                              <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                            </VBox.margin>
                            <children>
                               <StackPane style="-fx-background-color: #1c75bc20; -fx-background-radius: 5;">
@@ -478,10 +480,13 @@
                                           <Font name="System Bold" size="14.0" />
                                        </font>
                                     </Label>
-                                    <Label text="Outstanding performance across all subjects. Demonstrates strong understanding of concepts and consistent dedication to studies. Keep up the excellent work." />
+                                    <Label fx:id="remarks" text="-----" />
                                  </children>
                               </VBox>
                            </children>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
                         </HBox>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
                            <VBox.margin>

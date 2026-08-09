@@ -100,24 +100,91 @@ public class ConductExam implements Initializable {
     }
 
     private void generateResult(ExamData examInfo) {
-        var listOfStudents = mainController.gradedDataLoader.getStudentData().
-                sequencedValues().stream().filter(student -> student._class().
-                        equals(examInfo.classes())).toList();
+
+        var listOfStudents = mainController.gradedDataLoader.getStudentData()
+                .sequencedValues()
+                .stream()
+                .filter(student -> student._class().equals(examInfo.classes())).
+                filter(student -> student.getBoard().equalsIgnoreCase(examInfo.board()))
+                .toList();
+
         System.out.println("Exam Result , Subject: " + examInfo.subject() + " ,Class: " + examInfo.classes());
         System.out.println("Conducted on " + examInfo.doe() + " , Topic Name:  " + examInfo.topic_name());
-        var questionDataMap = loadQuestion(examInfo);
-        for (var st : listOfStudents) {
-            int score = 0;
-            var map = getAnswers(Integer.parseInt(examInfo.id()), st.ed_no());
-            for (var n : map.keySet()) {
-                int opId = map.get(n);
-                var question = questionDataMap.get("" + n);
-                if (question.option_data() != null && question.option_data().option_index() == opId)
-                    score = score + 4;
-            }
-            System.out.println(st.ed_no() + ":    " + ((score <= 0) ? "Absent or not eligible" : score + "/80" + "       Name: " + st.name()));
-        }
 
+        var questionDataMap = loadQuestion(examInfo);
+
+        String sql = """
+                INSERT INTO ScoreCard
+                (
+                    exam_id,
+                    ed_no,
+                    subject,
+                    topic_name,
+                    marks_obtain,
+                    total_marks,
+                    remark
+                )
+                VALUES
+                (
+                    ?, ?, ?, ?, ?, ?, ?
+                )
+                ON CONFLICT(exam_id, ed_no)
+                DO UPDATE SET
+                    subject = excluded.subject,
+                    topic_name = excluded.topic_name,
+                    marks_obtain = excluded.marks_obtain,
+                    total_marks = excluded.total_marks,
+                    remark = excluded.remark
+                """;
+        var con = mainController.gradedDataLoader.databaseLoader.getConnection();
+        try (var ps = con.prepareStatement(sql)) {
+
+            for (var st : listOfStudents) {
+
+                int score = 0;
+
+                var map = getAnswers(Integer.parseInt(examInfo.id()), st.ed_no());
+
+                for (var n : map.keySet()) {
+                    int opId = map.get(n);
+                    var question = questionDataMap.get("" + n);
+
+                    if (question != null
+                            && question.option_data() != null
+                            && question.option_data().option_index() == opId) {
+                        score = score + 4;
+                    }
+                }
+
+                String remark = (score <= 0)
+                        ? "Absent or not eligible"
+                        : "Present";
+
+                int totalMarks = 80;
+
+                System.out.println(
+                        st.ed_no() + ":    " +
+                                ((score <= 0)
+                                        ? "Absent or not eligible"
+                                        : score + "/80" + "       Name: " + st.name())
+                );
+
+                ps.setInt(1, Integer.parseInt(examInfo.id()));
+                ps.setString(2, st.ed_no());
+                ps.setString(3, examInfo.subject());
+                ps.setString(4, examInfo.topic_name());
+                ps.setInt(5, score);
+                ps.setInt(6, totalMarks);
+                ps.setString(7, remark);
+
+                ps.addBatch();
+            }
+
+            ps.executeBatch();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private TreeMap<String, QuestionData> loadQuestion(ExamData examData) {
