@@ -81,7 +81,7 @@
                         <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                      </VBox.margin>
                   </HBox>
-                  <VBox fx:id="report" VBox.vgrow="ALWAYS">
+                  <VBox fx:id="report" visible="false" VBox.vgrow="ALWAYS">
                      <children>
                         <HBox prefHeight="100.0" prefWidth="200.0" style="-fx-background-color: #fafafa; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);">
                            <children>
@@ -227,9 +227,9 @@
                               <Insets bottom="5.0" left="10.0" right="5.0" top="5.0" />
                            </VBox.margin>
                         </Label>
-                        <HBox alignment="CENTER" spacing="10.0">
+                        <HBox fx:id="performanceLayer" alignment="CENTER_LEFT" spacing="10.0">
                            <children>
-                              <VBox fx:id="mathResult" alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);" HBox.hgrow="ALWAYS">
+                              <VBox id="Math" fx:id="mathResult" alignment="CENTER" maxWidth="250.0" minWidth="250.0" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);" HBox.hgrow="ALWAYS">
                                  <children>
                                     <HBox>
                                        <children>
@@ -276,7 +276,7 @@
                                     <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                                  </padding>
                               </VBox>
-                              <VBox fx:id="physicsResult" alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);" HBox.hgrow="ALWAYS">
+                              <VBox id="Physics" fx:id="physicsResult" alignment="CENTER" maxWidth="250.0" minWidth="250.0" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);" HBox.hgrow="ALWAYS">
                                  <children>
                                     <HBox>
                                        <children>
@@ -320,7 +320,7 @@
                                     <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                                  </padding>
                               </VBox>
-                              <VBox fx:id="chemistryResult" alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);" HBox.hgrow="ALWAYS">
+                              <VBox id="Chemistry" fx:id="chemistryResult" alignment="CENTER" maxWidth="250.0" minWidth="250.0" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);" HBox.hgrow="ALWAYS">
                                  <children>
                                     <HBox>
                                        <children>
@@ -364,7 +364,7 @@
                                     <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                                  </padding>
                               </VBox>
-                              <VBox fx:id="biologyResult" alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);" HBox.hgrow="ALWAYS">
+                              <VBox id="Biology" fx:id="biologyResult" alignment="CENTER" maxWidth="250.0" minWidth="250.0" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);" HBox.hgrow="ALWAYS">
                                  <children>
                                     <HBox>
                                        <children>
@@ -408,7 +408,7 @@
                                     <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
                                  </padding>
                               </VBox>
-                              <VBox fx:id="englishResult" alignment="CENTER" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);" HBox.hgrow="ALWAYS">
+                              <VBox id="English" fx:id="englishResult" alignment="CENTER" maxWidth="250.0" minWidth="250.0" spacing="8.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);" HBox.hgrow="ALWAYS">
                                  <children>
                                     <HBox>
                                        <children>

@@ -6,6 +6,7 @@ import org.graded_classes.graded_attendance.Main;
 import org.graded_classes.graded_attendance.data.MessageData;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
@@ -31,12 +32,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
     public void sendText(Long who, String what) {
         SendMessage sm = SendMessage.builder()
                 .chatId(Main.appMode== AppMode.DEV ? "6749377036" : who.toString())//Who are we sending a message to
-                .text(what).build();    //Message content
-     /*   SendPhoto myPhoto = SendPhoto.builder().
-                chatId("6749377036").
-                photo(new InputFile(new File("C:\\Users\\hilal\\GradedAttendance\\icon.png"))).caption("Graded Icon")
-                .build();*/
-        ;
+                .text(what).build();
         try {
             telegramClient.execute(sm);
            // telegramClient.execute(myPhoto);//Actually sending the message
@@ -51,6 +47,17 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
                 .build();
         try {
              telegramClient.execute(myPhoto);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);      //Any error will be printed here
+        }
+    }
+    public void sendDocument(Long who, File file,String caption) {
+        SendDocument myDocument = SendDocument.builder().
+                chatId(Main.appMode== AppMode.DEV ? "6749377036" : who.toString()).
+                document(new InputFile(file)).caption(caption)
+                .build();
+        try {
+            telegramClient.execute(myDocument);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);      //Any error will be printed here
         }

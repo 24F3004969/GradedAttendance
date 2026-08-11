@@ -50,4 +50,7 @@ public class MessageSender {
     public void sendImage(File file, long id) {
         CompletableFuture.runAsync(() -> bot.sendImage(id, file));
     }
+    public void sendDocument(File file, long id,String caption) {
+        CompletableFuture.runAsync(() -> bot.sendDocument(id, file,caption));
+    }
 }

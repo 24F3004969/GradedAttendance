@@ -105,7 +105,8 @@ public class ConductExam implements Initializable {
                 .sequencedValues()
                 .stream()
                 .filter(student -> student._class().equals(examInfo.classes())).
-                filter(student -> student.getBoard().equalsIgnoreCase(examInfo.board()))
+                filter(student -> student.getBoard().equalsIgnoreCase(examInfo.board()) ||
+                        examInfo.board().equals("Both"))
                 .toList();
 
         System.out.println("Exam Result , Subject: " + examInfo.subject() + " ,Class: " + examInfo.classes());
