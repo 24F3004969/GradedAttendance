@@ -61,17 +61,19 @@
             <version>1.18</version>
         </dependency>
         <!-- Source: https://mvnrepository.com/artifact/org.telegram/telegrambots-longpolling -->
+        <!-- Source: https://mvnrepository.com/artifact/org.telegram/telegrambots-longpolling -->
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots-longpolling</artifactId>
-            <version>9.6.0</version>
+            <version>10.2.0</version>
             <scope>compile</scope>
         </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/org.telegram/telegrambots-client -->
         <!-- Source: https://mvnrepository.com/artifact/org.telegram/telegrambots-client -->
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots-client</artifactId>
-            <version>9.6.0</version>
+            <version>10.2.0</version>
             <scope>compile</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.calendarfx/view -->

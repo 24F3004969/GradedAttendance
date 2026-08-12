@@ -4,15 +4,15 @@ import atlantafx.base.controls.ModalPane;
 import atlantafx.base.controls.Notification;
 import atlantafx.base.theme.Styles;
 import atlantafx.base.util.Animations;
+import com.dlsc.gemsfx.DialogPane;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
@@ -32,8 +32,10 @@ import org.graded_classes.graded_attendance.data.MessageSender;
 import org.graded_classes.graded_attendance.data.Student;
 import org.graded_classes.graded_attendance.controller.leaderboard.*;
 import org.graded_classes.graded_attendance.controller.planner.Planner;
+import org.graded_classes.graded_attendance.messaging.TelegramBot;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign2.MaterialDesignH;
+import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.net.URL;
 import java.sql.PreparedStatement;
@@ -44,7 +46,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 
 public class MainController implements Initializable {
     VBox notificationsVBox, notificationBox;
@@ -92,7 +96,7 @@ public class MainController implements Initializable {
         Tooltip.install(selectedTab, tooltip);
         messageSender = new MessageSender(gradedDataLoader.databaseLoader, this, getToken());
         studentDataLoader = new StudentDataLoader(gradedDataLoader.getStudentData());
-        l1 = new Leaderboard1(studentDataLoader,this);
+        l1 = new Leaderboard1(studentDataLoader, this);
         l2 = new SeatingPlan(getSeatingPlan());
         notificationInit();
     }
@@ -191,7 +195,7 @@ public class MainController implements Initializable {
                     l1,
                     l2,
                     this));
-           /* case "setting" -> gradedFxmlLoader.createView(R.quiz_taker);*/
+            /* case "setting" -> gradedFxmlLoader.createView(R.quiz_taker);*/
             default -> null;
         };
     }
@@ -200,7 +204,7 @@ public class MainController implements Initializable {
         LinkedHashMap<String, ArrayList<DailyTimeTable>> tables = new LinkedHashMap<>();
         try {
             var stmt = gradedDataLoader.databaseLoader.getConnection();
-            String sql = "SELECT * FROM SLOT_%s".formatted(LocalDate.now().getDayOfWeek().toString().substring(0,3));
+            String sql = "SELECT * FROM SLOT_%s".formatted(LocalDate.now().getDayOfWeek().toString().substring(0, 3));
             PreparedStatement pst = stmt.prepareStatement(sql);
             ResultSet r = pst.executeQuery();
             while (r.next()) {
@@ -242,7 +246,23 @@ public class MainController implements Initializable {
                 """);
     }
 
-    public void sendNotification(String message, String styles) {
+    public void approve(User user, String[] test, TelegramBot telegramBot) {
+        String name=studentDataLoader.getStudentLinkedHashMap().get(test[0].trim().toUpperCase()).name();
+        Platform.runLater(() -> {
+            var x = sendNotification("Need and an approval for " + user.getFirstName() +
+                    "." + test[0] + " " + name + " class " + test[1], Styles.SUCCESS);
+            var but = new Button("Approve");
+            but.getStyleClass().add(Styles.SUCCESS);
+            x.setPrimaryActions(but);
+            but.setOnMouseClicked(event -> {
+                showWarningDialog("Are you sure you want to approve for " + user.getFirstName()  +
+                        ". " + test[0] + " " + name + " class " + test[1], telegramBot, test, user);
+            });
+        });
+
+    }
+
+    public Notification sendNotification(String message, String styles) {
         if (!stackPane.getChildren().contains(notificationBox)) {
             stackPane.getChildren().add(notificationBox);
         }
@@ -276,6 +296,7 @@ public class MainController implements Initializable {
 
         }
         in.playFromStart();
+        return msg;
     }
 
     public void sendNotification(String message, String styles, ArrayList<Student> students) {
@@ -347,5 +368,35 @@ public class MainController implements Initializable {
         });
         modalPane.show(box);
         modalPane.setAlignment(Pos.TOP_LEFT);
+    }
+
+    private void showWarningDialog(String message, TelegramBot telegramBot, String[] test, User user) {
+
+        com.dlsc.gemsfx.DialogPane dialogPane = new com.dlsc.gemsfx.DialogPane();
+        com.dlsc.gemsfx.DialogPane.Dialog<ButtonType> dialog =
+                new com.dlsc.gemsfx.DialogPane.Dialog<>(dialogPane, DialogPane.Type.WARNING);
+        dialog.setTitle("Approval Warning");
+        dialog.setContentAlignment(Pos.CENTER);
+        dialog.setSameWidthButtons(true);
+        Label content = new Label(message);
+        dialog.getButtonTypes().setAll(
+                ButtonType.OK,
+                ButtonType.CANCEL
+        );
+        dialog.setContent(new StackPane(content));
+        stackPane.getChildren().add(dialogPane);
+        content.setOnMouseClicked(e -> dialog.cancel());
+        dialog.setOnClose(buttonType -> {
+            if (buttonType == ButtonType.OK) {
+                CompletableFuture.runAsync(() -> {
+                    telegramBot.extracted(test, user, true);
+                });
+            } else if (buttonType == ButtonType.CANCEL) {
+                CompletableFuture.runAsync(() -> {
+                    telegramBot.extracted(test, user, false);
+                });
+            }
+        });
+        dialog.show();
     }
 }

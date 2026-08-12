@@ -5,11 +5,12 @@ import javafx.application.Platform;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 
 import java.sql.Statement;
+import java.util.Locale;
 
 public class MessageData {
     Statement statement;
     DatabaseLoader databaseLoader;
-    MainController mainController;
+    public MainController mainController;
 
     public boolean isThisStudentPresent(String edNo) {
         return mainController.gradedDataLoader.studentData.containsKey(edNo) && mainController.gradedDataLoader.studentData.get(edNo).telegram_id() != null &&
@@ -22,15 +23,16 @@ public class MessageData {
         statement = databaseLoader.getStatement();
     }
 
-    public boolean updateTelegramId(String edNo, String name, String _class, String newTelegramId) {
+    public boolean updateTelegramId(String edNo,String _class, String newTelegramId) {
+        Student student = mainController.gradedDataLoader.
+                getStudentData().get(edNo.trim().toUpperCase());
+        var rowsAffected = student.updateTelegram(databaseLoader.getConnection(),
+                        edNo,  _class, newTelegramId);
 
-        var rowsAffected = mainController.gradedDataLoader.
-                getStudentData().get(edNo).updateTelegram(databaseLoader.getConnection(),
-                        edNo, name, _class, newTelegramId);
         if (rowsAffected > 0) {
-            Platform.runLater(() -> mainController.sendNotification(name + " was added to graded messaging system", Styles.SUCCESS));
+            Platform.runLater(() -> mainController.sendNotification(student.name() + " was added to graded messaging system", Styles.SUCCESS));
             mainController.gradedDataLoader.getStudentData().
-                    get(edNo).setTelegram_id(newTelegramId);
+                    get(edNo.toUpperCase()).setTelegram_id(newTelegramId);
             return true;
         } else {
             return false;

@@ -102,8 +102,6 @@ public class ExamReport implements Initializable {
         if (s == null || s.isBlank()) {
             return -1;
         }
-        report.setVisible(true);
-        System.out.println(s);
         String roll = s.trim().split("\\s+", 2)[0];
         String name = s.trim().split("\\s+", 2)[1];
         var resultList = getClassRank(data.get(roll)._class());
@@ -265,7 +263,7 @@ public class ExamReport implements Initializable {
         Button button = (Button) event.getSource();
         button.setDisable(true);
 
-        dialogWhileGeneration();
+        dialogWhileGeneration("Report sending progress","Send the report");
 
         File reportFolder =
                 new File(Main.getRootPath() + "/My Drive/StudentReport/");
@@ -385,7 +383,7 @@ public class ExamReport implements Initializable {
         Button bt = (Button) event.getSource();
         bt.setDisable(true);
 
-        dialogWhileGeneration();
+        dialogWhileGeneration("Report generation progress","Generating the report");
 
         Task<Void> reportTask = new Task<>() {
             @Override
@@ -395,7 +393,6 @@ public class ExamReport implements Initializable {
                 int current = 0;
 
                 for (var x : data.keySet()) {
-
                     String student = x + " " + data.get(x).name();
 
                     CountDownLatch latch = new CountDownLatch(1);
@@ -729,19 +726,19 @@ public class ExamReport implements Initializable {
     }
 
 
-    public void dialogWhileGeneration() {
+    public void dialogWhileGeneration(String message1,String message2) {
         com.dlsc.gemsfx.DialogPane dialogPane = new com.dlsc.gemsfx.DialogPane();
         com.dlsc.gemsfx.DialogPane.Dialog<ButtonType> dialog = new com.dlsc.gemsfx.DialogPane.Dialog<>(dialogPane, DialogPane.Type.WARNING);
-        dialog.setTitle("Report generation progress");
+        dialog.setTitle(message1);
         dialog.setContentAlignment(Pos.CENTER);
         dialogContent.setSpacing(10);
 
         generation.setMaxWidth(Double.MAX_VALUE);
 
         VBox.setVgrow(listOfGenerated, Priority.ALWAYS);
-        generation.setMinHeight(15);
+        generation.setMinHeight(10);
         dialogContent.getChildren().setAll(
-                new Label("Generating reports..."),
+                new Label(message2),
                 generation,
                 listOfGenerated
         );

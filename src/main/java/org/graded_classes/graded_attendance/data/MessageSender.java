@@ -14,21 +14,20 @@ import java.util.concurrent.CompletableFuture;
 public class MessageSender {
     public MessageData message;
     private TelegramBot bot;
+    private TelegramBotsLongPollingApplication botsApplication;
 
     public MessageSender(DatabaseLoader databaseLoader, MainController mainController, String token) {
         message = new MessageData(databaseLoader, mainController);
         CompletableFuture.runAsync(() -> {
             try {
-                try (TelegramBotsLongPollingApplication botsApplication = new TelegramBotsLongPollingApplication()) {
+                    botsApplication = new TelegramBotsLongPollingApplication();
                     bot = new TelegramBot(token);
                     long initTime = System.currentTimeMillis();
                     botsApplication.registerBot(token, bot);
                     long finalTime = System.currentTimeMillis();
                     System.out.println((finalTime - initTime) + " ms");
                     bot.setMessageData(message);
-
                     System.out.println("MyAmazingBot successfully started!");
-                }
             } catch (TelegramApiException e) {
                 Platform.runLater(() -> {
                     var alert = new Alert(Alert.AlertType.ERROR);
@@ -50,7 +49,8 @@ public class MessageSender {
     public void sendImage(File file, long id) {
         CompletableFuture.runAsync(() -> bot.sendImage(id, file));
     }
-    public void sendDocument(File file, long id,String caption) {
-        CompletableFuture.runAsync(() -> bot.sendDocument(id, file,caption));
+
+    public void sendDocument(File file, long id, String caption) {
+        CompletableFuture.runAsync(() -> bot.sendDocument(id, file, caption));
     }
 }

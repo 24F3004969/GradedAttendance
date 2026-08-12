@@ -262,19 +262,24 @@ public class Student {
 
     }
 
-    public int updateTelegram(Connection connection, String edNo, String name, String _class, String newTelegramId) {
+    public int updateTelegram(Connection connection, String edNo,  String _class, String newTelegramId) {
         String sql = """
-                 UPDATE StudentData SET telegram_id = ? WHERE ed_no = ? AND TRIM(LOWER(name)) = TRIM(LOWER(?)) AND TRIM(LOWER(class)) = TRIM(LOWER(?))
-                """;
+             UPDATE StudentData
+             SET telegram_id = ?
+             WHERE ed_no = ?
+               AND TRIM(LOWER(class)) = TRIM(LOWER(?))
+            """;
         try (PreparedStatement pst = connection.prepareStatement(sql)) {
             pst.setString(1, newTelegramId);
-            pst.setString(2, edNo);
-            pst.setString(3, name);
-            pst.setString(4, _class);
+            pst.setString(2, edNo.toUpperCase());
+            pst.setString(3, _class);
+
             return pst.executeUpdate();
-        } catch (SQLException _) {
+        } catch (SQLException e) {
+            // Log the exception to diagnose database errors
+            System.err.println("Database error during telegram update: " + e.getMessage());
+            return -1;
         }
-        return 0;
     }
 
     public String ed_no() {
