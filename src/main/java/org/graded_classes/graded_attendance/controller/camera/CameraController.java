@@ -116,7 +116,6 @@ public class CameraController {
     void onModeChange(ActionEvent event) {
         var toggle = (ToggleButton) event.getSource();
         if (toggle.getText().equals("Training")) {
-            startCapture.setDisable(true);
             addStudent.setDisable(false);
             searchBox.setDisable(false);
             checkBoxGroup.setVisible(true);
@@ -162,15 +161,22 @@ public class CameraController {
         Button source = (Button) event.getSource();
         String buttonId = source.getId();
         switch (buttonId) {
-            case "nf" -> {
-                int x = nFront.getText().contains(" ") ? (Integer.parseInt(nFront.
-                        getText().substring(nFront.getText().indexOf(' ')).trim())) + 1 : 1;
-                nFront.setText("Front " + x);
-                clickThePhoto(buttonId);
-                if (x >= 10)
-                    source.setDisable(true);
-            }
+            case "nf" -> initCapture(buttonId, source, nFront);
+            case "nd" -> initCapture(buttonId, source, nDown);
+            case "nl" -> initCapture(buttonId, source, nLeft);
+            case "nr" -> initCapture(buttonId, source, nRight);
         }
+    }
+
+    private void initCapture(String buttonId, Button source, Label label) {
+        int x = label.getText().contains(" ") ? (Integer.parseInt(label.
+                getText().substring(label.getText().indexOf(' ')).trim())) + 1 : 1;
+        label.setText(label.getText().contains(" ") ?
+                (label.getText().substring(0, label.getText().indexOf(' ')) + " " + x) :
+                label.getText() + " " + x);
+        clickThePhoto(buttonId);
+        if (x >= 10)
+            source.setDisable(true);
     }
 
     private void _clickThePhoto(String id) {
@@ -205,8 +211,9 @@ public class CameraController {
             f.mkdir();
         }
         String fileName = imagePath + "/" + id + "/" + System.currentTimeMillis() + ".jpg";
-       CompletableFuture.runAsync(()-> imwrite(fileName, faceGray));
+        CompletableFuture.runAsync(() -> imwrite(fileName, faceGray));
     }
+
     private void clickThePhoto(String id) {
         Mat capturedFace;
 
@@ -228,6 +235,7 @@ public class CameraController {
 
         executor.submit(() -> saveCapturedFace(capturedFace, id));
     }
+
     private void saveCapturedFace(Mat capturedFace, String id) {
         try (capturedFace; Mat faceGray = new Mat()) {
             cvtColor(
@@ -279,6 +287,7 @@ public class CameraController {
             exception.printStackTrace();
         }
     }
+
     private Rect clampFaceToFrame(Rect face, Mat source) {
         int x = Math.max(0, face.x());
         int y = Math.max(0, face.y());
@@ -300,6 +309,7 @@ public class CameraController {
                 Math.max(0, bottom - y)
         );
     }
+
     String imagePath;
 
     @FXML
@@ -384,7 +394,17 @@ public class CameraController {
     }
 
     @FXML
-    public void tryToDetect() {
+    public void tryToDetect(ActionEvent event) {
+        String text=((Button)event.getSource()).getText();
+        if (text.equals("Start Capture")) {
+            extracted();
+        }
+        else {
+            startTraining();
+        }
+    }
+
+    private void extracted() {
         if (!processing.compareAndSet(false, true)) {
             System.out.println("Recognition already running");
             return;
@@ -530,7 +550,7 @@ public class CameraController {
 
         try {
 
-            recognizer.read("attendance_model.yml");
+            recognizer.read(System.getProperty("user.home")+"/attendance_model.yml");
 
             System.out.println(
                     "Attendance model loaded."
@@ -728,6 +748,7 @@ public class CameraController {
             }
         }
     }
+
     private Rect findLargestFace(RectVector faces) {
         if (faces == null || faces.size() == 0) {
             return null;
@@ -759,6 +780,7 @@ public class CameraController {
 
         return largest;
     }
+
     private final AtomicBoolean restartingCamera =
             new AtomicBoolean(false);
 
@@ -775,6 +797,7 @@ public class CameraController {
             }
         });
     }
+
     private void faceMovementDetection(Rect largestFace) {
         try (RectVector faceVector = new RectVector(1)) {
             faceVector.put(0, largestFace);
@@ -1050,12 +1073,13 @@ public class CameraController {
 
     private void startTraining() {
 
-        String dataPath =
-                "C:\\Users\\hey\\GradedAttendance\\data";
+        String dataPath =System.getProperty("user.home")+
+                "/gardeEdAttendanceData";
 
         File root = new File(dataPath);
 
         if (!root.exists()) {
+            System.out.println(dataPath);
             System.out.println("Data folder not found");
             return;
         }
@@ -1080,17 +1104,12 @@ public class CameraController {
 
             try {
                 label = Integer.parseInt(
-                        studentFolder.getName()
+                        studentFolder.getName().replace("ED","")
                 );
             } catch (NumberFormatException e) {
                 continue;
             }
-
-            File[] images = studentFolder.listFiles();
-
-            if (images == null) {
-                continue;
-            }
+            List<File> images = findTrainingImages(studentFolder);
 
             for (File imageFile : images) {
 
@@ -1174,7 +1193,7 @@ public class CameraController {
             );
 
             recognizer.save(
-                    "attendance_model.yml"
+                    System.getProperty("user.home")+"/attendance_model.yml"
             );
 
             System.out.println(
@@ -1195,5 +1214,33 @@ public class CameraController {
                     "Model : attendance_model.yml"
             );
         }
+    }
+    private List<File> findTrainingImages(File directory) {
+        List<File> images = new ArrayList<>();
+
+        File[] files = directory.listFiles();
+
+        if (files == null) {
+            return images;
+        }
+
+        for (File file : files) {
+            if (file.isDirectory()) {
+                images.addAll(findTrainingImages(file));
+            } else if (isSupportedImage(file)) {
+                images.add(file);
+            }
+        }
+
+        return images;
+    }
+
+    private boolean isSupportedImage(File file) {
+        String name = file.getName().toLowerCase();
+
+        return name.endsWith(".jpg")
+                || name.endsWith(".jpeg")
+                || name.endsWith(".png")
+                || name.endsWith(".bmp");
     }
 }
