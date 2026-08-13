@@ -192,147 +192,162 @@ public class QuestionEditor implements Initializable {
 
     public void onEditOrSave() {
         if (saveOrEditButton.getText().equals("Save")) {
-            if (listOfQuestions.isEmpty()) {
-                return;
-            }
-            try {
-                var conn = mainController.gradedDataLoader.databaseLoader.getConnection();
-
-                String questionSql = """
-                        INSERT INTO Questions
-                        (topic_id, user_id, date_of_making, type, level, question_txt, question_img_path)
-                        VALUES (?,?,?,?,?,?,?)
-                        """;
-
-                String optionSql = """
-                        INSERT INTO QuestionOptions
-                        (question_id, option_text, option_img_path, option_order, is_correct)
-                        VALUES (?,?,?,?,?)
-                        """;
-
-                for (var x : listOfQuestions) {
-                    if (x.question.file != null) {
-                        String des = Main.getRootPath() + "My Drive/imageData/" + x.question.getFile().getName();
-                        copyFile(x.question.file, des);
-                        x.question.file = des;
-                    }
-                    Toggle selectedToggle = x.question.t_options.getSelectedToggle();
-
-                    if (selectedToggle == null) {
-                        throw new RuntimeException("Please select question level.");
-                    }
-
-                    int questionId;
-
-                    try (PreparedStatement pStat = conn.prepareStatement(questionSql, Statement.RETURN_GENERATED_KEYS)) {
-                        pStat.setInt(1, Integer.parseInt(topicID));
-                        pStat.setInt(2, 1);
-                        pStat.setString(3, LocalDate.now().toString());
-                        pStat.setString(4, "mcq");
-                        pStat.setString(5, ((RadioButton) selectedToggle).getText());
-                        pStat.setString(6, x.question.question_text.getText());
-                        pStat.setString(7, x.question.file);
-
-                        pStat.executeUpdate();
-
-                        try (ResultSet rs = pStat.getGeneratedKeys()) {
-                            if (rs.next()) {
-                                questionId = rs.getInt(1);
-                            } else {
-                                throw new RuntimeException("Question ID was not generated.");
-                            }
-                        }
-                    }
-
-                    try (PreparedStatement optionStmt = conn.prepareStatement(optionSql)) {
-                        insertOption(optionStmt, questionId, x.question.opt1.getText(), 1, x.question.cOp1.isSelected());
-                        insertOption(optionStmt, questionId, x.question.opt2.getText(), 2, x.question.cOp2.isSelected());
-                        insertOption(optionStmt, questionId, x.question.opt3.getText(), 3, x.question.cOp3.isSelected());
-                        insertOption(optionStmt, questionId, x.question.opt4.getText(), 4, x.question.cOp4.isSelected());
-                    }
-                }
-
-                if (!conn.getAutoCommit()) {
-                    conn.commit();
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
+            saveData();
+            var alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information");
+            alert.setHeaderText("Question got save");
+            alert.show();
         } else if (saveOrEditButton.getText().equals("Edit")) {
+            editData();
+            var alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information");
+            alert.setHeaderText("Question got edited");
+            alert.show();
+        }
+    }
 
-            try {
-                var conn = mainController.gradedDataLoader.databaseLoader.getConnection();
+    private void saveData() {
+        if (listOfQuestions.isEmpty()) {
+            return;
+        }
+        try {
+            var conn = mainController.gradedDataLoader.databaseLoader.getConnection();
 
-                QuestionData qd = list.get(questionCount);
-                int questionId = Integer.parseInt(qd.question_id());
-                List<Integer> list1 = qd.option_data().options().keySet().stream().toList();
+            String questionSql = """
+                    INSERT INTO Questions
+                    (topic_id, user_id, date_of_making, type, level, question_txt, question_img_path)
+                    VALUES (?,?,?,?,?,?,?)
+                    """;
 
-                var x = listOfQuestions.get(questionCount);
+            String optionSql = """
+                    INSERT INTO QuestionOptions
+                    (question_id, option_text, option_img_path, option_order, is_correct)
+                    VALUES (?,?,?,?,?)
+                    """;
 
-                if (x.question.file != null && new File(x.question.file.toString()).exists()) {
-                    String des = Main.getRootPath() +
-                            "My Drive/imageData/" +
-                            x.question.getFile().getName();
-
+            for (var x : listOfQuestions) {
+                if (x.question.file != null) {
+                    String des = Main.getRootPath() + "My Drive/imageData/" + x.question.getFile().getName();
                     copyFile(x.question.file, des);
                     x.question.file = des;
                 }
-
                 Toggle selectedToggle = x.question.t_options.getSelectedToggle();
 
                 if (selectedToggle == null) {
                     throw new RuntimeException("Please select question level.");
                 }
 
-                String updateQuestionSql = """
-                        UPDATE Questions
-                        SET level = ?,
-                            question_txt = ?,
-                            question_img_path = ?
-                        WHERE question_id = ?
-                        """;
+                int questionId;
 
-                try (PreparedStatement stmt = conn.prepareStatement(updateQuestionSql)) {
+                try (PreparedStatement pStat = conn.prepareStatement(questionSql, Statement.RETURN_GENERATED_KEYS)) {
+                    pStat.setInt(1, Integer.parseInt(topicID));
+                    pStat.setInt(2, 1);
+                    pStat.setString(3, LocalDate.now().toString());
+                    pStat.setString(4, "mcq");
+                    pStat.setString(5, ((RadioButton) selectedToggle).getText());
+                    pStat.setString(6, x.question.question_text.getText());
+                    pStat.setString(7, x.question.file);
 
-                    stmt.setString(1, ((RadioButton) selectedToggle).getText());
-                    stmt.setString(2, x.question.question_text.getText());
-                    stmt.setString(3, x.question.file);
-                    stmt.setInt(4, questionId);
+                    pStat.executeUpdate();
 
-                    stmt.executeUpdate();
-                }
-                String updateOptionSql = """
-                        UPDATE QuestionOptions
-                        SET option_text = ?,
-                            option_img_path = ?,
-                            is_correct = ?
-                        WHERE option_id = ?
-                        """;
-                try (PreparedStatement optionStmt = conn.prepareStatement(updateOptionSql)) {
-
-                    updateOption(optionStmt, x.question.opt1.getText(), null,
-                            x.question.cOp1.isSelected(), list1.getFirst());
-
-                    updateOption(optionStmt, x.question.opt2.getText(), null,
-                            x.question.cOp2.isSelected(), list1.get(1));
-
-                    updateOption(optionStmt, x.question.opt3.getText(), null,
-                            x.question.cOp3.isSelected(), list1.get(2));
-
-                    updateOption(optionStmt, x.question.opt4.getText(), null,
-                            x.question.cOp4.isSelected(), list1.get(3));
-
-                    optionStmt.executeBatch();
-                }
-                if (!conn.getAutoCommit()) {
-                    conn.commit();
+                    try (ResultSet rs = pStat.getGeneratedKeys()) {
+                        if (rs.next()) {
+                            questionId = rs.getInt(1);
+                        } else {
+                            throw new RuntimeException("Question ID was not generated.");
+                        }
+                    }
                 }
 
-            } catch (Exception e) {
-                e.printStackTrace();
+                try (PreparedStatement optionStmt = conn.prepareStatement(optionSql)) {
+                    insertOption(optionStmt, questionId, x.question.opt1.getText(), 1, x.question.cOp1.isSelected());
+                    insertOption(optionStmt, questionId, x.question.opt2.getText(), 2, x.question.cOp2.isSelected());
+                    insertOption(optionStmt, questionId, x.question.opt3.getText(), 3, x.question.cOp3.isSelected());
+                    insertOption(optionStmt, questionId, x.question.opt4.getText(), 4, x.question.cOp4.isSelected());
+                }
             }
+
+            if (!conn.getAutoCommit()) {
+                conn.commit();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void editData() {
+        try {
+            var conn = mainController.gradedDataLoader.databaseLoader.getConnection();
+
+            QuestionData qd = list.get(questionCount);
+            int questionId = Integer.parseInt(qd.question_id());
+            List<Integer> list1 = qd.option_data().options().keySet().stream().toList();
+
+            var x = listOfQuestions.get(questionCount);
+
+            if (x.question.file != null && new File(x.question.file.toString()).exists()) {
+                String des = Main.getRootPath() +
+                        "My Drive/imageData/" +
+                        x.question.getFile().getName();
+
+                copyFile(x.question.file, des);
+                x.question.file = des;
+            }
+
+            Toggle selectedToggle = x.question.t_options.getSelectedToggle();
+
+            if (selectedToggle == null) {
+                throw new RuntimeException("Please select question level.");
+            }
+
+            String updateQuestionSql = """
+                    UPDATE Questions
+                    SET level = ?,
+                        question_txt = ?,
+                        question_img_path = ?
+                    WHERE question_id = ?
+                    """;
+
+            try (PreparedStatement stmt = conn.prepareStatement(updateQuestionSql)) {
+
+                stmt.setString(1, ((RadioButton) selectedToggle).getText());
+                stmt.setString(2, x.question.question_text.getText());
+                stmt.setString(3, x.question.file);
+                stmt.setInt(4, questionId);
+
+                stmt.executeUpdate();
+            }
+            String updateOptionSql = """
+                    UPDATE QuestionOptions
+                    SET option_text = ?,
+                        option_img_path = ?,
+                        is_correct = ?
+                    WHERE option_id = ?
+                    """;
+            try (PreparedStatement optionStmt = conn.prepareStatement(updateOptionSql)) {
+
+                updateOption(optionStmt, x.question.opt1.getText(), null,
+                        x.question.cOp1.isSelected(), list1.getFirst());
+
+                updateOption(optionStmt, x.question.opt2.getText(), null,
+                        x.question.cOp2.isSelected(), list1.get(1));
+
+                updateOption(optionStmt, x.question.opt3.getText(), null,
+                        x.question.cOp3.isSelected(), list1.get(2));
+
+                updateOption(optionStmt, x.question.opt4.getText(), null,
+                        x.question.cOp4.isSelected(), list1.get(3));
+
+                optionStmt.executeBatch();
+            }
+            if (!conn.getAutoCommit()) {
+                conn.commit();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

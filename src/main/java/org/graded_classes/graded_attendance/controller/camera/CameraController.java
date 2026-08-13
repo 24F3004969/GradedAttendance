@@ -17,16 +17,13 @@ import org.bytedeco.javacpp.indexer.DoubleIndexer;
 import org.bytedeco.opencv.opencv_core.*;
 import org.bytedeco.opencv.opencv_face.FacemarkLBF;
 import org.bytedeco.opencv.opencv_face.LBPHFaceRecognizer;
-import org.bytedeco.opencv.opencv_imgproc.Vec3fVector;
 import org.bytedeco.opencv.opencv_objdetect.CascadeClassifier;
 import org.bytedeco.opencv.opencv_videoio.VideoCapture;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.controller.tts.RealTimeTts;
 import org.graded_classes.graded_attendance.data.Student;
-import org.jetbrains.annotations.NotNull;
 
-import javax.sound.sampled.LineUnavailableException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.IntBuffer;
@@ -53,7 +50,7 @@ public class CameraController {
     @FXML
     private Button addStudent;
     @FXML
-    private ScrollPane srollAtt;
+    private ScrollPane scrollAtt;
     @FXML
     private VBox glasses;
 
@@ -122,14 +119,14 @@ public class CameraController {
             startCapture.setDisable(true);
             addStudent.setDisable(false);
             searchBox.setDisable(false);
-            srollAtt.setVisible(true);
             checkBoxGroup.setVisible(true);
+            startCapture.setText("Start Training");
         } else if (toggle.getText().equals("Face Detector")) {
             startCapture.setDisable(false);
-
             addStudent.setDisable(true);
             searchBox.setDisable(true);
-            srollAtt.setVisible(false);
+            scrollAtt.setVisible(false);
+            startCapture.setText("Start Capturing");
             checkBoxGroup.setVisible(false);
         }
     }
@@ -166,18 +163,17 @@ public class CameraController {
         String buttonId = source.getId();
         switch (buttonId) {
             case "nf" -> {
-                int x = nFront.getText().contains(" ") ? (Integer.parseInt(nFront.getText().substring(nFront.getText().indexOf(' ')).trim()))+1 : 1;
+                int x = nFront.getText().contains(" ") ? (Integer.parseInt(nFront.
+                        getText().substring(nFront.getText().indexOf(' ')).trim())) + 1 : 1;
                 nFront.setText("Front " + x);
                 clickThePhoto(buttonId);
-                if (x>=10)
+                if (x >= 10)
                     source.setDisable(true);
-
             }
         }
-        clickThePhoto(buttonId);
     }
 
-    private void clickThePhoto(String id) {
+    private void _clickThePhoto(String id) {
         Mat captureFace;
 
         synchronized (frameLock) {
@@ -209,9 +205,101 @@ public class CameraController {
             f.mkdir();
         }
         String fileName = imagePath + "/" + id + "/" + System.currentTimeMillis() + ".jpg";
-        imwrite(fileName, faceGray);
+       CompletableFuture.runAsync(()-> imwrite(fileName, faceGray));
     }
+    private void clickThePhoto(String id) {
+        Mat capturedFace;
 
+        synchronized (frameLock) {
+            if (lastFace == null || cleanFrame.empty()) {
+                System.out.println("No face detected.");
+                return;
+            }
+
+            Rect safeFace = clampFaceToFrame(lastFace, cleanFrame);
+
+            if (safeFace.width() <= 0 || safeFace.height() <= 0) {
+                System.out.println("Invalid face area.");
+                return;
+            }
+
+            capturedFace = new Mat(cleanFrame, safeFace).clone();
+        }
+
+        executor.submit(() -> saveCapturedFace(capturedFace, id));
+    }
+    private void saveCapturedFace(Mat capturedFace, String id) {
+        try (capturedFace; Mat faceGray = new Mat()) {
+            cvtColor(
+                    capturedFace,
+                    faceGray,
+                    COLOR_BGR2GRAY
+            );
+
+            // Keep training and recognition preprocessing consistent.
+            resize(
+                    faceGray,
+                    faceGray,
+                    new Size(FACE_SIZE, FACE_SIZE)
+            );
+
+            equalizeHist(faceGray, faceGray);
+
+            File directory = new File(imagePath, id);
+
+            if (!directory.exists() && !directory.mkdirs()) {
+                System.err.println(
+                        "Unable to create directory: "
+                                + directory.getAbsolutePath()
+                );
+                return;
+            }
+
+            File outputFile = new File(
+                    directory,
+                    System.currentTimeMillis() + ".jpg"
+            );
+
+            boolean saved = imwrite(
+                    outputFile.getAbsolutePath(),
+                    faceGray
+            );
+
+            if (saved) {
+                System.out.println(
+                        "Photo saved: " + outputFile.getAbsolutePath()
+                );
+            } else {
+                System.err.println(
+                        "Failed to save photo: "
+                                + outputFile.getAbsolutePath()
+                );
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+    private Rect clampFaceToFrame(Rect face, Mat source) {
+        int x = Math.max(0, face.x());
+        int y = Math.max(0, face.y());
+
+        int right = Math.min(
+                source.cols(),
+                face.x() + face.width()
+        );
+
+        int bottom = Math.min(
+                source.rows(),
+                face.y() + face.height()
+        );
+
+        return new Rect(
+                x,
+                y,
+                Math.max(0, right - x),
+                Math.max(0, bottom - y)
+        );
+    }
     String imagePath;
 
     @FXML
@@ -220,6 +308,7 @@ public class CameraController {
         if (id.equals("")) {
 
         } else {
+            scrollAtt.setVisible(true);
             Result result = getResult(id);
             CompletableFuture.runAsync(() -> {
                 timeTts.readAloud(", , " + result.ed() + result.name() + "Welcome to GradeED Coaching Classes. Please be ready and stand in front of the camera.");
@@ -495,107 +584,197 @@ public class CameraController {
     }
 
     private void grabFrame() {
+        Mat localFrame = new Mat();
+        Mat localGray = new Mat();
 
-        synchronized (frameLock) {
+        try {
+            VideoCapture currentCamera = camera;
 
-            if (!camera.read(frame) || frame.empty()) {
+            if (currentCamera == null ||
+                    !currentCamera.isOpened() ||
+                    !currentCamera.read(localFrame) ||
+                    localFrame.empty()) {
 
-                System.out.println("Camera frame lost. Restarting...");
-
-                restartCamera();
-
+                System.out.println("Camera frame lost.");
+                restartCameraAsync();
                 return;
             }
-            flip(frame, frame, 1); // un-mirror webcam preview
-            frame.copyTo(cleanFrame);
-            cvtColor(
-                    cleanFrame,
-                    gray,
-                    COLOR_BGR2GRAY
-            );
 
-            RectVector faces =
-                    new RectVector();
+            flip(localFrame, localFrame, 1);
+            cvtColor(localFrame, localGray, COLOR_BGR2GRAY);
 
-            faceDetector.detectMultiScale(
-                    gray,
-                    faces,
-                    1.1,
-                    5,
-                    0,
-                    new Size(50, 50),
-                    new Size()
-            );
+            RectVector faces = new RectVector();
 
-            lastFace = null;
+            try {
+                faceDetector.detectMultiScale(
+                        localGray,
+                        faces,
+                        1.1,
+                        5,
+                        0,
+                        new Size(50, 50),
+                        new Size()
+                );
 
-            if (faces.size() > 0) {
+                Rect detectedFace = findLargestFace(faces);
 
-                Rect largestFace =
-                        faces.get(0);
+                /*
+                 * Publish the clean frame and detected rectangle quickly.
+                 * Do not perform expensive processing while holding the lock.
+                 */
+                synchronized (frameLock) {
+                    localFrame.copyTo(cleanFrame);
 
-                for (long i = 1;
-                     i < faces.size();
-                     i++) {
-
-                    Rect current =
-                            faces.get(i);
-
-                    if (current.area()
-                            > largestFace.area()) {
-
-                        largestFace =
-                                current;
-                    }
+                    lastFace = detectedFace == null
+                            ? null
+                            : new Rect(
+                            detectedFace.x(),
+                            detectedFace.y(),
+                            detectedFace.width(),
+                            detectedFace.height()
+                    );
                 }
-                lastFace = largestFace;
-                faceMovementDetection(largestFace);
-                rectangle(
-                        frame,
-                        new Point(
-                                largestFace.x(),
-                                largestFace.y()
-                        ),
-                        new Point(
-                                largestFace.x()
-                                        + largestFace.width(),
-                                largestFace.y()
-                                        + largestFace.height()
-                        ),
-                        new Scalar(
-                                0,
-                                255,
-                                0,
-                                0
-                        ),
-                        2,
-                        LINE_8,
-                        0
-                );
-            }
 
-            Image image =
-                    matToImage(frame);
+                if (detectedFace != null) {
+                    // Use localGray/localFrame instead of shared gray/frame.
+                    faceMovementDetection(
+                            localFrame,
+                            localGray,
+                            detectedFace
+                    );
 
-            boolean faceDetected =
-                    !faces.empty();
+                    rectangle(
+                            localFrame,
+                            new Point(
+                                    detectedFace.x(),
+                                    detectedFace.y()
+                            ),
+                            new Point(
+                                    detectedFace.x() + detectedFace.width(),
+                                    detectedFace.y() + detectedFace.height()
+                            ),
+                            new Scalar(0, 255, 0, 0),
+                            2,
+                            LINE_8,
+                            0
+                    );
+                }
 
-            Platform.runLater(() -> {
+                Image image = matToImage(localFrame);
+                boolean faceDetected = detectedFace != null;
 
-                cameraView.setPhoto(
-                        image
-                );
+                Platform.runLater(() -> {
+                    cameraView.setPhoto(image);
 
-                cameraView.getStyleClass()
-                        .set(1,
+                    if (cameraView.getStyleClass().size() > 1) {
+                        cameraView.getStyleClass().set(
+                                1,
                                 faceDetected
                                         ? "border-circle-green"
                                         : "border-circle-red"
                         );
-            });
+                    }
+                });
+            } finally {
+                faces.close();
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        } finally {
+            localFrame.close();
+            localGray.close();
         }
     }
 
+    private void faceMovementDetection(
+            Mat outputFrame,
+            Mat grayFrame,
+            Rect largestFace
+    ) {
+        try (RectVector faceVector = new RectVector(1)) {
+            faceVector.put(0, largestFace);
+
+            try (Point2fVectorVector landmarks =
+                         new Point2fVectorVector()) {
+
+                boolean success = facemark.fit(
+                        grayFrame,
+                        faceVector,
+                        landmarks
+                );
+
+                if (success && landmarks.size() > 0) {
+                    Point2fVector points = landmarks.get(0);
+
+                    // Remaining pose calculation...
+
+                    for (long i = 0; i < points.size(); i++) {
+                        Point2f point = points.get(i);
+
+                        circle(
+                                outputFrame,
+                                new Point(
+                                        Math.round(point.x()),
+                                        Math.round(point.y())
+                                ),
+                                4,
+                                new Scalar(0, 255, 0, 0),
+                                FILLED,
+                                LINE_8,
+                                0
+                        );
+                    }
+                }
+            }
+        }
+    }
+    private Rect findLargestFace(RectVector faces) {
+        if (faces == null || faces.size() == 0) {
+            return null;
+        }
+
+        Rect first = faces.get(0);
+
+        Rect largest = new Rect(
+                first.x(),
+                first.y(),
+                first.width(),
+                first.height()
+        );
+
+        for (long i = 1; i < faces.size(); i++) {
+            Rect current = faces.get(i);
+
+            if (current.area() > largest.area()) {
+                largest.close();
+
+                largest = new Rect(
+                        current.x(),
+                        current.y(),
+                        current.width(),
+                        current.height()
+                );
+            }
+        }
+
+        return largest;
+    }
+    private final AtomicBoolean restartingCamera =
+            new AtomicBoolean(false);
+
+    private void restartCameraAsync() {
+        if (!restartingCamera.compareAndSet(false, true)) {
+            return;
+        }
+
+        executor.submit(() -> {
+            try {
+                restartCamera();
+            } finally {
+                restartingCamera.set(false);
+            }
+        });
+    }
     private void faceMovementDetection(Rect largestFace) {
         try (RectVector faceVector = new RectVector(1)) {
             faceVector.put(0, largestFace);

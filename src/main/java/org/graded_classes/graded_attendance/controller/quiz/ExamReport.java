@@ -388,7 +388,7 @@ public class ExamReport implements Initializable {
         Task<Void> reportTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
-
+                report.setVisible(true);
                 int total = data.size();
                 int current = 0;
 
@@ -400,7 +400,7 @@ public class ExamReport implements Initializable {
                     Platform.runLater(() -> {
                         try {
                             int result = generateReport(student);
-
+                            report.setVisible(true);
                             if (result == 1) {
                                 savePaneAsPdf(
                                         report,

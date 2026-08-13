@@ -81,7 +81,7 @@
                         <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                      </VBox.margin>
                   </HBox>
-                  <VBox fx:id="report" visible="false" VBox.vgrow="ALWAYS">
+                  <VBox fx:id="report" VBox.vgrow="ALWAYS">
                      <children>
                         <HBox prefHeight="100.0" prefWidth="200.0" style="-fx-background-color: #fafafa; -fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.12, -1.0, 2.0);">
                            <children>

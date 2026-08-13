@@ -20,7 +20,7 @@
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<StackPane stylesheets="@../css/atlantafx.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.camera.CameraController">
+<StackPane maxHeight="600.0" stylesheets="@../css/atlantafx.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.camera.CameraController">
    <children>
       <SVGImageView fx:id="background" backgroundLoading="true" />
       <BorderPane stylesheets="@../css/camera-style.css">
@@ -94,7 +94,7 @@
                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                   </VBox.margin>
                </HBox>
-               <HBox fx:id="checkBoxGroup" alignment="CENTER_RIGHT" spacing="10.0">
+               <HBox fx:id="checkBoxGroup" alignment="CENTER_RIGHT" spacing="10.0" visible="false">
                   <children>
                      <CheckBox mnemonicParsing="false" onAction="#onClicked" text="Glasses">
                         <graphic>
@@ -114,7 +114,7 @@
                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                   </padding>
                </HBox>
-               <ScrollPane fx:id="srollAtt" fitToWidth="true" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;">
+               <ScrollPane fx:id="scrollAtt" fitToWidth="true" style="-fx-border-color: rgba(0, 0, 0, 0.2); -fx-border-radius: 5; -fx-background-radius: 5;" visible="false">
                   <content>
                      <VBox>
                         <children>
