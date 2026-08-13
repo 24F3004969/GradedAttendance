@@ -78,7 +78,7 @@ public class CameraController {
     ObservableList<String> studentData = FXCollections.observableArrayList(List.of());
 
     private static final int FACE_SIZE = 200;
-    private static final double CONFIDENCE_THRESHOLD = 70;
+    private static final double CONFIDENCE_THRESHOLD = 60;
     @FXML
     private Button startCapture;
     @FXML
@@ -165,6 +165,10 @@ public class CameraController {
             case "nd" -> initCapture(buttonId, source, nDown);
             case "nl" -> initCapture(buttonId, source, nLeft);
             case "nr" -> initCapture(buttonId, source, nRight);
+            case "llf" -> initCapture(buttonId, source, llFront);
+            case "ldf" -> initCapture(buttonId, source, ldFront);
+            case "hf" -> initCapture(buttonId, source, hFront);
+            case "gf" -> initCapture(buttonId, source, gFront);
         }
     }
 
@@ -395,11 +399,10 @@ public class CameraController {
 
     @FXML
     public void tryToDetect(ActionEvent event) {
-        String text=((Button)event.getSource()).getText();
+        String text = ((Button) event.getSource()).getText();
         if (text.equals("Start Capture")) {
             extracted();
-        }
-        else {
+        } else {
             startTraining();
         }
     }
@@ -412,71 +415,30 @@ public class CameraController {
         }
         Mat capturedFace;
         synchronized (frameLock) {
-
             if (lastFace == null) {
                 processing.set(false);
                 System.out.println("No face detected.");
                 return;
             }
-
-            Rect roi = new Rect(
-                    lastFace.x(),
-                    lastFace.y(),
-                    lastFace.width(),
-                    lastFace.height()
-            );
-
+            Rect roi = new Rect(lastFace.x(), lastFace.y(), lastFace.width(), lastFace.height());
             capturedFace = new Mat(cleanFrame, roi).clone();
         }
 
         executor.submit(() -> {
-
             Mat faceGray = new Mat();
-
-            cvtColor(
-                    capturedFace,
-                    faceGray,
-                    COLOR_BGR2GRAY
-            );
-
-            resize(
-                    faceGray,
-                    faceGray,
-                    new Size(FACE_SIZE, FACE_SIZE)
-            );
-
+            cvtColor(capturedFace, faceGray, COLOR_BGR2GRAY);
+            resize(faceGray, faceGray, new Size(FACE_SIZE, FACE_SIZE));
             int[] label = new int[1];
             double[] confidence = new double[1];
-            recognizer.predict(
-                    faceGray,
-                    label,
-                    confidence
-            );
-
+            recognizer.predict(faceGray, label, confidence);
             Platform.runLater(() -> {
                 try {
-                    System.out.println(
-                            "Student ID: "
-                                    + label[0]
-                    );
-
-                    System.out.println(
-                            "Confidence: "
-                                    + confidence[0]
-                    );
-
+                    System.out.println("Student ID: " + label[0]);
+                    System.out.println("Confidence: " + confidence[0]);
                     if (confidence[0] < CONFIDENCE_THRESHOLD) {
-
-                        System.out.println(
-                                "Recognized Student "
-                                        + label[0]
-                        );
-
+                        System.out.println("Recognized Student "+ label[0]);
                     } else {
-
-                        System.out.println(
-                                "Unknown Person"
-                        );
+                        System.out.println("Unknown Person");
                     }
                 } finally {
                     processing.set(false);
@@ -550,7 +512,7 @@ public class CameraController {
 
         try {
 
-            recognizer.read(System.getProperty("user.home")+"/attendance_model.yml");
+            recognizer.read(System.getProperty("user.home") + "/attendance_model.yml");
 
             System.out.println(
                     "Attendance model loaded."
@@ -1073,7 +1035,7 @@ public class CameraController {
 
     private void startTraining() {
 
-        String dataPath =System.getProperty("user.home")+
+        String dataPath = System.getProperty("user.home") +
                 "/gardeEdAttendanceData";
 
         File root = new File(dataPath);
@@ -1104,7 +1066,7 @@ public class CameraController {
 
             try {
                 label = Integer.parseInt(
-                        studentFolder.getName().replace("ED","")
+                        studentFolder.getName().replace("ED", "")
                 );
             } catch (NumberFormatException e) {
                 continue;
@@ -1193,7 +1155,7 @@ public class CameraController {
             );
 
             recognizer.save(
-                    System.getProperty("user.home")+"/attendance_model.yml"
+                    System.getProperty("user.home") + "/attendance_model.yml"
             );
 
             System.out.println(
@@ -1215,6 +1177,7 @@ public class CameraController {
             );
         }
     }
+
     private List<File> findTrainingImages(File directory) {
         List<File> images = new ArrayList<>();
 
