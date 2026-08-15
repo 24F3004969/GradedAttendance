@@ -6,498 +6,197 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static org.bytedeco.opencv.global.opencv_core.countNonZero;
+import static org.bytedeco.opencv.global.opencv_core.*;
 import static org.bytedeco.opencv.global.opencv_imgcodecs.imread;
 import static org.bytedeco.opencv.global.opencv_imgcodecs.imwrite;
 import static org.bytedeco.opencv.global.opencv_imgproc.*;
+import static org.graded_classes.graded_attendance.components.OMRReader.findMarkerInCorner;
+import static org.graded_classes.graded_attendance.components.OMRReader.makeBinary;
 
 public class OmrReader2 {
-
-    // ================================
-    // MUST MATCH OMRGeneratorApp
-    // ================================
-
-    private static final double MARKER_SIZE = 40;
-
-    private static final double MARKER_LEFT = 30;
-    private static final double MARKER_TOP = 30;
-    private static final double MARKER_RIGHT = 730;
-    private static final double MARKER_BOTTOM = 1130;
-
-    // OpenCV detects marker center, not top-left
-    private static final double MARKER_CENTER_LEFT =
-            MARKER_LEFT + MARKER_SIZE / 2.0;
-
-    private static final double MARKER_CENTER_TOP =
-            MARKER_TOP + MARKER_SIZE / 2.0;
-
-    private static final double MARKER_CENTER_RIGHT =
-            MARKER_RIGHT + MARKER_SIZE / 2.0;
-
-    private static final double MARKER_CENTER_BOTTOM =
-            MARKER_BOTTOM + MARKER_SIZE / 2.0;
-
-    private static final double MARKER_WIDTH =
-            MARKER_CENTER_RIGHT - MARKER_CENTER_LEFT;
-
-    private static final double MARKER_HEIGHT =
-            MARKER_CENTER_BOTTOM - MARKER_CENTER_TOP;
-
-    private static final int QUESTIONS = 70;
-    private static final int QUESTIONS_PER_COLUMN = 35;
-
-    private static final double LEFT_COLUMN_X = 90;
-    private static final double RIGHT_COLUMN_X = 420;
-
-    private static final double FIRST_ROW_Y = 250;
-    private static final double QUESTION_GAP_Y = 22;
-
-    private static final double QUESTION_NUMBER_GAP = 45;
-    private static final double OPTION_GAP_X = 50;
-
-    private static final int ANSWER_RADIUS = 12;
-
-    // Set true only after you add Roll No OMR bubbles in generator
-    private static final boolean ENABLE_ROLL_OMR = false;
-
-    // Roll number OMR constants
-    private static final double ROLL_DIGIT_1_X = 180;
-    private static final double ROLL_DIGIT_2_X = 290;
-
-    private static final double ROLL_FIRST_DIGIT_Y = 220;
-    private static final double ROLL_DIGIT_GAP_Y = 18;
-
-    private static final int ROLL_BUBBLE_RADIUS = 12;
-
+    static Mat debug;
     public static void main(String[] args) {
 
-        Mat image = imread("omr.png");
+        Mat input = imread("omr.png");
 
-        if (image.empty()) {
+        if (input.empty()) {
             throw new RuntimeException("Cannot load image");
         }
 
-        Mat debug = image.clone();
+        // First pass: find registration markers.
+        Mat inputGray = new Mat();
+        cvtColor(input, inputGray, COLOR_BGR2GRAY);
 
-        Mat gray = new Mat();
+        Mat inputBinary = makeBinary(inputGray);
 
-        cvtColor(
-                image,
-                gray,
-                COLOR_BGR2GRAY
+        SheetMarkers markers =
+                findMarkers(inputBinary);
+
+        // Normalize rotation and perspective.
+        Mat normalized = normalizeSheet(
+                input,
+                markers.topLeft,
+                markers.topRight,
+                markers.bottomRight,
+                markers.bottomLeft
         );
+
+        // Second pass: detect bubbles on normalized sheet.
+        Mat gray = new Mat();
+        cvtColor(normalized, gray, COLOR_BGR2GRAY);
 
         Mat binary = makeBinary(gray);
+        debug = normalized.clone();
+        List<Bubble> bubbles =
+                detectBubbles(binary);
 
-        imwrite("binary_debug.png", binary);
+        double medianDiameter =
+                medianBubbleDiameter(bubbles);
 
-        SheetBounds bounds =
-                findMarkers(binary);
+        double rowTolerance =
+                medianDiameter * 0.60;
 
-        System.out.println("Markers:");
-        System.out.println(bounds);
+        double divider =
+                findColumnDivider(bubbles);
 
-        double scaleX =
-                (bounds.right - bounds.left) / MARKER_WIDTH;
+        List<Bubble> leftBubbleList = bubbles.stream()
+                .filter(b -> b.centerX() < divider)
+                .collect(java.util.stream.Collectors.toList());
 
-        double scaleY =
-                (bounds.bottom - bounds.top) / MARKER_HEIGHT;
+        List<Bubble> rightBubbleList = bubbles.stream()
+                .filter(b -> b.centerX() > divider)
+                .collect(java.util.stream.Collectors.toList());
 
-        if (ENABLE_ROLL_OMR) {
+        List<List<Bubble>> leftRows =
+                groupIntoRows(leftBubbleList, rowTolerance);
 
-            String rollNo =
-                    readRollNumber(
-                            binary,
-                            debug,
-                            bounds,
-                            scaleX,
-                            scaleY
-                    );
+        List<List<Bubble>> rightRows =
+                groupIntoRows(rightBubbleList, rowTolerance);
 
-            System.out.println("Roll No -> " + rollNo);
-        } else {
-            System.out.println("Roll No OMR disabled. Current sheet has only text roll number field.");
-        }
+        leftRows.removeIf(row -> row.size() != 4);
+        rightRows.removeIf(row -> row.size() != 4);
 
-        for (int q = 1; q <= QUESTIONS; q++) {
+        int questionNumber = 1;
 
-            char answer =
-                    readQuestion(
-                            q,
-                            binary,
-                            debug,
-                            bounds,
-                            scaleX,
-                            scaleY
-                    );
+        for (List<Bubble> row : leftRows) {
+
+            char answer = readDetectedRow(
+                    binary,
+                    debug,
+                    row,
+                    questionNumber
+            );
 
             System.out.printf(
-                    "Q%-2d -> %s%n",
-                    q,
+                    "Q%d -> %s%n",
+                    questionNumber,
                     answer
             );
+
+            questionNumber++;
         }
 
-        imwrite("debug.png", debug);
+        for (List<Bubble> row : rightRows) {
 
-        System.out.println("Debug image saved as debug.png");
-        System.out.println("Binary debug image saved as binary_debug.png");
-    }
-
-    private static Mat makeBinary(Mat gray) {
-
-        Mat blurred = new Mat();
-
-        GaussianBlur(
-                gray,
-                blurred,
-                new Size(3, 3),
-                0
-        );
-
-        Mat binary = new Mat();
-
-        adaptiveThreshold(
-                blurred,
-                binary,
-                255,
-                ADAPTIVE_THRESH_GAUSSIAN_C,
-                THRESH_BINARY_INV,
-                31,
-                10
-        );
-
-        Mat kernel =
-                getStructuringElement(
-                        MORPH_RECT,
-                        new Size(3, 3)
-                );
-
-        morphologyEx(
-                binary,
-                binary,
-                MORPH_CLOSE,
-                kernel
-        );
-
-        return binary;
-    }
-
-    private static char readQuestion(
-            int question,
-            Mat binary,
-            Mat debug,
-            SheetBounds bounds,
-            double scaleX,
-            double scaleY
-    ) {
-
-        int[] values = new int[4];
-
-        boolean rightColumn =
-                question > QUESTIONS_PER_COLUMN;
-
-        int row;
-        double columnX;
-
-        if (rightColumn) {
-            row = question - QUESTIONS_PER_COLUMN - 1;
-            columnX = RIGHT_COLUMN_X;
-        } else {
-            row = question - 1;
-            columnX = LEFT_COLUMN_X;
-        }
-
-        double templateY =
-                FIRST_ROW_Y + row * QUESTION_GAP_Y;
-
-        for (int option = 0; option < 4; option++) {
-
-            double templateX =
-                    columnX
-                            + QUESTION_NUMBER_GAP
-                            + option * OPTION_GAP_X;
-
-            int actualX =
-                    convertTemplateX(
-                            templateX,
-                            bounds,
-                            scaleX
-                    );
-
-            int actualY =
-                    convertTemplateY(
-                            templateY,
-                            bounds,
-                            scaleY
-                    );
-
-            values[option] =
-                    bubbleScore(
-                            binary,
-                            actualX,
-                            actualY,
-                            ANSWER_RADIUS
-                    );
-
-            Scalar color;
-
-            switch (option) {
-                case 0 ->
-                        color = new Scalar(255, 0, 0, 0);      // A blue
-                case 1 ->
-                        color = new Scalar(0, 255, 0, 0);      // B green
-                case 2 ->
-                        color = new Scalar(0, 0, 255, 0);      // C red
-                default ->
-                        color = new Scalar(255, 0, 255, 0);    // D purple
-            }
-
-            circle(
+            char answer = readDetectedRow(
+                    binary,
                     debug,
-                    new Point(actualX, actualY),
-                    6,
-                    color,
-                    2,
-                    LINE_8,
-                    0
+                    row,
+                    questionNumber
             );
-        }
 
-        System.out.printf(
-                "Q%d scores -> A=%d B=%d C=%d D=%d%n",
-                question,
-                values[0],
-                values[1],
-                values[2],
-                values[3]
-        );
-
-        int maxIndex = 0;
-
-        for (int i = 1; i < values.length; i++) {
-            if (values[i] > values[maxIndex]) {
-                maxIndex = i;
-            }
-        }
-
-        int secondIndex = -1;
-
-        for (int i = 0; i < values.length; i++) {
-
-            if (i == maxIndex) {
-                continue;
-            }
-
-            if (secondIndex == -1 ||
-                    values[i] > values[secondIndex]) {
-                secondIndex = i;
-            }
-        }
-
-        int maxValue = values[maxIndex];
-        int secondValue = secondIndex == -1 ? 0 : values[secondIndex];
-
-        // Blank detection
-        if (maxValue < 80) {
-            return '-';
-        }
-
-        // Multiple or unclear marking detection
-        if (secondValue > 0 && maxValue < secondValue * 1.4) {
-            return 'X';
-        }
-
-        return (char) ('A' + maxIndex);
-    }
-
-    private static String readRollNumber(
-            Mat binary,
-            Mat debug,
-            SheetBounds bounds,
-            double scaleX,
-            double scaleY
-    ) {
-
-        int firstDigit =
-                readRollDigit(
-                        binary,
-                        debug,
-                        bounds,
-                        scaleX,
-                        scaleY,
-                        ROLL_DIGIT_1_X
-                );
-
-        int secondDigit =
-                readRollDigit(
-                        binary,
-                        debug,
-                        bounds,
-                        scaleX,
-                        scaleY,
-                        ROLL_DIGIT_2_X
-                );
-
-        if (firstDigit == -1 || secondDigit == -1) {
-            return "INVALID_ROLL";
-        }
-
-        return "ED" + firstDigit + secondDigit;
-    }
-
-    private static int readRollDigit(
-            Mat binary,
-            Mat debug,
-            SheetBounds bounds,
-            double scaleX,
-            double scaleY,
-            double digitColumnX
-    ) {
-
-        int[] values = new int[10];
-
-        for (int digit = 0; digit <= 9; digit++) {
-
-            double templateX =
-                    digitColumnX;
-
-            double templateY =
-                    ROLL_FIRST_DIGIT_Y
-                            + digit * ROLL_DIGIT_GAP_Y;
-
-            int actualX =
-                    convertTemplateX(
-                            templateX,
-                            bounds,
-                            scaleX
-                    );
-
-            int actualY =
-                    convertTemplateY(
-                            templateY,
-                            bounds,
-                            scaleY
-                    );
-
-            values[digit] =
-                    bubbleScore(
-                            binary,
-                            actualX,
-                            actualY,
-                            ROLL_BUBBLE_RADIUS
-                    );
-
-            circle(
-                    debug,
-                    new Point(actualX, actualY),
-                    5,
-                    new Scalar(255, 150, 0, 0),
-                    2,
-                    LINE_8,
-                    0
+            System.out.printf(
+                    "Q%d -> %s%n",
+                    questionNumber,
+                    answer
             );
+
+            questionNumber++;
         }
+        imwrite(
+                "normalized_debug.png",
+                debug
+        );
 
-        int maxDigit = 0;
+        imwrite(
+                "normalized_binary.png",
+                binary
+        );
 
-        for (int i = 1; i < values.length; i++) {
-            if (values[i] > values[maxDigit]) {
-                maxDigit = i;
-            }
-        }
+        imwrite(
+                "normalized_original.png",
+                normalized
+        );
 
-        System.out.print("Roll digit scores -> ");
+        System.out.println(
+                "Debug image saved as normalized_debug.png"
+        );
 
-        for (int i = 0; i < values.length; i++) {
-            System.out.print(i + "=" + values[i] + " ");
-        }
-
-        System.out.println();
-
-        if (values[maxDigit] < 80) {
-            return -1;
-        }
-
-        return maxDigit;
-    }
-
-    private static int convertTemplateX(
-            double templateX,
-            SheetBounds bounds,
-            double scaleX
-    ) {
-
-        return (int) Math.round(
-                bounds.left
-                        + (templateX - MARKER_CENTER_LEFT)
-                        * scaleX
+        System.out.println(
+                "Binary image saved as normalized_binary.png"
         );
     }
-
-    private static int convertTemplateY(
-            double templateY,
-            SheetBounds bounds,
-            double scaleY
+    private static Mat normalizeSheet(
+            Mat image,
+            Point2d topLeft,
+            Point2d topRight,
+            Point2d bottomRight,
+            Point2d bottomLeft
     ) {
+        int targetWidth = 800;
+        int targetHeight = 1200;
 
-        return (int) Math.round(
-                bounds.top
-                        + (templateY - MARKER_CENTER_TOP)
-                        * scaleY
+        Point2f srcPoints = new Point2f(4);
+        srcPoints.position(0).x((float) topLeft.x()).y((float) topLeft.y());
+        srcPoints.position(1).x((float) topRight.x()).y((float) topRight.y());
+        srcPoints.position(2).x((float) bottomRight.x()).y((float) bottomRight.y());
+        srcPoints.position(3).x((float) bottomLeft.x()).y((float) bottomLeft.y());
+
+        Point2f dstPoints = new Point2f(4);
+        dstPoints.position(0).x(0).y(0);
+        dstPoints.position(1).x(targetWidth - 1).y(0);
+        dstPoints.position(2).x(targetWidth - 1).y(targetHeight - 1);
+        dstPoints.position(3).x(0).y(targetHeight - 1);
+
+        srcPoints.position(0);
+        dstPoints.position(0);
+
+        Mat transform = getPerspectiveTransform(srcPoints, dstPoints);
+
+        Mat normalized = new Mat();
+
+        warpPerspective(
+                image,
+                normalized,
+                transform,
+                new Size(targetWidth, targetHeight),
+                INTER_LINEAR,
+                BORDER_CONSTANT,
+                new Scalar(255, 255, 255, 0)
         );
+
+        return normalized;
     }
+    static class SheetMarkers {
 
-    private static int bubbleScore(
-            Mat binary,
-            int centerX,
-            int centerY,
-            int radius
-    ) {
+        final Point2d topLeft;
+        final Point2d topRight;
+        final Point2d bottomLeft;
+        final Point2d bottomRight;
 
-        int x =
-                Math.max(
-                        centerX - radius,
-                        0
-                );
-
-        int y =
-                Math.max(
-                        centerY - radius,
-                        0
-                );
-
-        int width =
-                Math.min(
-                        radius * 2,
-                        binary.cols() - x
-                );
-
-        int height =
-                Math.min(
-                        radius * 2,
-                        binary.rows() - y
-                );
-
-        if (width <= 0 || height <= 0) {
-            return 0;
+        SheetMarkers(
+                Point2d topLeft,
+                Point2d topRight,
+                Point2d bottomLeft,
+                Point2d bottomRight
+        ) {
+            this.topLeft = topLeft;
+            this.topRight = topRight;
+            this.bottomLeft = bottomLeft;
+            this.bottomRight = bottomRight;
         }
-
-        Rect roi =
-                new Rect(
-                        x,
-                        y,
-                        width,
-                        height
-                );
-
-        Mat bubble =
-                new Mat(binary, roi);
-
-        return countNonZero(bubble);
     }
-
-    private static SheetBounds findMarkers(Mat binary) {
+    private static SheetMarkers findMarkers(Mat binary) {
 
         int imageWidth = binary.cols();
         int imageHeight = binary.rows();
@@ -505,195 +204,689 @@ public class OmrReader2 {
         int roiW = (int) (imageWidth * 0.30);
         int roiH = (int) (imageHeight * 0.30);
 
-        Point2d topLeft =
-                findMarkerInCorner(
-                        binary,
-                        new Rect(
-                                0,
-                                0,
-                                roiW,
-                                roiH
-                        ),
-                        "TOP_LEFT"
-                );
+        Point2d topLeft = findMarkerInCorner(
+                binary,
+                new Rect(0, 0, roiW, roiH),
+                "TOP_LEFT"
+        );
 
-        Point2d topRight =
-                findMarkerInCorner(
-                        binary,
-                        new Rect(
-                                imageWidth - roiW,
-                                0,
-                                roiW,
-                                roiH
-                        ),
-                        "TOP_RIGHT"
-                );
+        Point2d topRight = findMarkerInCorner(
+                binary,
+                new Rect(imageWidth - roiW, 0, roiW, roiH),
+                "TOP_RIGHT"
+        );
 
-        Point2d bottomLeft =
-                findMarkerInCorner(
-                        binary,
-                        new Rect(
-                                0,
-                                imageHeight - roiH,
-                                roiW,
-                                roiH
-                        ),
-                        "BOTTOM_LEFT"
-                );
+        Point2d bottomLeft = findMarkerInCorner(
+                binary,
+                new Rect(0, imageHeight - roiH, roiW, roiH),
+                "BOTTOM_LEFT"
+        );
 
-        Point2d bottomRight =
-                findMarkerInCorner(
-                        binary,
-                        new Rect(
-                                imageWidth - roiW,
-                                imageHeight - roiH,
-                                roiW,
-                                roiH
-                        ),
-                        "BOTTOM_RIGHT"
-                );
+        Point2d bottomRight = findMarkerInCorner(
+                binary,
+                new Rect(
+                        imageWidth - roiW,
+                        imageHeight - roiH,
+                        roiW,
+                        roiH
+                ),
+                "BOTTOM_RIGHT"
+        );
 
-        double left =
-                Math.min(topLeft.x(), bottomLeft.x());
-
-        double right =
-                Math.max(topRight.x(), bottomRight.x());
-
-        double top =
-                Math.min(topLeft.y(), topRight.y());
-
-        double bottom =
-                Math.max(bottomLeft.y(), bottomRight.y());
-
-        return new SheetBounds(
-                left,
-                right,
-                top,
-                bottom
+        return new SheetMarkers(
+                topLeft,
+                topRight,
+                bottomLeft,
+                bottomRight
         );
     }
+    static class Bubble {
 
-    private static Point2d findMarkerInCorner(
-            Mat binary,
-            Rect searchArea,
-            String label
-    ) {
+        final int x;
+        final int y;
+        final int width;
+        final int height;
 
-        Mat roi =
-                new Mat(binary, searchArea);
-
-        MatVector contours =
-                new MatVector();
-
-        findContours(
-                roi.clone(),
-                contours,
-                RETR_LIST,
-                CHAIN_APPROX_SIMPLE
-        );
-
-        List<Rect> candidates =
-                new ArrayList<>();
-
-        double roiArea =
-                searchArea.width() * searchArea.height();
-
-        for (long i = 0; i < contours.size(); i++) {
-
-            Rect r =
-                    boundingRect(
-                            contours.get(i)
-                    );
-
-            int w = r.width();
-            int h = r.height();
-
-            if (w < 20 || h < 20) {
-                continue;
-            }
-
-            double area =
-                    w * h;
-
-            if (area > roiArea * 0.50) {
-                continue;
-            }
-
-            double ratio =
-                    (double) w / h;
-
-            if (ratio < 0.55 || ratio > 1.45) {
-                continue;
-            }
-
-            candidates.add(r);
+        Bubble(Rect rect) {
+            this.x = rect.x();
+            this.y = rect.y();
+            this.width = rect.width();
+            this.height = rect.height();
         }
 
-        candidates.sort(
-                Comparator.comparingInt(
-                        (Rect r) -> r.width() * r.height()
-                ).reversed()
-        );
-
-        if (candidates.isEmpty()) {
-            throw new RuntimeException(
-                    "Marker not found in " + label +
-                            ". Check binary_debug.png"
-            );
+        int centerX() {
+            return x + width / 2;
         }
 
-        Rect best =
-                candidates.get(0);
+        int centerY() {
+            return y + height / 2;
+        }
 
-        double centerX =
-                searchArea.x()
-                        + best.x()
-                        + best.width() / 2.0;
-
-        double centerY =
-                searchArea.y()
-                        + best.y()
-                        + best.height() / 2.0;
-
-        System.out.printf(
-                "%s marker -> %.1f %.1f size=%dx%d%n",
-                label,
-                centerX,
-                centerY,
-                best.width(),
-                best.height()
-        );
-
-        return new Point2d(centerX, centerY);
-    }
-
-    static class SheetBounds {
-
-        double left;
-        double right;
-        double top;
-        double bottom;
-
-        SheetBounds(
-                double left,
-                double right,
-                double top,
-                double bottom
-        ) {
-            this.left = left;
-            this.right = right;
-            this.top = top;
-            this.bottom = bottom;
+        double area() {
+            return width * height;
         }
 
         @Override
         public String toString() {
-            return "SheetBounds{" +
-                    "left=" + left +
-                    ", right=" + right +
-                    ", top=" + top +
-                    ", bottom=" + bottom +
+            return "Bubble{" +
+                    "x=" + x +
+                    ", y=" + y +
+                    ", width=" + width +
+                    ", height=" + height +
                     '}';
         }
+    }
+    private static List<Bubble> detectBubbles(Mat binary) {
+
+        MatVector contours = new MatVector();
+
+        findContours(
+                binary.clone(),
+                contours,
+                RETR_EXTERNAL,
+                CHAIN_APPROX_SIMPLE
+        );
+
+        List<Bubble> candidates = new ArrayList<>();
+
+        double imageArea = binary.cols() * binary.rows();
+
+        for (long i = 0; i < contours.size(); i++) {
+
+            Mat contour = contours.get(i);
+            Rect rect = boundingRect(contour);
+
+            int width = rect.width();
+            int height = rect.height();
+
+            if (width <= 0 || height <= 0) {
+                continue;
+            }
+
+            double aspectRatio = (double) width / height;
+            double relativeArea = (double) (width * height) / imageArea;
+
+            // Relative values are more adaptable than fixed pixel sizes.
+            if (relativeArea < 0.00008 || relativeArea > 0.002) {
+                continue;
+            }
+
+            if (aspectRatio < 0.70 || aspectRatio > 1.30) {
+                continue;
+            }
+
+            double contourAreaValue = contourArea(contour);
+            double boundingArea = width * height;
+
+            if (boundingArea <= 0) {
+                continue;
+            }
+
+            double extent = contourAreaValue / boundingArea;
+
+            if (extent < 0.30 || extent > 0.95) {
+                continue;
+            }
+
+            candidates.add(new Bubble(rect));
+        }
+
+        return removeNestedOrDuplicateBubbles(candidates);
+    }
+    private static List<Bubble> removeNestedOrDuplicateBubbles(
+            List<Bubble> candidates
+    ) {
+        candidates.sort(
+                Comparator.comparingDouble(Bubble::area).reversed()
+        );
+
+        List<Bubble> result = new ArrayList<>();
+
+        for (Bubble candidate : candidates) {
+
+            boolean duplicate = false;
+
+            for (Bubble accepted : result) {
+
+                double dx = candidate.centerX() - accepted.centerX();
+                double dy = candidate.centerY() - accepted.centerY();
+
+                double distance = Math.sqrt(dx * dx + dy * dy);
+
+                double tolerance =
+                        Math.min(
+                                accepted.width,
+                                accepted.height
+                        ) * 0.40;
+
+                if (distance < tolerance) {
+                    duplicate = true;
+                    break;
+                }
+            }
+
+            if (!duplicate) {
+                result.add(candidate);
+            }
+        }
+
+        return result;
+    }
+    private static double medianBubbleDiameter(List<Bubble> bubbles) {
+
+        if (bubbles.isEmpty()) {
+            throw new RuntimeException("No bubbles detected");
+        }
+
+        List<Double> diameters = new ArrayList<>();
+
+        for (Bubble bubble : bubbles) {
+            diameters.add(
+                    (bubble.width + bubble.height) / 2.0
+            );
+        }
+
+        diameters.sort(Double::compareTo);
+
+        int middle = diameters.size() / 2;
+
+        if (diameters.size() % 2 == 1) {
+            return diameters.get(middle);
+        }
+
+        return (
+                diameters.get(middle - 1)
+                        + diameters.get(middle)
+        ) / 2.0;
+    }
+    private static List<List<Bubble>> groupIntoRows(
+            List<Bubble> bubbles,
+            double rowTolerance
+    ) {
+        bubbles.sort(
+                Comparator
+                        .comparingInt(Bubble::centerY)
+                        .thenComparingInt(Bubble::centerX)
+        );
+
+        List<List<Bubble>> rows = new ArrayList<>();
+
+        for (Bubble bubble : bubbles) {
+
+            List<Bubble> matchingRow = null;
+
+            for (List<Bubble> row : rows) {
+
+                double averageY = row.stream()
+                        .mapToInt(Bubble::centerY)
+                        .average()
+                        .orElse(0);
+
+                if (Math.abs(bubble.centerY() - averageY) <= rowTolerance) {
+                    matchingRow = row;
+                    break;
+                }
+            }
+
+            if (matchingRow == null) {
+                matchingRow = new ArrayList<>();
+                rows.add(matchingRow);
+            }
+
+            matchingRow.add(bubble);
+        }
+
+        for (List<Bubble> row : rows) {
+            row.sort(Comparator.comparingInt(Bubble::centerX));
+        }
+
+        rows.sort(
+                Comparator.comparingDouble(
+                        row -> row.stream()
+                                .mapToInt(Bubble::centerY)
+                                .average()
+                                .orElse(0)
+                )
+        );
+
+        return rows;
+    }
+    private static List<List<Bubble>> keepAnswerRows(
+            List<List<Bubble>> detectedRows
+    ) {
+        List<List<Bubble>> answerGroups = new ArrayList<>();
+
+        for (List<Bubble> row : detectedRows) {
+
+            if (row.size() == 4) {
+                answerGroups.add(new ArrayList<>(row));
+            } else if (row.size() == 8) {
+                answerGroups.add(
+                        new ArrayList<>(row.subList(0, 4))
+                );
+
+                answerGroups.add(
+                        new ArrayList<>(row.subList(4, 8))
+                );
+            }
+        }
+
+        return answerGroups;
+    }
+    private static double findColumnDivider(List<Bubble> bubbles) {
+
+        List<Integer> xValues = bubbles.stream()
+                .map(Bubble::centerX)
+                .distinct()
+                .sorted()
+                .toList();
+
+        if (xValues.size() < 2) {
+            throw new RuntimeException(
+                    "Not enough bubble columns detected"
+            );
+        }
+
+        int largestGap = 0;
+        double divider = 0;
+
+        for (int i = 1; i < xValues.size(); i++) {
+
+            int previous = xValues.get(i - 1);
+            int current = xValues.get(i);
+
+            int gap = current - previous;
+
+            if (gap > largestGap) {
+                largestGap = gap;
+                divider = (previous + current) / 2.0;
+            }
+        }
+
+        return divider;
+    }
+    private static double bubbleFillRatio(
+            Mat binary,
+            Bubble bubble
+    ) {
+        int centerX = bubble.centerX();
+        int centerY = bubble.centerY();
+
+        // Use the inner area to avoid counting the printed outline.
+        int radius = (int) Math.round(
+                Math.min(bubble.width, bubble.height) * 0.30
+        );
+
+        int x = Math.max(centerX - radius, 0);
+        int y = Math.max(centerY - radius, 0);
+
+        int width = Math.min(
+                radius * 2 + 1,
+                binary.cols() - x
+        );
+
+        int height = Math.min(
+                radius * 2 + 1,
+                binary.rows() - y
+        );
+
+        if (width <= 0 || height <= 0) {
+            return 0;
+        }
+
+        Mat roi = new Mat(
+                binary,
+                new Rect(x, y, width, height)
+        );
+
+        Mat mask = Mat.zeros(
+                height,
+                width,
+                CV_8UC1
+        ).asMat();
+
+        circle(
+                mask,
+                new Point(width / 2, height / 2),
+                radius,
+                new Scalar(255),
+                FILLED,
+                LINE_8,
+                0
+        );
+
+        Mat masked = new Mat();
+
+        bitwise_and(
+                roi,
+                mask,
+                masked
+        );
+
+        int filledPixels = countNonZero(masked);
+        int maskPixels = countNonZero(mask);
+
+        if (maskPixels == 0) {
+            return 0;
+        }
+
+        return (double) filledPixels / maskPixels;
+    }
+    private static char readDetectedRow(
+            Mat binary,
+            Mat debug,
+            List<Bubble> row,
+            int questionNumber
+    ) {
+        if (row.size() != 4) {
+
+            System.out.printf(
+                    "Q%d invalid row: expected 4 bubbles, found %d%n",
+                    questionNumber,
+                    row.size()
+            );
+
+            return '?';
+        }
+
+        // Ensure A, B, C, D ordering from left to right.
+        row.sort(Comparator.comparingInt(Bubble::centerX));
+
+        double[] scores = new double[4];
+
+        for (int i = 0; i < 4; i++) {
+            scores[i] = bubbleFillRatio(
+                    binary,
+                    row.get(i)
+            );
+        }
+
+        Integer[] indexes = {0, 1, 2, 3};
+
+        java.util.Arrays.sort(
+                indexes,
+                (a, b) -> Double.compare(
+                        scores[b],
+                        scores[a]
+                )
+        );
+
+        int bestIndex = indexes[0];
+        int secondIndex = indexes[1];
+
+        double best = scores[bestIndex];
+        double second = scores[secondIndex];
+
+        char result;
+
+        // Blank answer.
+        if (best < 0.25) {
+            result = '-';
+        }
+
+        // Multiple or unclear answer.
+        else if (
+                second >= 0.25 &&
+                        best - second < 0.12
+        ) {
+            result = 'X';
+        }
+
+        // Valid answer.
+        else {
+            result = (char) ('A' + bestIndex);
+        }
+
+        System.out.printf(
+                "Q%-2d scores -> A=%.3f B=%.3f C=%.3f D=%.3f result=%s%n",
+                questionNumber,
+                scores[0],
+                scores[1],
+                scores[2],
+                scores[3],
+                result
+        );
+
+        drawRowDebug(
+                debug,
+                row,
+                scores,
+                bestIndex,
+                secondIndex,
+                result,
+                questionNumber
+        );
+
+        return result;
+    }
+    private static void drawRowDebug(
+            Mat debug,
+            List<Bubble> row,
+            double[] scores,
+            int bestIndex,
+            int secondIndex,
+            char result,
+            int questionNumber
+    ) {
+        for (int option = 0; option < row.size(); option++) {
+
+            Bubble bubble = row.get(option);
+
+            int centerX = bubble.centerX();
+            int centerY = bubble.centerY();
+
+            int detectedRadius = Math.max(
+                    4,
+                    Math.min(
+                            bubble.width,
+                            bubble.height
+                    ) / 2
+            );
+
+            Scalar optionColor =
+                    getOptionDebugColor(option);
+
+            /*
+             * Draw the detected bubble boundary.
+             *
+             * A = blue
+             * B = green
+             * C = red
+             * D = purple
+             */
+            circle(
+                    debug,
+                    new Point(centerX, centerY),
+                    detectedRadius,
+                    optionColor,
+                    2,
+                    LINE_AA,
+                    0
+            );
+
+            /*
+             * Draw a smaller center circle so the exact scoring
+             * position is visible.
+             */
+            int scoringRadius = Math.max(
+                    3,
+                    (int) Math.round(detectedRadius * 0.60)
+            );
+
+            circle(
+                    debug,
+                    new Point(centerX, centerY),
+                    scoringRadius,
+                    optionColor,
+                    1,
+                    LINE_AA,
+                    0
+            );
+
+            /*
+             * Display the fill ratio as an integer percentage.
+             * For example, 72 means a 0.72 fill ratio.
+             */
+            String scoreText =
+                    String.format("%.0f", scores[option] * 100);
+
+            putText(
+                    debug,
+                    scoreText,
+                    new Point(
+                            centerX + detectedRadius + 3,
+                            centerY - 3
+                    ),
+                    FONT_HERSHEY_SIMPLEX,
+                    0.28,
+                    optionColor,
+                    1,
+                    LINE_AA,
+                    false
+            );
+        }
+
+        if (result >= 'A' && result <= 'D') {
+
+            /*
+             * A valid selected answer gets a large green ring.
+             */
+            Bubble selected = row.get(bestIndex);
+
+            int selectedRadius =
+                    Math.max(
+                            selected.width,
+                            selected.height
+                    ) / 2 + 4;
+
+            circle(
+                    debug,
+                    new Point(
+                            selected.centerX(),
+                            selected.centerY()
+                    ),
+                    selectedRadius,
+                    new Scalar(0, 200, 0, 0),
+                    3,
+                    LINE_AA,
+                    0
+            );
+        } else if (result == 'X') {
+
+            /*
+             * Multiple or unclear answers get orange rings around
+             * the two highest-scoring bubbles.
+             */
+            drawDecisionCircle(
+                    debug,
+                    row.get(bestIndex),
+                    new Scalar(0, 140, 255, 0)
+            );
+
+            drawDecisionCircle(
+                    debug,
+                    row.get(secondIndex),
+                    new Scalar(0, 140, 255, 0)
+            );
+        } else if (result == '-') {
+
+            /*
+             * Blank rows get yellow circles around all options.
+             */
+            for (Bubble bubble : row) {
+                drawDecisionCircle(
+                        debug,
+                        bubble,
+                        new Scalar(0, 255, 255, 0)
+                );
+            }
+        }
+
+        drawQuestionResult(
+                debug,
+                row,
+                questionNumber,
+                result
+        );
+    }
+    private static Scalar getOptionDebugColor(int option) {
+
+        return switch (option) {
+            case 0 ->
+                    new Scalar(255, 0, 0, 0);       // A: blue
+
+            case 1 ->
+                    new Scalar(0, 255, 0, 0);       // B: green
+
+            case 2 ->
+                    new Scalar(0, 0, 255, 0);       // C: red
+
+            default ->
+                    new Scalar(255, 0, 255, 0);     // D: purple
+        };
+    }private static void drawDecisionCircle(
+            Mat debug,
+            Bubble bubble,
+            Scalar color
+    ) {
+        int radius =
+                Math.max(
+                        bubble.width,
+                        bubble.height
+                ) / 2 + 4;
+
+        circle(
+                debug,
+                new Point(
+                        bubble.centerX(),
+                        bubble.centerY()
+                ),
+                radius,
+                color,
+                3,
+                LINE_AA,
+                0
+        );
+    }private static void drawQuestionResult(
+            Mat debug,
+            List<Bubble> row,
+            int questionNumber,
+            char result
+    ) {
+        Bubble firstBubble = row.get(0);
+
+        int textX = Math.max(
+                firstBubble.centerX() - 65,
+                2
+        );
+
+        int textY = firstBubble.centerY() + 4;
+
+        Scalar resultColor;
+
+        if (result >= 'A' && result <= 'D') {
+            resultColor = new Scalar(0, 150, 0, 0);
+        } else if (result == 'X') {
+            resultColor = new Scalar(0, 0, 255, 0);
+        } else if (result == '-') {
+            resultColor = new Scalar(0, 180, 255, 0);
+        } else {
+            resultColor = new Scalar(0, 0, 255, 0);
+        }
+
+        String text =
+                "Q" + questionNumber + "=" + result;
+
+        putText(
+                debug,
+                text,
+                new Point(textX, textY),
+                FONT_HERSHEY_SIMPLEX,
+                0.35,
+                resultColor,
+                1,
+                LINE_AA,
+                false
+        );
     }
 }

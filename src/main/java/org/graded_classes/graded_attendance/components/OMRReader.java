@@ -144,7 +144,7 @@ public class OMRReader {
         System.out.println("Binary debug image saved as binary_debug.png");
     }
 
-    private static Mat makeBinary(Mat gray) {
+    public static Mat makeBinary(Mat gray) {
 
         Mat blurred = new Mat();
 
@@ -573,7 +573,7 @@ public class OMRReader {
         );
     }
 
-    private static Point2d findMarkerInCorner(
+    public static Point2d findMarkerInCorner(
             Mat binary,
             Rect searchArea,
             String label
