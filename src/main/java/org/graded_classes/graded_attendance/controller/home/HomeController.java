@@ -99,13 +99,14 @@ public class HomeController implements Initializable {
 
     }
 
+    public StudentAttendance studentAttendance;
 
     private Node getSearchView(VBox vBox) {
         return switch (vBox.getId()) {
             case "stu_atten", "st_fee" -> gradedFxmlLoader.createView(R.student_attendance_layout,
-                    new StudentAttendance(mainController, gradedFxmlLoader, outer_main_box, vBox.getId()));
+                    studentAttendance);
             case "tea_prog" -> gradedFxmlLoader.createView(R.teaching_progress_search,
-                    new StudentAttendance(mainController, gradedFxmlLoader, outer_main_box, vBox.getId()));
+                    studentAttendance);
             case "tea_atten", "tea_fee" -> gradedFxmlLoader.createView(R.teacher_attendance_layout);
             default -> null;
         };
@@ -114,8 +115,9 @@ public class HomeController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         selectedItem = stu_atten;
+        studentAttendance = new StudentAttendance(mainController, gradedFxmlLoader, outer_main_box, "stu_atten");
         VBox studentAttendanceLayout = (VBox) mainController.gradedFxmlLoader.createView(R.student_attendance_layout,
-                new StudentAttendance(mainController, gradedFxmlLoader, outer_main_box, "stu_atten"));
+                studentAttendance);
         dummy_box.setMinHeight(70);
         VBox.setVgrow(studentAttendanceLayout, Priority.ALWAYS);
         AnchorPane.setRightAnchor(studentAttendanceLayout, 0.0);
@@ -194,7 +196,7 @@ public class HomeController implements Initializable {
             modalPane.show(mainController.gradedFxmlLoader.createView(R.fee_report, new FeeReport(mainController)));
         else {
             Stage stage = new Stage();
-            cameraController = new CameraController(mainController);
+            cameraController = new CameraController(mainController, this);
             var cam = (Parent) mainController.gradedFxmlLoader.createView(R.camera, cameraController);
             Scene scene = new Scene(cam);
             stage.setTitle("GradeEd Attendance");

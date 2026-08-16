@@ -44,7 +44,6 @@ public class StudentAttendance implements Initializable {
     @FXML
     ComboBox<String> choiceBox;
     VBox box;
-    private String msg;
     ObservableList<HBox> observableList;
     FilteredList<HBox> filteredData;
     @FXML
@@ -52,7 +51,7 @@ public class StudentAttendance implements Initializable {
     @FXML
     Button checkIn_out;
     ListView<HBox> list;
-    MainController mainController;
+    public MainController mainController;
     GradedFxmlLoader gradedFxmlLoader;
     VBox outer_main_box;
     String id;
@@ -68,7 +67,7 @@ public class StudentAttendance implements Initializable {
             We wanted to inform you that your child did not bring the assigned homework today.
             Kindly ensure that the homework is completed and brought to coaching tomorrow. 
             """;
-    LinkedHashMap<String, Attendance> attendanceMap = new LinkedHashMap<>();
+    public LinkedHashMap<String, Attendance> attendanceMap = new LinkedHashMap<>();
 
     public ArrayList<HBox> getBoxes() {
         return boxes;
@@ -169,9 +168,9 @@ public class StudentAttendance implements Initializable {
                     getParent().lookup("#reportButton");
             FontIcon icon = (FontIcon) feeReportButton.getGraphic();
             if (id.equals("st_fee"))
-                icon.getStyleClass().set(0,"fee-report-icon");
+                icon.getStyleClass().set(0, "fee-report-icon");
             else
-                icon.getStyleClass().set(0,"camera-icon");
+                icon.getStyleClass().set(0, "camera-icon");
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -214,11 +213,13 @@ public class StudentAttendance implements Initializable {
         TreeMap<String, DailyTopics> data = new TreeMap<>();
         if (attendanceMap.get(edNo).getTopics() == null) {
             try {
-                data = DailyTopicsDao.loadForDateAllClasses(mainController.gradedDataLoader.databaseLoader.getConnection(),
+                data = DailyTopicsDao.loadForDateAllClasses(mainController.gradedDataLoader.
+                                databaseLoader.getConnection(),
                         LocalDate.now());
                 if (!isAllNull(data.get(studentClass))) {
                     var valid = data.get(studentClass);
-                    topicTaughtTodayUpdate(valid.getSubject1(), valid.getTopic1(), valid.getSubject2(), valid.getTopic2());
+                    topicTaughtTodayUpdate(valid.getSubject1(), valid.getTopic1(),
+                            valid.getSubject2(), valid.getTopic2());
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -248,27 +249,12 @@ public class StudentAttendance implements Initializable {
                 if (mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id() != null && shouldMessageBeSend) {
 
                     CompletableFuture.runAsync(() -> {
-                        try {
-                            if (mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id() != null) {
-                                mainController.messageSender.sendMessage(
-                                        msg,
-                                        Long.parseLong(mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id())
-                                );
-                                Platform.runLater(() ->
-                                        mainController.sendNotification("Arrival message was sent successfully for " + edNo, Styles.SUCCESS)
-                                );
-                            }
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
-                            System.out.println("Message was not sent to the server.");
-                            Platform.runLater(() ->
-                                    mainController.sendNotification("Message was not sent to the server for " + edNo, Styles.DANGER)
-                            );
-                        }
+                        sendCheckInMessage(edNo, msg);
                     });
                 }
                 source.setText("Check Out");
                 inputField.setText("");
+                listViewStudents.stuListView.getSelectionModel().clearSelection();
                 updateStmt.executeUpdate();
             } else if (source.getText().equals("Check Out") && !todayTopicList.isEmpty() &&
                     (listViewStudents.attendanceDataView.Submitted.isSelected() ||
@@ -278,71 +264,26 @@ public class StudentAttendance implements Initializable {
                         "UPDATE Attendance SET check_out = ?, homework = ? WHERE ed_no = ? AND date = ?"
                 );
                 updateStmt.setString(1, timeStamp);
-                updateStmt.setString(2, listViewStudents.attendanceDataView.Submitted.isSelected() ? "Submitted" : "NotSubmitted");
+                updateStmt.setString(2, listViewStudents.
+                        attendanceDataView.Submitted.isSelected() ? "Submitted" : "NotSubmitted");
                 updateStmt.setString(3, edNo);
                 updateStmt.setString(4, date);
                 attendanceMap.get(edNo).setCheck_out(timeStamp);
                 source.setVisible(false);
-                attendanceMap.get(edNo).setHomework_status(listViewStudents.attendanceDataView.Submitted.isSelected());
+                attendanceMap.get(edNo).setHomework_status(listViewStudents.
+                        attendanceDataView.Submitted.isSelected());
                 listViewStudents.attendanceDataView.update();
-                String[] list = todayTopicList.contains(",") ? todayTopicList.split("[,:]") : todayTopicList.split(":");
-                System.out.println(Arrays.toString(list));
-                if (todayTopicList.contains(","))
-                    msg = """
-                            Departure Alert
-                            Dear Parent,
-                            Your child %s has just left the tuition center at %s.
-                            
-                            Topic Taught Today
-                            1.%s : %s
-                            2.%s : %s
-                            3.Homework : %s
-                            
-                            %s
-                            
-                            We hope they had a great learning experience today. See you next time!
-                            
-                            """.formatted(mainController.gradedDataLoader.getStudentData().get(edNo).name(), timeStamp,
-                            list[0], list[1], list[2],
-                            list[3], listViewStudents.attendanceDataView.Submitted.isSelected() ? "Submitted" : "Not Submitted",
-                            listViewStudents.attendanceDataView.Submitted.isSelected() ? submit : not_submit);
-                else {
-                    msg = """
-                            Departure Alert
-                            Dear Parent,
-                            Your child %s has just left the tuition center at %s.
-                            
-                            
-                            Topic Taught Today
-                            1.%s : %s
-                            2.Homework : %s
-                            %s
-                            
-                            We hope they had a great learning experience today. See you next time!
-                            """.formatted(mainController.gradedDataLoader.getStudentData().
-                                    get(edNo).name(), timeStamp,
-                            list[0], list[1], listViewStudents.attendanceDataView.Submitted.isSelected() ? "Submitted" : "Not Submitted",
-                            listViewStudents.attendanceDataView.Submitted.isSelected() ? submit : not_submit);
-                }
+                String[] list = todayTopicList.contains(",") ? todayTopicList.split("[,:]") :
+                        todayTopicList.split(":");
+                String msg = """
+                        Departure Alert
+                        Dear Parent,
+                        Your child %s has just left the tuition center at %s.
+                        We hope they had a great learning experience today. See you next time!
+                        """.formatted(mainController.gradedDataLoader.getStudentData().get(edNo).name(), timeStamp);
 
                 CompletableFuture.runAsync(() -> {
-                    try {
-                        if (mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id() != null && shouldMessageBeSend) {
-                            mainController.messageSender.sendMessage(
-                                    msg,
-                                    Long.parseLong(mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id())
-                            );
-                            Platform.runLater(() ->
-                                    mainController.sendNotification("Departure message was sent successfully for " + edNo, Styles.SUCCESS)
-                            );
-                        }
-                    } catch (Exception e) {
-                        System.out.println(e.getMessage());
-                        System.out.println("Message was not sent to the server.");
-                        Platform.runLater(() ->
-                                mainController.sendNotification("Message was not sent to the server for " + edNo, Styles.DANGER)
-                        );
-                    }
+                    sendCheckOutMessage(shouldMessageBeSend, edNo, msg);
                 });
                 inputField.setText("");
                 updateStmt.executeUpdate();
@@ -350,6 +291,88 @@ public class StudentAttendance implements Initializable {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void sendCheckOutMessage(boolean shouldMessageBeSend, String edNo, String msg) {
+        try {
+            if (mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id() != null && shouldMessageBeSend) {
+                mainController.messageSender.sendMessage(
+                        msg,
+                        Long.parseLong(mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id())
+                );
+                Platform.runLater(() ->
+                        mainController.sendNotification("Departure message was sent successfully for " + edNo, Styles.SUCCESS)
+                );
+            }
+        } catch (Exception e) {
+            Platform.runLater(() ->
+                    mainController.sendNotification("Message was not sent to the server for " + edNo, Styles.DANGER)
+            );
+        }
+    }
+
+    public void updateCheckIn(String edNo) {
+        var timeStamp = LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
+        Connection conn = mainController.gradedDataLoader.databaseLoader.getConnection();
+        PreparedStatement updateStmt = null;
+        try {
+            updateStmt = conn.prepareStatement("INSERT INTO Attendance(ed_no, date, check_in) VALUES (?,?,?);");
+            updateStmt.setString(1, edNo);
+            updateStmt.setString(2, LocalDate.now().toString());
+            updateStmt.setString(3, timeStamp);
+            updateStmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        attendanceMap.put(edNo, new Attendance(null, null, null, null));
+        attendanceMap.get(edNo).setCheck_in(timeStamp);
+        attendanceMap.get(edNo).setTopics("Unknown");
+        sendCheckInMessage(edNo, """
+                Arrival Alert
+                Dear Parent,
+                Your child %s has safely arrived at their tuition center at %s.
+                Thank you for trusting us with their learning journey!
+                """.formatted(mainController.gradedDataLoader.getStudentData().get(edNo).name(), timeStamp));
+    }
+
+    public void updateCheckOut(String edNo) {
+        var timeStamp = LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
+        Connection conn = mainController.gradedDataLoader.databaseLoader.getConnection();
+        try (PreparedStatement updateStmt = conn.prepareStatement("UPDATE Attendance SET check_out = ? WHERE ed_no = ? AND date = ?")) {
+            updateStmt.setString(1, timeStamp);
+            updateStmt.setString(2, edNo);
+            updateStmt.setString(3, LocalDate.now().toString());
+            updateStmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        attendanceMap.get(edNo).setCheck_out(timeStamp);
+        sendCheckOutMessage(true, edNo, """
+                Departure Alert
+                Dear Parent,
+                Your child %s has just left the tuition center at %s.
+                We hope they had a great learning experience today. See you next time!
+                """.formatted(mainController.gradedDataLoader.getStudentData().get(edNo).name(), timeStamp));
+
+    }
+
+    public void sendCheckInMessage(String edNo, String msg) {
+        try {
+            if (mainController.gradedDataLoader.getStudentData().get(edNo).telegram_id() != null) {
+                mainController.messageSender.sendMessage(
+                        msg,
+                        Long.parseLong(mainController.gradedDataLoader.
+                                getStudentData().get(edNo).telegram_id())
+                );
+                Platform.runLater(() ->
+                        mainController.sendNotification("Arrival message was sent successfully for " + edNo, Styles.SUCCESS)
+                );
+            }
+        } catch (Exception e) {
+            Platform.runLater(() ->
+                    mainController.sendNotification("Message was not sent to the server for " + edNo, Styles.DANGER)
+            );
         }
     }
 

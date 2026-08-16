@@ -167,7 +167,8 @@ public class AttendanceDataView implements Initializable {
 
     private void extracted() {
         var y = new FXMLLoader(loadURL("fxml/editData.fxml"));
-        editStudentData = new EditStudentData(studentAttendance.mainController.gradedDataLoader.getStudentData(), ed_no);
+        editStudentData = new EditStudentData(studentAttendance.mainController.
+                gradedDataLoader.getStudentData(), ed_no);
         y.setControllerFactory(c -> editStudentData);
         try {
             edit.setContent(y.load());
@@ -222,14 +223,16 @@ public class AttendanceDataView implements Initializable {
     void onCancel() {
         studentAttendance.outer_main_box.getChildren().removeLast();
         studentAttendance.inputField.setText("");
-        studentAttendance.searchCrossIcon.setImage(new Image(GradedResourceLoader.load("icons/search.svg")));
+        studentAttendance.searchCrossIcon.setImage(new Image(GradedResourceLoader.
+                load("icons/search.svg")));
 
     }
 
 
     @FXML
     void viewReport(ActionEvent event) {
-        AttendanceReport attendanceReport = new AttendanceReport(studentAttendance.mainController.gradedDataLoader.databaseLoader);
+        AttendanceReport attendanceReport = new AttendanceReport(studentAttendance.mainController.
+                gradedDataLoader.databaseLoader);
         attendanceReport.init();
         var x = studentAttendance.mainController.gradedDataLoader;
         Student student = x.getStudentData().get(ed_no);
@@ -239,13 +242,15 @@ public class AttendanceDataView implements Initializable {
         studentAttendance.mainController.
                 modalPane.show(studentAttendance.mainController.
                         gradedFxmlLoader.createView(R.attendance_report,
-                                new AttendanceReportController(firstLetterToUpperCase(student.name()), ed_no, view)));
+                                new AttendanceReportController(firstLetterToUpperCase(student.name()),
+                                        ed_no, view)));
     }
 
     @FXML
     void onSave() {
         if (edit.isSelected()) {
-            editStudentData.update(studentAttendance.mainController.gradedDataLoader.databaseLoader.getConnection());
+            editStudentData.update(studentAttendance.mainController.
+                    gradedDataLoader.databaseLoader.getConnection());
         }
     }
 
@@ -253,7 +258,6 @@ public class AttendanceDataView implements Initializable {
     @FXML
     void editTime(MouseEvent event) {
         Label time = (Label) event.getSource();
-        System.out.println(time.getId());
         if (time.getText().equals("Unknown")) {
             Node node = studentAttendance.mainController.gradedFxmlLoader.createView(R.edit_time);
             MaskTextField timeField = (MaskTextField) (node.lookup("#textfield"));
@@ -281,7 +285,6 @@ public class AttendanceDataView implements Initializable {
                         }
 
                     } catch (DateTimeParseException e) {
-                        System.out.println(e.getMessage());
                         timeField.pseudoClassStateChanged(Styles.STATE_DANGER, true);
                     }
                 }

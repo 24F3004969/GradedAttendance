@@ -35,7 +35,7 @@
                   </StackPane>
                   <HBox alignment="TOP_CENTER" VBox.vgrow="ALWAYS">
                      <children>
-                        <Label text="Welcome to GradeEd Attendance" wrapText="true">
+                        <Label fx:id="outputMessage" text="Welcome to GradeEd Attendance" wrapText="true">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -66,12 +66,12 @@
                      <Label text="Modes" />
                      <HBox>
                         <children>
-                           <ToggleButton mnemonicParsing="false" onAction="#onModeChange" styleClass="left-pill" text="Training">
+                           <ToggleButton mnemonicParsing="false" onAction="#onModeChange" selected="true" styleClass="left-pill" text="Training">
                               <toggleGroup>
                                  <ToggleGroup fx:id="modes" />
                               </toggleGroup>
                            </ToggleButton>
-                           <ToggleButton mnemonicParsing="false" onAction="#onModeChange" selected="true" styleClass="right-pill" text="Face Detector" toggleGroup="$modes" />
+                           <ToggleButton mnemonicParsing="false" onAction="#onModeChange" styleClass="right-pill" text="Face Detector" toggleGroup="$modes" />
                         </children>
                      </HBox>
                   </children>
@@ -83,18 +83,18 @@
                   <VBox.margin>
                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                   </VBox.margin>
-                  <Button fx:id="startCapture" mnemonicParsing="false" onAction="#tryToDetect" styleClass="success" text="Start Capture" />
+                  <Button fx:id="startCapture" mnemonicParsing="false" onAction="#tryToDetect" styleClass="success" text="Start Training" />
                </HBox>
                <HBox alignment="CENTER_LEFT" spacing="5.0">
                   <children>
-                     <SearchField fx:id="searchBox" disable="true" />
-                     <Button fx:id="addStudent" disable="true" mnemonicParsing="false" onAction="#addNewTraining" text="Add Student" />
+                     <SearchField fx:id="searchBox" />
+                     <Button fx:id="addStudent" mnemonicParsing="false" onAction="#addNewTraining" text="Add Student" />
                   </children>
                   <VBox.margin>
                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                   </VBox.margin>
                </HBox>
-               <HBox fx:id="checkBoxGroup" alignment="CENTER_RIGHT" spacing="10.0" visible="false">
+               <HBox fx:id="checkBoxGroup" alignment="CENTER_RIGHT" spacing="10.0">
                   <children>
                      <CheckBox mnemonicParsing="false" onAction="#onClicked" text="Glasses">
                         <graphic>

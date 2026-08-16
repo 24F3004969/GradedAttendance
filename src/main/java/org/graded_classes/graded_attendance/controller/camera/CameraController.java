@@ -20,13 +20,18 @@ import org.bytedeco.opencv.opencv_face.LBPHFaceRecognizer;
 import org.bytedeco.opencv.opencv_objdetect.CascadeClassifier;
 import org.bytedeco.opencv.opencv_videoio.VideoCapture;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
+import org.graded_classes.graded_attendance.controller.home.HomeController;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.controller.tts.RealTimeTts;
+import org.graded_classes.graded_attendance.data.Attendance;
 import org.graded_classes.graded_attendance.data.Student;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.IntBuffer;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -79,7 +84,7 @@ public class CameraController {
     ObservableList<String> studentData = FXCollections.observableArrayList(List.of());
 
     private static final int FACE_SIZE = 200;
-    private static final double CONFIDENCE_THRESHOLD = 60;
+    private static final double CONFIDENCE_THRESHOLD = 55;
     @FXML
     private Button startCapture;
     @FXML
@@ -90,13 +95,18 @@ public class CameraController {
     private Mat imagePoints;
     private Mat cameraMatrix;
     MainController mainController;
+    ArrayList<Button> sourceList = new ArrayList<>();
     private final Mat cleanFrame = new Mat();
     @FXML
-    private Label gFront, hFront, ldFront, llFront, nFront, nDown, nLeft, nRight;
-    private LinkedHashMap<Integer, ArrayList<Double>> attendanceRecord = new LinkedHashMap<>();
+    private Label gFront, hFront, ldFront, llFront, nFront, nDown, nLeft, nRight, outputMessage;
+    private final LinkedHashMap<Integer, ArrayList<Double>> tempAttendanceRecord = new LinkedHashMap<>();
+    private final LinkedHashMap<Integer, AttendanceStatus> attendanceRecord = new LinkedHashMap<>();
 
-    public CameraController(MainController mainController) {
+    HomeController homeController;
+
+    public CameraController(MainController mainController, HomeController homeController) {
         this.mainController = mainController;
+        this.homeController = homeController;
     }
 
     @FXML
@@ -127,10 +137,11 @@ public class CameraController {
             addStudent.setDisable(true);
             searchBox.setDisable(true);
             scrollAtt.setVisible(false);
-            startCapture.setText("Start Capturing");
+            startCapture.setText("Start Capture");
             checkBoxGroup.setVisible(false);
         }
     }
+
     @FXML
     void startCapturing(ActionEvent event) {
         Button source = (Button) event.getSource();
@@ -154,8 +165,11 @@ public class CameraController {
                 (label.getText().substring(0, label.getText().indexOf(' ')) + " " + x) :
                 label.getText() + " " + x);
         clickThePhoto(buttonId);
-        if (x >= 10)
+        if (x >= 10) {
             source.setDisable(true);
+            label.setText(label.getText().substring(0, label.getText().length()-3));
+            sourceList.add(source);
+        }
     }
 
     private void _clickThePhoto(String id) {
@@ -300,7 +314,8 @@ public class CameraController {
             scrollAtt.setVisible(true);
             Result result = getResult(id);
             CompletableFuture.runAsync(() -> {
-                timeTts.readAloud(", , " + result.ed() + result.name() + "Welcome to GradeED Coaching Classes. Please be ready and stand in front of the camera.");
+                timeTts.readAloud(", , " + result.ed() + result.name() +
+                        "Welcome to GradeED Coaching Classes. Please be ready and stand in front of the camera.");
             });
         }
     }
@@ -322,55 +337,6 @@ public class CameraController {
 
     RealTimeTts timeTts;
 
-    /*   @FXML
-       public void initialize() {
-           studentData.addAll(asList(mainController.gradedDataLoader.getStudentData().values()));
-           searchBox.setSuggestionProvider(request ->
-                   studentData.stream().filter(country ->
-                                   country.toLowerCase().contains(request.getUserText().toLowerCase())).
-                           collect(Collectors.toList()));
-           background.setSvgUrl(GradedResourceLoader.load("icons/new-back1.svg"));
-           background.setOpacity(0.3);
-           myLogo.setSvgUrl(GradedResourceLoader.load("icons/my-logo.svg"));
-           ObservableList<String> cameras = getAvailableCameras();
-           cameraList.setItems(cameras);
-           CompletableFuture.runAsync(() -> {
-               timeTts = new RealTimeTts();
-               try {
-                   timeTts.init();
-               } catch (Exception e) {
-                   throw new RuntimeException(e);
-               }
-           });
-           if (cameras.isEmpty()) {
-               System.out.println("No camera found");
-               return;
-           }
-           loadFaceDetector();
-           loadRecognizer();
-           loadFacemark();
-           create3DModel();
-           if (cameras.size() > 1) {
-               startCamera(1);
-               cameraList.getSelectionModel().select(1);
-           } else {
-               startCamera(0);
-               cameraList.getSelectionModel().selectFirst();
-           }
-
-           cameraList.getSelectionModel()
-                   .selectedIndexProperty()
-                   .addListener((obs, oldValue, newValue) -> {
-
-                       if (newValue == null) {
-                           return;
-                       }
-
-                       stopCamera();
-
-                       startCamera(newValue.intValue());
-                   });
-       }*/
     @FXML
     public void initialize() {
         initializeStudentSearch();
@@ -378,6 +344,7 @@ public class CameraController {
         initializeTtsAsync();
         initializeCameraAsync();
     }
+
     private void initializeStudentSearch() {
         studentData.setAll(
                 mainController.gradedDataLoader
@@ -407,7 +374,14 @@ public class CameraController {
                     )
                     .collect(Collectors.toList());
         });
+        searchBox.setOnCommit(event -> {
+            for (var bt : sourceList) {
+                bt.setDisable(false);
+            }
+            sourceList.clear();
+        });
     }
+
     private void initializeGraphics() {
         background.setSvgUrl(
                 GradedResourceLoader.load(
@@ -422,7 +396,9 @@ public class CameraController {
                         "icons/my-logo.svg"
                 )
         );
-    }private final AtomicBoolean ttsReady =
+    }
+
+    private final AtomicBoolean ttsReady =
             new AtomicBoolean(false);
 
     private void initializeTtsAsync() {
@@ -448,6 +424,7 @@ public class CameraController {
             }
         });
     }
+
     @FXML
     void play(ActionEvent event) {
         if (!ttsReady.get() || timeTts == null) {
@@ -460,37 +437,32 @@ public class CameraController {
         String id = ((Button) event.getSource()).getId();
 
         switch (id) {
-            case "normal" ->
-                    timeTts.readAloud(
-                            ", , Normal mode , ,"
-                    );
+            case "normal" -> timeTts.readAloud(
+                    ", , Normal mode , ,"
+            );
 
-            case "long" ->
-                    timeTts.readAloud(
-                            ", , Long distance mode , ,"
-                    );
+            case "long" -> timeTts.readAloud(
+                    ", , Long distance mode , ,"
+            );
 
-            case "low" ->
-                    timeTts.readAloud(
-                            ", , Low Light mode , ,"
-                    );
+            case "low" -> timeTts.readAloud(
+                    ", , Low Light mode , ,"
+            );
 
-            case "glasses" ->
-                    timeTts.readAloud(
-                            ", , Glasses mode , ,"
-                    );
+            case "glasses" -> timeTts.readAloud(
+                    ", , Glasses mode , ,"
+            );
 
-            case "hijab" ->
-                    timeTts.readAloud(
-                            ", , Hijab mode , ,"
-                    );
+            case "hijab" -> timeTts.readAloud(
+                    ", , Hijab mode , ,"
+            );
 
-            default ->
-                    System.out.println(
-                            "Unknown TTS button: " + id
-                    );
+            default -> System.out.println(
+                    "Unknown TTS button: " + id
+            );
         }
     }
+
     private final AtomicBoolean cameraSwitching =
             new AtomicBoolean(false);
 
@@ -528,6 +500,7 @@ public class CameraController {
                     return null;
                 });
     }
+
     private void configureCameras(
             ObservableList<String> cameras
     ) {
@@ -573,6 +546,7 @@ public class CameraController {
         cameraList.getSelectionModel()
                 .select(initialCameraIndex);
     }
+
     private void switchCamera(int cameraIndex) {
         if (!cameraSwitching.compareAndSet(false, true)) {
             return;
@@ -588,6 +562,7 @@ public class CameraController {
             cameraSwitching.set(false);
         }
     }
+
     private void showInitializationError(
             String header,
             String message
@@ -615,6 +590,7 @@ public class CameraController {
                 ? cause.getClass().getSimpleName()
                 : cause.getMessage();
     }
+
     @FXML
     public void tryToDetect(ActionEvent event) {
         String text = ((Button) event.getSource()).getText();
@@ -652,29 +628,51 @@ public class CameraController {
                 try {
                     //System.out.println("Student ID: " + label[0]);
                     //System.out.println("Confidence: " + confidence[0]);
-                    if (attendanceRecord.isEmpty() || attendanceRecord.firstEntry().getValue().size() < 5) {
+                    if (tempAttendanceRecord.isEmpty() || tempAttendanceRecord.firstEntry().getValue().size() < 5) {
                         if (confidence[0] < CONFIDENCE_THRESHOLD) {
-                            if (attendanceRecord.containsKey(label[0]))
-                                attendanceRecord.get(label[0]).add(confidence[0]);
-                            else if (attendanceRecord.size() == 1)
-                                attendanceRecord.clear();
+                            if (tempAttendanceRecord.containsKey(label[0]))
+                                tempAttendanceRecord.get(label[0]).add(confidence[0]);
+                            else if (tempAttendanceRecord.size() == 1)
+                                tempAttendanceRecord.clear();
                             else
-                                attendanceRecord.put(label[0], new ArrayList<>(List.of(confidence[0])));
+                                tempAttendanceRecord.put(label[0], new ArrayList<>(List.of(confidence[0])));
                             //System.out.println("Recognized Student " + label[0]);
                         } else {
                             System.out.println("Unknown Person");
                         }
                     } else {
-                        double sum = attendanceRecord.firstEntry().
+                        double sum = tempAttendanceRecord.firstEntry().
                                 getValue().stream().mapToDouble(x -> x).sum();
-                        int id = attendanceRecord.firstEntry().getKey();
-                        double v = sum / attendanceRecord.firstEntry().
+                        int id = tempAttendanceRecord.firstEntry().getKey();
+                        double v = sum / tempAttendanceRecord.firstEntry().
                                 getValue().size();
                         if (v < CONFIDENCE_THRESHOLD && id == label[0]) {
                             System.out.println("Student ID: " + id);
                             System.out.println("Confidence: " + v);
+                            if (!attendanceRecord.containsKey(id) && !homeController.studentAttendance.attendanceMap.containsKey("ED" + id)) {
+                                attendanceRecord.put(id, new AttendanceStatus(true, false));
+                                homeController.studentAttendance.updateCheckIn("ED" + id);
+                                String name = homeController.studentAttendance.mainController.gradedDataLoader.getStudentData().get("ED" + id).name();
+                                outputMessage.setText("  ED" + id + "  " + name + " you are marked as present");
+                                CompletableFuture.runAsync(() -> timeTts.readAloud("  ED" + id + "  " + name + " you are marked as present"));
+                            } else if (homeController.studentAttendance.attendanceMap.get("ED" + id).getCheck_out() == null) {
+                                var attendanceRecord = homeController.studentAttendance.attendanceMap.get("ED" + id);
+                                String in = attendanceRecord.getCheck_in();
+                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
+                                LocalTime givenTime = LocalTime.parse(in, formatter);
+                                LocalTime currentTime = LocalTime.now();
+                                Duration duration = Duration.between(givenTime, currentTime);
+                                if (duration.toMinutes() >= 45) {
+                                    System.out.println("your check out is done");
+                                    homeController.studentAttendance.updateCheckOut("ED" + id);
+                                    outputMessage.setText("  ED" + id + "  checkout done");
+                                    CompletableFuture.runAsync(() -> timeTts.readAloud("  ED" + id + "  checkout done"));
+                                } else
+                                    System.out.println("You cannot checkout before 45 minutes you have spent only" + duration.toMinutes());
+                            }
+
                         } else {
-                            attendanceRecord.clear();
+                            tempAttendanceRecord.clear();
                         }
 
                     }
@@ -885,7 +883,8 @@ public class CameraController {
 
                     if (cameraView.getStyleClass().size() > 1) {
                         if (faceDetected)
-                            tryIdentifying();
+                            if (startCapture.getText().equals("Start Capture"))
+                                tryIdentifying();
                         cameraView.getStyleClass().set(
                                 1,
                                 faceDetected ? "border-circle-green" : "border-circle-red"
@@ -993,95 +992,6 @@ public class CameraController {
                 restartingCamera.set(false);
             }
         });
-    }
-
-    private void faceMovementDetection(Rect largestFace) {
-        try (RectVector faceVector = new RectVector(1)) {
-            faceVector.put(0, largestFace);
-            try (Point2fVectorVector landmarks = new Point2fVectorVector()) {
-                boolean success =
-                        facemark.fit(gray, faceVector, landmarks);
-
-                if (success && landmarks.size() > 0) {
-                    Point2fVector points = landmarks.get(0);
-                    createCorresponding2D(points);
-                    createCameraMatrix();
-
-                    Mat rvec = new Mat();
-                    Mat tvec = new Mat();
-
-                    solvePnP(
-                            objectPoints,
-                            imagePoints,
-                            cameraMatrix,
-                            new Mat(),
-                            rvec,
-                            tvec
-                    );
-                    Mat rotationMatrix = new Mat();
-
-                    Rodrigues(
-                            rvec,
-                            rotationMatrix
-                    );
-
-                    DoubleIndexer r = rotationMatrix.createIndexer();
-                    Mat mtxR = new Mat();
-                    Rodrigues(rvec, mtxR);
-
-                    Mat mtxQ = new Mat();
-                    Mat Qx = new Mat();
-                    Mat Qy = new Mat();
-                    Mat Qz = new Mat();
-
-                    Point3d angles = RQDecomp3x3(
-                            mtxR,
-                            mtxR,
-                            mtxR,
-                            Qx,
-                            Qy,
-                            Qz
-                    );
-                    double m00 = r.get(0, 0);
-                    double m01 = r.get(0, 1);
-                    double m02 = r.get(0, 2);
-
-                    double m10 = r.get(1, 0);
-                    double m11 = r.get(1, 1);
-                    double m12 = r.get(1, 2);
-
-                    double m20 = r.get(2, 0);
-                    double m21 = r.get(2, 1);
-                    double m22 = r.get(2, 2);
-                    double pitch = angles.get(0);
-                    double yaw = angles.get(1);
-                    double roll = angles.get(2);
-                    /*System.out.printf(
-                            "Yaw: %.1f  Pitch: %.1f  Roll: %.1f%n",
-                            yaw,
-                            pitch,
-                            roll
-                    );*/
-                    for (long i = 0; i < points.size(); i++) {
-
-                        Point2f p = points.get(i);
-
-                        circle(
-                                frame,
-                                new Point(
-                                        Math.round(p.x()),
-                                        Math.round(p.y())
-                                ),
-                                4,
-                                new Scalar(0, 255, 0, 0),
-                                FILLED,
-                                LINE_8,
-                                0
-                        );
-                    }
-                }
-            }
-        }
     }
 
     private void create3DModel() {

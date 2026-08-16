@@ -7,6 +7,6 @@
 <VBox spacing="5.0" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.home.ListViewStudents">
    <children>
       <Separator prefWidth="200.0" />
-      <ListView id="search-helper-list" fx:id="list" prefHeight="200.0" prefWidth="200.0" stylesheets="@../css/list_view_style.css" />
+      <ListView id="search-helper-list" fx:id="stuListView" prefHeight="200.0" prefWidth="200.0" stylesheets="@../css/list_view_style.css" />
    </children>
 </VBox>

@@ -15,20 +15,21 @@ import java.util.ResourceBundle;
 
 public class ListViewStudents implements Initializable {
     @FXML
-    private ListView<HBox> list;
+    public ListView<HBox> stuListView;
     StudentAttendance studentAttendance;
     String ed;
     AttendanceDataView attendanceDataView;
     String name;
+
     public ListViewStudents(StudentAttendance studentAttendance) {
         this.studentAttendance = studentAttendance;
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        list.setItems(studentAttendance.filteredData);
-        list.setMinWidth(300);
-        list.getSelectionModel().selectedItemProperty().
+        stuListView.setItems(studentAttendance.filteredData);
+        stuListView.setMinWidth(300);
+        stuListView.getSelectionModel().selectedItemProperty().
                 addListener((observable,
                              oldValue, newValue) ->
                 {
