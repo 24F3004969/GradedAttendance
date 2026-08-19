@@ -43,13 +43,12 @@ public class ListViewStudents implements Initializable {
                         studentAttendance.hide_search();
                     }
                 });
-
     }
 
     private void createCustomDataView(String ed) {
         switch (studentAttendance.id) {
             case "stu_atten" -> {
-                attendanceDataView = new AttendanceDataView(this.studentAttendance, ed);
+                attendanceDataView = new AttendanceDataView(studentAttendance, ed);
                 var attendance = studentAttendance.gradedFxmlLoader.createView(R.data_view, attendanceDataView);
                 if (studentAttendance.outer_main_box.getChildren().size() > 3)
                     studentAttendance.outer_main_box.getChildren().set(studentAttendance.outer_main_box.getChildren().size() - 1, attendance);

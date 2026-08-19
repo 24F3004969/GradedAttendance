@@ -104,18 +104,17 @@ public class AttendanceDataView implements Initializable {
         uId.setText(student.ed_no());
         uName.setText(firstLetterToUpperCase(student.name()));
         uClass.setText(student._class());
-        makeAttendance();
-        if (varify(studentAttendance.attendanceMap.get(ed_no))) {
+        studentAttendance.loadAttendanceData();
+        Attendance s = studentAttendance.attendanceMap.get(ed_no);
+        if (varify(s)) {
             studentAttendance.checkIn_out.setVisible(true);
-            if (studentAttendance.attendanceMap.get(ed_no).getCheck_in() == null)
+            if (s == null || s.getCheck_in() == null)
                 studentAttendance.checkIn_out.setText("Check In");
-            else if (studentAttendance.attendanceMap.get(ed_no).getCheck_out() == null) {
+            else if (s.getCheck_out() == null) {
                 studentAttendance.checkIn_out.setText("Check Out");
-                if (studentAttendance.attendanceMap.get(ed_no).getTopics() == null)
-                    studentAttendance.attendanceMap.get(ed_no).setTopics("Unknown");
+                if (s.getTopics() == null)
+                    s.setTopics("Unknown");
             }
-        } else {
-            studentAttendance.checkIn_out.setVisible(false);
         }
         update();
         edit.setOnSelectionChanged(_ -> extracted());
@@ -178,7 +177,7 @@ public class AttendanceDataView implements Initializable {
     }
 
     private boolean varify(Attendance s) {
-        return s.getCheck_in() == null || s.getCheck_out() == null;
+        return s == null || s.getCheck_in() == null || s.getCheck_out() == null;
     }
 
     public static String firstLetterToUpperCase(String s) {

@@ -6,11 +6,13 @@ import com.dlsc.gemsfx.SearchField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.indexer.DoubleIndexer;
@@ -23,8 +25,6 @@ import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.controller.home.HomeController;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.controller.tts.RealTimeTts;
-import org.graded_classes.graded_attendance.data.Attendance;
-import org.graded_classes.graded_attendance.data.Student;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -33,14 +33,12 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import static org.bytedeco.opencv.global.opencv_calib3d.*;
 import static org.bytedeco.opencv.global.opencv_core.*;
 import static org.bytedeco.opencv.global.opencv_imgcodecs.*;
 import static org.bytedeco.opencv.global.opencv_imgproc.*;
@@ -51,6 +49,10 @@ public class CameraController {
     private final ExecutorService executor =
             Executors.newSingleThreadExecutor();
     public ToggleGroup modes;
+
+    @FXML
+    private StackPane rootLayer;
+
     @FXML
     private PhotoView cameraView;
     @FXML
@@ -75,16 +77,12 @@ public class CameraController {
 
     private CascadeClassifier faceDetector;
     private LBPHFaceRecognizer recognizer;
-
-    private final Mat frame = new Mat();
-    private final Mat gray = new Mat();
-
     private final Object frameLock = new Object();
     private Rect lastFace;
     ObservableList<String> studentData = FXCollections.observableArrayList(List.of());
 
     private static final int FACE_SIZE = 200;
-    private static final double CONFIDENCE_THRESHOLD = 55;
+    private static final double CONFIDENCE_THRESHOLD = 50;
     @FXML
     private Button startCapture;
     @FXML
@@ -92,8 +90,6 @@ public class CameraController {
     @FXML
     private SVGImageView background;
     private Mat objectPoints;
-    private Mat imagePoints;
-    private Mat cameraMatrix;
     MainController mainController;
     ArrayList<Button> sourceList = new ArrayList<>();
     private final Mat cleanFrame = new Mat();
@@ -124,6 +120,30 @@ public class CameraController {
         }
     }
 
+    private Result getKnownStudentIfPresent(String id) {
+        String ed = id.substring(0, id.indexOf(' '));
+        String name = id.substring(id.indexOf(' ') + 1).trim();
+
+        imagePath = System.getProperty("user.home")
+                + "/gardeEdAttendanceData/"
+                + ed;
+
+        File folder = new File(imagePath);
+
+        if (folder.exists()) {
+
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Student Already Exists");
+            alert.setHeaderText("Training data already exists");
+            alert.setContentText(
+                    ed + " (" + name + ") already has training images."
+            );
+            alert.showAndWait();
+            return null;
+        }
+        return new Result(ed, name);
+    }
+
     @FXML
     void onModeChange(ActionEvent event) {
         var toggle = (ToggleButton) event.getSource();
@@ -132,12 +152,13 @@ public class CameraController {
             searchBox.setDisable(false);
             checkBoxGroup.setVisible(true);
             startCapture.setText("Start Training");
+            startCapture.setDisable(false);
         } else if (toggle.getText().equals("Face Detector")) {
             startCapture.setDisable(false);
             addStudent.setDisable(true);
             searchBox.setDisable(true);
             scrollAtt.setVisible(false);
-            startCapture.setText("Start Capture");
+            startCapture.setDisable(true);
             checkBoxGroup.setVisible(false);
         }
     }
@@ -167,44 +188,9 @@ public class CameraController {
         clickThePhoto(buttonId);
         if (x >= 10) {
             source.setDisable(true);
-            label.setText(label.getText().substring(0, label.getText().length()-3));
+            label.setText(label.getText().substring(0, label.getText().length() - 3));
             sourceList.add(source);
         }
-    }
-
-    private void _clickThePhoto(String id) {
-        Mat captureFace;
-
-        synchronized (frameLock) {
-
-            if (lastFace == null) {
-                System.out.println("No face detected.");
-                return;
-            }
-
-            Rect roi = new Rect(
-                    lastFace.x(),
-                    lastFace.y(),
-                    lastFace.width(),
-                    lastFace.height()
-            );
-
-            captureFace = new Mat(cleanFrame, roi).clone();
-        }
-
-        Mat faceGray = new Mat();
-
-        cvtColor(
-                captureFace,
-                faceGray,
-                COLOR_BGR2GRAY
-        );
-        File f = new File(imagePath + "/" + id);
-        if (!f.exists()) {
-            f.mkdir();
-        }
-        String fileName = imagePath + "/" + id + "/" + System.currentTimeMillis() + ".jpg";
-        CompletableFuture.runAsync(() -> imwrite(fileName, faceGray));
     }
 
     private void clickThePhoto(String id) {
@@ -308,9 +294,8 @@ public class CameraController {
     @FXML
     void addNewTraining(ActionEvent event) {
         String id = searchBox.getText();
-        if (id.equals("")) {
 
-        } else {
+        if (!id.isEmpty() && getKnownStudentIfPresent(id) != null) {
             scrollAtt.setVisible(true);
             Result result = getResult(id);
             CompletableFuture.runAsync(() -> {
@@ -380,6 +365,7 @@ public class CameraController {
             }
             sourceList.clear();
         });
+
     }
 
     private void initializeGraphics() {
@@ -474,8 +460,8 @@ public class CameraController {
                 .supplyAsync(() -> {
                     loadFaceDetector();
                     loadRecognizer();
-                    loadFacemark();
-                    create3DModel();
+                    //loadFacemark();
+                    //create3DModel();
 
                     return getAvailableCameras();
                 })
@@ -592,13 +578,79 @@ public class CameraController {
     }
 
     @FXML
-    public void tryToDetect(ActionEvent event) {
-        String text = ((Button) event.getSource()).getText();
-        if (text.equals("Start Capture")) {
-            tryIdentifying();
-        } else {
-            startTraining();
-        }
+    public void tryToDetect() {
+
+        ProgressBar progressBar = new ProgressBar(0);
+        progressBar.setPrefWidth(500);
+
+        Label statusLabel = new Label("Preparing training...");
+
+        VBox content = new VBox(10,
+                statusLabel,
+                progressBar
+        );
+        content.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        com.dlsc.gemsfx.DialogPane dialogPane = new com.dlsc.gemsfx.DialogPane();
+
+        com.dlsc.gemsfx.DialogPane.Dialog<ButtonType> dialog =
+                new com.dlsc.gemsfx.DialogPane.Dialog<>(
+                        dialogPane,
+                        com.dlsc.gemsfx.DialogPane.Type.INFORMATION
+                );
+
+        dialog.setTitle("Model Training");
+        dialog.setContent(content);
+
+        rootLayer.getChildren()
+                .add(dialogPane);
+
+        Task<Void> trainingTask = new Task<>() {
+
+            @Override
+            protected Void call() throws Exception {
+
+                startTraining(this);
+
+                return null;
+            }
+        };
+
+        progressBar.progressProperty()
+                .bind(trainingTask.progressProperty());
+
+        statusLabel.textProperty()
+                .bind(trainingTask.messageProperty());
+
+        trainingTask.setOnSucceeded(e -> {
+
+            progressBar.progressProperty().unbind();
+            statusLabel.textProperty().unbind();
+
+            statusLabel.setText(
+                    "Training completed successfully"
+            );
+
+            dialog.cancel();
+        });
+
+        trainingTask.setOnFailed(e -> {
+
+            progressBar.progressProperty().unbind();
+            statusLabel.textProperty().unbind();
+
+            statusLabel.setText(
+                    "Training failed"
+            );
+
+            trainingTask.getException()
+                    .printStackTrace();
+        });
+
+        dialog.show();
+
+        Thread thread = new Thread(trainingTask);
+        thread.setDaemon(true);
+        thread.start();
     }
 
     private void tryIdentifying() {
@@ -628,7 +680,7 @@ public class CameraController {
                 try {
                     //System.out.println("Student ID: " + label[0]);
                     //System.out.println("Confidence: " + confidence[0]);
-                    if (tempAttendanceRecord.isEmpty() || tempAttendanceRecord.firstEntry().getValue().size() < 5) {
+                    if (tempAttendanceRecord.isEmpty() || tempAttendanceRecord.firstEntry().getValue().size() < 3) {
                         if (confidence[0] < CONFIDENCE_THRESHOLD) {
                             if (tempAttendanceRecord.containsKey(label[0]))
                                 tempAttendanceRecord.get(label[0]).add(confidence[0]);
@@ -649,14 +701,17 @@ public class CameraController {
                         if (v < CONFIDENCE_THRESHOLD && id == label[0]) {
                             System.out.println("Student ID: " + id);
                             System.out.println("Confidence: " + v);
-                            if (!attendanceRecord.containsKey(id) && !homeController.studentAttendance.attendanceMap.containsKey("ED" + id)) {
+                            String key = "ED" + (id < 10 ? (0 + "" + id) : id);
+                            if (!attendanceRecord.containsKey(id) && !homeController.studentAttendance.
+                                    attendanceMap.containsKey(key)) {
                                 attendanceRecord.put(id, new AttendanceStatus(true, false));
-                                homeController.studentAttendance.updateCheckIn("ED" + id);
-                                String name = homeController.studentAttendance.mainController.gradedDataLoader.getStudentData().get("ED" + id).name();
+                                homeController.studentAttendance.updateCheckIn(key);
+                                String name = homeController.studentAttendance.mainController.gradedDataLoader.
+                                        getStudentData().get(key).name();
                                 outputMessage.setText("  ED" + id + "  " + name + " you are marked as present");
                                 CompletableFuture.runAsync(() -> timeTts.readAloud("  ED" + id + "  " + name + " you are marked as present"));
-                            } else if (homeController.studentAttendance.attendanceMap.get("ED" + id).getCheck_out() == null) {
-                                var attendanceRecord = homeController.studentAttendance.attendanceMap.get("ED" + id);
+                            } else if (homeController.studentAttendance.attendanceMap.get(key).getCheck_out() == null) {
+                                var attendanceRecord = homeController.studentAttendance.attendanceMap.get(key);
                                 String in = attendanceRecord.getCheck_in();
                                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
                                 LocalTime givenTime = LocalTime.parse(in, formatter);
@@ -664,11 +719,11 @@ public class CameraController {
                                 Duration duration = Duration.between(givenTime, currentTime);
                                 if (duration.toMinutes() >= 45) {
                                     System.out.println("your check out is done");
-                                    homeController.studentAttendance.updateCheckOut("ED" + id);
+                                    homeController.studentAttendance.updateCheckOut(key);
                                     outputMessage.setText("  ED" + id + "  checkout done");
                                     CompletableFuture.runAsync(() -> timeTts.readAloud("  ED" + id + "  checkout done"));
                                 } else
-                                    System.out.println("You cannot checkout before 45 minutes you have spent only" + duration.toMinutes());
+                                    System.out.println("You cannot checkout before 45 minutes you have spent only " + duration.toMinutes());
                             }
 
                         } else {
@@ -699,14 +754,6 @@ public class CameraController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private List<String> asList(Collection<Student> values) {
-        List<String> result = new ArrayList<>();
-        for (Student student : values) {
-            studentData.add(student.ed_no() + " " + student.name());
-        }
-        return result;
     }
 
     private void loadFaceDetector() {
@@ -855,11 +902,11 @@ public class CameraController {
 
                 if (detectedFace != null) {
                     // Use localGray/localFrame instead of shared gray/frame.
-                    faceMovementDetection(
+                   /* faceMovementDetection(
                             localFrame,
                             localGray,
                             detectedFace
-                    );
+                    );*/
 
                     rectangle(
                             localFrame,
@@ -883,7 +930,7 @@ public class CameraController {
 
                     if (cameraView.getStyleClass().size() > 1) {
                         if (faceDetected)
-                            if (startCapture.getText().equals("Start Capture"))
+                            if (((ToggleButton) modes.getSelectedToggle()).getText().equals("Face Detector"))
                                 tryIdentifying();
                         cameraView.getStyleClass().set(
                                 1,
@@ -1020,52 +1067,6 @@ public class CameraController {
         obj.put(5, 2, -125.0);   // Right mouth
     }
 
-    void createCorresponding2D(Point2fVector points) {
-        Point2f nose = points.get(30);
-        Point2f chin = points.get(8);
-        Point2f leftEye = points.get(36);
-        Point2f rightEye = points.get(45);
-        Point2f leftMouth = points.get(48);
-        Point2f rightMouth = points.get(54);
-        imagePoints = new Mat(6, 2, CV_64FC1);
-
-        DoubleIndexer img = imagePoints.createIndexer();
-
-        img.put(0, 0, nose.x());
-        img.put(0, 1, nose.y());
-
-        img.put(1, 0, chin.x());
-        img.put(1, 1, chin.y());
-
-        img.put(2, 0, leftEye.x());
-        img.put(2, 1, leftEye.y());
-
-        img.put(3, 0, rightEye.x());
-        img.put(3, 1, rightEye.y());
-
-        img.put(4, 0, leftMouth.x());
-        img.put(4, 1, leftMouth.y());
-
-        img.put(5, 0, rightMouth.x());
-        img.put(5, 1, rightMouth.y());
-    }
-
-    private void createCameraMatrix() {
-
-        double focalLength = frame.cols();
-
-        cameraMatrix = Mat.eye(3, 3, CV_64FC1).asMat();
-
-        DoubleIndexer cam = cameraMatrix.createIndexer();
-
-        cam.put(0, 0, focalLength);
-        cam.put(1, 1, focalLength);
-
-        cam.put(0, 2, frame.cols() / 2.0);
-        cam.put(1, 2, frame.rows() / 2.0);
-
-        cam.put(2, 2, 1.0);
-    }
 
     private Image matToImage(Mat mat) {
 
@@ -1178,7 +1179,7 @@ public class CameraController {
         }
     }
 
-    private void startTraining() {
+    private void startTraining(Task<?> task) {
 
         String dataPath = System.getProperty("user.home") +
                 "/gardeEdAttendanceData";

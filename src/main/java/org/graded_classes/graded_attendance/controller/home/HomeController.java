@@ -104,9 +104,9 @@ public class HomeController implements Initializable {
     private Node getSearchView(VBox vBox) {
         return switch (vBox.getId()) {
             case "stu_atten", "st_fee" -> gradedFxmlLoader.createView(R.student_attendance_layout,
-                    studentAttendance);
+                    new StudentAttendance(mainController, gradedFxmlLoader, outer_main_box, vBox.getId()));
             case "tea_prog" -> gradedFxmlLoader.createView(R.teaching_progress_search,
-                    studentAttendance);
+                    new StudentAttendance(mainController, gradedFxmlLoader, outer_main_box, vBox.getId()));
             case "tea_atten", "tea_fee" -> gradedFxmlLoader.createView(R.teacher_attendance_layout);
             default -> null;
         };
@@ -115,9 +115,9 @@ public class HomeController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         selectedItem = stu_atten;
-        studentAttendance = new StudentAttendance(mainController, gradedFxmlLoader, outer_main_box, "stu_atten");
+        studentAttendance= new StudentAttendance(mainController, gradedFxmlLoader, outer_main_box, "stu_atten");
         VBox studentAttendanceLayout = (VBox) mainController.gradedFxmlLoader.createView(R.student_attendance_layout,
-                studentAttendance);
+                new StudentAttendance(mainController, gradedFxmlLoader, outer_main_box, "stu_atten"));
         dummy_box.setMinHeight(70);
         VBox.setVgrow(studentAttendanceLayout, Priority.ALWAYS);
         AnchorPane.setRightAnchor(studentAttendanceLayout, 0.0);

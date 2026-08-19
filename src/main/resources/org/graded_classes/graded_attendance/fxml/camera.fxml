@@ -20,10 +20,10 @@
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<StackPane maxHeight="600.0" stylesheets="@../css/atlantafx.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.camera.CameraController">
+<StackPane fx:id="rootLayer" maxHeight="600.0" stylesheets="@../css/atlantafx.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.camera.CameraController">
    <children>
-      <SVGImageView fx:id="background" backgroundLoading="true" />
-      <BorderPane stylesheets="@../css/camera-style.css">
+      <SVGImageView fx:id="background" backgroundLoading="true" StackPane.alignment="CENTER" />
+      <BorderPane stylesheets="@../css/camera-style.css" StackPane.alignment="CENTER">
          <center>
             <VBox alignment="CENTER" spacing="5.0">
                <children>
