@@ -35,6 +35,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -713,8 +714,11 @@ public class CameraController {
                             } else if (homeController.studentAttendance.attendanceMap.get(key).getCheck_out() == null) {
                                 var attendanceRecord = homeController.studentAttendance.attendanceMap.get(key);
                                 String in = attendanceRecord.getCheck_in();
-                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
-                                LocalTime givenTime = LocalTime.parse(in, formatter);
+                                DateTimeFormatter formatter =
+                                        DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH);
+
+                                LocalTime givenTime =
+                                        LocalTime.parse(in.toUpperCase(Locale.ENGLISH), formatter);
                                 LocalTime currentTime = LocalTime.now();
                                 Duration duration = Duration.between(givenTime, currentTime);
                                 if (duration.toMinutes() >= 45) {
