@@ -83,7 +83,7 @@ public class CameraController {
     ObservableList<String> studentData = FXCollections.observableArrayList(List.of());
 
     private static final int FACE_SIZE = 200;
-    private static final double CONFIDENCE_THRESHOLD = 50;
+    private static final double CONFIDENCE_THRESHOLD = 40;
     @FXML
     private Button startCapture;
     @FXML
