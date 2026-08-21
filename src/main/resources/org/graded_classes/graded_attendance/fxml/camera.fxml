@@ -85,6 +85,14 @@
                   </VBox.margin>
                   <Button fx:id="startCapture" mnemonicParsing="false" onAction="#tryToDetect" styleClass="success" text="Start Training" />
                </HBox>
+               <HBox alignment="CENTER_RIGHT" spacing="5.0">
+                  <children>
+                     <Button mnemonicParsing="false" onAction="#onSetting" styleClass="accent" text="Setting" />
+                  </children>
+                  <VBox.margin>
+                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                  </VBox.margin>
+               </HBox>
                <HBox alignment="CENTER_LEFT" spacing="5.0">
                   <children>
                      <SearchField fx:id="searchBox" />

@@ -29,6 +29,8 @@ import org.graded_classes.graded_attendance.controller.tts.RealTimeTts;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.IntBuffer;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -62,7 +64,7 @@ public class CameraController {
     private ScrollPane scrollAtt;
     @FXML
     private VBox glasses;
-
+    int requiredRecognitionCount = 5;
     @FXML
     private VBox hijab;
     @FXML
@@ -83,7 +85,7 @@ public class CameraController {
     ObservableList<String> studentData = FXCollections.observableArrayList(List.of());
 
     private static final int FACE_SIZE = 200;
-    private static final double CONFIDENCE_THRESHOLD = 40;
+    private static double CONFIDENCE_THRESHOLD = 40;
     @FXML
     private Button startCapture;
     @FXML
@@ -118,6 +120,157 @@ public class CameraController {
             glasses.setDisable(true);
         } else if (text.equals("Hijab") && !box.isSelected()) {
             hijab.setDisable(true);
+        }
+    }
+    private void loadCameraSettings() {
+
+        String sql = """
+            SELECT
+                confidence_threshold,
+                required_checks
+            FROM camera_data
+            WHERE id = 1
+            """;
+
+        try (
+                PreparedStatement statement =
+                        mainController.gradedDataLoader.databaseLoader.getConnection().prepareStatement(sql);
+                ResultSet rs = statement.executeQuery()
+        ) {
+
+            if (rs.next()) {
+
+                CONFIDENCE_THRESHOLD =
+                        rs.getDouble("confidence_threshold");
+
+                requiredRecognitionCount =
+                        rs.getInt("required_checks");
+
+                System.out.println(
+                        "Threshold Loaded = "
+                                + CONFIDENCE_THRESHOLD
+                );
+
+                System.out.println(
+                        "Required Checks Loaded = "
+                                + requiredRecognitionCount
+                );
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    void onSetting(ActionEvent event) {
+
+        Slider thresholdSlider =
+                new Slider(20, 100, CONFIDENCE_THRESHOLD);
+
+        thresholdSlider.setShowTickLabels(true);
+        thresholdSlider.setShowTickMarks(true);
+
+        Label thresholdLabel = new Label(
+                String.format(
+                        "Confidence Threshold : %.0f",
+                        CONFIDENCE_THRESHOLD
+                )
+        );
+        Spinner<Integer> checkSpinner =
+                new Spinner<>(1, 20, requiredRecognitionCount);
+        thresholdSlider.valueProperty().addListener((obs, oldVal, newVal) ->
+                thresholdLabel.setText(
+                        String.format(
+                                "Confidence Threshold : %.0f",
+                                newVal.doubleValue()
+                        )
+                )
+        );
+        checkSpinner.setEditable(true);
+
+        VBox content = new VBox(
+                15,
+                new Label("Recognition Settings"),
+                thresholdLabel,
+                thresholdSlider,
+                new Label("Required Consecutive Matches"),
+                checkSpinner
+        );
+
+        com.dlsc.gemsfx.DialogPane dialogPane =
+                new com.dlsc.gemsfx.DialogPane();
+
+        com.dlsc.gemsfx.DialogPane.Dialog<ButtonType> dialog =
+                new com.dlsc.gemsfx.DialogPane.Dialog<>(
+                        dialogPane,
+                        com.dlsc.gemsfx.DialogPane.Type.INFORMATION
+                );
+
+        dialog.setTitle("Face Recognition Settings");
+        dialog.setContent(content);
+
+        ButtonType saveButton =
+                new ButtonType(
+                        "Save",
+                        ButtonBar.ButtonData.OK_DONE
+                );
+
+        dialog.getButtonTypes().setAll(
+                saveButton,
+                ButtonType.CANCEL
+        );
+
+        rootLayer.getChildren().add(dialogPane);
+
+        dialog.show();
+
+        dialog.onClose(e -> {
+
+            if (e == saveButton) {
+
+                CONFIDENCE_THRESHOLD =
+                        thresholdSlider.getValue();
+
+                requiredRecognitionCount =
+                        checkSpinner.getValue();
+
+                System.out.println(
+                        "Threshold = " +
+                                CONFIDENCE_THRESHOLD
+                );
+                saveCameraSettings(
+                        CONFIDENCE_THRESHOLD,
+                        requiredRecognitionCount
+                );
+                System.out.println(
+                        "Required Checks = " +
+                                requiredRecognitionCount
+                );
+            }
+
+            rootLayer.getChildren().remove(dialogPane);
+        });
+    }
+    private void saveCameraSettings(
+            double threshold,
+            int checks
+    ) {
+        String sql = """
+            UPDATE camera_data
+            SET confidence_threshold = ?,
+                required_checks = ?
+            """;
+
+        try (PreparedStatement statement =
+                     mainController.gradedDataLoader.databaseLoader.getConnection().prepareStatement(sql)) {
+
+            statement.setDouble(1, threshold);
+            statement.setInt(2, checks);
+
+            statement.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -329,6 +482,7 @@ public class CameraController {
         initializeGraphics();
         initializeTtsAsync();
         initializeCameraAsync();
+        loadCameraSettings();
     }
 
     private void initializeStudentSearch() {
@@ -677,11 +831,9 @@ public class CameraController {
             int[] label = new int[1];
             double[] confidence = new double[1];
             recognizer.predict(faceGray, label, confidence);
-            Platform.runLater(() -> {
+           /* Platform.runLater(() -> {
                 try {
-                    //System.out.println("Student ID: " + label[0]);
-                    //System.out.println("Confidence: " + confidence[0]);
-                    if (tempAttendanceRecord.isEmpty() || tempAttendanceRecord.firstEntry().getValue().size() < 3) {
+                    if (tempAttendanceRecord.isEmpty() || tempAttendanceRecord.firstEntry().getValue().size() < requiredRecognitionCount) {
                         if (confidence[0] < CONFIDENCE_THRESHOLD) {
                             if (tempAttendanceRecord.containsKey(label[0]))
                                 tempAttendanceRecord.get(label[0]).add(confidence[0]);
@@ -689,7 +841,6 @@ public class CameraController {
                                 tempAttendanceRecord.clear();
                             else
                                 tempAttendanceRecord.put(label[0], new ArrayList<>(List.of(confidence[0])));
-                            //System.out.println("Recognized Student " + label[0]);
                         } else {
                             System.out.println("Unknown Person");
                         }
@@ -738,10 +889,178 @@ public class CameraController {
                 } finally {
                     processing.set(false);
                 }
+            });*/
+            Platform.runLater(() -> {
+                try {
+
+                    if (confidence[0] < CONFIDENCE_THRESHOLD) {
+
+                        if (currentCandidate == label[0]) {
+
+                            consecutiveMatches++;
+                            confidenceSum += confidence[0];
+
+                        } else {
+
+                            currentCandidate = label[0];
+                            consecutiveMatches = 1;
+                            confidenceSum = confidence[0];
+                        }
+
+                        if (consecutiveMatches >= requiredRecognitionCount) {
+
+                            int id = currentCandidate;
+
+                            double avgConfidence =
+                                    confidenceSum / consecutiveMatches;
+
+                            if (avgConfidence < CONFIDENCE_THRESHOLD
+                                    && id == label[0]) {
+
+                                System.out.println("Student ID: " + id);
+                                System.out.println(
+                                        "Average Confidence: "
+                                                + avgConfidence
+                                );
+
+                                String key =
+                                        "ED" + (id < 10
+                                                ? "0" + id
+                                                : id);
+
+                                if (!attendanceRecord.containsKey(id)
+                                        && !homeController.studentAttendance
+                                        .attendanceMap.containsKey(key)) {
+
+                                    attendanceRecord.put(
+                                            id,
+                                            new AttendanceStatus(
+                                                    true,
+                                                    false
+                                            )
+                                    );
+
+                                    homeController.studentAttendance
+                                            .updateCheckIn(key,LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a")));
+
+                                    String name =
+                                            homeController.studentAttendance
+                                                    .mainController
+                                                    .gradedDataLoader
+                                                    .getStudentData()
+                                                    .get(key)
+                                                    .name();
+
+                                    outputMessage.setText(
+                                            "ED"
+                                                    + id
+                                                    + " "
+                                                    + name
+                                                    + " you are marked as present"
+                                    );
+
+                                    CompletableFuture.runAsync(
+                                            () -> timeTts.readAloud(
+                                                    "ED"
+                                                            + id
+                                                            + " "
+                                                            + name
+                                                            + " you are marked as present"
+                                            )
+                                    );
+
+                                } else if (
+                                        homeController.studentAttendance
+                                                .attendanceMap.containsKey(key)
+                                                && homeController.studentAttendance
+                                                .attendanceMap.get(key)
+                                                .getCheck_out() == null
+                                ) {
+
+                                    var attendance =
+                                            homeController.studentAttendance
+                                                    .attendanceMap.get(key);
+
+                                    String in =
+                                            attendance.getCheck_in();
+
+                                    DateTimeFormatter formatter =
+                                            DateTimeFormatter.ofPattern(
+                                                    "hh:mm a",
+                                                    Locale.ENGLISH
+                                            );
+
+                                    LocalTime givenTime =
+                                            LocalTime.parse(
+                                                    in.toUpperCase(
+                                                            Locale.ENGLISH
+                                                    ),
+                                                    formatter
+                                            );
+
+                                    LocalTime currentTime =
+                                            LocalTime.now();
+
+                                    Duration duration =
+                                            Duration.between(
+                                                    givenTime,
+                                                    currentTime
+                                            );
+
+                                    if (duration.toMinutes() >= 45) {
+
+                                        homeController.studentAttendance
+                                                .updateCheckOut(key);
+
+                                        outputMessage.setText(
+                                                "ED"
+                                                        + id
+                                                        + " checkout done"
+                                        );
+
+                                        CompletableFuture.runAsync(
+                                                () -> timeTts.readAloud(
+                                                        "ED"
+                                                                + id
+                                                                + " checkout done"
+                                                )
+                                        );
+
+                                    } else {
+
+                                        System.out.println(
+                                                "Cannot checkout before 45 minutes. Spent "
+                                                        + duration.toMinutes()
+                                                        + " minutes."
+                                        );
+                                    }
+                                }
+                            }
+
+                            resetRecognition();
+                        }
+
+                    } else {
+
+                        System.out.println("Unknown Person");
+                        resetRecognition();
+                    }
+
+                } finally {
+
+                    processing.set(false);
+                }
             });
         });
     }
-
+    private int currentCandidate = -1;
+    private int consecutiveMatches = 0;
+    private double confidenceSum = 0;
+    private void resetRecognition() {
+        currentCandidate = -1;
+        consecutiveMatches = 0;
+        confidenceSum = 0;
+    }
     private FacemarkLBF facemark;
 
     private void loadFacemark() {

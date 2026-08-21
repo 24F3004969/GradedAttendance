@@ -196,14 +196,13 @@ public class StudentAttendance implements Initializable {
     public void doAction(ActionEvent event) {
         Button source = (Button) event.getSource();
         if (!inputField.getText().isEmpty()) {
-            updateAttendance(source, true, null);
+            updateAttendance(source, null);
         }
 
     }
 
-    public void updateAttendance(Button source, boolean shouldMessageBeSend, String updatedTime) {
+    public void updateAttendance(Button source, String updatedTime) {
         String timeStamp = updatedTime == null ? LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a")) : updatedTime;
-        Connection conn = mainController.gradedDataLoader.databaseLoader.getConnection();
         String edNo = listViewStudents.ed;
         String studentClass = mainController.gradedDataLoader.getStudentData().get(edNo)._class();
         TreeMap<String, DailyTopics> data = new TreeMap<>();
@@ -223,7 +222,7 @@ public class StudentAttendance implements Initializable {
         }
         if (source.getText().equals("Check In")) {
             todayTopicList = "";
-            updateCheckIn(edNo);
+            updateCheckIn(edNo, timeStamp);
             if (!(data.isEmpty()))
                 attendanceMap.get(edNo).setTopics(data.get(studentClass).getSubject1() + ":" + data.get(studentClass).getTopic1() +
                         data.get(studentClass).getSubject2() + ":" + data.get(studentClass).getTopic2());
@@ -267,28 +266,27 @@ public class StudentAttendance implements Initializable {
         }
     }
 
-    public void updateCheckIn(String edNo) {
-        var timeStamp = LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
+    public void updateCheckIn(String edNo, String val) {
         Connection conn = mainController.gradedDataLoader.databaseLoader.getConnection();
         PreparedStatement updateStmt = null;
         try {
             updateStmt = conn.prepareStatement("INSERT INTO Attendance(ed_no, date, check_in) VALUES (?,?,?);");
             updateStmt.setString(1, edNo);
             updateStmt.setString(2, LocalDate.now().toString());
-            updateStmt.setString(3, timeStamp);
+            updateStmt.setString(3, val);
             updateStmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         attendanceMap.put(edNo, new Attendance(null, null, null, null));
-        attendanceMap.get(edNo).setCheck_in(timeStamp);
+        attendanceMap.get(edNo).setCheck_in(val);
         attendanceMap.get(edNo).setTopics("Unknown");
         sendCheckInMessage(edNo, """
                 Arrival Alert
                 Dear Parent,
                 Your child %s has safely arrived at their tuition center at %s.
                 Thank you for trusting us with their learning journey!
-                """.formatted(mainController.gradedDataLoader.getStudentData().get(edNo).name(), timeStamp));
+                """.formatted(mainController.gradedDataLoader.getStudentData().get(edNo).name(), val));
     }
 
     public void updateCheckOut(String edNo) {

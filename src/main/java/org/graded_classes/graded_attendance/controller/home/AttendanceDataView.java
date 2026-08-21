@@ -276,10 +276,10 @@ public class AttendanceDataView implements Initializable {
                         LocalTime.parse(val.toUpperCase(), DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH));
                         timeField.pseudoClassStateChanged(Styles.STATE_DANGER, false);
                         if (time.getId().equals("onLabelIn")) {
-                            studentAttendance.updateAttendance(new Button("Check In"), false, val);
+                            studentAttendance.updateAttendance(new Button("Check In"), val);
                             update();
                         } else if (time.getId().equals("onLabelOut")) {
-                            studentAttendance.updateAttendance(new Button("Check Out"), false, val);
+                            studentAttendance.updateAttendance(new Button("Check Out"), val);
                             update();
                         }
 

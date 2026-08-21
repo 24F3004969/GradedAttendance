@@ -21,3 +21,20 @@ CREATE TRIGGER remove_attendance_after_student_delete
 BEGIN
     DELETE FROM Attendance WHERE ed_no = OLD.ed_no;
 END;
+
+CREATE TABLE IF NOT EXISTS camera_data (
+                             id INTEGER PRIMARY KEY,
+                             confidence_threshold REAL,
+                             required_checks INTEGER
+);
+
+INSERT OR IGNORE INTO camera_data (
+    id,
+    confidence_threshold,
+    required_checks
+)
+VALUES (
+           1,
+           40,
+           5
+       );
