@@ -42,7 +42,7 @@
                         </Label>
                      </children>
                   </HBox>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
                      <children>
                         <SVGImageView fx:id="myLogo" fitHeight="48.0" />
                      </children>
@@ -87,6 +87,7 @@
                </HBox>
                <HBox alignment="CENTER_RIGHT" spacing="5.0">
                   <children>
+                     <Button mnemonicParsing="false" onAction="#openStudentDisplay" styleClass="accent" text="Student View" />
                      <Button mnemonicParsing="false" onAction="#onSetting" styleClass="accent" text="Setting" />
                   </children>
                   <VBox.margin>

@@ -9,11 +9,17 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.indexer.DoubleIndexer;
 import org.bytedeco.opencv.opencv_core.*;
@@ -52,7 +58,9 @@ public class CameraController {
     private final ExecutorService executor =
             Executors.newSingleThreadExecutor();
     public ToggleGroup modes;
-
+    private Stage studentStage;
+    private PhotoView studentCameraView;
+    private Label studentMessage;
     @FXML
     private StackPane rootLayer;
 
@@ -122,15 +130,79 @@ public class CameraController {
             hijab.setDisable(true);
         }
     }
+
+    @FXML
+    private void openStudentDisplay() {
+        var background = new SVGImageView();
+        background.setSvgUrl(
+                GradedResourceLoader.load(
+                        "icons/new-back1.svg"
+                )
+        );
+        var studentLogo = new SVGImageView();
+        studentLogo.setFitHeight(48);
+        studentLogo.setSvgUrl(
+                GradedResourceLoader.load(
+                        "icons/my-logo.svg"
+                )
+        );
+
+        HBox logoBar = new HBox(studentLogo);
+        VBox.setVgrow(logoBar, Priority.ALWAYS);
+        logoBar.setAlignment(Pos.BOTTOM_CENTER);
+        VBox.setMargin(logoBar, new Insets(8));
+        studentCameraView = new PhotoView();
+        studentCameraView.setEditable(false);
+
+        studentCameraView.setMinSize(512, 512);
+        studentCameraView.setMaxSize(800, 800);
+
+        studentCameraView.getStyleClass()
+                .add("border-circle-green");
+
+        studentMessage = new Label(
+                "Please stand in front of the camera"
+        );
+
+        studentMessage.setStyle("""
+                -fx-font-size: 22px;
+                -fx-font-weight: bold;
+                """);
+
+        VBox content = new VBox(
+                20,
+                studentCameraView,
+                studentMessage
+        );
+
+        content.setAlignment(Pos.CENTER);
+        VBox.setVgrow(content, Priority.ALWAYS);
+        VBox mainContent = new VBox(content, logoBar);
+
+        StackPane root = new StackPane(background, mainContent);
+        Scene scene = new Scene(root, 1280, 720);
+
+        scene.getStylesheets().add(
+                GradedResourceLoader.load(
+                        "css/camera-style.css"
+                )
+        );
+
+        studentStage = new Stage();
+        studentStage.setTitle("Student Display");
+        studentStage.setScene(scene);
+        studentStage.show();
+    }
+
     private void loadCameraSettings() {
 
         String sql = """
-            SELECT
-                confidence_threshold,
-                required_checks
-            FROM camera_data
-            WHERE id = 1
-            """;
+                SELECT
+                    confidence_threshold,
+                    required_checks
+                FROM camera_data
+                WHERE id = 1
+                """;
 
         try (
                 PreparedStatement statement =
@@ -161,6 +233,7 @@ public class CameraController {
             e.printStackTrace();
         }
     }
+
     @FXML
     void onSetting(ActionEvent event) {
 
@@ -251,15 +324,16 @@ public class CameraController {
             rootLayer.getChildren().remove(dialogPane);
         });
     }
+
     private void saveCameraSettings(
             double threshold,
             int checks
     ) {
         String sql = """
-            UPDATE camera_data
-            SET confidence_threshold = ?,
-                required_checks = ?
-            """;
+                UPDATE camera_data
+                SET confidence_threshold = ?,
+                    required_checks = ?
+                """;
 
         try (PreparedStatement statement =
                      mainController.gradedDataLoader.databaseLoader.getConnection().prepareStatement(sql)) {
@@ -334,6 +408,10 @@ public class CameraController {
     }
 
     private void initCapture(String buttonId, Button source, Label label) {
+        if (lastFace == null || cleanFrame.empty()) {
+            System.out.println("No face detected.");
+            return;
+        }
         int x = label.getText().contains(" ") ? (Integer.parseInt(label.
                 getText().substring(label.getText().indexOf(' ')).trim())) + 1 : 1;
         label.setText(label.getText().contains(" ") ?
@@ -448,7 +526,6 @@ public class CameraController {
     @FXML
     void addNewTraining(ActionEvent event) {
         String id = searchBox.getText();
-
         if (!id.isEmpty() && getKnownStudentIfPresent(id) != null) {
             scrollAtt.setVisible(true);
             Result result = getResult(id);
@@ -515,10 +592,13 @@ public class CameraController {
                     .collect(Collectors.toList());
         });
         searchBox.setOnCommit(event -> {
+            System.out.println(event);
+
             for (var bt : sourceList) {
                 bt.setDisable(false);
             }
             sourceList.clear();
+            scrollAtt.setVisible(false);
         });
 
     }
@@ -941,7 +1021,7 @@ public class CameraController {
                                     );
 
                                     homeController.studentAttendance
-                                            .updateCheckIn(key,LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a")));
+                                            .updateCheckIn(key, LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a")));
 
                                     String name =
                                             homeController.studentAttendance
@@ -958,15 +1038,25 @@ public class CameraController {
                                                     + name
                                                     + " you are marked as present"
                                     );
+                                    if (studentMessage != null)
+                                        studentMessage.setText(
+                                                "ED"
+                                                        + id
+                                                        + " "
+                                                        + name
+                                                        + " you are marked as present"
+                                        );
 
                                     CompletableFuture.runAsync(
-                                            () -> timeTts.readAloud(
-                                                    "ED"
-                                                            + id
-                                                            + " "
-                                                            + name
-                                                            + " you are marked as present"
-                                            )
+                                            () -> {
+                                                timeTts.readAloud(
+                                                        "ED"
+                                                                + id
+                                                                + " "
+                                                                + name
+                                                                + " you are marked as present"
+                                                );
+                                            }
                                     );
 
                                 } else if (
@@ -1017,22 +1107,28 @@ public class CameraController {
                                                         + id
                                                         + " checkout done"
                                         );
-
+                                        studentMessage.setText(
+                                                "ED"
+                                                        + id
+                                                        + " checkout done"
+                                        );
                                         CompletableFuture.runAsync(
-                                                () -> timeTts.readAloud(
-                                                        "ED"
-                                                                + id
-                                                                + " checkout done"
-                                                )
+                                                () -> {
+                                                    timeTts.readAloud(
+                                                            "ED"
+                                                                    + id
+                                                                    + " checkout done"
+                                                    );
+                                                }
                                         );
 
                                     } else {
-
-                                        System.out.println(
-                                                "Cannot checkout before 45 minutes. Spent "
-                                                        + duration.toMinutes()
-                                                        + " minutes."
-                                        );
+                                        if (studentMessage != null)
+                                            studentMessage.setText(
+                                                    "Cannot checkout before 45 minutes. Spent "
+                                                            + duration.toMinutes()
+                                                            + " minutes."
+                                            );
                                     }
                                 }
                             }
@@ -1053,14 +1149,17 @@ public class CameraController {
             });
         });
     }
+
     private int currentCandidate = -1;
     private int consecutiveMatches = 0;
     private double confidenceSum = 0;
+
     private void resetRecognition() {
         currentCandidate = -1;
         consecutiveMatches = 0;
         confidenceSum = 0;
     }
+
     private FacemarkLBF facemark;
 
     private void loadFacemark() {
@@ -1113,7 +1212,9 @@ public class CameraController {
     }
 
     private void loadRecognizer() {
-
+        if (recognizer != null) {
+            recognizer.close();
+        }
         recognizer = LBPHFaceRecognizer.create();
 
         try {
@@ -1125,7 +1226,6 @@ public class CameraController {
             );
 
         } catch (Exception e) {
-
             System.out.println(
                     "Could not load model: "
                             + e.getMessage()
@@ -1259,6 +1359,14 @@ public class CameraController {
                                 1,
                                 faceDetected ? "border-circle-green" : "border-circle-red"
                         );
+                        if (studentCameraView != null)
+                            studentCameraView.getStyleClass().set(
+                                    1,
+                                    faceDetected ? "border-circle-green" : "border-circle-red"
+                            );
+                    }
+                    if (studentCameraView != null) {
+                        studentCameraView.setPhoto(image);
                     }
                 });
             } finally {
@@ -1317,6 +1425,10 @@ public class CameraController {
 
     private Rect findLargestFace(RectVector faces) {
         if (faces == null || faces.size() == 0) {
+            Platform.runLater(() -> {
+                if (studentMessage != null)
+                    studentMessage.setText("Please stand in front of the camera");
+            });
             return null;
         }
 
@@ -1606,7 +1718,6 @@ public class CameraController {
                     labelList.get(i)
             );
         }
-
         try (
                 LBPHFaceRecognizer recognizer =
                         LBPHFaceRecognizer.create(
@@ -1644,6 +1755,8 @@ public class CameraController {
             System.out.println(
                     "Model : attendance_model.yml"
             );
+            loadRecognizer();
+            resetRecognition();
         }
     }
 
