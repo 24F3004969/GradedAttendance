@@ -1,5 +1,5 @@
 #default_pane{
-    -fx-background-image: url('../icons/doodle.svg');
+   /* -fx-background-image: url('../icons/doodle.svg');*/
     -fx-background-size: cover;
     -fx-background-repeat: no-repeat;
 }

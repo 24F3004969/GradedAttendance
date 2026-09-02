@@ -130,7 +130,7 @@
                <tabs>
                   <Tab text="Welcome Screen">
                      <content>
-                        <StackPane id="default_pane" />
+                        <StackPane id="default_pane" fx:id="welcomeScreen" />
                      </content>
                   </Tab>
                </tabs>

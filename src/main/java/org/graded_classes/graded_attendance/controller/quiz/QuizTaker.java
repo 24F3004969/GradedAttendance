@@ -283,7 +283,10 @@ public class QuizTaker implements Initializable {
     public void startQuiz(ExamLogin login, Stage stage) {
         quizName.setText("Quiz");
         //totalTime = LocalTime.parse("00:45:00", DateTimeFormatter.ofPattern("HH:mm:ss"));
-        leftOverTime = LocalTime.parse("00:40:00", DateTimeFormatter.ofPattern("HH:mm:ss"));
+        System.out.println(totalTime);
+        leftOverTime = totalTime.isAfter(LocalTime.parse(totalTime.minusMinutes(5).toString() + ":00", DateTimeFormatter.ofPattern("HH:mm:ss")))
+                ? LocalTime.parse(totalTime.minusMinutes(5).toString() + ":00", DateTimeFormatter.ofPattern("HH:mm:ss")):
+                LocalTime.parse("00:00:00", DateTimeFormatter.ofPattern("HH:mm:ss"));
         Tooltip value = new Tooltip("Submit After " + leftOverTime);
         submitButton.setTooltip(value);
         timeline = new Timeline(
@@ -356,8 +359,6 @@ public class QuizTaker implements Initializable {
         leb.setFont(Font.font(30));
         leb.maxWidthProperty().bind(box.widthProperty().multiply(0.8));
         box.getChildren().add(leb);
-        IO.println(GradedResourceLoader.load("icons/my-logo.svg"));
-        IO.println(GradedResourceLoader.load("css/motivation.json"));
         ImageView imageView = new ImageView(new Image(GradedResourceLoader.load("icons/my-logo.svg")));
         imageView.setFitWidth(200);
         imageView.setFitHeight(80);

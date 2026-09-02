@@ -2,6 +2,7 @@ package org.graded_classes.graded_attendance.controller.quiz;
 
 import com.dlsc.gemsfx.SearchField;
 import com.dlsc.gemsfx.TimePicker;
+import impl.com.calendarfx.view.NumericTextField;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -35,10 +36,10 @@ public class ExamCreator implements Initializable {
     private HBox topics;
     @FXML
     private TimePicker endTime;
-
     @FXML
     private DatePicker exam;
-
+    @FXML
+    private NumericTextField questionCount;
     @FXML
     private ComboBox<String> roomNo;
 
@@ -244,11 +245,10 @@ public class ExamCreator implements Initializable {
 
         // 2. Randomize the sequence of the question IDs
         Collections.shuffle(questionIds);
-
+        System.out.println(Integer.parseInt(questionCount.getText()));
         // 3. Batch insert up to 20 randomized questions into ExamQuestion
         try (PreparedStatement innerPst = conn.prepareStatement(insertSql)) {
-
-            for (int i = 0; i < questionIds.size() && i < 20; i++) {
+            for (int i = 0; i < questionIds.size() && i < Integer.parseInt(questionCount.getText()); i++) {
                 int quesId = questionIds.get(i);
 
                 innerPst.setInt(1, generatedId);
@@ -312,10 +312,10 @@ public class ExamCreator implements Initializable {
         close.setOnMouseClicked(event -> {
             this.mainController.modalPane.hide();
         });
-        topicName.setSuggestionProvider(request ->
-                observableListTopics.stream().filter(country ->
-                                country.toLowerCase().contains(request.getUserText().toLowerCase())).
-                        collect(Collectors.toList()));
+                topicName.setSuggestionProvider(request ->
+                        observableListTopics.stream().filter(country ->
+                                        country.toLowerCase().contains(request.getUserText().toLowerCase())).
+                                collect(Collectors.toList()));
         subject.setSuggestionProvider(request -> observableListSubject.stream().filter(country ->
                 country.toLowerCase().contains(request.getUserText().toLowerCase())).collect(Collectors.toList()));
         classNum.setItems(observableListClasses);
@@ -343,4 +343,6 @@ public class ExamCreator implements Initializable {
         });
 
     }
+
+
 }

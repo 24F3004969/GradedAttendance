@@ -57,12 +57,13 @@ public class PointsTable implements Initializable {
         lb_loader = new LeaderboardLoader(mainController);
         loadedVal = lb_loader.load((StackPane) mainController.gradedFxmlLoader.createView(R.leaderboard1, l1),
                 (StackPane) mainController.gradedFxmlLoader.createView(R.seating_plan, l2));
-        mainController.getStage().getScene().setOnKeyPressed(event -> {
+
+      /*  mainController.getStage().getScene().setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.P) {
                 launchLeaderBoard();
             }
 
-        });
+        });*/
         name_column.setCellValueFactory(map -> getValues(map, "Name"));
         name_column.setCellFactory(TextFieldTableCell.forTableColumn());
         ed_column.setCellValueFactory(map -> getValues(map, "ED No."));

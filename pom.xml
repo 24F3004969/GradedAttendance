@@ -191,7 +191,7 @@
         <dependency>
             <groupId>com.dlsc.gemsfx</groupId>
             <artifactId>gemsfx</artifactId>
-            <version>4.3.0</version>
+            <version>4.4.4</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

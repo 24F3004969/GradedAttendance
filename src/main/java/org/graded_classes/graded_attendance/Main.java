@@ -1,5 +1,6 @@
 package org.graded_classes.graded_attendance;
 
+import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -23,7 +24,7 @@ public class Main extends Application {
         Parent root = fxmlLoader.load();
         var scene = new Scene(root);
         stage.setTitle("Graded Management");
-        Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+        Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
         stage.setScene(scene);
         stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("icons/app_icon.png"))));
         stage.setOnCloseRequest(_ -> System.exit(1));

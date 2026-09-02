@@ -14,14 +14,12 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.bytedeco.javacpp.BytePointer;
-import org.bytedeco.javacpp.indexer.DoubleIndexer;
 import org.bytedeco.opencv.opencv_core.*;
 import org.bytedeco.opencv.opencv_face.FacemarkLBF;
 import org.bytedeco.opencv.opencv_face.LBPHFaceRecognizer;
@@ -31,10 +29,16 @@ import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.controller.home.HomeController;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.controller.tts.RealTimeTts;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.nio.IntBuffer;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.Duration;
@@ -63,7 +67,7 @@ public class CameraController {
     private Label studentMessage;
     @FXML
     private StackPane rootLayer;
-
+    private final AtomicBoolean uiFramePending = new AtomicBoolean(false);
     @FXML
     private PhotoView cameraView;
     @FXML
@@ -91,7 +95,33 @@ public class CameraController {
     private final Object frameLock = new Object();
     private Rect lastFace;
     ObservableList<String> studentData = FXCollections.observableArrayList(List.of());
+    private static final long RECOGNITION_INTERVAL_NS =
+            TimeUnit.MILLISECONDS.toNanos(250);
 
+
+    private final AtomicBoolean training =
+            new AtomicBoolean(false);
+
+    private final AtomicBoolean recognizerReady =
+            new AtomicBoolean(false);
+
+    private final Object recognizerLock =
+            new Object();
+    private long lastRecognitionTime;
+
+    private int currentCandidate = -1;
+    private int consecutiveMatches = 0;
+    private double confidenceSum = 0.0;
+
+    private static final long RECOGNITION_COOLDOWN_MS =
+            10_000L;
+
+    private static final int REQUIRED_NO_FACE_FRAMES = 8;
+
+    private int lastAcceptedId = -1;
+    private long lastAcceptedAt = 0L;
+    private int consecutiveNoFaceFrames = 0;
+    private boolean acceptedFaceMustLeave = false;
     private static final int FACE_SIZE = 200;
     private static double CONFIDENCE_THRESHOLD = 40;
     @FXML
@@ -110,6 +140,7 @@ public class CameraController {
     private final LinkedHashMap<Integer, AttendanceStatus> attendanceRecord = new LinkedHashMap<>();
 
     HomeController homeController;
+
 
     public CameraController(MainController mainController, HomeController homeController) {
         this.mainController = mainController;
@@ -134,60 +165,31 @@ public class CameraController {
     @FXML
     private void openStudentDisplay() {
         var background = new SVGImageView();
-        background.setSvgUrl(
-                GradedResourceLoader.load(
-                        "icons/new-back1.svg"
-                )
-        );
+        background.setSvgUrl(GradedResourceLoader.load("icons/new-back1.svg"));
         var studentLogo = new SVGImageView();
         studentLogo.setFitHeight(48);
-        studentLogo.setSvgUrl(
-                GradedResourceLoader.load(
-                        "icons/my-logo.svg"
-                )
-        );
-
+        studentLogo.setSvgUrl(GradedResourceLoader.load("icons/my-logo.svg"));
         HBox logoBar = new HBox(studentLogo);
         VBox.setVgrow(logoBar, Priority.ALWAYS);
         logoBar.setAlignment(Pos.BOTTOM_CENTER);
         VBox.setMargin(logoBar, new Insets(8));
         studentCameraView = new PhotoView();
         studentCameraView.setEditable(false);
-
         studentCameraView.setMinSize(512, 512);
         studentCameraView.setMaxSize(800, 800);
-
-        studentCameraView.getStyleClass()
-                .add("border-circle-green");
-
-        studentMessage = new Label(
-                "Please stand in front of the camera"
-        );
-
+        studentCameraView.getStyleClass().add("border-circle-green");
+        studentMessage = new Label("Please stand in front of the camera");
         studentMessage.setStyle("""
                 -fx-font-size: 22px;
                 -fx-font-weight: bold;
                 """);
-
-        VBox content = new VBox(
-                20,
-                studentCameraView,
-                studentMessage
-        );
-
+        VBox content = new VBox(20, studentCameraView, studentMessage);
         content.setAlignment(Pos.CENTER);
         VBox.setVgrow(content, Priority.ALWAYS);
         VBox mainContent = new VBox(content, logoBar);
-
         StackPane root = new StackPane(background, mainContent);
         Scene scene = new Scene(root, 1280, 720);
-
-        scene.getStylesheets().add(
-                GradedResourceLoader.load(
-                        "css/camera-style.css"
-                )
-        );
-
+        scene.getStylesheets().add(GradedResourceLoader.load("css/camera-style.css"));
         studentStage = new Stage();
         studentStage.setTitle("Student Display");
         studentStage.setScene(scene);
@@ -374,23 +376,33 @@ public class CameraController {
 
     @FXML
     void onModeChange(ActionEvent event) {
-        var toggle = (ToggleButton) event.getSource();
-        if (toggle.getText().equals("Training")) {
+        ToggleButton toggle =
+                (ToggleButton) event.getSource();
+
+        boolean recognitionMode =
+                "Face Detector".equals(toggle.getText());
+
+        recognitionModeSelected.set(recognitionMode);
+        resetRecognitionSession();
+
+        if ("Training".equals(toggle.getText())) {
             addStudent.setDisable(false);
             searchBox.setDisable(false);
             checkBoxGroup.setVisible(true);
+
             startCapture.setText("Start Training");
             startCapture.setDisable(false);
-        } else if (toggle.getText().equals("Face Detector")) {
-            startCapture.setDisable(false);
+
+        } else if (recognitionMode) {
             addStudent.setDisable(true);
             searchBox.setDisable(true);
             scrollAtt.setVisible(false);
-            startCapture.setDisable(true);
             checkBoxGroup.setVisible(false);
+
+            startCapture.setDisable(true);
         }
     }
-
+    private final AtomicBoolean recognitionModeSelected = new AtomicBoolean(false);
     @FXML
     void startCapturing(ActionEvent event) {
         Button source = (Button) event.getSource();
@@ -429,72 +441,124 @@ public class CameraController {
         Mat capturedFace;
 
         synchronized (frameLock) {
-            if (lastFace == null || cleanFrame.empty()) {
-                System.out.println("No face detected.");
+            if (lastFace == null
+                    || cleanFrame.empty()) {
+
+                System.out.println(
+                        "No face detected."
+                );
+
                 return;
             }
 
-            Rect safeFace = clampFaceToFrame(lastFace, cleanFrame);
+            try (Rect safeFace =
+                         clampFaceToFrame(
+                                 lastFace,
+                                 cleanFrame
+                         )) {
 
-            if (safeFace.width() <= 0 || safeFace.height() <= 0) {
-                System.out.println("Invalid face area.");
-                return;
+                if (safeFace.width() <= 0
+                        || safeFace.height() <= 0) {
+
+                    System.out.println(
+                            "Invalid face area."
+                    );
+
+                    return;
+                }
+
+                capturedFace =
+                        new Mat(
+                                cleanFrame,
+                                safeFace
+                        ).clone();
             }
-
-            capturedFace = new Mat(cleanFrame, safeFace).clone();
         }
 
-        executor.submit(() -> saveCapturedFace(capturedFace, id));
+        try {
+            executor.submit(() ->
+                    saveCapturedFace(
+                            capturedFace,
+                            id
+                    )
+            );
+
+        } catch (RejectedExecutionException exception) {
+            capturedFace.close();
+            exception.printStackTrace();
+        }
     }
 
-    private void saveCapturedFace(Mat capturedFace, String id) {
-        try (capturedFace; Mat faceGray = new Mat()) {
+    private void saveCapturedFace(
+            Mat capturedFace,
+            String captureMode
+    ) {
+        try (capturedFace;
+             Mat faceGray = new Mat();
+             Size faceSize =
+                     new Size(FACE_SIZE, FACE_SIZE)) {
+
             cvtColor(
                     capturedFace,
                     faceGray,
                     COLOR_BGR2GRAY
             );
 
-            // Keep training and recognition preprocessing consistent.
             resize(
                     faceGray,
                     faceGray,
-                    new Size(FACE_SIZE, FACE_SIZE)
+                    faceSize,
+                    0,
+                    0,
+                    INTER_AREA
             );
 
-            equalizeHist(faceGray, faceGray);
+            /*
+             * Do not equalize here. Training and recognition
+             * already perform equalizeHist().
+             */
+            File directory =
+                    new File(imagePath, captureMode);
 
-            File directory = new File(imagePath, id);
+            if (!directory.exists()
+                    && !directory.mkdirs()) {
 
-            if (!directory.exists() && !directory.mkdirs()) {
-                System.err.println(
+                throw new IOException(
                         "Unable to create directory: "
                                 + directory.getAbsolutePath()
                 );
-                return;
             }
 
-            File outputFile = new File(
-                    directory,
-                    System.currentTimeMillis() + ".jpg"
-            );
+            File outputFile =
+                    new File(
+                            directory,
+                            System.nanoTime() + ".jpg"
+                    );
 
-            boolean saved = imwrite(
-                    outputFile.getAbsolutePath(),
-                    faceGray
-            );
+            boolean saved =
+                    imwrite(
+                            outputFile.getAbsolutePath(),
+                            faceGray
+                    );
 
-            if (saved) {
-                System.out.println(
-                        "Photo saved: " + outputFile.getAbsolutePath()
-                );
-            } else {
-                System.err.println(
-                        "Failed to save photo: "
+            if (!saved) {
+                throw new IOException(
+                        "Unable to save image: "
                                 + outputFile.getAbsolutePath()
                 );
             }
+
+            System.out.println(
+                    "Photo saved: "
+                            + outputFile.getAbsolutePath()
+            );
+
         } catch (Exception exception) {
+            System.err.println(
+                    "Unable to save training image: "
+                            + exception.getMessage()
+            );
+
             exception.printStackTrace();
         }
     }
@@ -522,7 +586,22 @@ public class CameraController {
     }
 
     String imagePath;
+    private void printMemory(String stage) {
+        Runtime runtime = Runtime.getRuntime();
 
+        long usedHeap =
+                runtime.totalMemory()
+                        - runtime.freeMemory();
+
+        System.out.printf(
+                Locale.ROOT,
+                "%s | heap used: %.2f MB | allocated heap: %.2f MB | max heap: %.2f MB%n",
+                stage,
+                usedHeap / 1024.0 / 1024.0,
+                runtime.totalMemory() / 1024.0 / 1024.0,
+                runtime.maxMemory() / 1024.0 / 1024.0
+        );
+    }
     @FXML
     void addNewTraining(ActionEvent event) {
         String id = searchBox.getText();
@@ -548,6 +627,11 @@ public class CameraController {
         return result;
     }
 
+    private boolean isOnCooldown(int id) {
+        long now = System.currentTimeMillis();
+        return id == lastAcceptedId && now - lastAcceptedAt < RECOGNITION_COOLDOWN_MS;
+    }
+
     private record Result(String ed, String name) {
     }
 
@@ -557,7 +641,7 @@ public class CameraController {
     public void initialize() {
         initializeStudentSearch();
         initializeGraphics();
-        initializeTtsAsync();
+        //initializeTtsAsync();
         initializeCameraAsync();
         loadCameraSettings();
     }
@@ -591,12 +675,37 @@ public class CameraController {
                     )
                     .collect(Collectors.toList());
         });
-        searchBox.setOnCommit(event -> {
-            System.out.println(event);
+        FontIcon searchIcon = new FontIcon("mdmz-search");
+        FontIcon clearIcon = new FontIcon("mdal-close");
+
+        searchBox.setGraphic(searchIcon);
+
+        searchBox.textProperty().addListener((obs, oldText, newText) -> {
+
+            if (newText == null || newText.isBlank()) {
+
+                searchBox.setGraphic(searchIcon);
+                for (var bt : sourceList) {
+                    bt.setDisable(false);
+                }
+
+                sourceList.clear();
+                scrollAtt.setVisible(false);
+
+            } else {
+
+                searchBox.setGraphic(clearIcon);
+            }
+        });
+
+        clearIcon.setOnMouseClicked(event -> {
+
+            searchBox.setText("");
 
             for (var bt : sourceList) {
                 bt.setDisable(false);
             }
+
             sourceList.clear();
             scrollAtt.setVisible(false);
         });
@@ -695,9 +804,6 @@ public class CameraController {
                 .supplyAsync(() -> {
                     loadFaceDetector();
                     loadRecognizer();
-                    //loadFacemark();
-                    //create3DModel();
-
                     return getAvailableCameras();
                 })
                 .thenAccept(cameras ->
@@ -729,7 +835,6 @@ public class CameraController {
 
         if (cameras.isEmpty()) {
             System.out.println("No camera found");
-
             cameraList.setDisable(true);
             startCapture.setDisable(true);
 
@@ -768,22 +873,6 @@ public class CameraController {
                 .select(initialCameraIndex);
     }
 
-    private void switchCamera(int cameraIndex) {
-        if (!cameraSwitching.compareAndSet(false, true)) {
-            return;
-        }
-
-        try {
-            stopCamera();
-
-            currentCameraIndex = cameraIndex;
-
-            startCamera(cameraIndex);
-        } finally {
-            cameraSwitching.set(false);
-        }
-    }
-
     private void showInitializationError(
             String header,
             String message
@@ -813,19 +902,43 @@ public class CameraController {
     }
 
     @FXML
-    public void tryToDetect() {
+    public void goForTraining() {
+        /*
+         * Prevent multiple training operations from running together.
+         */
+        if (!training.compareAndSet(false, true)) {
+            outputMessage.setText(
+                    "Model training is already running."
+            );
+            return;
+        }
 
-        ProgressBar progressBar = new ProgressBar(0);
+        resetRecognition();
+        setTrainingControlsDisabled(true);
+
+        ProgressBar progressBar =
+                new ProgressBar(
+                        ProgressIndicator.INDETERMINATE_PROGRESS
+                );
+
         progressBar.setPrefWidth(500);
 
-        Label statusLabel = new Label("Preparing training...");
+        Label statusLabel =
+                new Label("Preparing training...");
 
-        VBox content = new VBox(10,
+        VBox content = new VBox(
+                10,
                 statusLabel,
                 progressBar
         );
-        content.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        com.dlsc.gemsfx.DialogPane dialogPane = new com.dlsc.gemsfx.DialogPane();
+
+        content.setMaxSize(
+                Double.MAX_VALUE,
+                Double.MAX_VALUE
+        );
+
+        com.dlsc.gemsfx.DialogPane dialogPane =
+                new com.dlsc.gemsfx.DialogPane();
 
         com.dlsc.gemsfx.DialogPane.Dialog<ButtonType> dialog =
                 new com.dlsc.gemsfx.DialogPane.Dialog<>(
@@ -836,323 +949,147 @@ public class CameraController {
         dialog.setTitle("Model Training");
         dialog.setContent(content);
 
-        rootLayer.getChildren()
-                .add(dialogPane);
+        rootLayer.getChildren().add(dialogPane);
 
         Task<Void> trainingTask = new Task<>() {
-
             @Override
             protected Void call() throws Exception {
+                updateMessage(
+                        "Waiting for recognition to finish..."
+                );
+
+                waitForRecognitionToFinish();
+
+                checkTrainingCancellation(this);
+
+                updateMessage(
+                        "Loading and preparing training images..."
+                );
 
                 startTraining(this);
+
+                updateMessage(
+                        "Training completed successfully."
+                );
 
                 return null;
             }
         };
 
-        progressBar.progressProperty()
-                .bind(trainingTask.progressProperty());
+        progressBar.progressProperty().bind(
+                trainingTask.progressProperty()
+        );
 
-        statusLabel.textProperty()
-                .bind(trainingTask.messageProperty());
+        statusLabel.textProperty().bind(
+                trainingTask.messageProperty()
+        );
 
-        trainingTask.setOnSucceeded(e -> {
-
-            progressBar.progressProperty().unbind();
-            statusLabel.textProperty().unbind();
-
-            statusLabel.setText(
-                    "Training completed successfully"
+        trainingTask.setOnSucceeded(event -> {
+            finishTraining(
+                    dialogPane,
+                    progressBar,
+                    statusLabel
             );
 
-            dialog.cancel();
+            outputMessage.setText(
+                    "Training completed successfully."
+            );
         });
 
-        trainingTask.setOnFailed(e -> {
+        trainingTask.setOnFailed(event -> {
+            Throwable exception =
+                    trainingTask.getException();
 
-            progressBar.progressProperty().unbind();
-            statusLabel.textProperty().unbind();
+            if (exception != null) {
+                exception.printStackTrace();
+            }
 
-            statusLabel.setText(
-                    "Training failed"
+            finishTraining(
+                    dialogPane,
+                    progressBar,
+                    statusLabel
             );
 
-            trainingTask.getException()
-                    .printStackTrace();
+            String errorMessage =
+                    exception == null
+                            ? "Unknown training error"
+                            : getRootCauseMessage(exception);
+
+            outputMessage.setText(
+                    "Training failed: " + errorMessage
+            );
+        });
+
+        trainingTask.setOnCancelled(event -> {
+            finishTraining(
+                    dialogPane,
+                    progressBar,
+                    statusLabel
+            );
+
+            outputMessage.setText(
+                    "Training was cancelled."
+            );
         });
 
         dialog.show();
 
-        Thread thread = new Thread(trainingTask);
+        Thread thread = new Thread(
+                trainingTask,
+                "attendance-model-training"
+        );
+
         thread.setDaemon(true);
         thread.start();
     }
 
-    private void tryIdentifying() {
-        if (!processing.compareAndSet(false, true)) {
-            System.out.println("Recognition already running");
-            return;
-        }
-        Mat capturedFace;
-        synchronized (frameLock) {
-            if (lastFace == null) {
-                processing.set(false);
-                System.out.println("No face detected.");
-                return;
+    private void waitForRecognitionToFinish() {
+        while (processing.get()) {
+            if (Thread.currentThread().isInterrupted()) {
+                throw new CancellationException(
+                        "Training was interrupted."
+                );
             }
-            Rect roi = new Rect(lastFace.x(), lastFace.y(), lastFace.width(), lastFace.height());
-            capturedFace = new Mat(cleanFrame, roi).clone();
+
+            try {
+                Thread.sleep(25);
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+
+                throw new CancellationException(
+                        "Training was interrupted."
+                );
+            }
         }
-
-        executor.submit(() -> {
-            Mat faceGray = new Mat();
-            cvtColor(capturedFace, faceGray, COLOR_BGR2GRAY);
-            resize(faceGray, faceGray, new Size(FACE_SIZE, FACE_SIZE));
-            int[] label = new int[1];
-            double[] confidence = new double[1];
-            recognizer.predict(faceGray, label, confidence);
-           /* Platform.runLater(() -> {
-                try {
-                    if (tempAttendanceRecord.isEmpty() || tempAttendanceRecord.firstEntry().getValue().size() < requiredRecognitionCount) {
-                        if (confidence[0] < CONFIDENCE_THRESHOLD) {
-                            if (tempAttendanceRecord.containsKey(label[0]))
-                                tempAttendanceRecord.get(label[0]).add(confidence[0]);
-                            else if (tempAttendanceRecord.size() == 1)
-                                tempAttendanceRecord.clear();
-                            else
-                                tempAttendanceRecord.put(label[0], new ArrayList<>(List.of(confidence[0])));
-                        } else {
-                            System.out.println("Unknown Person");
-                        }
-                    } else {
-                        double sum = tempAttendanceRecord.firstEntry().
-                                getValue().stream().mapToDouble(x -> x).sum();
-                        int id = tempAttendanceRecord.firstEntry().getKey();
-                        double v = sum / tempAttendanceRecord.firstEntry().
-                                getValue().size();
-                        if (v < CONFIDENCE_THRESHOLD && id == label[0]) {
-                            System.out.println("Student ID: " + id);
-                            System.out.println("Confidence: " + v);
-                            String key = "ED" + (id < 10 ? (0 + "" + id) : id);
-                            if (!attendanceRecord.containsKey(id) && !homeController.studentAttendance.
-                                    attendanceMap.containsKey(key)) {
-                                attendanceRecord.put(id, new AttendanceStatus(true, false));
-                                homeController.studentAttendance.updateCheckIn(key);
-                                String name = homeController.studentAttendance.mainController.gradedDataLoader.
-                                        getStudentData().get(key).name();
-                                outputMessage.setText("  ED" + id + "  " + name + " you are marked as present");
-                                CompletableFuture.runAsync(() -> timeTts.readAloud("  ED" + id + "  " + name + " you are marked as present"));
-                            } else if (homeController.studentAttendance.attendanceMap.get(key).getCheck_out() == null) {
-                                var attendanceRecord = homeController.studentAttendance.attendanceMap.get(key);
-                                String in = attendanceRecord.getCheck_in();
-                                DateTimeFormatter formatter =
-                                        DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH);
-
-                                LocalTime givenTime =
-                                        LocalTime.parse(in.toUpperCase(Locale.ENGLISH), formatter);
-                                LocalTime currentTime = LocalTime.now();
-                                Duration duration = Duration.between(givenTime, currentTime);
-                                if (duration.toMinutes() >= 45) {
-                                    System.out.println("your check out is done");
-                                    homeController.studentAttendance.updateCheckOut(key);
-                                    outputMessage.setText("  ED" + id + "  checkout done");
-                                    CompletableFuture.runAsync(() -> timeTts.readAloud("  ED" + id + "  checkout done"));
-                                } else
-                                    System.out.println("You cannot checkout before 45 minutes you have spent only " + duration.toMinutes());
-                            }
-
-                        } else {
-                            tempAttendanceRecord.clear();
-                        }
-
-                    }
-                } finally {
-                    processing.set(false);
-                }
-            });*/
-            Platform.runLater(() -> {
-                try {
-
-                    if (confidence[0] < CONFIDENCE_THRESHOLD) {
-
-                        if (currentCandidate == label[0]) {
-
-                            consecutiveMatches++;
-                            confidenceSum += confidence[0];
-
-                        } else {
-
-                            currentCandidate = label[0];
-                            consecutiveMatches = 1;
-                            confidenceSum = confidence[0];
-                        }
-
-                        if (consecutiveMatches >= requiredRecognitionCount) {
-
-                            int id = currentCandidate;
-
-                            double avgConfidence =
-                                    confidenceSum / consecutiveMatches;
-
-                            if (avgConfidence < CONFIDENCE_THRESHOLD
-                                    && id == label[0]) {
-
-                                System.out.println("Student ID: " + id);
-                                System.out.println(
-                                        "Average Confidence: "
-                                                + avgConfidence
-                                );
-
-                                String key =
-                                        "ED" + (id < 10
-                                                ? "0" + id
-                                                : id);
-
-                                if (!attendanceRecord.containsKey(id)
-                                        && !homeController.studentAttendance
-                                        .attendanceMap.containsKey(key)) {
-
-                                    attendanceRecord.put(
-                                            id,
-                                            new AttendanceStatus(
-                                                    true,
-                                                    false
-                                            )
-                                    );
-
-                                    homeController.studentAttendance
-                                            .updateCheckIn(key, LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a")));
-
-                                    String name =
-                                            homeController.studentAttendance
-                                                    .mainController
-                                                    .gradedDataLoader
-                                                    .getStudentData()
-                                                    .get(key)
-                                                    .name();
-
-                                    outputMessage.setText(
-                                            "ED"
-                                                    + id
-                                                    + " "
-                                                    + name
-                                                    + " you are marked as present"
-                                    );
-                                    if (studentMessage != null)
-                                        studentMessage.setText(
-                                                "ED"
-                                                        + id
-                                                        + " "
-                                                        + name
-                                                        + " you are marked as present"
-                                        );
-
-                                    CompletableFuture.runAsync(
-                                            () -> {
-                                                timeTts.readAloud(
-                                                        "ED"
-                                                                + id
-                                                                + " "
-                                                                + name
-                                                                + " you are marked as present"
-                                                );
-                                            }
-                                    );
-
-                                } else if (
-                                        homeController.studentAttendance
-                                                .attendanceMap.containsKey(key)
-                                                && homeController.studentAttendance
-                                                .attendanceMap.get(key)
-                                                .getCheck_out() == null
-                                ) {
-
-                                    var attendance =
-                                            homeController.studentAttendance
-                                                    .attendanceMap.get(key);
-
-                                    String in =
-                                            attendance.getCheck_in();
-
-                                    DateTimeFormatter formatter =
-                                            DateTimeFormatter.ofPattern(
-                                                    "hh:mm a",
-                                                    Locale.ENGLISH
-                                            );
-
-                                    LocalTime givenTime =
-                                            LocalTime.parse(
-                                                    in.toUpperCase(
-                                                            Locale.ENGLISH
-                                                    ),
-                                                    formatter
-                                            );
-
-                                    LocalTime currentTime =
-                                            LocalTime.now();
-
-                                    Duration duration =
-                                            Duration.between(
-                                                    givenTime,
-                                                    currentTime
-                                            );
-
-                                    if (duration.toMinutes() >= 45) {
-
-                                        homeController.studentAttendance
-                                                .updateCheckOut(key);
-
-                                        outputMessage.setText(
-                                                "ED"
-                                                        + id
-                                                        + " checkout done"
-                                        );
-                                        studentMessage.setText(
-                                                "ED"
-                                                        + id
-                                                        + " checkout done"
-                                        );
-                                        CompletableFuture.runAsync(
-                                                () -> {
-                                                    timeTts.readAloud(
-                                                            "ED"
-                                                                    + id
-                                                                    + " checkout done"
-                                                    );
-                                                }
-                                        );
-
-                                    } else {
-                                        if (studentMessage != null)
-                                            studentMessage.setText(
-                                                    "Cannot checkout before 45 minutes. Spent "
-                                                            + duration.toMinutes()
-                                                            + " minutes."
-                                            );
-                                    }
-                                }
-                            }
-
-                            resetRecognition();
-                        }
-
-                    } else {
-
-                        System.out.println("Unknown Person");
-                        resetRecognition();
-                    }
-
-                } finally {
-
-                    processing.set(false);
-                }
-            });
-        });
     }
 
-    private int currentCandidate = -1;
-    private int consecutiveMatches = 0;
-    private double confidenceSum = 0;
+    private void finishTraining(
+            com.dlsc.gemsfx.DialogPane dialogPane,
+            ProgressBar progressBar,
+            Label statusLabel
+    ) {
+        progressBar.progressProperty().unbind();
+        statusLabel.textProperty().unbind();
+
+        training.set(false);
+        processing.set(false);
+        resetRecognition();
+
+        setTrainingControlsDisabled(false);
+
+        rootLayer.getChildren().remove(dialogPane);
+    }
+
+    private void setTrainingControlsDisabled(
+            boolean disabled
+    ) {
+        cameraList.setDisable(disabled);
+        addStudent.setDisable(disabled);
+        searchBox.setDisable(disabled);
+        checkBoxGroup.setDisable(disabled);
+        startCapture.setDisable(disabled);
+    }
+
 
     private void resetRecognition() {
         currentCandidate = -1;
@@ -1161,22 +1098,6 @@ public class CameraController {
     }
 
     private FacemarkLBF facemark;
-
-    private void loadFacemark() {
-        try {
-            File modelFile = extractResourceToTempFile(
-                    "/org/graded_classes/graded_attendance/opencv/lbfmodel.yaml",
-                    "lbfmodel-",
-                    ".yaml"
-            );
-
-            facemark = FacemarkLBF.create();
-            facemark.loadModel(modelFile.getAbsolutePath());
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     private void loadFaceDetector() {
 
@@ -1212,251 +1133,672 @@ public class CameraController {
     }
 
     private void loadRecognizer() {
-        if (recognizer != null) {
-            recognizer.close();
-        }
-        recognizer = LBPHFaceRecognizer.create();
-
-        try {
-
-            recognizer.read(System.getProperty("user.home") + "/attendance_model.yml");
-
-            System.out.println(
-                    "Attendance model loaded."
-            );
-
-        } catch (Exception e) {
-            System.out.println(
-                    "Could not load model: "
-                            + e.getMessage()
-            );
-        }
-    }
-
-    private void startCamera(int cameraIndex) {
-        currentCameraIndex = cameraIndex;
-        camera = new VideoCapture(
-                cameraIndex,
-                CAP_DSHOW
+        printMemory("After loading recognizer");
+        Path modelPath = Path.of(
+                System.getProperty("user.home"),
+                "attendance_model.yml"
         );
+        System.out.println(modelPath);
+        if (!Files.isRegularFile(modelPath)) {
+            recognizerReady.set(false);
 
-        if (!camera.isOpened()) {
-
-            System.out.println(
-                    "Failed to open camera "
-                            + cameraIndex
+            System.err.println(
+                    "Recognition model does not exist: "
+                            + modelPath
             );
-
+            printMemory("After loading recognizer");
             return;
         }
 
-        camera.set(
-                CAP_PROP_FRAME_WIDTH,
-                1280
-        );
+        synchronized (recognizerLock) {
+            LBPHFaceRecognizer newRecognizer =
+                    LBPHFaceRecognizer.create();
 
-        camera.set(
-                CAP_PROP_FRAME_HEIGHT,
-                720
-        );
+            try {
+                newRecognizer. read(
+                        modelPath.toString()
+                );
 
-        timer = Executors
-                .newSingleThreadScheduledExecutor();
+                LBPHFaceRecognizer oldRecognizer =
+                        recognizer;
 
-        timer.scheduleAtFixedRate(
-                this::grabFrame,
-                0,
-                100,
-                TimeUnit.MILLISECONDS
-        );
+                recognizer = newRecognizer;
+                recognizerReady.set(true);
+                printMemory("After recognizer loaded");
+                if (oldRecognizer != null) {
+                    oldRecognizer.close();
+                }
+
+                System.out.println(
+                        "Attendance model loaded successfully: "
+                                + modelPath
+                );
+
+            } catch (Exception exception) {
+                recognizerReady.set(false);
+                newRecognizer.close();
+
+                System.err.println(
+                        "Could not load recognition model: "
+                                + exception.getMessage()
+                );
+
+                exception.printStackTrace();
+            }
+        }
     }
 
-    private void grabFrame() {
-        Mat localFrame = new Mat();
-        Mat localGray = new Mat();
+
+    private static final int CAMERA_WIDTH = 1280;
+    private static final int CAMERA_HEIGHT = 720;
+    private static final int CAMERA_FPS = 30;
+
+    /*
+     * About 15 processed frames per second.
+     * This is normally sufficient for attendance recognition.
+     */
+    private static final long FRAME_DELAY_MS = 66;
+
+    private final Object cameraLock = new Object();
+
+    private void startCamera(int cameraIndex) {
+        if (cameraIndex < 0) {
+            throw new IllegalArgumentException(
+                    "Camera index cannot be negative: " + cameraIndex
+            );
+        }
+
+        /*
+         * Ensure an existing timer and camera are completely stopped
+         * before opening another camera.
+         */
+        stopCamera();
+
+        VideoCapture newCamera = null;
+        ScheduledExecutorService newTimer = null;
 
         try {
-            VideoCapture currentCamera = camera;
+            newCamera = new VideoCapture(
+                    cameraIndex,
+                    CAP_DSHOW
+            );
 
-            if (currentCamera == null ||
-                    !currentCamera.isOpened() ||
-                    !currentCamera.read(localFrame) ||
-                    localFrame.empty()) {
+            if (!newCamera.isOpened()) {
+                throw new IllegalStateException(
+                        "Failed to open camera " + cameraIndex
+                );
+            }
 
-                System.out.println("Camera frame lost.");
+            configureCamera(newCamera);
+
+            /*
+             * Publish the fully initialized camera only after it has
+             * successfully opened and been configured.
+             */
+            synchronized (cameraLock) {
+                camera = newCamera;
+                currentCameraIndex = cameraIndex;
+
+                /*
+                 * Ownership has been transferred to the camera field.
+                 */
+                newCamera = null;
+            }
+
+            newTimer =
+                    Executors.newSingleThreadScheduledExecutor(
+                            runnable -> {
+                                Thread thread = new Thread(
+                                        runnable,
+                                        "attendance-camera-capture"
+                                );
+
+                                thread.setDaemon(true);
+
+                                thread.setUncaughtExceptionHandler(
+                                        (failedThread, exception) -> {
+                                            System.err.println(
+                                                    "Unexpected camera-thread failure"
+                                            );
+
+                                            exception.printStackTrace();
+                                        }
+                                );
+
+                                return thread;
+                            }
+                    );
+
+            synchronized (cameraLock) {
+                timer = newTimer;
+
+                /*
+                 * Ownership has been transferred to the timer field.
+                 */
+                newTimer = null;
+            }
+
+            /*
+             * Fixed delay provides backpressure. The next frame begins
+             * FRAME_DELAY_MS after the previous grabFrame() completes.
+             */
+            timer.scheduleWithFixedDelay(
+                    this::grabFrameSafely,
+                    0,
+                    FRAME_DELAY_MS,
+                    TimeUnit.MILLISECONDS
+            );
+
+            System.out.printf(
+                    "Camera %d started at requested resolution %dx%d.%n",
+                    cameraIndex,
+                    CAMERA_WIDTH,
+                    CAMERA_HEIGHT
+            );
+
+        } catch (Exception exception) {
+            /*
+             * Clean up partially initialized resources.
+             */
+            if (newTimer != null) {
+                newTimer.shutdownNow();
+            }
+
+            if (newCamera != null) {
+                try {
+                    newCamera.release();
+                } catch (Exception releaseException) {
+                    exception.addSuppressed(releaseException);
+                }
+
+                try {
+                    newCamera.close();
+                } catch (Exception closeException) {
+                    exception.addSuppressed(closeException);
+                }
+            }
+
+            /*
+             * stopCamera() cleans resources that may already have been
+             * transferred to the controller fields.
+             */
+            stopCamera();
+
+            System.err.println(
+                    "Unable to start camera "
+                            + cameraIndex
+                            + ": "
+                            + exception.getMessage()
+            );
+
+            exception.printStackTrace();
+
+            Platform.runLater(() ->
+                    showInitializationError(
+                            "Unable to start camera",
+                            "Camera "
+                                    + cameraIndex
+                                    + " could not be opened.\n"
+                                    + getRootCauseMessage(exception)
+                    )
+            );
+        }
+    }
+
+    private void configureCamera(
+            VideoCapture targetCamera
+    ) {
+        /*
+         * Camera drivers may reject some properties. The return value
+         * indicates whether the property request was accepted.
+         */
+        boolean widthAccepted =
+                targetCamera.set(
+                        CAP_PROP_FRAME_WIDTH,
+                        CAMERA_WIDTH
+                );
+
+        boolean heightAccepted =
+                targetCamera.set(
+                        CAP_PROP_FRAME_HEIGHT,
+                        CAMERA_HEIGHT
+                );
+
+        boolean fpsAccepted =
+                targetCamera.set(
+                        CAP_PROP_FPS,
+                        CAMERA_FPS
+                );
+
+        if (!widthAccepted) {
+            System.err.println(
+                    "Camera did not accept requested width: "
+                            + CAMERA_WIDTH
+            );
+        }
+
+        if (!heightAccepted) {
+            System.err.println(
+                    "Camera did not accept requested height: "
+                            + CAMERA_HEIGHT
+            );
+        }
+
+        if (!fpsAccepted) {
+            System.err.println(
+                    "Camera did not accept requested FPS: "
+                            + CAMERA_FPS
+            );
+        }
+
+        double actualWidth =
+                targetCamera.get(CAP_PROP_FRAME_WIDTH);
+
+        double actualHeight =
+                targetCamera.get(CAP_PROP_FRAME_HEIGHT);
+
+        double actualFps =
+                targetCamera.get(CAP_PROP_FPS);
+
+        System.out.printf(
+                "Camera configuration: %.0fx%.0f at reported %.1f FPS%n",
+                actualWidth,
+                actualHeight,
+                actualFps
+        );
+    }
+    private synchronized void updateFacePresence(
+            boolean faceDetected
+    ) {
+        if (faceDetected) {
+            consecutiveNoFaceFrames = 0;
+            return;
+        }
+
+        consecutiveNoFaceFrames++;
+
+        if (consecutiveNoFaceFrames
+                < REQUIRED_NO_FACE_FRAMES) {
+            return;
+        }
+
+        acceptedFaceMustLeave = false;
+        consecutiveNoFaceFrames = 0;
+
+        resetRecognition();
+    }
+    private void grabFrameSafely() {
+        try {
+            grabFrame();
+        } catch (Throwable throwable) {
+            /*
+             * Catch Throwable only at this outer scheduler boundary so an
+             * unexpected failure is logged instead of silently stopping
+             * future scheduled executions.
+             */
+            System.err.println(
+                    "Unexpected frame-capture failure: "
+                            + throwable.getMessage()
+            );
+
+            throwable.printStackTrace();
+
+            restartCameraAsync();
+        }
+    }
+
+
+    private void grabFrame() {
+        try (Mat localFrame = new Mat();
+             Mat localGray = new Mat();
+             RectVector faces = new RectVector();
+             Size minimumFaceSize = new Size(50, 50);
+             Size maximumFaceSize = new Size()) {
+
+            if (!readCameraFrame(localFrame)) {
+                System.err.println(
+                        "Camera frame was not available."
+                );
+
                 restartCameraAsync();
                 return;
             }
 
-            flip(localFrame, localFrame, 1);
-            cvtColor(localFrame, localGray, COLOR_BGR2GRAY);
+            flip(
+                    localFrame,
+                    localFrame,
+                    1
+            );
 
-            RectVector faces = new RectVector();
+            cvtColor(
+                    localFrame,
+                    localGray,
+                    COLOR_BGR2GRAY
+            );
+
+            faceDetector.detectMultiScale(
+                    localGray,
+                    faces,
+                    1.1,
+                    5,
+                    0,
+                    minimumFaceSize,
+                    maximumFaceSize
+            );
+
+            Rect detectedFace = null;
 
             try {
-                faceDetector.detectMultiScale(
-                        localGray,
-                        faces,
-                        1.1,
-                        5,
-                        0,
-                        new Size(50, 50),
-                        new Size()
-                );
+                detectedFace =
+                        findLargestFace(faces);
 
-                Rect detectedFace = findLargestFace(faces);
-
-                /*
-                 * Publish the clean frame and detected rectangle quickly.
-                 * Do not perform expensive processing while holding the lock.
-                 */
                 synchronized (frameLock) {
                     localFrame.copyTo(cleanFrame);
 
-                    lastFace = detectedFace == null
-                            ? null
-                            : new Rect(
-                            detectedFace.x(),
-                            detectedFace.y(),
-                            detectedFace.width(),
-                            detectedFace.height()
-                    );
+                    if (lastFace != null) {
+                        lastFace.close();
+                        lastFace = null;
+                    }
+
+                    if (detectedFace != null) {
+                        lastFace = new Rect(
+                                detectedFace.x(),
+                                detectedFace.y(),
+                                detectedFace.width(),
+                                detectedFace.height()
+                        );
+                    }
                 }
 
                 if (detectedFace != null) {
-                    // Use localGray/localFrame instead of shared gray/frame.
-                   /* faceMovementDetection(
+                    drawFaceRectangle(
                             localFrame,
-                            localGray,
                             detectedFace
-                    );*/
-
-                    rectangle(
-                            localFrame,
-                            new Point(
-                                    detectedFace.x(),
-                                    detectedFace.y()
-                            ),
-                            new Point(detectedFace.x() + detectedFace.width(), detectedFace.y() + detectedFace.height()),
-                            new Scalar(0, 255, 0, 0),
-                            2,
-                            LINE_8,
-                            0
                     );
                 }
 
-                Image image = matToImage(localFrame);
-                boolean faceDetected = detectedFace != null;
+                boolean faceDetected =
+                        detectedFace != null;
 
-                Platform.runLater(() -> {
-                    cameraView.setPhoto(image);
+                updateFacePresence(faceDetected);
+                requestRecognitionIfNecessary(
+                        faceDetected
+                );
 
-                    if (cameraView.getStyleClass().size() > 1) {
-                        if (faceDetected)
-                            if (((ToggleButton) modes.getSelectedToggle()).getText().equals("Face Detector"))
-                                tryIdentifying();
-                        cameraView.getStyleClass().set(
-                                1,
-                                faceDetected ? "border-circle-green" : "border-circle-red"
-                        );
-                        if (studentCameraView != null)
-                            studentCameraView.getStyleClass().set(
-                                    1,
-                                    faceDetected ? "border-circle-green" : "border-circle-red"
-                            );
-                    }
-                    if (studentCameraView != null) {
-                        studentCameraView.setPhoto(image);
-                    }
-                });
+                publishCameraFrame(
+                        localFrame,
+                        faceDetected
+                );
+
             } finally {
-                faces.close();
+                if (detectedFace != null) {
+                    detectedFace.close();
+                }
             }
+
         } catch (Exception exception) {
+            System.err.println(
+                    "Unable to process camera frame: "
+                            + exception.getMessage()
+            );
+
             exception.printStackTrace();
-        } finally {
-            localFrame.close();
-            localGray.close();
+        }
+    }
+    private void publishCameraFrame(
+            Mat frame,
+            boolean faceDetected
+    ) {
+        if (!uiFramePending.compareAndSet(
+                false,
+                true
+        )) {
+            return;
+        }
+
+        final Image image;
+
+        try {
+            image = matToImage(frame);
+
+        } catch (Exception exception) {
+            uiFramePending.set(false);
+            exception.printStackTrace();
+            return;
+        }
+
+        Platform.runLater(() -> {
+            try {
+                cameraView.setPhoto(image);
+
+                updateFaceBorder(
+                        cameraView,
+                        faceDetected
+                );
+
+                if (studentCameraView != null) {
+                    studentCameraView.setPhoto(image);
+
+                    updateFaceBorder(
+                            studentCameraView,
+                            faceDetected
+                    );
+                }
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            } finally {
+                uiFramePending.set(false);
+            }
+        });
+    }
+    private void drawFaceRectangle(
+            Mat frame,
+            Rect face
+    ) {
+        try (Point topLeft =
+                     new Point(
+                             face.x(),
+                             face.y()
+                     );
+
+             Point bottomRight =
+                     new Point(
+                             face.x() + face.width(),
+                             face.y() + face.height()
+                     );
+
+             Scalar green =
+                     new Scalar(0, 255, 0, 0)) {
+
+            rectangle(
+                    frame,
+                    topLeft,
+                    bottomRight,
+                    green,
+                    2,
+                    LINE_8,
+                    0
+            );
         }
     }
 
-    private void faceMovementDetection(
-            Mat outputFrame,
-            Mat grayFrame,
-            Rect largestFace
+    private void updateFaceBorder(
+            PhotoView photoView,
+            boolean faceDetected
     ) {
-        try (RectVector faceVector = new RectVector(1)) {
-            faceVector.put(0, largestFace);
+        if (photoView == null) {
+            return;
+        }
 
-            try (Point2fVectorVector landmarks =
-                         new Point2fVectorVector()) {
+        photoView.getStyleClass().removeAll(
+                "border-circle-green",
+                "border-circle-red"
+        );
 
-                boolean success = facemark.fit(
-                        grayFrame,
-                        faceVector,
-                        landmarks
-                );
+        photoView.getStyleClass().add(
+                faceDetected
+                        ? "border-circle-green"
+                        : "border-circle-red"
+        );
+    }
 
-                if (success && landmarks.size() > 0) {
-                    Point2fVector points = landmarks.get(0);
+    private boolean readCameraFrame(
+            Mat destination
+    ) {
+        synchronized (cameraLock) {
+            return camera != null
+                    && camera.isOpened()
+                    && camera.read(destination)
+                    && !destination.empty();
+        }
+    }
 
-                    // Remaining pose calculation...
+    public void stopCamera() {
+        ScheduledExecutorService timerToStop;
+        VideoCapture cameraToClose;
 
-                    for (long i = 0; i < points.size(); i++) {
-                        Point2f point = points.get(i);
+        synchronized (cameraLock) {
+            /*
+             * Detach resources first so no new code obtains them from
+             * the controller while shutdown is in progress.
+             */
+            timerToStop = timer;
+            timer = null;
 
-                        circle(
-                                outputFrame,
-                                new Point(
-                                        Math.round(point.x()),
-                                        Math.round(point.y())
-                                ),
-                                4,
-                                new Scalar(0, 255, 0, 0),
-                                FILLED,
-                                LINE_8,
-                                0
+            cameraToClose = camera;
+            camera = null;
+        }
+
+        if (timerToStop != null) {
+            timerToStop.shutdownNow();
+
+            /*
+             * Do not await termination from the camera timer's own thread,
+             * because that would make the thread wait for itself.
+             */
+            if (!Thread.currentThread()
+                    .getName()
+                    .equals("attendance-camera-capture")) {
+
+                try {
+                    if (!timerToStop.awaitTermination(
+                            2,
+                            TimeUnit.SECONDS
+                    )) {
+                        System.err.println(
+                                "Camera executor did not terminate in time."
+                        );
+                    }
+                } catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            processing.set(false);
+            resetRecognitionSession();
+        }
+
+        if (cameraToClose != null) {
+            synchronized (cameraLock) {
+                try {
+                    cameraToClose.release();
+                } catch (Exception exception) {
+                    System.err.println(
+                            "Unable to release camera: "
+                                    + exception.getMessage()
+                    );
+                } finally {
+                    try {
+                        cameraToClose.close();
+                    } catch (Exception exception) {
+                        System.err.println(
+                                "Unable to close camera: "
+                                        + exception.getMessage()
                         );
                     }
                 }
             }
         }
-    }
 
-    private Rect findLargestFace(RectVector faces) {
-        if (faces == null || faces.size() == 0) {
-            Platform.runLater(() -> {
-                if (studentMessage != null)
-                    studentMessage.setText("Please stand in front of the camera");
-            });
-            return null;
-        }
-
-        Rect first = faces.get(0);
-
-        Rect largest = new Rect(
-                first.x(),
-                first.y(),
-                first.width(),
-                first.height()
-        );
-
-        for (long i = 1; i < faces.size(); i++) {
-            Rect current = faces.get(i);
-
-            if (current.area() > largest.area()) {
-                largest.close();
-
-                largest = new Rect(
-                        current.x(),
-                        current.y(),
-                        current.width(),
-                        current.height()
-                );
+        synchronized (frameLock) {
+            if (lastFace != null) {
+                lastFace.close();
+                lastFace = null;
             }
         }
 
-        return largest;
+        processing.set(false);
+        resetRecognition();
+    }
+
+    private void switchCamera(
+            int cameraIndex
+    ) {
+        if (!cameraSwitching.compareAndSet(false, true)) {
+            return;
+        }
+
+        cameraList.setDisable(true);
+
+        executor.submit(() -> {
+            try {
+                startCamera(cameraIndex);
+            } finally {
+                cameraSwitching.set(false);
+
+                Platform.runLater(() ->
+                        cameraList.setDisable(false)
+                );
+            }
+        });
+    }
+    private Rect findLargestFace(RectVector faces) {
+        if (faces == null || faces.size() == 0) {
+            return null;
+        }
+
+        int largestX = 0;
+        int largestY = 0;
+        int largestWidth = 0;
+        int largestHeight = 0;
+        long largestArea = -1;
+
+        for (long index = 0; index < faces.size(); index++) {
+            Rect current = faces.get(index);
+
+            if (current == null
+                    || current.width() <= 0
+                    || current.height() <= 0) {
+                continue;
+            }
+
+            long area =
+                    (long) current.width()
+                            * current.height();
+
+            if (area > largestArea) {
+                largestArea = area;
+
+                largestX = current.x();
+                largestY = current.y();
+                largestWidth = current.width();
+                largestHeight = current.height();
+            }
+        }
+
+        if (largestArea < 0) {
+            return null;
+        }
+
+        /*
+         * Return an independent Rect. The returned Rect must be closed
+         * by the caller after it has finished using it.
+         */
+        return new Rect(
+                largestX,
+                largestY,
+                largestWidth,
+                largestHeight
+        );
     }
 
     private final AtomicBoolean restartingCamera =
@@ -1475,33 +1817,6 @@ public class CameraController {
             }
         });
     }
-
-    private void create3DModel() {
-        DoubleIndexer obj;
-        objectPoints = new Mat(6, 3, CV_64FC1);
-        obj = objectPoints.createIndexer();
-
-
-        obj.put(0, 0, 0.0);
-        obj.put(0, 1, 0.0);
-        obj.put(0, 2, 0.0);      // Nose
-        obj.put(1, 0, 0.0);
-        obj.put(1, 1, -330.0);
-        obj.put(1, 2, -65.0);    // Chin
-        obj.put(2, 0, -225.0);
-        obj.put(2, 1, 170.0);
-        obj.put(2, 2, -135.0);   // Left eye
-        obj.put(3, 0, 225.0);
-        obj.put(3, 1, 170.0);
-        obj.put(3, 2, -135.0);   // Right eye
-        obj.put(4, 0, -150.0);
-        obj.put(4, 1, -150.0);
-        obj.put(4, 2, -125.0);   // Left mouth
-        obj.put(5, 0, 150.0);
-        obj.put(5, 1, -150.0);
-        obj.put(5, 2, -125.0);   // Right mouth
-    }
-
 
     private Image matToImage(Mat mat) {
 
@@ -1529,23 +1844,614 @@ public class CameraController {
     }
 
 
-    public void stopCamera() {
-
-        if (timer != null) {
-
-            timer.shutdownNow();
-
-            timer = null;
+    private void tryIdentifying() {
+        /*
+         * Recognition must not begin while the model is being trained.
+         */
+        if (training.get()) {
+            return;
         }
 
-        if (camera != null) {
-
-            camera.release();
-
-            camera.close();
-
-            camera = null;
+        /*
+         * Do not predict using an unavailable or untrained recognizer.
+         */
+        if (!recognizerReady.get()) {
+            return;
         }
+
+        /*
+         * Apply recognition throttling before claiming the processing flag.
+         */
+        long now = System.nanoTime();
+
+        if (now - lastRecognitionTime < RECOGNITION_INTERVAL_NS) {
+            return;
+        }
+
+        /*
+         * Permit only one recognition request at a time.
+         */
+        if (!processing.compareAndSet(false, true)) {
+            return;
+        }
+
+        lastRecognitionTime = now;
+
+        Mat capturedFace;
+
+        /*
+         * Copy the current face while holding the frame lock.
+         * The worker thread receives an independent cloned Mat.
+         */
+        synchronized (frameLock) {
+            if (training.get()
+                    || lastFace == null
+                    || cleanFrame.empty()) {
+
+                processing.set(false);
+                return;
+            }
+
+            try (Rect safeFace =
+                         clampFaceToFrame(lastFace, cleanFrame)) {
+
+                if (safeFace.width() <= 0
+                        || safeFace.height() <= 0) {
+
+                    processing.set(false);
+                    return;
+                }
+
+                capturedFace =
+                        new Mat(cleanFrame, safeFace).clone();
+            } catch (Exception exception) {
+                processing.set(false);
+                exception.printStackTrace();
+                return;
+            }
+        }
+
+        try {
+            executor.submit(() ->
+                    recognizeCapturedFace(capturedFace)
+            );
+        } catch (RejectedExecutionException exception) {
+            /*
+             * The executor may reject work when the controller is closing.
+             */
+            capturedFace.close();
+            processing.set(false);
+
+            System.err.println(
+                    "Recognition task was rejected because "
+                            + "the executor is shutting down."
+            );
+        }
+    }
+
+    private void recognizeCapturedFace(
+            Mat capturedFace
+    ) {
+        boolean resultQueuedToJavaFx = false;
+
+        try (capturedFace;
+             Mat faceGray = new Mat();
+             Size targetSize =
+                     new Size(FACE_SIZE, FACE_SIZE)) {
+
+            if (training.get()) {
+                return;
+            }
+
+            cvtColor(
+                    capturedFace,
+                    faceGray,
+                    COLOR_BGR2GRAY
+            );
+
+            resize(
+                    faceGray,
+                    faceGray,
+                    targetSize,
+                    0,
+                    0,
+                    INTER_AREA
+            );
+
+            /*
+             * Recognition preprocessing must match training
+             * preprocessing.
+             */
+            equalizeHist(
+                    faceGray,
+                    faceGray
+            );
+
+            if (training.get()) {
+                return;
+            }
+
+            int[] predictedLabel =
+                    new int[1];
+
+            double[] predictedConfidence =
+                    new double[1];
+
+            synchronized (recognizerLock) {
+                if (training.get()
+                        || !recognizerReady.get()
+                        || recognizer == null) {
+
+                    return;
+                }
+
+                recognizer.predict(
+                        faceGray,
+                        predictedLabel,
+                        predictedConfidence
+                );
+                System.out.printf(
+                        Locale.ROOT,
+                        "Prediction: label=%d, confidence=%.2f, threshold=%.2f%n",
+                        predictedLabel[0],
+                        predictedConfidence[0],
+                        CONFIDENCE_THRESHOLD
+                );
+            }
+
+            int label =
+                    predictedLabel[0];
+
+            double confidence =
+                    predictedConfidence[0];
+
+            /*
+             * The callback captures primitives, not native objects.
+             */
+            Platform.runLater(() -> {
+                try {
+                    processRecognitionResult(
+                            label,
+                            confidence
+                    );
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+
+                    showRecognitionMessage(
+                            "Unable to process recognition result."
+                    );
+                } finally {
+                    processing.set(false);
+                }
+            });
+
+            resultQueuedToJavaFx = true;
+
+        } catch (Exception exception) {
+            System.err.println(
+                    "Face recognition failed: "
+                            + exception.getMessage()
+            );
+
+            exception.printStackTrace();
+
+        } finally {
+            /*
+             * When no JavaFX callback was scheduled, reset processing
+             * here. Otherwise, the callback resets it after processing
+             * the attendance result.
+             */
+            if (!resultQueuedToJavaFx) {
+                processing.set(false);
+            }
+        }
+    }
+
+    private void processRecognitionResult(
+            int label,
+            double confidence
+    ) {
+        /*
+         * Ignore a delayed result if training started after prediction.
+         */
+        if (training.get()) {
+            resetRecognition();
+            return;
+        }
+
+        if (label < 0
+                || !Double.isFinite(confidence)
+                || confidence >= CONFIDENCE_THRESHOLD) {
+
+            resetRecognition();
+            return;
+        }
+
+        if (currentCandidate == label) {
+            consecutiveMatches++;
+            confidenceSum += confidence;
+        } else {
+            currentCandidate = label;
+            consecutiveMatches = 1;
+            confidenceSum = confidence;
+        }
+
+        if (consecutiveMatches
+                < requiredRecognitionCount) {
+
+            return;
+        }
+
+        int acceptedId =
+                currentCandidate;
+
+        double averageConfidence =
+                confidenceSum / consecutiveMatches;
+
+        /*
+         * The current consecutive-match sequence is complete.
+         */
+        resetRecognition();
+
+        if (!Double.isFinite(averageConfidence)
+                || averageConfidence
+                >= CONFIDENCE_THRESHOLD) {
+
+            return;
+        }
+
+        /*
+         * Prevent a continuously visible face from creating
+         * repeated attendance actions.
+         */
+        if (!tryAcceptRecognition(acceptedId)) {
+            return;
+        }
+
+        processAcceptedStudent(
+                acceptedId,
+                averageConfidence
+        );
+    }
+
+    private synchronized boolean tryAcceptRecognition(
+            int studentId
+    ) {
+        long now =
+                System.currentTimeMillis();
+
+        /*
+         * The previously accepted student has not left the
+         * camera view yet.
+         */
+        if (acceptedFaceMustLeave
+                && studentId == lastAcceptedId) {
+
+            return false;
+        }
+
+        /*
+         * Also apply a time-based cooldown.
+         */
+        if (studentId == lastAcceptedId
+                && now - lastAcceptedAt
+                < RECOGNITION_COOLDOWN_MS) {
+
+            return false;
+        }
+
+        lastAcceptedId = studentId;
+        lastAcceptedAt = now;
+
+        acceptedFaceMustLeave = true;
+        consecutiveNoFaceFrames = 0;
+
+        return true;
+    }
+
+    private void requestRecognitionIfNecessary(
+            boolean faceDetected
+    ) {
+        if (!faceDetected) {
+            return;
+        }
+
+        if (training.get()) {
+            System.out.println(
+                    "Recognition skipped: training is running."
+            );
+
+            return;
+        }
+
+        if (!recognizerReady.get()) {
+            System.out.println(
+                    "Recognition skipped: recognizer is not ready."
+            );
+
+            return;
+        }
+
+        if (processing.get()) {
+            return;
+        }
+
+        if (modes == null) {
+            System.out.println(
+                    "Recognition skipped: ToggleGroup is null."
+            );
+
+            return;
+        }
+
+        Toggle selectedToggle =
+                modes.getSelectedToggle();
+
+        if (!(selectedToggle
+                instanceof ToggleButton toggleButton)) {
+
+            System.out.println(
+                    "Recognition skipped: no mode selected."
+            );
+
+            return;
+        }
+
+        if (!"Face Detector".equals(
+                toggleButton.getText()
+        )) {
+            return;
+        }
+
+        tryIdentifying();
+    }
+
+    private void processAcceptedStudent(
+            int studentId,
+            double averageConfidence
+    ) {
+        String studentKey =
+                String.format(
+                        Locale.ROOT,
+                        "ED%02d",
+                        studentId
+                );
+
+        var studentDataMap =
+                homeController.studentAttendance
+                        .mainController
+                        .gradedDataLoader
+                        .getStudentData();
+
+        var student =
+                studentDataMap.get(studentKey);
+
+        if (student == null) {
+            showRecognitionMessage(
+                    "Recognized student was not found: "
+                            + studentKey
+            );
+
+            return;
+        }
+
+        System.out.println(
+                "Student ID: " + studentId
+        );
+
+        System.out.println(
+                "Average confidence: "
+                        + averageConfidence
+        );
+
+        var attendanceMap =
+                homeController.studentAttendance
+                        .attendanceMap;
+
+        /*
+         * Student has not checked in.
+         */
+        if (!attendanceMap.containsKey(studentKey)) {
+            String checkInTime =
+                    LocalTime.now().format(
+                            DateTimeFormatter.ofPattern(
+                                    "hh:mm a",
+                                    Locale.ENGLISH
+                            )
+                    );
+
+            homeController.studentAttendance
+                    .updateCheckIn(
+                            studentKey,
+                            checkInTime
+                    );
+
+            attendanceRecord.put(
+                    studentId,
+                    new AttendanceStatus(
+                            true,
+                            false
+                    )
+            );
+
+            String message =
+                    studentKey
+                            + " "
+                            + student.name()
+                            + " you are marked as present";
+
+            showRecognitionMessage(message);
+            speakAsync(message);
+
+            return;
+        }
+
+        var attendance =
+                attendanceMap.get(studentKey);
+
+        if (attendance == null) {
+            showRecognitionMessage(
+                    "Attendance information is unavailable for "
+                            + studentKey
+            );
+
+            return;
+        }
+
+        /*
+         * Attendance has already been completed.
+         */
+        if (attendance.getCheck_out() != null) {
+            showRecognitionMessage(
+                    studentKey
+                            + " attendance is already completed."
+            );
+
+            return;
+        }
+
+        processStudentCheckout(
+                studentKey,
+                studentId,
+                attendance.getCheck_in()
+        );
+    }
+
+    private void processStudentCheckout(
+            String studentKey,
+            int studentId,
+            String checkInText
+    ) {
+        if (checkInText == null
+                || checkInText.isBlank()) {
+
+            showRecognitionMessage(
+                    "Check-in time is unavailable for "
+                            + studentKey
+            );
+
+            return;
+        }
+
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern(
+                        "hh:mm a",
+                        Locale.ENGLISH
+                );
+
+        final LocalTime checkInTime;
+
+        try {
+            checkInTime =
+                    LocalTime.parse(
+                            checkInText
+                                    .trim()
+                                    .toUpperCase(
+                                            Locale.ENGLISH
+                                    ),
+                            formatter
+                    );
+
+        } catch (Exception exception) {
+            showRecognitionMessage(
+                    "Invalid check-in time for "
+                            + studentKey
+            );
+
+            exception.printStackTrace();
+            return;
+        }
+
+        Duration duration =
+                Duration.between(
+                        checkInTime,
+                        LocalTime.now()
+                );
+
+        /*
+         * Temporary midnight handling. Storing LocalDateTime in
+         * the database would be more reliable.
+         */
+        if (duration.isNegative()) {
+            duration = duration.plusDays(1);
+        }
+
+        long minutesSpent =
+                duration.toMinutes();
+
+        if (minutesSpent < 45) {
+            showRecognitionMessage(
+                    "Cannot checkout before 45 minutes. Spent "
+                            + minutesSpent
+                            + " minutes."
+            );
+
+            return;
+        }
+
+        homeController.studentAttendance
+                .updateCheckOut(studentKey);
+
+        attendanceRecord.put(
+                studentId,
+                new AttendanceStatus(
+                        true,
+                        true
+                )
+        );
+
+        String message =
+                studentKey + " checkout done";
+
+        showRecognitionMessage(message);
+        speakAsync(message);
+    }
+
+    private void speakAsync(
+            String message
+    ) {
+        RealTimeTts currentTts =
+                timeTts;
+
+        if (!ttsReady.get()
+                || currentTts == null
+                || message == null
+                || message.isBlank()) {
+
+            return;
+        }
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                currentTts.readAloud(message);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        });
+    }
+
+    private void showRecognitionMessage(
+            String message
+    ) {
+        if (outputMessage != null) {
+            outputMessage.setText(message);
+        }
+
+        if (studentMessage != null) {
+            studentMessage.setText(message);
+        }
+    }
+
+    private synchronized void resetRecognitionSession() {
+        resetRecognition();
+
+        lastAcceptedId = -1;
+        lastAcceptedAt = 0L;
+
+        acceptedFaceMustLeave = false;
+        consecutiveNoFaceFrames = 0;
+
+        lastRecognitionTime = 0L;
     }
 
     public ObservableList<String> getAvailableCameras() {
@@ -1579,184 +2485,405 @@ public class CameraController {
     private int currentCameraIndex = 0;
 
     private void restartCamera() {
+        int cameraIndex =
+                currentCameraIndex;
 
         try {
-
-            if (camera != null) {
-                camera.release();
-                camera.close();
-            }
-
             Thread.sleep(1000);
 
-            camera = new VideoCapture(
-                    currentCameraIndex,
-                    CAP_DSHOW
-            );
-
-            camera.set(
-                    CAP_PROP_FRAME_WIDTH,
-                    1280
-            );
-
-            camera.set(
-                    CAP_PROP_FRAME_HEIGHT,
-                    720
-            );
+            startCamera(cameraIndex);
 
             System.out.println(
-                    "Camera restarted."
+                    "Camera restarted successfully."
             );
 
-        } catch (Exception e) {
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
 
-            e.printStackTrace();
+        } catch (Exception exception) {
+            System.err.println(
+                    "Camera restart failed: "
+                            + exception.getMessage()
+            );
+
+            exception.printStackTrace();
         }
     }
 
-    private void startTraining(Task<?> task) {
+    private void startTraining(Task<?> task) throws Exception {
+        printMemory("Training: beginning");
+        File trainingRoot = new File(
+                System.getProperty("user.home"),
+                "gardeEdAttendanceData"
+        );
 
-        String dataPath = System.getProperty("user.home") +
-                "/gardeEdAttendanceData";
-
-        File root = new File(dataPath);
-
-        if (!root.exists()) {
-            System.out.println(dataPath);
-            System.out.println("Data folder not found");
-            return;
+        if (!trainingRoot.isDirectory()) {
+            throw new IllegalStateException(
+                    "Training data folder was not found: "
+                            + trainingRoot.getAbsolutePath()
+            );
         }
 
-        List<Mat> imageList = new ArrayList<>();
-        List<Integer> labelList = new ArrayList<>();
+        File[] studentFolders =
+                trainingRoot.listFiles(File::isDirectory);
 
-        File[] studentFolders = root.listFiles(File::isDirectory);
+        if (studentFolders == null
+                || studentFolders.length == 0) {
 
-        if (studentFolders == null ||
-                studentFolders.length == 0) {
-
-            System.out.println("No student folders found");
-            return;
+            throw new IllegalStateException(
+                    "No student folders were found in: "
+                            + trainingRoot.getAbsolutePath()
+            );
         }
 
-        int totalImages = 0;
-        System.out.println(studentFolders.length);
-        for (File studentFolder : studentFolders) {
+        List<Mat> trainingImages =
+                new ArrayList<>();
 
-            int label;
+        List<Integer> trainingLabels =
+                new ArrayList<>();
 
-            try {
-                label = Integer.parseInt(
-                        studentFolder.getName().replace("ED", "")
-                );
-            } catch (NumberFormatException e) {
-                continue;
-            }
-            List<File> images = findTrainingImages(studentFolder);
+        int validStudentCount = 0;
+        int totalImageCount = 0;
+        boolean modelSaved = false;
 
-            for (File imageFile : images) {
+        try {
+            for (File studentFolder : studentFolders) {
 
-                Mat image = imread(
-                        imageFile.getAbsolutePath(),
-                        0
-                );
+                checkTrainingCancellation(task);
 
-                if (image.empty()) {
+                Integer studentLabel =
+                        parseStudentLabel(studentFolder);
+
+                if (studentLabel == null) {
+                    System.err.println(
+                            "Ignoring invalid student folder: "
+                                    + studentFolder.getName()
+                    );
+
                     continue;
                 }
 
-                resize(
-                        image,
-                        image,
-                        new Size(200, 200)
-                );
+                List<File> studentImages =
+                        findTrainingImages(studentFolder);
 
-                equalizeHist(
-                        image,
-                        image
-                );
+                int validImagesForStudent = 0;
 
-                imageList.add(image);
-                labelList.add(label);
+                for (File imageFile : studentImages) {
 
-                totalImages++;
+                    checkTrainingCancellation(task);
+
+                    Mat loadedImage = null;
+                    Mat preparedImage = null;
+
+                    try {
+                        loadedImage = imread(
+                                imageFile.getAbsolutePath(),
+                                IMREAD_GRAYSCALE
+                        );
+
+                        if (loadedImage == null
+                                || loadedImage.empty()) {
+
+                            System.err.println(
+                                    "Unable to read training image: "
+                                            + imageFile.getAbsolutePath()
+                            );
+
+                            continue;
+                        }
+
+                        /*
+                         * Use a separate destination Mat instead of resizing
+                         * the loaded image in place. This makes native-resource
+                         * ownership much clearer.
+                         */
+                        preparedImage = new Mat();
+
+                        try (Size faceSize =
+                                     new Size(FACE_SIZE, FACE_SIZE)) {
+
+                            resize(
+                                    loadedImage,
+                                    preparedImage,
+                                    faceSize,
+                                    0,
+                                    0,
+                                    INTER_AREA
+                            );
+                        }
+
+                        equalizeHist(
+                                preparedImage,
+                                preparedImage
+                        );
+
+                        /*
+                         * Ownership of preparedImage is transferred to
+                         * trainingImages. It will be closed in the outer
+                         * finally block after training completes.
+                         */
+                        trainingImages.add(preparedImage);
+                        trainingLabels.add(studentLabel);
+
+                        preparedImage = null;
+
+                        validImagesForStudent++;
+                        totalImageCount++;
+
+                    } catch (Exception exception) {
+                        System.err.println(
+                                "Unable to prepare training image: "
+                                        + imageFile.getAbsolutePath()
+                        );
+
+                        exception.printStackTrace();
+
+                    } finally {
+                        if (loadedImage != null) {
+                            loadedImage.close();
+                        }
+
+                        /*
+                         * If ownership was successfully transferred,
+                         * preparedImage was set to null.
+                         */
+                        if (preparedImage != null) {
+                            preparedImage.close();
+                        }
+                    }
+                }
+
+                if (validImagesForStudent > 0) {
+                    validStudentCount++;
+                }
             }
-        }
 
-        if (imageList.isEmpty()) {
+            checkTrainingCancellation(task);
 
-            System.out.println(
-                    "No valid training images found"
-            );
-            return;
-        }
+            if (trainingImages.isEmpty()) {
+                throw new IllegalStateException(
+                        "No valid training images were found."
+                );
+            }
 
-        MatVector images =
-                new MatVector(imageList.size());
+            if (trainingImages.size()
+                    != trainingLabels.size()) {
 
-        for (int i = 0; i < imageList.size(); i++) {
+                throw new IllegalStateException(
+                        "Training image and label counts do not match."
+                );
+            }
 
-            images.put(
-                    i,
-                    imageList.get(i)
-            );
-        }
-
-        Mat labels = new Mat(
-                labelList.size(),
-                1,
-                CV_32SC1
-        );
-
-        IntBuffer buffer =
-                labels.createBuffer();
-
-        for (int i = 0; i < labelList.size(); i++) {
-
-            buffer.put(
-                    i,
-                    labelList.get(i)
-            );
-        }
-        try (
-                LBPHFaceRecognizer recognizer =
-                        LBPHFaceRecognizer.create(
-                                1,      // radius
-                                8,      // neighbors
-                                8,      // gridX
-                                8,      // gridY
-                                80      // threshold
-                        )
-        ) {
-
-            recognizer.train(
-                    images,
-                    labels
+            Path modelPath = Path.of(
+                    System.getProperty("user.home"),
+                    "attendance_model.yml"
             );
 
-            recognizer.save(
-                    System.getProperty("user.home") + "/attendance_model.yml"
+            Path temporaryModelPath = Path.of(
+                    System.getProperty("user.home"),
+                    "attendance_model.tmp.yml"
             );
+
+            /*
+             * Remove a temporary model left behind by a previous
+             * interrupted or failed training operation.
+             */
+            Files.deleteIfExists(temporaryModelPath);
+
+            try (MatVector imageVector =
+                         new MatVector(trainingImages.size());
+
+                 Mat labelMatrix =
+                         new Mat(
+                                 trainingLabels.size(),
+                                 1,
+                                 CV_32SC1
+                         );
+
+                 LBPHFaceRecognizer trainingRecognizer =
+                         LBPHFaceRecognizer.create(
+                                 1,  // radius
+                                 8,  // neighbors
+                                 8,  // grid X
+                                 8,  // grid Y
+                                 80  // internal prediction threshold
+                         )) {
+
+                for (int index = 0;
+                     index < trainingImages.size();
+                     index++) {
+
+                    imageVector.put(
+                            index,
+                            trainingImages.get(index)
+                    );
+                }
+
+                IntBuffer labelBuffer =
+                        labelMatrix.createBuffer();
+
+                for (int index = 0;
+                     index < trainingLabels.size();
+                     index++) {
+
+                    labelBuffer.put(
+                            index,
+                            trainingLabels.get(index)
+                    );
+                }
+
+                checkTrainingCancellation(task);
+
+                trainingRecognizer.train(
+                        imageVector,
+                        labelMatrix
+                );
+
+                checkTrainingCancellation(task);
+
+                /*
+                 * Save to a temporary file first. This prevents a failed
+                 * training operation from corrupting the working model.
+                 */
+                trainingRecognizer.save(
+                        temporaryModelPath.toString()
+                );
+
+                if (!Files.isRegularFile(temporaryModelPath)
+                        || Files.size(temporaryModelPath) == 0) {
+
+                    throw new IllegalStateException(
+                            "The trained model was not saved correctly."
+                    );
+                }
+
+                replaceModelFile(
+                        temporaryModelPath,
+                        modelPath
+                );
+
+                modelSaved = true;
+            }
 
             System.out.println(
                     "Training completed successfully"
             );
 
             System.out.println(
-                    "Students : "
-                            + studentFolders.length
+                    "Valid students: "
+                            + validStudentCount
             );
 
             System.out.println(
-                    "Images : "
-                            + totalImages
+                    "Valid images: "
+                            + totalImageCount
             );
 
             System.out.println(
-                    "Model : attendance_model.yml"
+                    "Model: "
+                            + Path.of(
+                            System.getProperty("user.home"),
+                            "attendance_model.yml"
+                    )
             );
+
+        } finally {
+            /*
+             * MatVector does not replace the need to close the individual
+             * Mat objects that were loaded for training.
+             */
+            for (Mat trainingImage : trainingImages) {
+                if (trainingImage != null) {
+                    try {
+                        trainingImage.close();
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
+                }
+            }
+
+            trainingImages.clear();
+            trainingLabels.clear();
+            printMemory("Training: images loaded");
+        }
+
+        /*
+         * Reload only after MatVector, labelMatrix, training recognizer,
+         * and all training images have been released.
+         *
+         * The caller must keep recognition disabled while this method is
+         * running.
+         */
+        if (modelSaved) {
             loadRecognizer();
             resetRecognition();
+        }
+    }
+
+    private Integer parseStudentLabel(
+            File studentFolder
+    ) {
+        if (studentFolder == null
+                || !studentFolder.isDirectory()) {
+
+            return null;
+        }
+
+        String folderName =
+                studentFolder.getName().trim();
+
+        if (!folderName.matches("(?i)ED\\d+")) {
+            return null;
+        }
+
+        try {
+            return Integer.parseInt(
+                    folderName.substring(2)
+            );
+        } catch (NumberFormatException exception) {
+            return null;
+        }
+    }
+
+    private void checkTrainingCancellation(
+            Task<?> task
+    ) {
+        if (task != null
+                && task.isCancelled()) {
+
+            throw new CancellationException(
+                    "Model training was cancelled."
+            );
+        }
+
+        if (Thread.currentThread().isInterrupted()) {
+            throw new CancellationException(
+                    "Model training thread was interrupted."
+            );
+        }
+    }
+
+    private void replaceModelFile(
+            Path temporaryModel,
+            Path destinationModel
+    ) throws IOException, IOException {
+
+        try {
+            Files.move(
+                    temporaryModel,
+                    destinationModel,
+                    StandardCopyOption.REPLACE_EXISTING,
+                    StandardCopyOption.ATOMIC_MOVE
+            );
+        } catch (AtomicMoveNotSupportedException exception) {
+            /*
+             * Some filesystems do not support atomic moves.
+             */
+            Files.move(
+                    temporaryModel,
+                    destinationModel,
+                    StandardCopyOption.REPLACE_EXISTING
+            );
         }
     }
 

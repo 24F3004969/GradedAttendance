@@ -1,0 +1,1964 @@
+#A machine is driven by a mass of 100\,kg\\
+falling through a vertical distance of 8\,m in 4\,s.\\
+Calculate the force exerted by the falling mass.\\
+Take g=10\,m\,s^{-2}.
+~100\,N | 800\,N | 1000\,N | 8000\,N~#
+  
+
+#A mass of 100\,kg falls vertically through 8\,m.\\
+Calculate the work done by the falling mass.\\
+Take g=10\,m\,s^{-2}.
+~800\,J | 1000\,J | 4000\,J | 8000\,J~#
+  
+
+#A machine receives 8000\,J of work in 4\,s.\\
+Calculate the input power of the machine.
+~500\,W | 1200\,W | 2000\,W | 3200\,W~#
+  
+
+#The input power of a machine is 2000\,W\\
+and its efficiency is 60\%.\\
+Calculate the output power of the machine.
+~800\,W | 1200\,W | 2000\,W | 3333\,W~#
+  
+
+#A machine has an output power of 1200\,W.\\
+Calculate the useful work done by the machine in 4\,s.
+~300\,J | 1200\,J | 4000\,J | 4800\,J~#
+  
+
+#A machine receives 8000\,J of energy and performs\\
+4800\,J of useful work. Calculate its efficiency.
+~40\% | 60\% | 80\% | 120\%~#
+  
+
+#A machine lifts a load of mass 500\,kg vertically\\
+while its useful output power is 1200\,W.\\
+At what constant speed is the load lifted?\\
+Take g=10\,m\,s^{-2}.
+~0.12\,m\,s^{-1} | 0.24\,m\,s^{-1} | 2.4\,m\,s^{-1} | 4.8\,m\,s^{-1}~#
+  
+
+#The effort arm of an ideal lever is 60\,cm\\
+and its load arm is 4\,cm. Calculate the mechanical advantage.
+~4 | 15 | 56 | 64~#
+  
+
+#An ideal lever has an effort arm of 75\,cm\\
+and a load arm of 15\,cm. If the effort is 40\,N,\\
+calculate the load that can be balanced.
+~8\,N | 40\,N | 160\,N | 200\,N~#
+  
+
+#An ideal lever balances a load of 360\,N\\
+using an effort of 60\,N. If its load arm is 20\,cm,\\
+calculate the length of its effort arm.
+~30\,cm | 60\,cm | 100\,cm | 120\,cm~#
+  
+
+#In a pair of fire tongs, the effort is applied\\
+between the fulcrum and the load.\\
+To which class of lever do the fire tongs belong?
+~Class I | Class II | Class III | Not a lever~#
+  
+
+#The load arm of a pair of fire tongs is 15\,cm\\
+and its effort arm is 5\,cm. Calculate its ideal\\
+mechanical advantage.
+~\frac{1}{3} | 1 | 3 | 5~#
+  
+
+#A pair of fire tongs has a mechanical advantage of \frac{1}{3}.\\
+What effort is needed to lift a load of 12\,N?
+~4\,N | 12\,N | 24\,N | 36\,N~#
+  
+
+#Why is the mechanical advantage of a typical\\
+Class III lever less than 1?
+~The effort arm is shorter than the load arm | The effort arm is longer than the load arm | The fulcrum lies between the effort and load | The load and effort act at the same point~#
+  
+
+#A crowbar is 2\,m long and is pivoted\\
+at a point 10\,cm from the end supporting the load.\\
+Calculate the length of the effort arm.
+~10\,cm | 100\,cm | 190\,cm | 200\,cm~#
+  
+
+#A crowbar has a load arm of 10\,cm\\
+and an effort arm of 190\,cm. Calculate its ideal\\
+mechanical advantage.
+~9 | 10 | 19 | 20~#
+  
+
+#A crowbar with an ideal mechanical advantage of 19\\
+is used to raise a load of 100\,kgf.\\
+Calculate the least effort required.
+~5.26\,kgf | 10\,kgf | 19\,kgf | 100\,kgf~#
+  
+
+#A 2\,m long crowbar is pivoted 20\,cm\\
+from the end supporting a load of 180\,kgf.\\
+Calculate the least effort needed at the other end.
+~10\,kgf | 20\,kgf | 40\,kgf | 90\,kgf~#
+  
+
+#A uniform seesaw is supported at its centre.\\
+The fulcrum lies between the effort and the load.\\
+To which class of lever does the seesaw belong?
+~Class I | Class II | Class III | It is not a lever~#
+  
+
+#A person weighing 40\,kgf sits 1\,m\\
+from the centre of a seesaw. At what distance\\
+on the opposite side should a person weighing 20\,kgf sit\\
+to balance the seesaw?
+~0.5\,m | 1\,m | 2\,m | 4\,m~#
+  
+
+#A load of 60\,kgf is placed 1.5\,m\\
+from the centre of a seesaw. A person weighing 45\,kgf\\
+sits on the opposite side. How far from the centre\\
+should the person sit to maintain equilibrium?
+~1\,m | 1.5\,m | 2\,m | 2.5\,m~#
+  
+
+#A uniform 5\,m long seesaw is supported at its centre.\\
+A person weighing 50\,kgf sits at one end.\\
+At what distance from the centre should a person weighing\\
+100\,kgf sit on the opposite side to balance the seesaw?
+~0.625\,m | 1.25\,m | 2.5\,m | 5\,m~#
+  
+
+#A pair of fire tongs has a total length of 28\,cm.\\
+A load of 250\,gf is held at its end, while the effort\\
+is applied 7\,cm from the fulcrum. Calculate the effort.
+~500\,gf | 750\,gf | 1000\,gf | 1250\,gf~#
+  
+
+#A Class III lever has a load arm of 30\,cm\\
+and an effort arm of 10\,cm. What effort is required\\
+to lift a load of 90\,N?
+~30\,N | 90\,N | 180\,N | 270\,N~#
+  
+
+#A lever has the fulcrum between the load and effort.\\
+A load of 18\,kgf acts 20\,cm from the fulcrum,\\
+and the effort acts 180\,cm from the fulcrum.\\
+Calculate the required effort.
+~1\,kgf | 2\,kgf | 9\,kgf | 18\,kgf~#
+  
+
+#A Class I lever has a total distance of 2\,m\\
+between the load and effort. The load is 20\,cm\\
+from the fulcrum. Calculate its ideal mechanical advantage.
+~5 | 8 | 9 | 10~#
+  
+
+#A Class I lever has a mechanical advantage of 9\\
+and is used to lift a load of 18\,kgf.\\
+Calculate the effort required.
+~1\,kgf | 2\,kgf | 9\,kgf | 162\,kgf~#
+  
+
+#A nut is broken by applying a force of 40\,kgf\\
+at a distance of 2\,cm from the hinge. A nutcracker\\
+has a handle 20\,cm long. Calculate the minimum effort required.
+~2\,kgf | 4\,kgf | 8\,kgf | 20\,kgf~#
+  
+
+#A nutcracker has an effort arm of 25\,cm\\
+and a load arm of 5\,cm. Calculate its ideal\\
+mechanical advantage.
+~0.2 | 5 | 20 | 30~#
+  
+
+#A nutcracker has a mechanical advantage of 8.\\
+What effort is needed to produce a force of 160\,N\\
+on the nut?
+~10\,N | 20\,N | 80\,N | 1280\,N~#
+  
+
+#A lever handle 0.4\,m long is used\\
+to open a nut by applying a force of 150\,N.\\
+If the same turning effect is to be produced using 60\,N,\\
+calculate the required length of the new handle.
+~0.16\,m | 0.4\,m | 1.0\,m | 2.5\,m~#
+  
+
+#A force of 80\,N applied to a lever handle\\
+of length 0.75\,m produces a certain turning effect.\\
+What force applied to a 1.2\,m handle will produce\\
+the same turning effect?
+~40\,N | 50\,N | 64\,N | 128\,N~#
+  
+
+#A uniform metre rule of weight W is supported\\
+at the 60\,cm mark. An upward effort E is applied\\
+at the 90\,cm mark to keep the rule horizontal.\\
+Which statement is correct?
+~W is greater than E | W is equal to E | W is less than E | The relation between W and E cannot be determined~#
+  
+
+#A uniform metre rule is supported at the 60\,cm mark.\\
+Its weight W acts at the 50\,cm mark, while an effort E\\
+is applied at the 90\,cm mark. Calculate the ideal\\
+mechanical advantage of the arrangement.
+~\frac{1}{3} | 1 | 3 | 9~#
+  
+
+#A uniform metre rule weighing 90\,gf is supported\\
+at the 60\,cm mark. What upward effort applied\\
+at the 90\,cm mark will keep the rule horizontal?
+~10\,gf | 30\,gf | 90\,gf | 270\,gf~#
+  
+
+#Which relation is correct for an ideal machine?
+~Mechanical\ advantage=Velocity\ ratio | Mechanical\ advantage<Velocity\ ratio | Mechanical\ advantage>Velocity\ ratio | Mechanical\ advantage+Velocity\ ratio=1~#
+  
+
+#Which relation is generally correct for a practical machine?
+~Mechanical\ advantage=Velocity\ ratio | Mechanical\ advantage<Velocity\ ratio | Mechanical\ advantage>Velocity\ ratio | Mechanical\ advantage=0~#
+  
+
+#The mechanical advantage of a machine is 4\\
+and its velocity ratio is 5. Calculate its efficiency.
+~20\% | 50\% | 80\% | 125\%~#
+  
+
+#A machine has an efficiency of 75\%\\
+and a velocity ratio of 8. Calculate its mechanical advantage.
+~4 | 6 | 8 | 10.67~#
+  
+
+#A machine has a mechanical advantage of 5\\
+and an efficiency of 50\%. Calculate its velocity ratio.
+~2.5 | 5 | 7.5 | 10~#
+  
+
+#A practical machine has a velocity ratio of 12\\
+and an efficiency of 60\%. Calculate its mechanical advantage.
+~5 | 7.2 | 12 | 20~#
+  
+
+#A machine lifts a load of 600\,N\\
+when an effort of 100\,N is applied.\\
+Calculate the mechanical advantage.
+~5 | 6 | 7 | 60~#
+  
+
+#A machine has a mechanical advantage of 6\\
+and a velocity ratio of 8. Calculate the percentage\\
+of input energy converted into useful work.
+~25\% | 60\% | 75\% | 133.3\%~#
+  
+
+#In a machine, the effort moves through 2.4\,m\\
+while the load rises through 0.4\,m.\\
+Calculate the velocity ratio.
+~0.167 | 2 | 6 | 9.6~#
+  
+
+#A machine raises a load of 500\,N through 0.5\,m\\
+when an effort of 100\,N moves through 3\,m.\\
+Calculate the efficiency of the machine.
+~50\% | 60\% | 75\% | 83.3\%~#
+  
+
+#A machine raises a load of 800\,N through 0.25\,m.\\
+An effort of 100\,N moves through 2.5\,m.\\
+Calculate the energy lost in the machine.
+~0\,J | 50\,J | 200\,J | 250\,J~#
+  
+
+#A lever has an effort arm (3x+10)\,cm\\
+and a load arm (x+10)\,cm. If its ideal\\
+mechanical advantage is 2, find x.
+~5 | 10 | 15 | 20~#
+  
+
+#An ideal lever balances a load of (2x+20)\,N\\
+using an effort of 40\,N. If the effort arm is 60\,cm\\
+and the load arm is 20\,cm, find x.
+~30 | 40 | 50 | 60~#
+  
+
+#A lever has an effort arm of (x+40)\,cm\\
+and a load arm of 20\,cm. If its ideal mechanical\\
+advantage is 4, find x.
+~20 | 40 | 60 | 80~#
+  
+
+#A machine has a mechanical advantage of (x+2)\\
+and a velocity ratio of 10. If its efficiency is 70\%,\\
+find x.
+~3 | 5 | 7 | 8~#
+  
+
+#A machine has an input power of (5x+500)\,W.\\
+Its efficiency is 80\%, and its output power is 1200\,W.\\
+Find x.
+~100 | 150 | 200 | 250~#
+  
+
+#A machine performs 3600\,J of useful work in 3\,s.\\
+If its efficiency is 60\%, calculate its input power.
+~720\,W | 1200\,W | 2000\,W | 3600\,W~#
+  
+
+#A Class I lever has equal effort and load arms.\\
+What is its ideal mechanical advantage?
+~Less than 1 | Equal to 1 | Greater than 1 | Equal to zero~#
+  
+
+#Which arrangement is characteristic of a Class II lever?
+~The fulcrum lies between the effort and load | The load lies between the fulcrum and effort | The effort lies between the fulcrum and load | The load and effort act at the fulcrum~#
+  
+
+#Which arrangement is characteristic of a Class III lever?
+~The fulcrum lies between the load and effort | The load lies between the fulcrum and effort | The effort lies between the fulcrum and load | The effort and load act at the same point~#
+  
+
+#Which of the following is an example of a Class I lever?
+~Nutcracker | Wheelbarrow | Seesaw | Fire tongs~#
+  
+
+#Which of the following is an example of a Class II lever?
+~Seesaw | Scissors | Nutcracker | Fire tongs~#
+  
+
+#Which of the following is an example of a Class III lever?
+~Pliers | Crowbar | Nutcracker | Fire tongs~#
+  
+
+#A Class II lever is used as a force multiplier.\\
+Which property makes this possible?
+~The effort arm is longer than the load arm | The effort arm is shorter than the load arm | The load arm and effort arm are equal | The fulcrum is absent~#
+  
+
+#A Class III lever acts as a speed multiplier.\\
+Which statement explains this property?
+~The load moves through a greater distance than the effort | The effort moves through a greater distance than the load | The load and effort move through equal distances | The fulcrum moves with the load~#
+  
+
+#Assertion: The mechanical advantage of an ideal lever\\
+is equal to the ratio of the effort arm to the load arm.\\
+Reason: According to the principle of moments,\\
+load\times load\ arm=effort\times effort\ arm.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: The mechanical advantage of a practical machine\\
+is generally less than its velocity ratio.\\
+Reason: Some of the input energy is used\\
+in overcoming friction within the machine.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: A Class II lever always has\\
+an ideal mechanical advantage greater than 1.\\
+Reason: In a Class II lever, the load lies between\\
+the fulcrum and effort, making the effort arm longer.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: A Class III lever generally requires\\
+an effort greater than the load.\\
+Reason: In a Class III lever, the effort arm\\
+is shorter than the load arm.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: Increasing the length of a lever handle\\
+can reduce the effort required to turn a nut.\\
+Reason: A longer handle increases the perpendicular distance\\
+of the effort from the pivot.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: No practical machine can have\\
+an efficiency greater than 100\%.\\
+Reason: The useful output energy cannot exceed\\
+the total input energy supplied to the machine.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: A machine may have a mechanical advantage\\
+less than 1 and still be useful.\\
+Reason: Such a machine may act as a speed multiplier\\
+or change the point of application of effort.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: A machine cannot multiply work or energy.\\
+Reason: In an ideal machine, the useful output work\\
+is equal to the input work.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+
+#Which statement correctly defines a simple machine?
+~A device that creates energy | A device that makes work easier by changing the magnitude or direction of force | A device that always reduces the distance moved by the effort | A device that produces useful work without input energy~#
+  
+
+#Which principle applies to an ideal machine?
+~Output work is greater than input work | Input work is greater than output work | Output work is equal to input work | Output power is always zero~#
+  
+
+#Which of the following is not a function\\
+that a simple machine can perform?
+~Multiply force | Change the direction of force | Increase the total amount of energy | Change the point of application of force~#
+  
+
+#What is the primary purpose of using a jack\\
+to lift a heavy vehicle?
+~To decrease the weight of the vehicle | To multiply the applied force | To increase the gravitational force | To reduce the mass of the vehicle~#
+  
+
+#Which statement distinguishes a practical machine\\
+from an ideal machine?
+~A practical machine has no moving parts | A practical machine produces more energy than it receives | A practical machine loses some input energy due to friction | A practical machine always has 100\% efficiency~#
+  
+
+#Which expression gives the mechanical advantage\\
+of a machine?
+~\frac{Effort}{Load} | \frac{Load}{Effort} | Load\times Effort | Load+Effort~#
+  
+
+#Which expression gives the velocity ratio\\
+of a machine?
+~\frac{Distance\ moved\ by\ load}{Distance\ moved\ by\ effort} | \frac{Distance\ moved\ by\ effort}{Distance\ moved\ by\ load} | \frac{Load}{Effort} | \frac{Output\ work}{Input\ work}~#
+  
+
+#Which relation is correct for an ideal machine?
+~Mechanical\ advantage=Velocity\ ratio | Mechanical\ advantage<Velocity\ ratio | Mechanical\ advantage>Velocity\ ratio | Mechanical\ advantage\times Velocity\ ratio=1~#
+  
+
+#Which relation is generally correct\\
+for a practical machine?
+~Mechanical\ advantage=Velocity\ ratio | Mechanical\ advantage<Velocity\ ratio | Mechanical\ advantage>Velocity\ ratio | Mechanical\ advantage=0~#
+  
+
+#Which expression gives the efficiency \eta\\
+of a machine in terms of mechanical advantage and velocity ratio?
+~\eta=\frac{Velocity\ ratio}{Mechanical\ advantage} | \eta=\frac{Mechanical\ advantage}{Velocity\ ratio} | \eta=Mechanical\ advantage\times Velocity\ ratio | \eta=Mechanical\ advantage+Velocity\ ratio~#
+  
+
+#Which relation connects mechanical advantage,\\
+velocity ratio, and efficiency?
+~Mechanical\ advantage=\eta\times Velocity\ ratio | Mechanical\ advantage=\frac{Velocity\ ratio}{\eta} | Mechanical\ advantage=\eta+Velocity\ ratio | Mechanical\ advantage=\eta-Velocity\ ratio~#
+  
+
+#Which quantity remains constant for a machine\\
+of a fixed design under normal operation?
+~Load | Effort | Mechanical advantage | Velocity ratio~#
+  
+
+#Why is the mechanical advantage of a practical machine\\
+usually less than its velocity ratio?
+~The load is always smaller than the effort | Some input energy is used in overcoming friction | The machine creates additional energy | The effort moves a shorter distance than the load in every machine~#
+  
+
+#Which statement correctly defines a lever?
+~A rigid bar capable of turning about a fixed point | A flexible cord moving over a wheel | A circular disc rotating without a pivot | A machine that has no fulcrum~#
+  
+
+#What is the fixed point about which\\
+a lever can turn called?
+~Load | Effort | Fulcrum | Resistance arm~#
+  
+
+#For an ideal lever in equilibrium,\\
+which relation is correct?
+~Load\times load\ arm=Effort\times effort\ arm | Load\times effort\ arm=Effort\times load\ arm | Load+load\ arm=Effort+effort\ arm | \frac{Load}{load\ arm}=\frac{Effort}{effort\ arm}~#
+  
+
+#Which expression gives the ideal mechanical advantage\\
+of a lever?
+~\frac{Load\ arm}{Effort\ arm} | \frac{Effort\ arm}{Load\ arm} | Effort\ arm\times Load\ arm | Effort\ arm+Load\ arm~#
+  
+
+#On what basis are the three classes\\
+of levers distinguished?
+~The material of the lever | The relative positions of the fulcrum, load, and effort | The mass of the lever | The total length of the lever only~#
+  
+
+#Which arrangement represents a Class I lever?
+~The fulcrum lies between the load and effort | The load lies between the fulcrum and effort | The effort lies between the fulcrum and load | The load and effort act at the fulcrum~#
+  
+
+#Which arrangement represents a Class II lever?
+~The fulcrum lies between the load and effort | The load lies between the fulcrum and effort | The effort lies between the fulcrum and load | The load and fulcrum act at the same point~#
+  
+
+#Which arrangement represents a Class III lever?
+~The fulcrum lies between the load and effort | The load lies between the fulcrum and effort | The effort lies between the fulcrum and load | The effort and fulcrum act at the same point~#
+  
+
+#Which of the following is an example\\
+of a Class I lever?
+~Nutcracker | Lemon crusher | Seesaw | Fire tongs~#
+  
+
+#Which of the following is an example\\
+of a Class II lever?
+~Scissors | Pliers | Lemon crusher | Sugar tongs~#
+  
+
+#Which of the following is an example\\
+of a Class III lever?
+~Common balance | Crowbar | Nutcracker | Sugar tongs~#
+  
+
+#A bottle opener has the load between\\
+the fulcrum and the applied effort.\\
+To which class of lever does the bottle opener belong?
+~Class I | Class II | Class III | It is not a lever~#
+  
+
+#In sugar tongs, the effort is applied\\
+between the fulcrum and the load.\\
+To which class of lever do sugar tongs belong?
+~Class I | Class II | Class III | It depends only on the applied force~#
+  
+
+#A door is considered a lever in which\\
+the effort is applied between the hinge and the outer edge.\\
+To which class of lever does the door belong?
+~Class I | Class II | Class III | It is not a lever~#
+  
+
+#A catapult has the effort situated between\\
+the fulcrum and the load. To which class\\
+of lever does the catapult belong?
+~Class I | Class II | Class III | It cannot be classified as a lever~#
+  
+
+#In the human forearm, the effort supplied by the muscle\\
+acts between the elbow joint and the load held in the hand.\\
+To which class of lever does this arrangement belong?
+~Class I | Class II | Class III | It is not a lever~#
+  
+
+#While raising the body on the toes, the toes act as the fulcrum\\
+and the body weight acts between the fulcrum and effort.\\
+To which class of lever does this arrangement belong?
+~Class I | Class II | Class III | It has no mechanical advantage~#
+  
+
+#A Class I lever has equal effort and load arms.\\
+What is its ideal mechanical advantage?
+~Less than 1 | Equal to 1 | Greater than 1 | Equal to zero~#
+  
+
+#A Class I lever has an effort arm\\
+longer than its load arm. What is its\\
+ideal mechanical advantage?
+~Less than 1 | Equal to 1 | Greater than 1 | Always equal to zero~#
+  
+
+#A Class I lever has an effort arm\\
+shorter than its load arm. What is its\\
+ideal mechanical advantage?
+~Less than 1 | Equal to 1 | Greater than 1 | Always equal to its total length~#
+  
+
+#Why does a Class II lever generally have\\
+a mechanical advantage greater than 1?
+~The effort arm is longer than the load arm | The effort arm is shorter than the load arm | The fulcrum lies between the load and effort | The effort and load act at the same point~#
+  
+
+#Why does a Class III lever generally have\\
+a mechanical advantage less than 1?
+~The effort arm is longer than the load arm | The load arm is longer than the effort arm | The load lies between the fulcrum and effort | The load and effort have equal arms~#
+  
+
+#What is the main advantage of a Class III lever\\
+despite having a mechanical advantage less than 1?
+~It acts as a speed or distance multiplier | It creates mechanical energy | It always reduces the effort to zero | It has an efficiency greater than 100\%~#
+  
+
+#Why do scissors used for cutting cloth\\
+usually have long blades and short handles?
+~A large mechanical advantage is required | A large speed and distance gain at the blades is useful | The scissors must behave as a Class II lever | The blades must move a shorter distance than the handles~#
+  
+
+#Why do shears used for cutting metal\\
+usually have short blades and long handles?
+~To obtain a large mechanical advantage | To obtain a mechanical advantage less than 1 | To increase the load arm | To make the effort arm shorter than the load arm~#
+  
+
+#A uniform metre rule is supported at the 60\,cm mark.\\
+The weight W of the rule acts at the 50\,cm mark,\\
+and an upward effort E is applied at the 90\,cm mark.\\
+Which relation between W and E is correct?
+~W<E | W=E | W>E | W=0~#
+  
+
+#A uniform metre rule is supported at the 60\,cm mark.\\
+The load arm is 10\,cm and the effort arm is 30\,cm.\\
+Calculate its ideal mechanical advantage.
+~\frac{1}{3} | 1 | 3 | 30~#
+  
+
+#A uniform metre rule weighing 120\,gf is supported\\
+at the 60\,cm mark. An upward effort is applied\\
+at the 90\,cm mark to keep the rule horizontal.\\
+Calculate the effort.
+~20\,gf | 40\,gf | 60\,gf | 360\,gf~#
+  
+
+#Which type of lever always has\\
+an ideal mechanical advantage greater than 1?
+~Class I | Class II | Class III | Every class of lever~#
+  
+
+#Which type of lever usually has\\
+an ideal mechanical advantage less than 1?
+~Class I | Class II | Class III | No class of lever~#
+  
+
+#A crowbar of length 120\,cm has its fulcrum\\
+20\,cm from the load. Calculate the ideal\\
+mechanical advantage of the crowbar.
+~4 | 5 | 6 | 10~#
+  
+
+#A pair of scissors has blades 15\,cm long\\
+and handles 7.5\,cm long, measured from the pivot.\\
+Calculate its ideal mechanical advantage.
+~0.5 | 1 | 2 | 7.5~#
+  
+
+#A force of 5\,kgf is required at the blades\\
+of a pair of shears to cut a metal sheet.\\
+The blades are 5\,cm long and the handles are 10\,cm long.\\
+Calculate the effort required at the handles.
+~1.25\,kgf | 2.5\,kgf | 5\,kgf | 10\,kgf~#
+  
+
+#A Class I lever has a load of 15\,kgf\\
+acting at one end. The distance between load and effort\\
+is 1\,m, and the load is 0.4\,m from the fulcrum.\\
+Calculate the ideal mechanical advantage.
+~0.67 | 1 | 1.5 | 2.5~#
+  
+
+#A Class I lever has a load of 15\,kgf\\
+and an ideal mechanical advantage of 1.5.\\
+Calculate the required effort.
+~5\,kgf | 10\,kgf | 15\,kgf | 22.5\,kgf~#
+  
+
+#A crowbar of length 1.5\,m is used to raise a load\\
+of 75\,kgf. The fulcrum is 1\,m from the point\\
+where the effort is applied. Calculate the load arm.
+~0.25\,m | 0.5\,m | 1.0\,m | 1.5\,m~#
+  
+
+#A crowbar has an effort arm of 1\,m\\
+and a load arm of 0.5\,m. Calculate its ideal\\
+mechanical advantage.
+~0.5 | 1 | 2 | 3~#
+  
+
+#A crowbar with an ideal mechanical advantage of 2\\
+is used to lift a load of 75\,kgf.\\
+Calculate the required effort.
+~25\,kgf | 37.5\,kgf | 75\,kgf | 150\,kgf~#
+  
+
+#A pair of scissors cuts cloth at a point\\
+8\,cm from the pivot. An effort of 10\,kgf\\
+is applied 2\,cm from the pivot. Calculate\\
+the mechanical advantage.
+~0.25 | 0.5 | 2 | 4~#
+  
+
+#A pair of scissors has a mechanical advantage of 0.25.\\
+If an effort of 10\,kgf is applied, calculate\\
+the force exerted by the blades on the cloth.
+~1.25\,kgf | 2.5\,kgf | 10\,kgf | 40\,kgf~#
+  
+
+#Scissors used for cutting cloth have\\
+a mechanical advantage less than 1.\\
+The scissors primarily act as:
+~A force multiplier | A speed multiplier | An energy multiplier | A mass multiplier~#
+  
+
+#A light rod 4\,m long is supported\\
+at a point 1.25\,m from one end. A load of 18\,kgf\\
+is suspended 0.60\,m from the support on the shorter arm.\\
+Calculate the length of the longer arm.
+~1.25\,m | 2.16\,m | 2.75\,m | 3.40\,m~#
+  
+
+#A light rod supports a load of 18\,kgf\\
+at a distance of 0.60\,m from the fulcrum.\\
+The effort is applied 2.75\,m from the fulcrum.\\
+Calculate the effort required for equilibrium.
+~3.93\,kgf | 4.32\,kgf | 8.18\,kgf | 18\,kgf~#
+  
+
+#A 5\,kgf mass is used to balance a light rod.\\
+A load of 18\,kgf acts 0.60\,m from the fulcrum.\\
+At what distance from the fulcrum should\\
+the 5\,kgf mass be placed?
+~1.25\,m | 1.80\,m | 2.16\,m | 2.75\,m~#
+  
+
+#A lever has a load arm of 5\,cm\\
+and an effort arm of 9\,cm.\\
+To which class of lever does the arrangement belong\\
+if the load lies between the fulcrum and effort?
+~Class I | Class II | Class III | It cannot be determined~#
+  
+
+#A lever has a load arm of 5\,cm\\
+and an effort arm of 9\,cm. Calculate its ideal\\
+mechanical advantage.
+~0.56 | 1 | 1.8 | 4.5~#
+  
+
+#An ideal lever has a mechanical advantage of 1.8\\
+and a velocity ratio of 1.8.\\
+Calculate its efficiency.
+~50\% | 80\% | 100\% | 180\%~#
+  
+
+#A practical lever has a mechanical advantage of 0.9\\
+and a velocity ratio of 1.8.\\
+Calculate its efficiency.
+~25\% | 50\% | 90\% | 200\%~#
+  
+
+#A Class II lever has a fulcrum at one end.\\
+The load acts 80\,cm from the fulcrum, and the effort\\
+acts 20\,cm farther from the load. Calculate\\
+the mechanical advantage.
+~0.8 | 1 | 1.25 | 4~#
+  
+
+#A Class II lever has a load of 5\,kgf\\
+and an ideal mechanical advantage of 1.25.\\
+Calculate the effort required.
+~2\,kgf | 4\,kgf | 5\,kgf | 6.25\,kgf~#
+  
+
+#A wheelbarrow carries a load of 15\,kg\\
+whose centre of gravity is at A. The horizontal distance\\
+from the wheel at B to A is 20\,cm, while the effort\\
+is applied at C, 60\,cm from B. Calculate the load arm.
+~20\,cm | 40\,cm | 60\,cm | 80\,cm~#
+  
+
+#A wheelbarrow has a load arm of 20\,cm\\
+and an effort arm of 60\,cm. Calculate its ideal\\
+mechanical advantage.
+~\frac{1}{3} | 1 | 3 | 6~#
+  
+
+#A wheelbarrow of mass 15\,kg carries a load of 30\,kg.\\
+The combined centre of gravity acts 20\,cm from the wheel,\\
+and the effort is applied 60\,cm from the wheel.\\
+Calculate the minimum upward effort. Take g=10\,m\,s^{-2}.
+~100\,N | 150\,N | 300\,N | 450\,N~#
+  
+
+#A lever has an effort arm (2x+10)\,cm\\
+and a load arm (x+5)\,cm. Calculate its ideal\\
+mechanical advantage.
+~1 | 2 | x+5 | 2x+10~#
+  
+
+#A lever has an effort arm of (3x+10)\,cm\\
+and a load arm of (x+10)\,cm. If its ideal\\
+mechanical advantage is 2, find x.
+~5 | 10 | 15 | 20~#
+  
+
+#An ideal lever balances a load of (3x+20)\,N\\
+using an effort of 40\,N. The effort arm is 80\,cm\\
+and the load arm is 20\,cm. Find x.
+~20 | 40 | \frac{140}{3} | 60~#
+  
+
+#A machine has a mechanical advantage of (x+1)\\
+and a velocity ratio of 10. If the efficiency\\
+of the machine is 60\%, find x.
+~3 | 5 | 6 | 9~#
+  
+
+#A practical machine has a velocity ratio of 8\\
+and an efficiency of 75\%. Calculate\\
+its mechanical advantage.
+~4 | 6 | 8 | 10.67~#
+  
+
+#A machine has a mechanical advantage of 5\\
+and an efficiency of 50\%. Calculate\\
+its velocity ratio.
+~2.5 | 5 | 7.5 | 10~#
+  
+
+#A machine lifts a load of 600\,N\\
+using an effort of 100\,N. The effort moves 3\,m\\
+while the load rises through 0.4\,m. Calculate\\
+the efficiency of the machine.
+~60\% | 75\% | 80\% | 125\%~#
+  
+
+#Assertion: A machine cannot multiply work or energy.\\
+Reason: In an ideal machine, the output work\\
+is equal to the input work.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: The mechanical advantage of an ideal machine\\
+is equal to its velocity ratio.\\
+Reason: The efficiency of an ideal machine is 100\%.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: The mechanical advantage of a practical machine\\
+is generally less than its velocity ratio.\\
+Reason: Some input energy is converted into heat and sound\\
+while overcoming friction.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: A Class II lever always acts\\
+as a force multiplier under ideal conditions.\\
+Reason: The effort arm of a Class II lever\\
+is longer than its load arm.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: A Class III lever usually has\\
+a mechanical advantage less than 1.\\
+Reason: The effort lies between the fulcrum and load,\\
+so the effort arm is shorter than the load arm.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: A Class I lever can have a mechanical advantage\\
+less than, equal to, or greater than 1.\\
+Reason: The fulcrum position can make the effort arm shorter than,\\
+equal to, or longer than the load arm.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: Cloth-cutting scissors can act\\
+as a speed multiplier.\\
+Reason: The blades may be longer than the handles,\\
+causing the cutting points to move through a greater distance.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: Metal-cutting shears have long handles\\
+and comparatively short blades.\\
+Reason: A long effort arm and short load arm\\
+provide a large mechanical advantage.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: A machine may be useful even when\\
+its mechanical advantage is less than 1.\\
+Reason: Such a machine may provide a gain in speed\\
+or distance moved by the load.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: The velocity ratio of a machine\\
+depends mainly on its design.\\
+Reason: Velocity ratio is determined by the relative distances\\
+moved by the effort and load.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: No practical machine can have\\
+an efficiency greater than 100\%.\\
+Reason: Useful output energy cannot exceed\\
+the total input energy supplied to the machine.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+#Which statement correctly describes a single fixed pulley?
+~The pulley moves upward with the load | The axis of the pulley remains fixed | The pulley always multiplies the applied force | The load is attached to the axis of the pulley~#
+  
+
+#What is the main advantage of using\\
+a single fixed pulley?
+~It multiplies the applied force | It multiplies the speed of the load | It changes the direction of the applied force | It increases the total energy available~#
+  
+
+#What is the velocity ratio\\
+of a single fixed pulley?
+~\frac{1}{2} | 1 | 2 | 4~#
+  
+
+#What is the ideal mechanical advantage\\
+of a single fixed pulley?
+~\frac{1}{2} | 1 | 2 | 4~#
+  
+
+#Why is a single fixed pulley not regarded\\
+as a force multiplier under ideal conditions?
+~The effort is greater than the load | The effort is equal to the load | The effort moves half the distance moved by the load | The pulley has no tension in its string~#
+  
+
+#A load of 400\,N is raised through a height of 5\,m\\
+using a single fixed pulley. Calculate the useful work done\\
+on the load.
+~400\,J | 800\,J | 1600\,J | 2000\,J~#
+  
+
+#A load of 400\,N is lifted using a fixed pulley\\
+by applying an effort of 480\,N. Calculate the mechanical advantage.
+~0.80 | 0.833 | 1.00 | 1.20~#
+  
+
+#A fixed pulley has a mechanical advantage of \frac{5}{6}\\
+and a velocity ratio of 1. Calculate its efficiency.
+~50\% | 75\% | 83.3\% | 120\%~#
+  
+
+#A person applies an effort of 480\,N through 5\,m\\
+in 10\,s while using a fixed pulley. Calculate\\
+the power developed by the person.
+~48\,W | 120\,W | 240\,W | 480\,W~#
+  
+
+#A fixed pulley lifts a load of 400\,N through 5\,m\\
+when the effort moves through the same distance.\\
+If the effort is 480\,N, calculate the energy lost.
+~0\,J | 200\,J | 400\,J | 2400\,J~#
+  
+
+#Why is the efficiency of a practical fixed pulley\\
+less than 100\%?
+~The load moves farther than the effort | Some energy is used in overcoming friction | The pulley creates additional energy | The velocity ratio is always greater than 1~#
+  
+
+#A single fixed pulley is used even when\\
+the required effort is greater than the load.\\
+What justifies the use of the pulley?
+~The pulley increases the input energy | The pulley provides a convenient direction for applying effort | The pulley reduces the displacement of the effort | The pulley makes the load weightless~#
+  
+
+#Which statement correctly describes\\
+a single movable pulley?
+~The pulley axis remains fixed | The pulley moves together with the load | The effort and load always move equal distances | The pulley only changes the direction of effort~#
+  
+
+#What is the ideal mechanical advantage\\
+of a single movable pulley?
+~\frac{1}{2} | 1 | 2 | 4~#
+  
+
+#What is the velocity ratio\\
+of a single movable pulley?
+~\frac{1}{2} | 1 | 2 | 4~#
+  
+
+#In an ideal single movable pulley,\\
+two segments of the string support the load.\\
+If the tension in each segment is T, which relation is correct?
+~L=T | L=2T | L=3T | L=4T~#
+  
+
+#In an ideal single movable pulley,\\
+which relation exists between effort E and load L?
+~E=L | E=\frac{L}{2} | E=2L | E=4L~#
+  
+
+#In a single movable pulley, the free end\\
+of the string moves upward through a distance x.\\
+Through what distance does the load rise?
+~\frac{x}{4} | \frac{x}{2} | x | 2x~#
+  
+
+#A load of 200\,N is lifted using\\
+an ideal single movable pulley. Calculate the effort required.
+~50\,N | 100\,N | 200\,N | 400\,N~#
+  
+
+#A single movable pulley has a practical\\
+mechanical advantage of 1.6 and a velocity ratio of 2.\\
+Calculate its efficiency.
+~40\% | 60\% | 80\% | 125\%~#
+  
+
+#What is the effect of friction in the bearing\\
+on the velocity ratio of a single movable pulley?
+~The velocity ratio increases | The velocity ratio decreases | The velocity ratio remains 2 | The velocity ratio becomes zero~#
+  
+
+#Why is the efficiency of a practical\\
+single movable pulley less than 100\%?
+~The effort moves a smaller distance than the load | Energy is lost in friction and in lifting the pulley | The pulley has a velocity ratio less than 1 | The load does not possess weight~#
+  
+
+#A combination consists of one fixed pulley\\
+and one movable pulley. What is the function\\
+of the fixed pulley in this arrangement?
+~To double the mechanical advantage | To change the direction of the applied effort | To support the entire load alone | To reduce the velocity ratio to 1~#
+  
+
+#A combination of one fixed and one movable pulley\\
+is used to raise a load of 20\,kgf. Neglecting friction\\
+and the weight of the pulleys, calculate the effort.
+~5\,kgf | 10\,kgf | 20\,kgf | 40\,kgf~#
+  
+
+#In a combination of one fixed and one movable pulley,\\
+the free end of the string moves downward through 8\,m.\\
+Through what distance does the load rise?
+~2\,m | 4\,m | 8\,m | 16\,m~#
+  
+
+#A pulley system has a velocity ratio of 4\\
+and lifts a load of 150\,kgf using an effort of 50\,kgf.\\
+Calculate its mechanical advantage.
+~2 | 3 | 4 | 6~#
+  
+
+#A pulley system has a mechanical advantage of 3\\
+and a velocity ratio of 4. Calculate its efficiency.
+~25\% | 50\% | 75\% | 133.3\%~#
+  
+
+#A pulley system of velocity ratio 4 raises a load\\
+through a vertical height of 20\,m. Calculate the distance\\
+moved by the effort.
+~5\,m | 20\,m | 40\,m | 80\,m~#
+  
+
+#An effort of 50\,kgf moves through 80\,m\\
+while operating a pulley system. Calculate the input work.\\
+Take 1\,kgf=10\,N.
+~4000\,J | 10000\,J | 20000\,J | 40000\,J~#
+  
+
+#A pulley system raises a load of 150\,kgf\\
+through 20\,m using an effort of 50\,kgf\\
+that moves through 80\,m. Calculate the useful output work.\\
+Take 1\,kgf=10\,N.
+~10000\,J | 20000\,J | 30000\,J | 40000\,J~#
+  
+
+#A pulley system has a velocity ratio of 4.\\
+If the system is an ideal block-and-tackle arrangement,\\
+how many supporting segments of string act on the lower block?
+~2 | 3 | 4 | 8~#
+  
+
+#A block-and-tackle system has four pulleys in total,\\
+with two pulleys in each block. What is its velocity ratio\\
+when the effort is applied in the usual downward direction?
+~2 | 4 | 6 | 8~#
+  
+
+#A block-and-tackle system has two pulleys\\
+in the upper block and two in the lower block.\\
+What is its ideal mechanical advantage?
+~2 | 4 | 6 | 8~#
+  
+
+#A block-and-tackle system is supported\\
+by five segments of the string. If the tension\\
+in each segment is T, which expression gives the load?
+~L=T | L=2T | L=4T | L=5T~#
+  
+
+#A block-and-tackle system has a velocity ratio of 5.\\
+If the load rises through a distance x, through what distance\\
+must the free end of the string move?
+~\frac{x}{5} | x | 5x | 25x~#
+  
+
+#A block-and-tackle system has five supporting strands\\
+and lifts a load of 500\,N under ideal conditions.\\
+Calculate the effort required.
+~50\,N | 100\,N | 250\,N | 500\,N~#
+  
+
+#Why should the lower block of a block-and-tackle system\\
+be made as light as possible?
+~To increase the velocity ratio | To reduce the effort used in lifting the pulley block itself | To increase the weight of the load | To make the velocity ratio equal to zero~#
+  
+
+#Why are lubricants used in the bearings\\
+of pulley systems?
+~To increase the weight of the pulley | To reduce friction and energy loss | To reduce the number of supporting strands | To increase the load arm~#
+  
+
+#A pulley system has n supporting segments of string.\\
+If the lower block has weight w and the effort is E,\\
+which expression gives the load L in equilibrium?
+~L=nE+w | L=nE-w | L=\frac{E-w}{n} | L=\frac{n}{E}-w~#
+  
+
+#In a pulley system with n supporting strands,\\
+the lower block has weight w and the applied effort is E.\\
+Which expression gives its mechanical advantage?
+~n+\frac{w}{E} | n-\frac{w}{E} | \frac{nE}{w} | \frac{w}{nE}~#
+  
+
+#A pulley system has n supporting strands.\\
+The lower block has weight w and the applied effort is E.\\
+Which expression gives the efficiency of the system\\
+when friction is neglected?
+~1+\frac{w}{nE} | 1-\frac{w}{nE} | \frac{w}{nE} | \frac{nE}{w}~#
+  
+
+#A pulley system has 4 supporting strands.\\
+The lower block weighs 40\,N and the applied effort is 60\,N.\\
+Calculate the load that can be balanced.
+~160\,N | 180\,N | 200\,N | 240\,N~#
+  
+
+#A pulley system has 4 supporting strands.\\
+The lower block weighs 40\,N and an effort of 60\,N\\
+balances a load. Calculate the mechanical advantage.
+~2 | \frac{10}{3} | 4 | 6~#
+  
+
+#A pulley system has a velocity ratio of 4\\
+and a mechanical advantage of \frac{10}{3}.\\
+Calculate its efficiency.
+~66.7\% | 75\% | 83.3\% | 120\%~#
+  
+
+#The weight of the lower pulley block is increased\\
+while the applied effort and number of supporting strands remain unchanged.\\
+What happens to the mechanical advantage?
+~It increases | It decreases | It remains unchanged | It becomes equal to the velocity ratio~#
+  
+
+#The weight of the lower pulley block is increased\\
+while all other conditions remain unchanged.\\
+What happens to the efficiency of the pulley system?
+~It increases | It decreases | It remains unchanged | It becomes greater than 100\%~#
+  
+
+#Why does the velocity ratio of a pulley system\\
+remain unchanged when the lower block becomes heavier?
+~Velocity ratio depends on the geometry of the arrangement | Velocity ratio depends only on the load | Velocity ratio is always equal to efficiency | A heavier block eliminates friction~#
+  
+
+#In a first system of pulleys containing n movable pulleys\\
+and one fixed pulley, which expression gives\\
+the ideal mechanical advantage?
+~n | 2n | 2^{n} | n^{2}~#
+  
+
+#A combination contains three movable pulleys\\
+and one fixed pulley. Calculate its ideal\\
+mechanical advantage.
+~3 | 6 | 8 | 9~#
+  
+
+#A combination of three movable pulleys\\
+and one fixed pulley has an ideal velocity ratio:
+~3 | 6 | 8 | 16~#
+  
+
+#A combination of four movable pulleys\\
+and one fixed pulley is ideal. Calculate\\
+the effort required to lift a load of 640\,N.
+~20\,N | 40\,N | 80\,N | 160\,N~#
+  
+
+#In a system having two movable pulleys A and B\\
+and one fixed pulley C, which statement is correct?
+~A and B are fixed while C is movable | A and B are movable while C is fixed | Only A is movable | All three pulleys are fixed~#
+  
+
+#An ideal combination of two movable pulleys\\
+and one fixed pulley has a velocity ratio of:
+~2 | 3 | 4 | 8~#
+  
+
+#An ideal combination of two movable pulleys\\
+and one fixed pulley lifts a load L.\\
+Which expression gives the required effort E?
+~E=L | E=\frac{L}{2} | E=\frac{L}{4} | E=4L~#
+  
+
+#An ideal pulley combination has a velocity ratio of 8.\\
+How many movable pulleys are present\\
+if the system follows the relation V.R.=2^{n}?
+~2 | 3 | 4 | 8~#
+  
+
+#An ideal pulley combination contains n movable pulleys.\\
+If one additional movable pulley is added,\\
+how does the mechanical advantage change?
+~It remains unchanged | It doubles | It triples | It becomes half~#
+  
+
+#A pulley system has a mechanical advantage of (x+2)\\
+and a velocity ratio of 8. If its efficiency is 75\%,\\
+find x.
+~2 | 4 | 6 | 8~#
+  
+
+#A block-and-tackle system has (x+1) supporting strands.\\
+Its ideal mechanical advantage is 6. Find x.
+~3 | 4 | 5 | 6~#
+  
+
+#A pulley system lifts a load of (3x+50)\,N\\
+using an effort of 50\,N. If its mechanical advantage is 4,\\
+find x.
+~25 | 40 | 50 | 75~#
+  
+
+#A pulley system has a velocity ratio of 5\\
+and an efficiency of 80\%. It lifts a load of 400\,N.\\
+Calculate the required effort.
+~80\,N | 100\,N | 125\,N | 160\,N~#
+  
+
+#A block-and-tackle system raises a load of 600\,N\\
+through 2\,m. The effort is 150\,N and moves through 10\,m.\\
+Calculate the efficiency of the system.
+~60\% | 75\% | 80\% | 125\%~#
+  
+
+#A pulley system raises a load of 800\,N through 1.5\,m.\\
+An effort of 250\,N moves through 6\,m.\\
+Calculate the energy lost in the pulley system.
+~100\,J | 200\,J | 300\,J | 1500\,J~#
+  
+
+#A pulley system receives 3000\,J of input work\\
+and performs 2400\,J of useful output work.\\
+Calculate its efficiency.
+~20\% | 60\% | 80\% | 125\%~#
+  
+
+#A pulley system lifts a load of 1000\,N\\
+at a constant speed of 0.4\,m\,s^{-1}.\\
+Calculate the useful output power.
+~100\,W | 250\,W | 400\,W | 2500\,W~#
+  
+
+#A pulley system has an efficiency of 80\%\\
+and produces a useful output power of 400\,W.\\
+Calculate its input power.
+~320\,W | 400\,W | 500\,W | 800\,W~#
+  
+
+#Assertion: A single fixed pulley can be useful\\
+even though its ideal mechanical advantage is 1.\\
+Reason: A fixed pulley changes the direction\\
+in which the effort is applied.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: The velocity ratio of a single fixed pulley\\
+is always 1.\\
+Reason: The effort and load move through equal distances\\
+in opposite directions.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: A practical fixed pulley can have\\
+a mechanical advantage less than 1.\\
+Reason: Friction makes the required effort\\
+greater than the load being raised.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: A single movable pulley acts\\
+as a force multiplier under ideal conditions.\\
+Reason: Two segments of the string support\\
+the movable pulley and its load.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: In a single movable pulley,\\
+the load rises through half the distance moved by the effort.\\
+Reason: Two supporting segments of string shorten equally\\
+when the movable pulley rises.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: The velocity ratio of a pulley system\\
+depends mainly on the arrangement of its pulleys and strings.\\
+Reason: Velocity ratio is the ratio of the distance moved\\
+by the effort to the distance moved by the load.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: Increasing the number of supporting strands\\
+in a block-and-tackle system increases its ideal mechanical advantage.\\
+Reason: The load is shared by a larger number\\
+of string segments having equal tension.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: The mechanical advantage of a practical pulley system\\
+is generally less than its velocity ratio.\\
+Reason: Some input energy is lost through friction\\
+and in lifting the movable pulley block.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: Making the lower pulley block heavier\\
+reduces the efficiency of the pulley system.\\
+Reason: A greater part of the applied effort is then required\\
+to lift the lower pulley block itself.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: Lubricating pulley bearings can improve\\
+the efficiency of a pulley system.\\
+Reason: Lubrication reduces the work done\\
+against friction in the bearings.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: An ideal pulley system can multiply force\\
+but cannot multiply energy.\\
+Reason: In an ideal machine, the output work\\
+is equal to the input work.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Why is a single fixed pulley commonly used\\
+even though its ideal mechanical advantage is 1?
+~It multiplies the applied force | It has a velocity ratio less than 1 | It always has 100\% efficiency | It allows the effort to be applied in a convenient direction~#
+  
+
+#What is the ideal mechanical advantage\\
+of a single movable pulley?
+~1 | 2 | Less than 1 | Greater than 2~#
+  
+
+#A single movable pulley is principally used as:
+~A force multiplier | A speed multiplier | A device for changing only the direction of effort | An energy multiplier~#
+  
+
+#A fixed pulley is used to draw a bucket of water from a well.\\
+The combined mass of the bucket and water is 6\,kg,\\
+and the applied effort is 70\,N. Calculate the mechanical advantage.\\
+Take g=10\,m\,s^{-2}.
+~0.75 | 0.857 | 1.00 | 1.167~#
+  
+
+#A fixed pulley lifts a load of 60\,N\\
+when an effort of 70\,N is applied.\\
+Calculate the efficiency of the pulley.
+~70\% | 85.7\% | 100\% | 116.7\%~#
+  
+
+#A fixed pulley is driven by a mass of 100\,kg\\
+falling through 8\,m in 4\,s. Calculate the input power.\\
+Take g=10\,m\,s^{-2}.
+~500\,W | 1000\,W | 2000\,W | 8000\,W~#
+  
+
+#A fixed pulley lifts a load of 75\,kgf\\
+using a falling mass of 100\,kg.\\
+Calculate the mechanical advantage of the pulley.
+~0.50 | 0.75 | 1.00 | 1.33~#
+  
+
+#A fixed pulley has a mechanical advantage of 0.75\\
+and a velocity ratio of 1. Calculate its efficiency.
+~25\% | 50\% | 75\% | 100\%~#
+  
+
+#A mass driving a fixed pulley falls through 8\,m\\
+in 4\,s. Through what vertical height is the load raised\\
+during the same time?
+~2\,m | 4\,m | 8\,m | 16\,m~#
+  
+
+#A block-and-tackle system contains three pulleys\\
+and raises a load of 75\,kgf using an effort of 25\,kgf.\\
+Calculate its mechanical advantage.
+~2 | 3 | 4 | 5~#
+  
+
+#A block-and-tackle system contains three pulleys.\\
+If three strands of the tackle support the load,\\
+what is the velocity ratio of the system?
+~1 | 2 | 3 | 6~#
+  
+
+#A block-and-tackle system has a mechanical advantage of 3\\
+and a velocity ratio of 3. Calculate its efficiency.
+~33.3\% | 66.7\% | 75\% | 100\%~#
+  
+
+#A block-and-tackle system containing five pulleys\\
+requires a downward effort of 1000\,N to raise a load of 4500\,N.\\
+Calculate its mechanical advantage.
+~4 | 4.5 | 5 | 5.5~#
+  
+
+#A block-and-tackle system contains five pulleys,\\
+and five strands of the tackle support the moving block.\\
+What is the velocity ratio of the system?
+~2.5 | 4 | 5 | 10~#
+  
+
+#A block-and-tackle system has a mechanical advantage of 4.5\\
+and a velocity ratio of 5. Calculate its efficiency.
+~45\% | 80\% | 90\% | 111.1\%~#
+  
+
+#A block-and-tackle system has five supporting strands.\\
+If the load rises vertically through 1\,m,\\
+through what distance must the effort move?
+~1\,m | 2.5\,m | 5\,m | 10\,m~#
+  
+
+#A block-and-tackle system has five supporting strands\\
+and operates under ideal conditions. Calculate the effort\\
+required to raise a load of 100\,N.
+~20\,N | 25\,N | 50\,N | 100\,N~#
+  
+
+#A block-and-tackle system raises a load through 1\,m\\
+while the effort moves through 5\,m.\\
+Calculate its velocity ratio.
+~1 | 2.5 | 5 | 6~#
+  
+
+#A pulley system has a velocity ratio of 3\\
+and an efficiency of 80\%. Calculate its mechanical advantage.
+~1.8 | 2.4 | 3.0 | 3.75~#
+  
+
+#A pulley system has a velocity ratio of 3\\
+and an efficiency of 80\%. Calculate the effort required\\
+to raise a load of 300\,N.
+~80\,N | 100\,N | 125\,N | 240\,N~#
+  
+
+#A block-and-tackle arrangement has two fixed pulleys\\
+in the upper block and two movable pulleys in the lower block.\\
+How many strands of the tackle support the lower block?
+~2 | 3 | 4 | 8~#
+  
+
+#A block-and-tackle arrangement has four strands\\
+supporting the lower block. What is its ideal\\
+mechanical advantage?
+~2 | 4 | 6 | 8~#
+  
+
+#An ideal block-and-tackle arrangement has four supporting strands.\\
+If the tension in each strand is T, which expression\\
+represents the load L?
+~L=T | L=2T | L=4T | L=8T~#
+  
+
+#An ideal block-and-tackle system has four supporting strands.\\
+What effort is required to lift a load of 100\,N?
+~20\,N | 25\,N | 40\,N | 100\,N~#
+  
+
+#A block-and-tackle system has a velocity ratio of 3\\
+and an efficiency of 60\%. Calculate its mechanical advantage.
+~1.2 | 1.8 | 3.0 | 5.0~#
+  
+
+#A block-and-tackle system has a velocity ratio of 3\\
+and an efficiency of 60\%. A person can exert\\
+a maximum effort of 200\,kgf. Calculate the maximum load.
+~120\,kgf | 200\,kgf | 360\,kgf | 600\,kgf~#
+  
+
+#The effort end of a pulley system moves through 60\,cm.\\
+If the velocity ratio is 3, through what distance\\
+does the load move?
+~15\,cm | 20\,cm | 30\,cm | 180\,cm~#
+  
+
+#Three movable pulleys and one fixed pulley are arranged\\
+to provide the maximum possible ideal mechanical advantage.\\
+What is the mechanical advantage of the arrangement?
+~3 | 6 | 8 | 16~#
+  
+
+#An ideal combination contains three movable pulleys,\\
+with each movable pulley doubling the mechanical advantage.\\
+What is the velocity ratio of the arrangement?
+~3 | 6 | 8 | 9~#
+  
+
+#An ideal combination of three movable pulleys\\
+has a mechanical advantage of 8. What effort is required\\
+to lift a load of 400\,N?
+~25\,N | 50\,N | 100\,N | 200\,N~#
+  
+
+#An ideal pulley arrangement has a mechanical advantage of 8.\\
+If the effort moves through 4\,m, through what distance\\
+does the load rise?
+~0.25\,m | 0.5\,m | 2\,m | 32\,m~#
+  
+
+#A pulley system has a mechanical advantage of (x+0.4)\\
+and a velocity ratio of 3. If its efficiency is 80\%,\\
+find x.
+~1.2 | 2.0 | 2.4 | 3.4~#
+  
+
+#A block-and-tackle system raises a load of (4x+100)\,N\\
+using an effort of 100\,N. If its mechanical advantage is 5,\\
+find x.
+~50 | 75 | 100 | 125~#
+  
+
+#A block-and-tackle system has five supporting strands.\\
+If an effort of (x+10)\,N raises a load of 300\,N\\
+under ideal conditions, find x.
+~40 | 50 | 60 | 90~#
+  
+
+#A pulley system has a velocity ratio of 4\\
+and raises a load of 600\,N using an effort of 200\,N.\\
+Calculate its efficiency.
+~50\% | 60\% | 75\% | 100\%~#
+  
+
+#A pulley system has a velocity ratio of 4\\
+and raises a load through 2\,m.\\
+If the effort is 200\,N, calculate the input work.
+~800\,J | 1600\,J | 2400\,J | 3200\,J~#
+  
+
+#A pulley system raises a load of 600\,N through 2\,m.\\
+Calculate the useful output work.
+~300\,J | 600\,J | 1200\,J | 2400\,J~#
+  
+
+#A pulley system receives 3200\,J of input work\\
+and performs 1200\,J of useful output work.\\
+Calculate the energy lost in the system.
+~800\,J | 1200\,J | 2000\,J | 4400\,J~#
+  
+
+#A block-and-tackle system has four supporting strands.\\
+The effort moves downward with a speed of 2\,m\,s^{-1}.\\
+At what speed does the load rise?
+~0.25\,m\,s^{-1} | 0.5\,m\,s^{-1} | 2\,m\,s^{-1} | 8\,m\,s^{-1}~#
+  
+
+#A block-and-tackle system has five supporting strands.\\
+The load rises at a speed of 0.4\,m\,s^{-1}.\\
+Calculate the speed at which the effort end moves.
+~0.08\,m\,s^{-1} | 0.4\,m\,s^{-1} | 2\,m\,s^{-1} | 5\,m\,s^{-1}~#
+  
+
+#A pulley system raises a load of 500\,N\\
+at a constant speed of 0.6\,m\,s^{-1}.\\
+Calculate the useful output power.
+~83.3\,W | 300\,W | 500\,W | 833.3\,W~#
+  
+
+#A pulley system produces a useful output power of 300\,W\\
+and operates at an efficiency of 75\%.\\
+Calculate its input power.
+~225\,W | 300\,W | 400\,W | 750\,W~#
+  
+
+#A pulley system raises a load of 900\,N\\
+using an effort of 250\,N. Calculate its mechanical advantage.
+~2.6 | 3.0 | 3.6 | 4.0~#
+  
+
+#A pulley system has a mechanical advantage of 3.6\\
+and a velocity ratio of 4. Calculate its efficiency.
+~72\% | 80\% | 90\% | 111.1\%~#
+  
+
+#A pulley system has a velocity ratio of 5\\
+and an efficiency of 72\%. If the applied effort is 200\,N,\\
+calculate the load raised.
+~360\,N | 500\,N | 720\,N | 1000\,N~#
+  
+
+#A practical pulley system has a mechanical advantage of 4.2\\
+and a velocity ratio of 5. Calculate the percentage\\
+of input energy that is lost.
+~8\% | 16\% | 20\% | 84\%~#
+  
+
+#Which assumptions are required when calculating\\
+the ideal mechanical advantage of a block-and-tackle system?
+~The pulleys are weightless and friction is absent | The pulleys are heavy and friction is maximum | The tension is different in every part of the same string | The effort is always greater than the load~#
+  
+
+#Why is the weight of the lower pulley block\\
+neglected in an ideal block-and-tackle system?
+~To make the velocity ratio zero | To assume that all the supporting force is available for the external load | To increase friction in the bearings | To make the effort greater than the load~#
+  
+
+#Assertion: A single fixed pulley is useful\\
+even though its ideal mechanical advantage is 1.\\
+Reason: A single fixed pulley allows the effort\\
+to be applied in a convenient downward direction.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: An ideal single movable pulley\\
+has a mechanical advantage of 2.\\
+Reason: Two sections of the same string support\\
+the movable pulley and its load.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: A single movable pulley is a force multiplier.\\
+Reason: The effort required under ideal conditions\\
+is half the load being raised.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: The mechanical advantage of an ideal\\
+block-and-tackle system equals the number of supporting strands.\\
+Reason: The load is shared equally by the supporting strands\\
+when the tension is the same throughout the string.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: The velocity ratio of a block-and-tackle system\\
+equals the number of strands supporting the moving block.\\
+Reason: The effort must move through a distance equal to\\
+the load displacement multiplied by the number of supporting strands.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: A practical pulley system has a mechanical advantage\\
+smaller than its velocity ratio.\\
+Reason: Friction and the weight of the moving parts\\
+increase the effort required to raise a load.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: A pulley system may multiply force\\
+but cannot multiply mechanical energy.\\
+Reason: In an ideal pulley system, a smaller effort moves\\
+through a proportionally greater distance than the load.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: Increasing the number of supporting strands\\
+reduces the ideal effort required for a given load.\\
+Reason: The mechanical advantage increases when more strands\\
+share the load.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: A block-and-tackle system with five supporting strands\\
+requires the effort to move five times the distance moved by the load.\\
+Reason: The velocity ratio of the system is 5.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#Assertion: A block-and-tackle system of velocity ratio 3\\
+and efficiency 80\% has a mechanical advantage of 2.4.\\
+Reason: Mechanical\ advantage=Efficiency\times Velocity\ ratio,\\
+where the efficiency is expressed as a decimal.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+  
+
+#A fixed pulley raises a load of 720\,N through 6\,m.\\
+An effort of 800\,N moves through the same distance.\\
+Calculate the efficiency of the pulley.
+~80\% | 85\% | 90\% | 96\%~#
+  
+
+#A fixed pulley of efficiency 80\% is used\\
+to raise a load of 640\,N. Calculate the effort required.
+~500\,N | 640\,N | 720\,N | 800\,N~#
+  
+
+#A fixed pulley raises a load of 900\,N\\
+through 12\,m in 30\,s. If its efficiency is 75\%,\\
+calculate the input power.
+~360\,W | 400\,W | 480\,W | 600\,W~#
+  
+
+#A fixed pulley raises a load of 600\,N\\
+at a constant speed of 0.4\,m\,s^{-1}. If the pulley\\
+has an efficiency of 80\%, calculate the effort.
+~300\,N | 480\,N | 600\,N | 750\,N~#
+  
+
+#A single movable pulley has an efficiency of 80\%.\\
+Calculate the effort required to lift a load of 640\,N.\\
+Neglect the weight of the movable pulley.
+~256\,N | 320\,N | 400\,N | 512\,N~#
+  
+
+#A single movable pulley raises a load of 500\,N\\
+through a height of 3\,m. If its efficiency is 75\%,\\
+calculate the input work.
+~1125\,J | 1500\,J | 2000\,J | 3000\,J~#
+  
+
+#An effort of 300\,N is applied to a single movable pulley.\\
+The pulley has an efficiency of 70\%. Calculate\\
+the maximum load that can be raised.
+~210\,N | 420\,N | 600\,N | 857\,N~#
+  
+
+#A single movable pulley raises a load of 720\,N\\
+through 2.5\,m in 10\,s. If its efficiency is 80\%,\\
+calculate the average input power.
+~180\,W | 225\,W | 288\,W | 360\,W~#
+  
+
+#A single movable pulley has a mechanical advantage of 1.6.\\
+An effort of 250\,N moves through a distance of 8\,m.\\
+Calculate the useful work done on the load.
+~800\,J | 1000\,J | 1600\,J | 2000\,J~#
+  
+
+#A movable pulley of weight 80\,N supports an external load\\
+of 520\,N. If two sections of the string support\\
+the movable pulley, calculate the ideal effort required\\
+when friction is neglected.
+~220\,N | 260\,N | 300\,N | 520\,N~#
+  
+
+#A single movable pulley weighs 100\,N and raises\\
+an external load of 700\,N. An effort of 500\,N is required.\\
+Calculate the efficiency of the pulley.
+~60\% | 70\% | 80\% | 90\%~#
+  
+
+#A single movable pulley raises a load of 900\,N\\
+and has a mechanical advantage of 1.5. If the load\\
+rises through 4\,m, calculate the input work.
+~2400\,J | 3600\,J | 4800\,J | 5400\,J~#
+  
+
+#A block-and-tackle system has four supporting strands\\
+and an efficiency of 75\%. Calculate the effort required\\
+to raise a load of 1200\,N.
+~225\,N | 300\,N | 400\,N | 450\,N~#
+  
+
+#A block-and-tackle system has five supporting strands\\
+and raises a load of 1800\,N using an effort of 450\,N.\\
+Calculate the efficiency of the system.
+~70\% | 75\% | 80\% | 90\%~#
+  
+
+#A block-and-tackle system has a velocity ratio of 6\\
+and an efficiency of 70\%. If an effort of 250\,N\\
+is applied, calculate the load raised.
+~750\,N | 1000\,N | 1050\,N | 1500\,N~#
+  
+
+#A block-and-tackle system raises a load of 1600\,N\\
+through 2\,m. Its velocity ratio is 5 and its efficiency\\
+is 80\%. Calculate the distance moved by the effort\\
+and the magnitude of the effort respectively.
+~5\,m,\ 320\,N | 10\,m,\ 400\,N | 10\,m,\ 500\,N | 20\,m,\ 400\,N~#
+  
+
+#A block-and-tackle system has a velocity ratio of 4.\\
+An effort of 600\,N raises a load through 3\,m.\\
+If the efficiency is 75\%, calculate the load\\
+and the input work respectively.
+~1200\,N,\ 3600\,J | 1800\,N,\ 5400\,J | 1800\,N,\ 7200\,J | 2400\,N,\ 7200\,J~#
+  
+
+#A block-and-tackle system of velocity ratio 8\\
+raises a load of 2400\,N. If 25\% of the input energy\\
+is lost, calculate the effort required.
+~300\,N | 350\,N | 400\,N | 450\,N~#
+  
+
+#A pulley system raises a load of 2100\,N\\
+through 1.5\,m using an effort of 500\,N.\\
+The effort moves through 7\,m. Calculate\\
+the mechanical advantage, velocity ratio, and efficiency.
+~4.2,\ \frac{14}{3},\ 90\% | 4.2,\ 5,\ 84\% | \frac{14}{3},\ 4.2,\ 90\% | 5,\ \frac{14}{3},\ 84\%~#
+  
+
+#A block-and-tackle system has an efficiency of 75\%.\\
+When an effort of 320\,N moves downward through 10\,m,\\
+the load rises through 2\,m. Calculate the load.
+~960\,N | 1000\,N | 1200\,N | 1600\,N~#
+  
+
+#A pulley system raises a load of 2500\,N through 4\,m\\
+in 20\,s. The velocity ratio is 5 and the efficiency is 80\%.\\
+Calculate the input power.
+~500\,W | 625\,W | 800\,W | 1000\,W~#
+  
+
+#A block-and-tackle system has six supporting strands.\\
+It raises a load at a speed of 0.25\,m\,s^{-1}\\
+using an effort of 400\,N. If its efficiency is 75\%,\\
+calculate the load and input power respectively.
+~1350\,N,\ 400\,W | 1800\,N,\ 600\,W | 1800\,N,\ 900\,W | 2400\,N,\ 600\,W~#
+  
+
+#A block-and-tackle system raises a load of 1400\,N\\
+at a speed of 0.3\,m\,s^{-1}. Its velocity ratio is 5\\
+and its efficiency is 70\%. Calculate the effort\\
+and the speed of the effort end respectively.
+~280\,N,\ 0.3\,m\,s^{-1} | 350\,N,\ 1.5\,m\,s^{-1} | 400\,N,\ 1.5\,m\,s^{-1} | 500\,N,\ 0.6\,m\,s^{-1}~#
+  
+
+#A pulley system receives an input power of 1200\,W\\
+and operates at an efficiency of 75\%. It raises\\
+a load of 1800\,N at a constant speed.\\
+Calculate the speed of the load.
+~0.25\,m\,s^{-1} | 0.50\,m\,s^{-1} | 0.75\,m\,s^{-1} | 1.50\,m\,s^{-1}~#
+  
+
+#A block-and-tackle system has a velocity ratio of 5.\\
+Its efficiency decreases from 80\% to 64\% while lifting\\
+the same load of 1600\,N. By how much does\\
+the required effort increase?
+~50\,N | 80\,N | 100\,N | 125\,N~#
+  
+
+#A pulley system of velocity ratio 6 raises a load\\
+of 1800\,N. The system loses 900\,J of energy\\
+while the load rises through 2\,m. Calculate the effort.
+~300\,N | 350\,N | 375\,N | 450\,N~#
+  
+
+#A block-and-tackle system raises a load of 2400\,N\\
+through 1.5\,m. The effort is 600\,N and the efficiency\\
+is 75\%. Calculate the velocity ratio and the distance\\
+moved by the effort respectively.
+~4,\ 6\,m | 5,\ 7.5\,m | \frac{16}{3},\ 8\,m | 6,\ 9\,m~#
+  
+
+#A pulley system has a velocity ratio of 8\\
+and an efficiency of 62.5\%. If the effort moves\\
+through 16\,m and has a magnitude of 240\,N,\\
+calculate the load displacement and useful work respectively.
+~2\,m,\ 2400\,J | 2\,m,\ 3000\,J | 4\,m,\ 2400\,J | 8\,m,\ 3000\,J~#
+  
+
+#A block-and-tackle system has five supporting strands.\\
+The lower pulley block weighs 200\,N. If an effort\\
+of 300\,N is applied and friction is neglected,\\
+calculate the external load that can be raised.
+~1000\,N | 1200\,N | 1300\,N | 1500\,N~#
+  
+
+#A block-and-tackle system has six supporting strands.\\
+Its lower block weighs 240\,N and an effort of 260\,N\\
+is applied. Neglecting friction, calculate the external load\\
+and mechanical advantage respectively.
+~1080\,N,\ \frac{54}{13} | 1320\,N,\ \frac{66}{13} | 1560\,N,\ 6 | 1800\,N,\ \frac{90}{13}~#
+  
+
+#A pulley system has four supporting strands\\
+and a lower block weighing 160\,N. If the external load\\
+is 800\,N and friction is neglected, calculate the effort\\
+and the mechanical advantage respectively.
+~200\,N,\ 4 | 240\,N,\ \frac{10}{3} | 320\,N,\ 3 | 400\,N,\ 2~#
+  
+
+#A pulley system has five supporting strands.\\
+The lower block weighs 250\,N and the applied effort\\
+is 150\,N. Neglect friction. Calculate the external load\\
+and the efficiency of the system respectively.
+~500\,N,\ 66.7\% | 500\,N,\ 80\% | 750\,N,\ 66.7\% | 1000\,N,\ 80\%~#
+  
+
+#A block-and-tackle system has eight supporting strands.\\
+The lower block weighs 320\,N. If its efficiency due only\\
+to the weight of the lower block is 80\%,\\
+calculate the applied effort.
+~160\,N | 180\,N | 200\,N | 240\,N~#
+  
+
+#A block-and-tackle arrangement has six supporting strands.\\
+The lower block weighs 180\,N. If the external load\\
+is 1260\,N and friction is neglected, calculate\\
+the efficiency of the arrangement.
+~75\% | 80\% | 87.5\% | 90\%~#
+  
+
+#A pulley system has five supporting strands and raises\\
+an external load of 1000\,N. The lower pulley block weighs 200\,N,\\
+and friction produces an additional resisting force equivalent\\
+to 50\,N at the effort end. Calculate the applied effort.
+~240\,N | 250\,N | 290\,N | 300\,N~#
+  
+
+#An ideal combination contains three movable pulleys\\
+and one fixed pulley, giving a velocity ratio of 8.\\
+If the system operates at 75\% efficiency and raises\\
+a load of 2400\,N, calculate the effort.
+~300\,N | 350\,N | 400\,N | 450\,N~#
+  
+
+#A combination of four movable pulleys and one fixed pulley\\
+has an ideal velocity ratio of 16. Its actual mechanical\\
+advantage is 12. If an effort of 150\,N is applied,\\
+calculate the load and efficiency respectively.
+~1800\,N,\ 75\% | 1800\,N,\ 80\% | 2400\,N,\ 75\% | 2400\,N,\ 80\%~#
+  
+
+#An ideal combination of three movable pulleys raises\\
+a load through 0.75\,m. If an effort of 250\,N\\
+is applied, calculate the distance moved by the effort\\
+and the load raised respectively.
+~3\,m,\ 1000\,N | 6\,m,\ 2000\,N | 8\,m,\ 2000\,N | 6\,m,\ 2250\,N~#
+  
+
+#A pulley system initially has a velocity ratio of 4\\
+and efficiency of 80\%. After adding pulleys, its velocity ratio\\
+becomes 6 but its efficiency falls to 70\%. For the same\\
+effort of 250\,N, calculate the increase in the load raised.
+~250\,N | 300\,N | 350\,N | 550\,N~#
+  
+
+#A block-and-tackle system raises a load of 3000\,N\\
+through 2\,m in 15\,s. The effort moves downward\\
+at a speed of 0.8\,m\,s^{-1}. If the effort is 600\,N,\\
+calculate the velocity ratio and efficiency respectively.
+~4,\ 75\% | 5,\ 80\% | 6,\ 83.3\% | 8,\ 62.5\%~#
+#
+3, 4, 3, 2, 4, 2, 2, 2, 4, 4,
+3, 1, 4, 1, 3, 3, 1, 2, 1, 3,
+3, 2, 3, 4, 2, 3, 2, 2, 2, 2,
+3, 2, 1, 3, 2, 1, 2, 3, 2, 4,
+2, 2, 3, 3, 4, 2, 2, 3, 2, 2,
+3, 3, 2, 2, 3, 3, 3, 4, 1, 1,
+1, 1, 1, 1, 1, 1, 1, 1, 2, 3,
+3, 2, 3, 2, 2, 1, 2, 2, 1, 4,
+2, 1, 3, 1, 2, 2, 1, 2, 3, 3,
+3, 4, 2, 3, 3, 2, 3, 3, 2, 3,
+1, 1, 2, 1, 2, 2, 3, 3, 2, 3,
+2, 1, 2, 2, 3, 2, 2, 3, 2, 2,
+3, 1, 3, 2, 3, 3, 2, 3, 2, 1,
+3, 2, 2, 2, 3, 2, 2, 4, 3, 1,
+1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+1, 1, 2, 3, 2, 2, 2, 4, 2, 3,
+3, 3, 2, 2, 2, 3, 3, 2, 2, 2,
+2, 3, 3, 2, 2, 2, 2, 2, 3, 4,
+4, 3, 3, 2, 2, 4, 3, 2, 2, 2,
+2, 2, 2, 3, 2, 3, 2, 2, 1, 3,
+3, 3, 2, 2, 3, 3, 2, 2, 2, 3,
+3, 2, 3, 3, 3, 3, 3, 1, 1, 1,
+1, 1, 1, 1, 1, 1, 1, 1, 4, 2,
+1, 2, 2, 3, 2, 3, 3, 2, 3, 4,
+2, 3, 3, 3, 1, 3, 2, 3, 3, 2,
+3, 2, 2, 3, 2, 3, 3, 2, 2, 2,
+3, 2, 3, 2, 3, 3, 2, 3, 2, 3,
+3, 3, 3, 2, 1, 2, 1, 1, 1, 1,
+1, 1, 1, 1, 1, 1, 3, 4, 3, 4,
+3, 3, 2, 2, 3, 3, 2, 3, 3, 3,
+3, 2, 3, 3, 1, 3, 2, 2, 3, 2,
+3, 3, 3, 1, 3, 2, 2, 1, 3, 3,
+3, 3, 1, 2, 1, 3#

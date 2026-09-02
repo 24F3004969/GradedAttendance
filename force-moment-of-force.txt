@@ -1,0 +1,467 @@
+#A force of 18\,N is applied perpendicular to a lever\\
+at a distance of 25\,cm from the pivot.\\
+Calculate the moment of the force about the pivot.
+~2.25\,N\,m | 4.5\,N\,m | 7.2\,N\,m | 72\,N\,m~#
+ 
+
+#The same force is applied at four different points on a door.\\
+At which point will the turning effect be greatest?
+~At the hinges | At one-fourth of the door's width from the hinges | At the middle of the door | At the farthest edge from the hinges~#
+ 
+
+#Which expression gives the moment of a force\\
+applied perpendicular to a lever?
+~Force \times perpendicular\ distance | Force \div perpendicular\ distance | Perpendicular\ distance \div force | Force + perpendicular\ distance~#
+ 
+
+#A force of 40\,N produces a moment of 12\,N\,m about a pivot.\\
+Calculate the perpendicular distance between the pivot\\
+and the line of action of the force.
+~0.2\,m | 0.3\,m | 0.4\,m | 0.5\,m~#
+ 
+
+#Two perpendicular forces of 16\,N and 24\,N act\\
+on opposite sides of a pivot at distances of 30\,cm and 20\,cm respectively.\\
+What is the resultant moment about the pivot?
+~0\,N\,m | 2.4\,N\,m | 4.8\,N\,m | 9.6\,N\,m~#
+ 
+
+#A force of 20\,N acts perpendicularly at a distance of 60\,cm from a pivot.\\
+The force is moved 15\,cm closer to the pivot.\\
+By how much does its moment decrease?
+~1\,N\,m | 2\,N\,m | 3\,N\,m | 4\,N\,m~#
+ 
+
+#Assertion: A body can be in translational equilibrium\\
+but not in rotational equilibrium.\\
+Reason: Equal and opposite forces acting along different lines of action\\
+form a couple.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+ 
+
+#Assertion: The moment of a force about a pivot becomes zero\\
+when the line of action of the force passes through the pivot.\\
+Reason: The perpendicular distance between the pivot\\
+and the line of action of the force is zero.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+ 
+
+#Assertion: Two equal forces acting on opposite sides of a pivot\\
+always keep a body in rotational equilibrium.\\
+Reason: Rotational equilibrium requires the total clockwise moment\\
+to be equal to the total anticlockwise moment.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+ 
+
+#Assertion: The moment of a couple remains unchanged\\
+if the couple is moved to another position on the same rigid body.\\
+Reason: The moment of a couple depends on the magnitude of either force\\
+and the perpendicular distance between their lines of action.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+ 
+ 
+
+#A uniform horizontal rod of length 2\,m and weight 100\,N\\
+is hinged at one end. A load of 60\,N is suspended\\
+0.5\,m from the hinge. What vertical upward force applied\\
+at the other end will keep the rod in equilibrium?
+~50\,N | 60\,N | 65\,N | 80\,N~#
+ 
+
+#A uniform metre rule of weight 1.5\,N is pivoted\\
+at the 30\,cm mark. A downward force of 2\,N acts\\
+at the 10\,cm mark. What downward force should be applied\\
+at the 80\,cm mark to maintain equilibrium?
+~0.1\,N | 0.2\,N | 0.4\,N | 0.5\,N~#
+ 
+
+#A uniform beam of length 4\,m and weight 200\,N\\
+is supported horizontally at both ends. A load of 300\,N\\
+is placed 1\,m from the left support.\\
+Calculate the upward reaction at the right support.
+~125\,N | 150\,N | 175\,N | 250\,N~#
+ 
+
+#A light lever is pivoted at a point. Forces of 30\,N and 50\,N\\
+act downward on opposite sides of the pivot at perpendicular distances\\
+of 40\,cm and 20\,cm respectively. What additional downward force\\
+acting 25\,cm from the pivot on the side of the 50\,N force\\
+will produce equilibrium?
+~4\,N | 8\,N | 10\,N | 16\,N~#
+ 
+
+#A uniform metre rule of mass 120\,g is balanced\\
+on a knife edge at the 55\,cm mark. A mass of 30\,g\\
+is suspended from the 90\,cm mark. At which mark should\\
+a mass of 75\,g be suspended to maintain equilibrium?
+~33\,cm | 37\,cm | 39\,cm | 49\,cm~#
+ 
+
+#Two equal and opposite parallel forces form a couple\\
+of moment 18\,N\,m. If the perpendicular distance between\\
+their lines of action is increased from 60\,cm to 90\,cm\\
+while the moment remains unchanged, what is the new magnitude\\
+of each force?
+~15\,N | 20\,N | 25\,N | 30\,N~#
+ 
+
+#A uniform rod of length 3\,m and weight 90\,N\\
+is supported at a point 1\,m from its left end.\\
+A load of 150\,N is suspended from the left end.\\
+What downward force applied at the right end\\
+will keep the rod horizontal?
+~37.5\,N | 52.5\,N | 63.75\,N | 75\,N~#
+ 
+
+#A 5\,m long uniform beam of weight 400\,N rests horizontally\\
+on supports at its two ends. Loads of 600\,N and 300\,N\\
+are placed 1\,m and 4\,m respectively from the left end.\\
+Calculate the upward reaction at the left support.
+~510\,N | 590\,N | 740\,N | 710\,N~#
+ 
+
+#Assertion: A body acted upon by a couple can have\\
+zero resultant force but a non-zero resultant moment.\\
+Reason: The two forces forming a couple are equal and opposite,\\
+but their lines of action are separated by a perpendicular distance.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+ 
+
+#Assertion: A uniform metre rule supported at the 60\,cm mark\\
+can be balanced by suspending a suitable mass\\
+between the 60\,cm and 100\,cm marks.\\
+Reason: The weight of the metre rule acts at the 50\,cm mark\\
+and produces a moment opposite to that produced by the suspended mass.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+ 
+
+#A force of 6\,N acting perpendicularly at a distance x\\
+from a pivot produces a moment of 24\,N\,m.\\
+Find x.
+~2\,m | 3\,m | 4\,m | 6\,m~#
+ 
+
+#A force 3F acts perpendicularly at a distance 2r\\
+on one side of a pivot. A force F acts on the opposite side\\
+at a distance x. If the body is in equilibrium, find x.
+~2r | 3r | 5r | 6r~#
+ 
+
+#A force (x+2)\,N acts at a perpendicular distance of 3\,m\\
+on one side of a pivot. A force (2x-1)\,N acts\\
+at a perpendicular distance of 2\,m on the opposite side.\\
+If the lever is in equilibrium, find x.
+~4 | 6 | 8 | 10~#
+ 
+
+#A force x\,N acts at a perpendicular distance of 40\,cm\\
+from a pivot. A force of 20\,N acts in the opposite rotational direction\\
+at a perpendicular distance of 60\,cm.\\
+Find x if the lever is in equilibrium.
+~20\,N | 25\,N | 30\,N | 40\,N~#
+ 
+
+#Two forces F and (F+10)\,N act on opposite sides of a pivot\\
+at perpendicular distances of 50\,cm and 30\,cm respectively.\\
+If the lever is balanced, find F.
+~10\,N | 15\,N | 20\,N | 25\,N~#
+ 
+
+#A force (2x+5)\,N acts at a perpendicular distance of 20\,cm\\
+from a pivot. Another force (x+10)\,N acts\\
+in the opposite rotational direction at a perpendicular distance of 30\,cm.\\
+Find x if the body is in equilibrium.
+~5 | 10 | 15 | 20~#
+ 
+
+#A light lever is in equilibrium about a pivot.\\
+A force of 12\,N acts at a distance (x+10)\,cm on one side,\\
+while a force of 18\,N acts at a distance x\,cm\\
+on the opposite side. Find x.
+~10\,cm | 20\,cm | 30\,cm | 40\,cm~#
+ 
+
+#A force F acting at a perpendicular distance d produces a moment M.\\
+If the force is increased by 5\,N and the distance is decreased by 2\,m,\\
+the moment remains unchanged. Which equation represents this condition?
+~Fd=(F+5)(d-2) | F+d=(F+5)+(d-2) | Fd=(F-5)(d+2) | \frac{F}{d}=\frac{F+5}{d-2}~#
+ 
+
+#Two forces (x+4)\,N and (3x-2)\,N act\\
+in opposite rotational directions at perpendicular distances\\
+of 6\,m and 2\,m respectively. If the body is\\
+in rotational equilibrium, find x.
+~5 | 7 | 9 | No value of x can produce equilibrium~#
+ 
+
+#A couple consists of two equal and opposite forces\\
+of magnitude (2x+5)\,N. The perpendicular distance\\
+between their lines of action is 4\,m. If the moment\\
+of the couple is 100\,N\,m, find x.
+~5 | 8 | 10 | 12~#
+ 
+
+
+#A light lever is balanced about a pivot.\\
+A force of (x+5)\,N acts at a perpendicular distance of 40\,cm on one side,\\
+while a force of (2x-5)\,N acts at a perpendicular distance of 30\,cm on the opposite side.\\
+Find x.
+~12.5 | 15 | 17.5 | 20~#
+
+#A uniform metre rule of mass m is balanced at the 70\,cm mark\\
+when a mass of 405\,g is suspended at the 94\,cm mark.\\
+Find m.
+~324\,g | 405\,g | 486\,g | 540\,g~#
+
+#A uniform metre rule of mass 100\,g is supported at the 40\,cm mark.\\
+A mass m is suspended at the 20\,cm mark to keep the rule horizontal.\\
+Find m.
+~25\,g | 40\,g | 50\,g | 75\,g~#
+
+#Two forces (3x-4)\,N and (x+8)\,N act in opposite rotational directions\\
+at perpendicular distances of 20\,cm and 50\,cm respectively.\\
+The body is in rotational equilibrium. Find x.
+~12 | 16 | 48 | 24~#
+
+#A couple consists of two equal and opposite forces of magnitude (x+10)\,N.\\
+The perpendicular distance between their lines of action is 60\,cm.\\
+If the moment of the couple is 18\,N\,m, find x.
+~10 | 15 | 20 | 30~#
+
+#A uniform rod of length 4\,m and weight 80\,N is pivoted at its midpoint.\\
+A downward force of (x+10)\,N acts at the left end,\\
+while a downward force of (2x-5)\,N acts 1\,m from the pivot on the right side.\\
+Find x if the rod is in equilibrium.
+~10 | 15 | No value of x can produce equilibrium | 25~#
+
+#A uniform metre rule weighing 60\,gf is supported at the 65\,cm mark.\\
+A weight of x\,gf is suspended at the 95\,cm mark,\\
+and a weight of (x+20)\,gf is suspended at the 20\,cm mark.\\
+Find x when the rule is horizontal.
+~70\,gf | 80\,gf | 90\,gf | No positive value of x can produce equilibrium~#
+
+#A uniform beam of length 6\,m and weight 120\,N is supported at both ends.\\
+A load of (x+40)\,N is placed 2\,m from the left support.\\
+If the upward reaction at the right support is 100\,N, find x.
+~60 | 80 | 100 | 120~#
+
+#Assertion: A body acted upon by two unequal and opposite parallel forces\\
+whose lines of action are different can have both translational and rotational motion.\\
+Reason: The unequal forces produce a non-zero resultant force\\
+as well as a non-zero resultant moment.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+
+#Assertion: A uniform metre rule of mass 100\,g supported at the 40\,cm mark\\
+can be balanced by suspending a mass of 50\,g at the 20\,cm mark.\\
+Reason: The moment of the 50\,g mass about the support is equal and opposite\\
+to the moment of the metre rule's weight acting at the 50\,cm mark.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+
+#The centre of gravity of a body is the point\\
+at which the whole weight of the body may be considered to act.\\
+Which statement about this point is correct?
+~It must always lie inside the material of the body | It may lie outside the material of the body | It is always at the lowest point of the body | It depends only on the total mass of the body~#
+ 
+
+#Where is the centre of gravity of a uniform circular ring situated?
+~At the lowest point of the ring | At a point on the circumference | At the geometrical centre of the ring | Halfway between the centre and the circumference~#
+ 
+
+#A uniform triangular lamina is suspended freely from one of its vertices.\\
+Which point will lie vertically below the point of suspension\\
+when the lamina comes to rest?
+~The midpoint of the opposite side | The centre of gravity of the lamina | The vertex having the smallest angle | Any point on the opposite side~#
+ 
+
+#Which method can be used to locate the centre of gravity\\
+of an irregularly shaped cardboard lamina?
+~Suspending it from one point only | Drawing perpendicular bisectors of all its sides | Suspending it successively from two or more points and drawing vertical lines | Measuring only its total area~#
+ 
+
+#A uniform rectangular lamina has length 12\,cm and breadth 8\,cm.\\
+Where is its centre of gravity measured from one of its corners?
+~3\,cm and 2\,cm | 4\,cm and 6\,cm | 6\,cm and 4\,cm | 12\,cm and 8\,cm~#
+ 
+
+#A uniform circular disc of radius 20\,cm has a circular hole\\
+cut exactly at its centre. The remaining body forms a uniform ring.\\
+Where is the centre of gravity of the remaining body?
+~At the centre of the hole | On the inner circumference | On the outer circumference | Outside the ring~#
+ 
+
+#Three equal point masses are fixed at the three vertices\\
+of a uniform triangular frame. At which point is the centre of gravity\\
+of this arrangement situated?
+~At any one of the vertices | At the midpoint of any one side | At the point of intersection of the medians | At the vertex opposite the longest side~#
+ 
+
+#Two masses of 2\,kg and 6\,kg are fixed at the ends\\
+of a light rod of length 4\,m. How far from the 2\,kg mass\\
+is the centre of gravity of the system?
+~1\,m | 2\,m | 3\,m | 3.5\,m~#
+ 
+
+#Masses m and 3m are placed at the opposite ends\\
+of a light rod of length 80\,cm. Find the distance\\
+of the centre of gravity from the mass m.
+~20\,cm | 40\,cm | 60\,cm | 70\,cm~#
+ 
+
+#Two masses of 4\,kg and 8\,kg are placed 3\,m apart.\\
+A third mass of 6\,kg is placed exactly midway between them.\\
+Find the distance of the centre of gravity from the 4\,kg mass.
+~1.5\,m | 1.75\,m | \frac{11}{6}\,m | 2.25\,m~#
+ 
+
+#Assertion: The centre of gravity of a uniform circular ring\\
+lies at a point where no material of the ring is present.\\
+Reason: The centre of gravity of a body may lie outside\\
+the material forming the body.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+ 
+
+#Assertion: The centre of gravity of a freely suspended body\\
+lies vertically below its point of suspension when the body is at rest.\\
+Reason: The weight of the body produces no turning effect\\
+about the point of suspension in this position.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+ 
+
+#Assertion: Deforming a body may change the position\\
+of its centre of gravity.\\
+Reason: The position of the centre of gravity depends\\
+on the distribution of mass in the body.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+ 
+
+#A body moves along a circular path with constant speed.\\
+Which quantity changes continuously during the motion?
+~Mass | Speed | Direction of motion | Radius of the circular path~#
+ 
+
+#Why is uniform circular motion regarded as accelerated motion\\
+even though the speed of the body remains constant?
+~The mass of the body changes | The direction of motion changes continuously | The radius increases continuously | The body loses kinetic energy continuously~#
+ 
+
+#In uniform circular motion, in which direction does\\
+the acceleration of the moving body act?
+~Along the direction of motion | Away from the centre | Towards the centre of the circular path | Vertically downward in every case~#
+ 
+
+#A stone tied to a string is rotated in a horizontal circular path.\\
+Which force supplies the force required to keep the stone\\
+moving along the circular path?
+~The weight of the stone | The tension in the string | The centrifugal force | The friction of air only~#
+ 
+
+#A body of mass 2\,kg moves in a circular path of radius 4\,m\\
+with a constant speed of 6\,m\,s^{-1}. Calculate the force\\
+acting towards the centre of the circular path.
+~9\,N | 12\,N | 18\,N | 36\,N~#
+ 
+
+#A body of mass m moves in a circular path of radius r\\
+with speed v. If the speed becomes 2v while the radius remains unchanged,\\
+how does the force acting towards the centre change?
+~It becomes half | It remains unchanged | It becomes twice | It becomes four times~#
+ 
+
+#A body moves with speed v in a circular path of radius r.\\
+If the radius becomes 2r while the speed remains unchanged,\\
+the force required towards the centre becomes:
+~Half of the original force | Equal to the original force | Twice the original force | Four times the original force~#
+ 
+
+#A body of mass m moves in a circle of radius r\\
+under a force F directed towards the centre.\\
+Which expression gives the speed of the body?
+~\sqrt{\frac{Fr}{m}} | \sqrt{\frac{Fm}{r}} | \frac{Fr}{m} | \frac{F}{mr}~#
+ 
+
+#A body of mass 5\,kg moves in a circular path of radius 2\,m.\\
+The force acting towards the centre is 40\,N.\\
+Calculate the speed of the body.
+~2\,m\,s^{-1} | 4\,m\,s^{-1} | 8\,m\,s^{-1} | 16\,m\,s^{-1}~#
+ 
+
+#A stone moves in a circular path of radius 1.5\,m\\
+with a speed of 6\,m\,s^{-1}. Its mass is 0.5\,kg.\\
+Calculate the tension in the string.
+~6\,N | 12\,N | 18\,N | 24\,N~#
+ 
+
+#Two bodies of masses m and 2m move with the same speed\\
+in circular paths of the same radius. What is the ratio\\
+of the forces acting towards their centres?
+~1:1 | 1:2 | 2:1 | 1:4~#
+ 
+
+#Two identical bodies move in circular paths of radii r and 2r\\
+with the same speed. What is the ratio of the forces\\
+acting towards the centres of the first and second paths?
+~1:1 | 1:2 | 2:1 | 4:1~#
+ 
+
+#Two identical bodies move in circular paths of the same radius.\\
+Their speeds are v and 3v respectively. Find the ratio\\
+of the forces acting towards the centres of their paths.
+~1:3 | 1:6 | 1:9 | 3:1~#
+ 
+
+#A body moves in a circular path under a force of 50\,N\\
+directed towards the centre. If its speed is doubled\\
+and the radius is tripled, what is the new force?
+~\frac{50}{3}\,N | \frac{100}{3}\,N | \frac{200}{3}\,N | 150\,N~#
+ 
+
+#A rotating disc completes 120 revolutions in 2\,minutes.\\
+What is the frequency of rotation of the disc?
+~0.5\,Hz | 1\,Hz | 2\,Hz | 60\,Hz~#
+ 
+
+#A body completes 15 revolutions in 5\,s while moving\\
+along a circular path of radius 2\,m. Calculate its speed.\\
+Use \pi=3.14.
+~6.28\,m\,s^{-1} | 12.56\,m\,s^{-1} | 18.84\,m\,s^{-1} | 37.68\,m\,s^{-1}~#
+ 
+
+#A body moves uniformly in a circular path of radius 7\,m\\
+and completes one revolution in 4\,s. Calculate its speed.\\
+Use \pi=\frac{22}{7}.
+~5.5\,m\,s^{-1} | 11\,m\,s^{-1} | 14\,m\,s^{-1} | 22\,m\,s^{-1}~#
+ 
+
+#Assertion: A body moving with uniform speed in a circular path\\
+has acceleration.\\
+Reason: The direction of motion of the body changes continuously.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+ 
+
+#Assertion: Centrifugal force is considered a fictitious force.\\
+Reason: Centrifugal force is experienced when circular motion\\
+is described from a rotating frame of reference.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+ 
+
+#Assertion: If the string of a rotating stone suddenly breaks,\\
+the stone continues to move along the circular path.\\
+Reason: The tension in the string provides the force\\
+required to maintain the circular motion.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+ 
+
+#Assertion: The force acting towards the centre performs no work\\
+on a body in uniform circular motion.\\
+Reason: The force towards the centre acts perpendicular\\
+to the instantaneous direction of motion.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+
+#2, 4, 1, 2, 1, 3, 1, 1, 4, 1,
+ 3, 2, 3, 2, 4, 2, 2, 3, 1, 1,
+ 3, 4, 3, 3, 2, 4, 2, 1, 4, 3,
+ 3, 3, 3, 3, 3, 3, 4, 2, 1, 1,
+ 2, 3, 2, 3, 3, 1, 3, 3, 3, 3,
+ 1, 1, 1, 3, 2, 3, 2, 3, 4, 1,
+ 1, 2, 2, 2, 3, 3, 3, 2, 4, 2,
+ 1, 1, 4, 1#

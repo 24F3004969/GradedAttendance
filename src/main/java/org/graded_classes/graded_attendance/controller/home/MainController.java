@@ -66,7 +66,7 @@ public class MainController implements Initializable {
     }
 
     Stage stage;
-    Node home, chat, calendar, lesson;
+    Node home, chat, calendar, lesson, database,quizCreator,leaderboard;
     @FXML
     public ModalPane modalPane;
     public GradedFxmlLoader gradedFxmlLoader = new GradedFxmlLoader();
@@ -81,7 +81,6 @@ public class MainController implements Initializable {
     public MainController(Stage stage) {
         this.stage = stage;
 
-
     }
 
     @Override
@@ -89,6 +88,9 @@ public class MainController implements Initializable {
         home = gradedFxmlLoader.createView(R.home_layout, new HomeController(modalPane,
                 gradedDataLoader, this));
         chat = gradedFxmlLoader.createView(R.chat_layout, new ChatController(this));
+        database = gradedFxmlLoader.createView(R.database_layout, new DataBaseController(this));
+        lesson = gradedFxmlLoader.createView(R.lesson_planner, new Planner(gradedDataLoader, modalPane));
+        quizCreator=gradedFxmlLoader.createView(R.quiz_creator, new QuizGenerator(this));
         calendar = new CalendarApp().createCalenderView();
         main_view.setCenter(navigateView("home"));
         ham.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.ACCENT, Styles.FLAT);
@@ -98,6 +100,10 @@ public class MainController implements Initializable {
         studentDataLoader = new StudentDataLoader(gradedDataLoader.getStudentData());
         l1 = new Leaderboard1(studentDataLoader, this);
         l2 = new SeatingPlan(getSeatingPlan());
+        leaderboard=gradedFxmlLoader.createView(R.points_table, new PointsTable(studentDataLoader,
+                l1,
+                l2,
+                this));
         notificationInit();
     }
 
@@ -188,13 +194,10 @@ public class MainController implements Initializable {
             case "home" -> home;
             case "chat" -> chat;
             case "calender" -> calendar;
-            case "database" -> gradedFxmlLoader.createView(R.database_layout, new DataBaseController(this));
-            case "lesson" -> gradedFxmlLoader.createView(R.lesson_planner, new Planner(gradedDataLoader, modalPane));
-            case "quizCreator" -> gradedFxmlLoader.createView(R.quiz_creator, new QuizGenerator(this));
-            case "leaderboard" -> gradedFxmlLoader.createView(R.points_table, new PointsTable(studentDataLoader,
-                    l1,
-                    l2,
-                    this));
+            case "database" -> database;
+            case "lesson" -> lesson;
+            case "quizCreator" -> quizCreator;
+            case "leaderboard" -> leaderboard;
             /* case "setting" -> gradedFxmlLoader.createView(R.quiz_taker);*/
             default -> null;
         };
@@ -247,7 +250,7 @@ public class MainController implements Initializable {
     }
 
     public void approve(User user, String[] test, TelegramBot telegramBot) {
-        String name=studentDataLoader.getStudentLinkedHashMap().get(test[0].trim().toUpperCase()).name();
+        String name = studentDataLoader.getStudentLinkedHashMap().get(test[0].trim().toUpperCase()).name();
         Platform.runLater(() -> {
             var x = sendNotification("Need and an approval for " + user.getFirstName() +
                     "." + test[0] + " " + name + " class " + test[1], Styles.SUCCESS);
@@ -255,7 +258,7 @@ public class MainController implements Initializable {
             but.getStyleClass().add(Styles.SUCCESS);
             x.setPrimaryActions(but);
             but.setOnMouseClicked(event -> {
-                showWarningDialog("Are you sure you want to approve for " + user.getFirstName()  +
+                showWarningDialog("Are you sure you want to approve for " + user.getFirstName() +
                         ". " + test[0] + " " + name + " class " + test[1], telegramBot, test, user);
             });
         });

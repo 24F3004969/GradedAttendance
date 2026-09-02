@@ -10,6 +10,7 @@ import javafx.scene.layout.VBox;
 import org.graded_classes.graded_attendance.Main;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.controller.home.MainController;
+import org.graded_classes.graded_attendance.data.OptionData;
 import org.graded_classes.graded_attendance.data.QuestionData;
 
 import java.io.File;
@@ -23,10 +24,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class QuestionEditor implements Initializable {
     private int questionCount = 0;
@@ -74,7 +73,8 @@ public class QuestionEditor implements Initializable {
                 if (questionCount == totalQuestionNumber && questionCount <= maxQuestionCount - 2) {
                     questionCount = totalQuestionNumber + 1;
                     Questions controller;
-                    controller = new Questions(mainController, "Question " + (questionCount + 1), questionSet == null ? null : questionSet.get(questionCount));
+                    controller = new Questions(mainController, "Question " + (questionCount + 1), questionSet == null
+                            ? null : questionSet.get(questionCount));
                     var content = (VBox) mainController.gradedFxmlLoader.createView(R.question, controller);
                     listOfQuestions.add(new QuestionEditorModel(content, controller, segmentControl.getSegments().getFirst()));
                     if (segmentControl.getToggleGroup().getSelectedToggle() instanceof ToggleLabel l) {
@@ -142,10 +142,10 @@ public class QuestionEditor implements Initializable {
                 if (l.getText().equals("Edit")) {
                     edit(l);
                 } else if (l.getText().equals("Preview")) {
-                    if (list != null)
+                  /*  if (list != null)
                         preview(l);
-                    else
-                        preview(listOfQuestions.get(questionCount).question);
+                    else*/
+                    preview(listOfQuestions.get(questionCount).question);
                 }
             }
         });
@@ -345,7 +345,19 @@ public class QuestionEditor implements Initializable {
             if (!conn.getAutoCommit()) {
                 conn.commit();
             }
-
+            qd.option_data().options().replace(0, x.question.opt1.getText());
+            qd.option_data().options().replace(1, x.question.opt2.getText());
+            qd.option_data().options().replace(2, x.question.opt3.getText());
+            qd.option_data().options().replace(3, x.question.opt4.getText());
+            qd.setQuestion_txt(x.question.question_text.getText());
+            if (x.question.cOp1.isSelected())
+                qd.option_data().setOption_index(0);
+            else if (x.question.cOp2.isSelected())
+                qd.option_data().setOption_index(1);
+            else if (x.question.cOp3.isSelected())
+                qd.option_data().setOption_index(3);
+            else if (x.question.cOp4.isSelected())
+                qd.option_data().setOption_index(3);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -381,6 +393,7 @@ public class QuestionEditor implements Initializable {
         stmt.setInt(4, optionId);
 
         stmt.executeUpdate();
+
     }
 
     public static void copyFile(String sourcePath, String destinationPath) {

@@ -3,6 +3,7 @@
 <?import atlantafx.base.controls.RingProgressIndicator?>
 <?import com.dlsc.gemsfx.SearchField?>
 <?import com.dlsc.gemsfx.TimePicker?>
+<?import impl.com.calendarfx.view.NumericTextField?>
 <?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
@@ -81,6 +82,12 @@
                            <children>
                               <Label text="Subject" />
                               <SearchField fx:id="subject" />
+                           </children>
+                        </VBox>
+                        <VBox>
+                           <children>
+                              <Label text="Question Count" />
+                              <NumericTextField fx:id="questionCount" />
                            </children>
                         </VBox>
                      </children>

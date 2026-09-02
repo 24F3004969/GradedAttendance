@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 import org.graded_classes.graded_attendance.GradedFxmlLoader;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.R;
+
 import org.graded_classes.graded_attendance.controller.camera.CameraController;
 import org.graded_classes.graded_attendance.controller.fee.FeeReport;
 import org.graded_classes.graded_attendance.data.GradedDataLoader;
@@ -28,7 +29,6 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Objects;
 import java.util.ResourceBundle;
 
 import static org.graded_classes.graded_attendance.GradedResourceLoader.loadStream;
@@ -186,7 +186,7 @@ public class HomeController implements Initializable {
         modalPane.show(dialog);
     }
 
-    CameraController cameraController;
+    CameraController  cameraController;
 
     @FXML
     void onReport(ActionEvent event) {

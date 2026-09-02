@@ -41,12 +41,12 @@ public class GradedDataLoader {
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/dueDates.sql").getQuery());
             databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/token.sql").getQuery());
 
-            for (int i = 4; i <= 10; i++) {
+            /*for (int i = 4; i <= 10; i++) {
                 String formatted = new SqlFileReader("data/TimeTable.sql").getQuery().formatted("_ICSE_" + i, "_ICSE_"+i);
                 databaseLoader.getStatement().executeUpdate(formatted);
                 databaseLoader.getStatement().executeUpdate(new SqlFileReader("data/TimeTable.sql").getQuery().formatted("_CBSE_" + i, "_ICSE_"+i));
 
-            }
+            }*/
             loadData();
 
         } catch (SQLException e) {
@@ -61,11 +61,11 @@ public class GradedDataLoader {
             for (var s : students) {
                 System.out.println("OK button clicked.");
                 preparedStatement.setString(1, s.ed_no());
-                addEdToAbandonedEd(s.ed_no());
                 int affectedRows = preparedStatement.executeUpdate();
 
                 if (affectedRows > 0) {
                     System.out.println("StudentScore with ed_no " + s.ed_no() + " removed successfully.");
+                    addEdToAbandonedEd(s.ed_no());
                 } else {
                     System.out.println("No student found with ed_no " + s.ed_no());
                 }

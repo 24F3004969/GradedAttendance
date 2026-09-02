@@ -1,0 +1,1232 @@
+#A crane raises a car of mass 500\,kg vertically through a height of 4\,m.\\
+Calculate the work done by the crane.\\
+Take g=9.8\,m\,s^{-2}.
+~1960\,J | 4900\,J | 9800\,J | 19600\,J~#
+   
+
+#A force of 10\,N displaces a body through 2\,m.\\
+The angle between the force and displacement is 60^\circ.\\
+Calculate the work done by the force.
+~5\,J | 10\,J | 15\,J | 20\,J~#
+   
+
+#A force F displaces a body through a distance S.\\
+If the angle between the force and displacement is \theta,\\
+which expression gives the work done?
+~FS | FS\sin\theta | FS\cos\theta | \frac{F}{S}\cos\theta~#
+   
+
+#A body of mass 2\,kg is pulled 5\,m up an inclined plane\\
+by a constant force of 15\,N acting along the plane.\\
+Calculate the work done by the pulling force.
+~30\,J | 49\,J | 75\,J | 98\,J~#
+   
+
+#A body of mass 2\,kg moves 5\,m up an inclined plane\\
+making an angle of 30^\circ with the horizontal.\\
+Calculate the work done against gravity. Take g=9.8\,m\,s^{-2}.
+~24.5\,J | 49\,J | 75\,J | 98\,J~#
+   
+
+#A force of 15\,N pulls a 2\,kg body through 5\,m\\
+along a plane inclined at 30^\circ to the horizontal.\\
+If g=9.8\,m\,s^{-2}, calculate the work done against friction.
+~16\,J | 24.5\,J | 26\,J | 49\,J~#
+   
+
+#An engine lifts 10^{5}\,kg of coal vertically through 360\,m\\
+in 1\,hour. Calculate the minimum power of the engine.\\
+Take g=10\,m\,s^{-2}.
+~10\,kW | 100\,kW | 1000\,kW | 3600\,kW~#
+   
+
+#An electric motor has an input power of 100\,W.\\
+Only 50\% of the supplied energy is transferred usefully to water.\\
+Calculate the useful work done on the water in 1\,minute.
+~1500\,J | 3000\,J | 5000\,J | 6000\,J~#
+   
+
+#A person pulls a cart with a force of 200\,N\\
+while the cart moves at a constant speed of 16\,m\,s^{-1}.\\
+Calculate the power developed.
+~800\,W | 1600\,W | 3200\,W | 6400\,W~#
+   
+
+#A heart does 1\,J of work in each beat\\
+and beats 72 times in 1\,minute.\\
+Calculate the average power developed by the heart.
+~0.72\,W | 1.0\,W | 1.2\,W | 72\,W~#
+   
+
+#Convert 5\,kWh into joules.
+~1.8\times10^{5}\,J | 1.8\times10^{6}\,J | 1.8\times10^{7}\,J | 1.8\times10^{8}\,J~#
+   
+
+#An energy of 4.0\times10^{-19}\,J is transferred to a particle.\\
+Express this energy in electron volts.\\
+Use 1\,eV=1.6\times10^{-19}\,J.
+~0.4\,eV | 2.0\,eV | 2.5\,eV | 6.4\,eV~#
+   
+
+#A force of 50\,N moves a body through 8\,m\\
+in the direction of the force. Calculate the work done.
+~58\,J | 200\,J | 400\,J | 800\,J~#
+   
+
+#A body is displaced horizontally through 12\,m.\\
+A vertical force of 30\,N acts on the body during the displacement.\\
+Calculate the work done by the vertical force.
+~0\,J | 30\,J | 360\,J | 720\,J~#
+   
+
+#A force of 25\,N acts opposite to the displacement of a body.\\
+If the body moves through 4\,m, calculate the work done by the force.
+~-100\,J | -25\,J | 25\,J | 100\,J~#
+   
+
+#A person carries a load horizontally at a constant height.\\
+The force exerted by the person on the load is vertical.\\
+What is the work done by this force during the horizontal motion?
+~Zero | Positive | Negative | Equal to the weight of the load~#
+   
+
+#A satellite moves around Earth in a circular orbit.\\
+What is the work done by gravitational force\\
+during a small displacement along the circular path?
+~Zero | Positive | Negative | Equal to its kinetic energy~#
+   
+
+#A body moves once around a complete circular path\\
+and returns to its initial position. What is the total work done\\
+by the force directed towards the centre of the path?
+~Zero | Positive | Negative | Equal to force multiplied by circumference~#
+   
+
+#A machine performs 7200\,J of work in 2\,minutes.\\
+Calculate the average power of the machine.
+~30\,W | 60\,W | 120\,W | 3600\,W~#
+   
+
+#A machine of power 2.5\,kW operates continuously for 4\,minutes.\\
+Calculate the work done by the machine.
+~10\,kJ | 150\,kJ | 600\,kJ | 1000\,kJ~#
+   
+
+#A motor performs 3.6\times10^{5}\,J of useful work\\
+in 2\,minutes. Calculate its useful power.
+~300\,W | 1500\,W | 3000\,W | 7200\,W~#
+   
+
+#Two machines perform the same amount of work.\\
+The first machine takes half the time taken by the second machine.\\
+What is the ratio of their powers P_1:P_2?
+~1:1 | 1:2 | 2:1 | 4:1~#
+   
+
+#A person of mass 50\,kg climbs vertically through 8\,m\\
+in 10\,s. Calculate the power developed.\\
+Take g=10\,m\,s^{-2}.
+~40\,W | 400\,W | 800\,W | 4000\,W~#
+   
+
+#A person of mass 60\,kg and another person of mass 40\,kg\\
+climb through the same vertical height in the same time.\\
+Find the ratio of the powers developed by them.
+~2:3 | 3:2 | 1:1 | 9:4~#
+   
+
+#A person of mass 40\,kg climbs through a vertical height of 6\,m\\
+in 120\,s. Another person of mass 30\,kg climbs the same height\\
+in 90\,s. Find the ratio of their powers.
+~1:1 | 3:4 | 4:3 | 16:9~#
+   
+
+#A machine performs W joules of work in t seconds.\\
+If the work becomes 3W and the time becomes 2t,\\
+what is the new power in terms of the original power P?
+~\frac{P}{2} | \frac{2P}{3} | \frac{3P}{2} | 6P~#
+   
+
+#A machine develops power P while performing work W.\\
+If its power is increased by 25\% while the work remains unchanged,\\
+the new time taken is what fraction of the original time?
+~\frac{1}{4} | \frac{3}{4} | \frac{4}{5} | \frac{5}{4}~#
+   
+
+#A force (x+5)\,N moves a body through 6\,m\\
+in the direction of the force. If the work done is 90\,J,\\
+find x.
+~5 | 10 | 15 | 20~#
+   
+
+#A machine performs (4x+200)\,J of work in 20\,s.\\
+If the power developed is 60\,W, find x.
+~150 | 200 | 250 | 300~#
+   
+
+#A body of mass x\,kg is raised vertically through 5\,m.\\
+If the work done against gravity is 1000\,J, find x.\\
+Take g=10\,m\,s^{-2}.
+~10\,kg | 20\,kg | 25\,kg | 50\,kg~#
+   
+
+#An engine of power 5\,kW raises a load vertically\\
+through a height of 20\,m in 10\,s. Find the mass of the load.\\
+Take g=10\,m\,s^{-2}.
+~25\,kg | 100\,kg | 250\,kg | 500\,kg~#
+   
+
+#A lift raises a load of mass m through a vertical height h\\
+in time t. Which expression gives the average power developed\\
+against gravity?
+~mght | \frac{mgh}{t} | \frac{mgt}{h} | \frac{ht}{mg}~#
+   
+
+#An engine of power P raises a body of mass m vertically\\
+at a constant speed v. Which relation is correct?
+~P=mgv | P=\frac{mg}{v} | P=\frac{mv}{g} | P=mghv~#
+   
+
+#An engine develops a constant power of 4\,kW\\
+while lifting a load of weight 2000\,N vertically.\\
+At what constant speed is the load raised?
+~0.5\,m\,s^{-1} | 2\,m\,s^{-1} | 4\,m\,s^{-1} | 8\,m\,s^{-1}~#
+   
+
+#A machine receives 5000\,J of energy and performs\\
+3500\,J of useful work. Calculate the efficiency of the machine.
+~30\% | 50\% | 70\% | 140\%~#
+   
+
+#A motor of efficiency 80\% performs 2400\,J\\
+of useful work. How much energy is supplied to the motor?
+~1920\,J | 2400\,J | 3000\,J | 3200\,J~#
+   
+
+#A motor receives energy at a rate of 500\,W\\
+and has an efficiency of 60\%. Calculate its useful output power.
+~200\,W | 300\,W | 500\,W | 800\,W~#
+   
+
+#One horsepower is approximately equal to:
+~76.4\,W | 100\,W | 746\,W | 1000\,W~#
+   
+
+#Which physical quantity is measured in kilowatt-hour?
+~Force | Energy | Power | Pressure~#
+   
+
+#Which physical quantity is measured in kilowatt?
+~Work | Energy | Power | Momentum~#
+   
+
+#Which equation correctly relates kilowatt-hour and joule?
+~1\,kWh=3.6\times10^{3}\,J | 1\,kWh=3.6\times10^{4}\,J | 1\,kWh=3.6\times10^{5}\,J | 1\,kWh=3.6\times10^{6}\,J~#
+   
+
+#Assertion: A body may be displaced even when the work done\\
+by a particular force acting on the body is zero.\\
+Reason: Work done is zero when the force is perpendicular\\
+to the displacement.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: Carrying a load horizontally at constant height\\
+involves zero mechanical work on the load against gravity.\\
+Reason: The displacement of the load is perpendicular\\
+to the gravitational force.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: A more powerful machine always performs\\
+a greater amount of work than a less powerful machine.\\
+Reason: Power is the rate at which work is done.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: The work done by friction on a sliding body\\
+is generally negative.\\
+Reason: Friction generally acts in a direction opposite\\
+to the displacement of the sliding body.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: A machine with an efficiency of 80\% wastes\\
+20\% of the supplied energy.\\
+Reason: Efficiency is the ratio of useful output energy\\
+to the total input energy.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: A person climbing stairs quickly develops more power\\
+than the same person climbing the same stairs slowly.\\
+Reason: The same work is completed in a shorter time.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+#A body of mass 5\,kg is raised vertically\\
+from a height of 5\,m to a height of 10\,m.\\
+Calculate the increase in its potential energy.\\
+Take g=10\,m\,s^{-2}.
+~150\,J | 200\,J | 250\,J | 500\,J~#
+   
+
+#A body of mass 1\,kg falls freely through a height of 5\,m.\\
+How much kinetic energy does the body gain?\\
+Take g=9.8\,m\,s^{-2} and neglect air resistance.
+~9.8\,J | 24.5\,J | 49\,J | 98\,J~#
+   
+
+#A tank containing 500\,litre of water is raised\\
+from a height of 4\,m to a height of 12\,m.\\
+Calculate the increase in the potential energy of the water.\\
+Take g=10\,m\,s^{-2} and density of water=1\,kg\,litre^{-1}.
+~4\times10^{3}\,J | 4\times10^{4}\,J | 6\times10^{4}\,J | 8\times10^{4}\,J~#
+   
+
+#A block of mass 30\,kg is pulled at constant speed\\
+through a distance of 3\,m along an inclined plane\\
+by a force of 200\,N acting parallel to the plane.\\
+Calculate the work done by the applied force.
+~150\,J | 450\,J | 600\,J | 900\,J~#
+   
+
+#A block of mass 30\,kg is pulled to the top\\
+of an inclined plane of vertical height 1.5\,m.\\
+Calculate the potential energy gained by the block.\\
+Take g=10\,m\,s^{-2}.
+~150\,J | 300\,J | 450\,J | 600\,J~#
+   
+
+#A force of 200\,N pulls a 30\,kg block at constant speed\\
+through 3\,m along an inclined plane of vertical height 1.5\,m.\\
+How much energy is converted into heat due to friction?\\
+Take g=10\,m\,s^{-2}.
+~100\,J | 150\,J | 300\,J | 450\,J~#
+   
+
+#Water falls from a dam at a rate of 1000\,kg\,s^{-1}\\
+through a vertical height of 100\,m. Calculate the rate\\
+at which gravitational potential energy is supplied.\\
+Take g=9.8\,m\,s^{-2}.
+~9.8\times10^{3}\,W | 9.8\times10^{4}\,W | 9.8\times10^{5}\,W | 9.8\times10^{6}\,W~#
+   
+
+#Water falls from a height of 100\,m\\
+at a rate of 1000\,kg\,s^{-1}. If 60\% of its energy\\
+is converted into electrical energy, calculate the power generated.\\
+Take g=9.8\,m\,s^{-2}.
+~3.92\times10^{5}\,W | 5.88\times10^{5}\,W | 9.8\times10^{5}\,W | 1.63\times10^{6}\,W~#
+   
+
+#An 80\,kg drum is lifted vertically\\
+to a platform 0.8\,m above the ground.\\
+Calculate the increase in its gravitational potential energy.\\
+Take g=10\,m\,s^{-2}.
+~64\,J | 320\,J | 640\,J | 800\,J~#
+   
+
+#A body of mass 2\,kg moves with a speed of 10\,m\,s^{-1}.\\
+Calculate its kinetic energy.
+~20\,J | 50\,J | 100\,J | 200\,J~#
+   
+
+#A person of weight 600\,N runs with a speed of 5\,m\,s^{-1}.\\
+Calculate the kinetic energy of the person.\\
+Take g=10\,m\,s^{-2}.
+~300\,J | 600\,J | 750\,J | 1500\,J~#
+   
+
+#The mass of a moving body is doubled\\
+while its speed remains unchanged. How does its kinetic energy change?
+~It becomes half | It remains unchanged | It becomes twice | It becomes four times~#
+   
+
+#The speed of a moving body is reduced\\
+to one-third of its initial value while its mass remains unchanged.\\
+What fraction of the initial kinetic energy remains?
+~\frac{1}{3} | \frac{1}{6} | \frac{1}{9} | \frac{2}{9}~#
+   
+
+#A truck of mass 5\times10^{3}\,kg and a cart of mass 500\,kg\\
+move with the same speed. Find the ratio of their kinetic energies.
+~1:10 | 5:1 | 10:1 | 100:1~#
+   
+
+#The mass of a body is increased to four times its original mass.\\
+What should its new speed be so that its kinetic energy\\
+remains unchanged?
+~One-fourth of the original speed | Half of the original speed | Twice the original speed | Four times the original speed~#
+   
+
+#A bullet of mass 5\,g moves with a speed of 500\,m\,s^{-1}.\\
+Calculate its kinetic energy.
+~125\,J | 250\,J | 500\,J | 625\,J~#
+   
+
+#A bullet of mass 5\,g moving at 500\,m\,s^{-1}\\
+is stopped by a fixed target offering a constant resistance of 1000\,N.\\
+Calculate the distance travelled by the bullet before stopping.
+~0.125\,m | 0.5\,m | 0.625\,m | 1.25\,m~#
+   
+
+#A bullet of mass 5\,g enters a target at 500\,m\,s^{-1}.\\
+After penetrating 0.5\,m against a constant resistance of 1000\,N,\\
+calculate the kinetic energy remaining in the bullet.
+~0\,J | 100\,J | 125\,J | 500\,J~#
+   
+
+#A bullet of mass 5\,g has 125\,J of kinetic energy\\
+after passing through a target. Calculate its speed.
+~100\,m\,s^{-1} | 200\,m\,s^{-1} | 223.6\,m\,s^{-1} | 250\,m\,s^{-1}~#
+   
+
+#A body of mass 0.1\,kg has momentum 20\,kg\,m\,s^{-1}.\\
+Calculate its kinetic energy.
+~200\,J | 1000\,J | 2000\,J | 4000\,J~#
+   
+
+#A ball of mass 10\,g falls from a height of 5\,m.\\
+Calculate its gravitational potential energy at the initial position.\\
+Take g=9.8\,m\,s^{-2}.
+~0.049\,J | 0.098\,J | 0.49\,J | 4.9\,J~#
+   
+
+#A ball of mass 10\,g falls freely from a height of 5\,m.\\
+Calculate its kinetic energy just before striking the ground.\\
+Take g=9.8\,m\,s^{-2} and neglect air resistance.
+~0.049\,J | 0.098\,J | 0.392\,J | 0.49\,J~#
+   
+
+#A ball of mass 10\,g rebounds to a height of 4\,m\\
+after falling from a height of 5\,m. Calculate its kinetic energy\\
+immediately after rebounding. Take g=9.8\,m\,s^{-2}.
+~0.098\,J | 0.196\,J | 0.392\,J | 0.49\,J~#
+   
+
+#A ball of mass 10\,g falls from a height of 5\,m\\
+and rebounds to a height of 4\,m. Calculate the mechanical energy\\
+lost during the collision. Take g=9.8\,m\,s^{-2}.
+~0.049\,J | 0.098\,J | 0.196\,J | 0.392\,J~#
+   
+
+#A body of mass 4\,kg possesses 200\,J of kinetic energy.\\
+Calculate its speed.
+~5\,m\,s^{-1} | 10\,m\,s^{-1} | 20\,m\,s^{-1} | 25\,m\,s^{-1}~#
+   
+
+#A body moving at 6\,m\,s^{-1} has kinetic energy 90\,J.\\
+Calculate the mass of the body.
+~2.5\,kg | 5\,kg | 10\,kg | 15\,kg~#
+   
+
+#A body of mass 2\,kg is raised to a height h\\
+and gains 300\,J of gravitational potential energy.\\
+Find h. Take g=10\,m\,s^{-2}.
+~5\,m | 10\,m | 15\,m | 30\,m~#
+   
+
+#A body possesses 800\,J of gravitational potential energy\\
+at a height of 20\,m. Calculate its mass.\\
+Take g=10\,m\,s^{-2}.
+~2\,kg | 4\,kg | 8\,kg | 40\,kg~#
+   
+
+#A body of mass m is raised from height h to height 3h.\\
+What is the increase in its gravitational potential energy?
+~mgh | 2mgh | 3mgh | 4mgh~#
+   
+
+#A body of mass 2m is raised from the ground to a height \frac{h}{2}.\\
+How does the potential energy gained compare with that gained\\
+by a body of mass m raised through height h?
+~It is half | It is equal | It is twice | It is four times~#
+   
+
+#Two bodies of masses m and 4m are raised\\
+through heights 6h and 2h respectively. Find the ratio\\
+of the potential energies gained by the two bodies.
+~3:4 | 4:3 | 1:2 | 2:1~#
+   
+
+#Two bodies of masses 2m and 3m move with speeds\\
+3v and 2v respectively. Find the ratio of their kinetic energies.
+~1:1 | 2:3 | 3:2 | 4:3~#
+   
+
+#Two bodies have equal kinetic energies.\\
+Their masses are in the ratio 1:4. Find the ratio\\
+of their speeds.
+~1:2 | 2:1 | 1:4 | 4:1~#
+   
+
+#The kinetic energy of a body becomes nine times\\
+its original value while its mass remains unchanged.\\
+How does its speed change?
+~It becomes three times | It becomes nine times | It becomes one-third | It becomes eighty-one times~#
+   
+
+#The momentum of a body is doubled\\
+while its mass remains unchanged. How does its kinetic energy change?
+~It becomes half | It becomes twice | It becomes four times | It becomes eight times~#
+   
+
+#The momentum of a body remains unchanged\\
+while its mass is doubled. How does its kinetic energy change?
+~It becomes half | It remains unchanged | It becomes twice | It becomes four times~#
+   
+
+#A body of mass m has momentum p.\\
+Which expression gives its kinetic energy?
+~\frac{p}{2m} | \frac{p^{2}}{2m} | \frac{2p^{2}}{m} | \frac{pm}{2}~#
+   
+
+#A body of mass (x+2)\,kg moves with a speed of 4\,m\,s^{-1}.\\
+If its kinetic energy is 48\,J, find x.
+~2 | 4 | 6 | 8~#
+   
+
+#A body of mass 5\,kg moves with a speed of (x+2)\,m\,s^{-1}.\\
+If its kinetic energy is 160\,J, find the positive value of x.
+~2 | 4 | 6 | 8~#
+   
+
+#A body of mass x\,kg is raised vertically through 8\,m.\\
+If it gains 400\,J of gravitational potential energy, find x.\\
+Take g=10\,m\,s^{-2}.
+~2\,kg | 5\,kg | 8\,kg | 10\,kg~#
+   
+
+#A body of mass (2x+5)\,kg is raised through 4\,m\\
+and gains 500\,J of gravitational potential energy.\\
+Find x. Take g=10\,m\,s^{-2}.
+~2.5 | 3.75 | 5 | 7.5~#
+   
+
+#A body of mass m moves with speed v and possesses kinetic energy K.\\
+If its mass becomes 2m and its speed becomes \frac{v}{2},\\
+what is its new kinetic energy?
+~\frac{K}{4} | \frac{K}{2} | K | 2K~#
+   
+
+#A body has kinetic energy K. Its mass becomes \frac{m}{2}\\
+and its speed becomes 2v. What is its new kinetic energy?
+~K | 2K | 4K | 8K~#
+   
+
+#A body is dropped from rest from a height of 20\,m.\\
+At what height above the ground will its kinetic energy\\
+be equal to its potential energy? Neglect air resistance.
+~5\,m | 10\,m | 15\,m | 20\,m~#
+   
+
+#A body is dropped from rest from a height H.\\
+At a certain point, its potential energy is three times\\
+its kinetic energy. What is its height above the ground?
+~\frac{H}{4} | \frac{H}{2} | \frac{3H}{4} | \frac{4H}{3}~#
+   
+
+#A body is dropped from rest from a height H.\\
+At what height above the ground will its kinetic energy\\
+be three times its potential energy?
+~\frac{H}{4} | \frac{H}{3} | \frac{H}{2} | \frac{3H}{4}~#
+   
+
+#A body is dropped from rest from a height of 45\,m.\\
+Calculate its speed after falling through 20\,m.\\
+Take g=10\,m\,s^{-2} and neglect air resistance.
+~10\,m\,s^{-1} | 20\,m\,s^{-1} | 30\,m\,s^{-1} | 40\,m\,s^{-1}~#
+   
+
+#A ball is thrown vertically upward with a speed of 20\,m\,s^{-1}.\\
+Calculate the maximum height reached above the point of projection.\\
+Take g=10\,m\,s^{-2} and neglect air resistance.
+~10\,m | 20\,m | 30\,m | 40\,m~#
+   
+
+#A ball is projected vertically upward with kinetic energy 400\,J.\\
+What is its potential energy gained at the highest point\\
+if air resistance is neglected?
+~0\,J | 200\,J | 400\,J | 800\,J~#
+   
+
+#A machine supplies 1000\,J of energy to raise a body.\\
+The body gains 750\,J of gravitational potential energy.\\
+Calculate the efficiency of the energy transfer.
+~25\% | 50\% | 75\% | 125\%~#
+   
+
+#A machine raises a 20\,kg load through a height of 5\,m\\
+using 1250\,J of input energy. Calculate the efficiency.\\
+Take g=10\,m\,s^{-2}.
+~60\% | 75\% | 80\% | 125\%~#
+   
+
+#Assertion: The kinetic energy of a body depends\\
+on both its mass and the square of its speed.\\
+Reason: The kinetic energy of a moving body is given\\
+by K=\frac{1}{2}mv^{2}.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: Doubling the speed of a body\\
+doubles its kinetic energy.\\
+Reason: Kinetic energy is directly proportional\\
+to the square of the speed.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: A stationary body placed at a height\\
+can possess energy.\\
+Reason: A body can possess gravitational potential energy\\
+because of its position above a reference level.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: The gravitational potential energy lost by a freely falling body\\
+is equal to the kinetic energy gained by the body\\
+when air resistance is neglected.\\
+Reason: The total mechanical energy of the body remains constant.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: When a ball strikes the ground and rebounds\\
+to a smaller height, some mechanical energy is lost.\\
+Reason: Some energy is converted into heat, sound,\\
+and deformation during the collision.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: Two bodies moving with the same speed\\
+must have the same kinetic energy.\\
+Reason: Kinetic energy depends on both the mass\\
+and the speed of a moving body.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: A body can possess both kinetic energy\\
+and gravitational potential energy at the same instant.\\
+Reason: A moving body situated above a reference level\\
+possesses energy due to both motion and position.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+#A box weighing 150\,kgf possesses gravitational potential energy\\
+equal to 14700\,J. Calculate the height of the box above the ground.\\
+Take g=9.8\,N\,kg^{-1}.
+~5\,m | 10\,m | 15\,m | 20\,m~#
+   
+
+#A body of mass 5\,kg falls from a height of 10\,m\\
+to a height of 4\,m. Calculate the loss in its potential energy.\\
+Take g=10\,m\,s^{-2}.
+~200\,J | 300\,J | 400\,J | 500\,J~#
+   
+
+#A body of mass 5\,kg falls from a height of 10\,m\\
+to a height of 4\,m. What is the total mechanical energy\\
+possessed by the body during the fall?\\
+Take g=10\,m\,s^{-2} and neglect air resistance.
+~200\,J | 300\,J | 400\,J | 500\,J~#
+   
+
+#A body of mass 0.5\,kg is lifted vertically.\\
+If the energy spent in lifting the body is 1.0\,J,\\
+calculate the height through which the body is lifted.\\
+Take g=10\,m\,s^{-2}.
+~0.1\,m | 0.2\,m | 0.5\,m | 2\,m~#
+   
+
+#A person weighing 25\,kgf climbs from the first floor\\
+at a height of 3\,m to the third floor at a height of 9\,m.\\
+Calculate the increase in gravitational potential energy.\\
+Take g=10\,N\,kg^{-1}.
+~750\,J | 1250\,J | 1500\,J | 2250\,J~#
+   
+
+#A vessel containing 50\,kg of water is placed\\
+at a height of 15\,m above the ground. Calculate the gravitational\\
+potential energy of the water relative to the ground.\\
+Take g=10\,m\,s^{-2}.
+~750\,J | 1500\,J | 5000\,J | 7500\,J~#
+   
+
+#A person of mass 50\,kg climbs a ladder of height 10\,m.\\
+Calculate the work done against gravity.\\
+Take g=9.8\,m\,s^{-2}.
+~490\,J | 980\,J | 4900\,J | 9800\,J~#
+   
+
+#A person of mass 50\,kg climbs a vertical height of 10\,m.\\
+Calculate the increase in the gravitational potential energy.\\
+Take g=9.8\,m\,s^{-2}.
+~490\,J | 980\,J | 4900\,J | 5000\,J~#
+   
+
+#A block weighing 100\,N is pulled through 5\,m\\
+along an inclined plane by a constant force of 100\,N\\
+acting parallel to the plane. Calculate the work done\\
+by the applied force.
+~100\,J | 300\,J | 500\,J | 800\,J~#
+   
+
+#A block weighing 100\,N is pulled to the top\\
+of an inclined plane whose vertical height is 3\,m.\\
+Calculate the increase in the gravitational potential energy\\
+of the block.
+~100\,J | 200\,J | 300\,J | 500\,J~#
+   
+
+#A force of 100\,N pulls a block weighing 100\,N\\
+through 5\,m along an inclined plane of vertical height 3\,m.\\
+Calculate the energy converted into heat by friction.
+~100\,J | 200\,J | 300\,J | 500\,J~#
+   
+
+#A body of mass 1\,kg moves with a uniform speed\\
+of 10\,m\,s^{-1}. Calculate its kinetic energy.
+~25\,J | 50\,J | 100\,J | 200\,J~#
+   
+
+#The speed of a moving car is reduced\\
+to half of its initial value. What fraction\\
+of the initial kinetic energy does the car retain?
+~\frac{1}{2} | \frac{1}{4} | \frac{1}{8} | \frac{1}{16}~#
+   
+
+#The speed of a body is reduced\\
+to half of its initial value while its mass remains unchanged.\\
+By what fraction of its initial value does its kinetic energy decrease?
+~\frac{1}{4} | \frac{1}{2} | \frac{3}{4} | \frac{7}{8}~#
+   
+
+#Two bodies of equal masses move with uniform speeds v and 2v.\\
+Find the ratio of their kinetic energies.
+~1:2 | 1:4 | 2:1 | 4:1~#
+   
+
+#Two cars of equal masses move at speeds\\
+15\,km\,h^{-1} and 30\,km\,h^{-1}.\\
+Find the ratio of their kinetic energies.
+~1:2 | 1:4 | 2:1 | 4:1~#
+   
+
+#A ball of mass 0.5\,kg slows down\\
+from 5\,m\,s^{-1} to 3\,m\,s^{-1}.\\
+Calculate the decrease in its kinetic energy.
+~2\,J | 4\,J | 6.25\,J | 8\,J~#
+   
+
+#A cannonball of mass 500\,g is fired\\
+with a speed of 15\,m\,s^{-1}. Calculate its kinetic energy.
+~28.125\,J | 56.25\,J | 112.5\,J | 225\,J~#
+   
+
+#A cannonball of mass 500\,g moves\\
+with a speed of 15\,m\,s^{-1}. Calculate its momentum.
+~5\,kg\,m\,s^{-1} | 7.5\,kg\,m\,s^{-1} | 15\,kg\,m\,s^{-1} | 30\,kg\,m\,s^{-1}~#
+   
+
+#A body of mass 10\,kg moves with a speed of 20\,m\,s^{-1}.\\
+Calculate its initial kinetic energy.
+~1000\,J | 2000\,J | 3000\,J | 4000\,J~#
+   
+
+#The mass of a moving body is doubled\\
+and its speed is reduced to half its initial value.\\
+What is its final kinetic energy if its initial kinetic energy is 2000\,J?
+~500\,J | 1000\,J | 2000\,J | 4000\,J~#
+   
+
+#A truck weighing 1000\,kgf increases its speed\\
+from 36\,km\,h^{-1} to 72\,km\,h^{-1}.\\
+Calculate the work done by the engine.\\
+Take g=10\,m\,s^{-2}.
+~5\times10^{4}\,J | 1.5\times10^{5}\,J | 2\times10^{5}\,J | 3\times10^{5}\,J~#
+   
+
+#A truck of mass 1000\,kg increases its speed\\
+from 36\,km\,h^{-1} to 72\,km\,h^{-1} in 2\,minutes.\\
+Calculate the average power developed by the engine.
+~625\,W | 1000\,W | 1250\,W | 2500\,W~#
+   
+
+#A body of mass 60\,kg has momentum\\
+3000\,kg\,m\,s^{-1}. Calculate the kinetic energy of the body.
+~2.5\times10^{4}\,J | 5.0\times10^{4}\,J | 7.5\times10^{4}\,J | 1.5\times10^{5}\,J~#
+   
+
+#A body of mass 60\,kg has momentum\\
+3000\,kg\,m\,s^{-1}. Calculate its speed.
+~25\,m\,s^{-1} | 40\,m\,s^{-1} | 50\,m\,s^{-1} | 60\,m\,s^{-1}~#
+   
+
+#How much work must be done on a ball of mass 50\,g\\
+to give the ball a momentum of 5\,kg\,m\,s^{-1}?
+~50\,J | 125\,J | 250\,J | 500\,J~#
+   
+
+#A person stands for 5\,minutes while carrying\\
+a box of mass 20\,kg without changing the position of the box.\\
+How much mechanical work is done on the box?
+~0\,J | 100\,J | 1000\,J | 6000\,J~#
+   
+
+#A person carries a box of mass 20\,kg horizontally\\
+with a speed of 3\,m\,s^{-1}. Calculate the kinetic energy\\
+possessed by the box.
+~30\,J | 60\,J | 90\,J | 180\,J~#
+   
+
+#A box of mass 20\,kg is raised vertically\\
+through a height of 0.5\,m. Calculate the gravitational\\
+potential energy gained by the box. Take g=10\,m\,s^{-2}.
+~10\,J | 50\,J | 100\,J | 200\,J~#
+   
+
+#A bullet of mass 50\,g moves with a speed of 500\,m\,s^{-1}.\\
+Calculate the kinetic energy of the bullet.
+~625\,J | 1250\,J | 3125\,J | 6250\,J~#
+   
+
+#A bullet of mass 50\,g moving at 500\,m\,s^{-1}\\
+penetrates 10\,cm into a stationary target and comes to rest.\\
+Calculate the magnitude of the average resisting force.
+~6250\,N | 12500\,N | 31250\,N | 62500\,N~#
+   
+
+#A spring compressed by a trolley of mass 0.5\,kg\\
+causes the trolley to move with a speed of 2\,m\,s^{-1}\\
+when released. Calculate the potential energy initially\\
+stored in the compressed spring.
+~0.5\,J | 1.0\,J | 2.0\,J | 4.0\,J~#
+   
+
+#A body of mass m possesses momentum p.\\
+Which expression gives the kinetic energy of the body?
+~\frac{p}{2m} | \frac{p^{2}}{2m} | \frac{pm}{2} | \frac{2p^{2}}{m}~#
+   
+
+#A body has kinetic energy K and momentum p.\\
+Which expression gives the mass of the body?
+~\frac{p^{2}}{2K} | \frac{2K}{p^{2}} | \frac{p}{2K} | \frac{2p}{K}~#
+   
+
+#The momentum of a body is increased to three times\\
+its original value while its mass remains constant.\\
+How does its kinetic energy change?
+~It becomes three times | It becomes six times | It becomes nine times | It remains unchanged~#
+   
+
+#The momentum of a body remains constant\\
+while its mass becomes four times its initial value.\\
+What fraction of the initial kinetic energy remains?
+~\frac{1}{2} | \frac{1}{4} | \frac{1}{8} | \frac{1}{16}~#
+   
+
+#The kinetic energy of a body is increased\\
+to sixteen times its initial value while its mass remains unchanged.\\
+How does the speed of the body change?
+~It becomes twice | It becomes four times | It becomes eight times | It becomes sixteen times~#
+   
+
+#A body of mass (x+1)\,kg moves\\
+with a speed of 6\,m\,s^{-1}. If its kinetic energy\\
+is 90\,J, find x.
+~2 | 3 | 4 | 5~#
+   
+
+#A body of mass 4\,kg moves with a speed\\
+of (x+2)\,m\,s^{-1}. If its kinetic energy is 72\,J,\\
+find the positive value of x.
+~2 | 4 | 6 | 8~#
+   
+
+#A body of mass (2x+5)\,kg is raised vertically\\
+through a height of 5\,m. If the increase in its potential energy\\
+is 750\,J, find x. Take g=10\,m\,s^{-2}.
+~2.5 | 5 | 7.5 | 10~#
+   
+
+#A body initially moving with speed v has kinetic energy K.\\
+Its mass is doubled and its speed becomes 3v.\\
+What is its new kinetic energy?
+~3K | 6K | 9K | 18K~#
+   
+
+#Two bodies have equal momenta. The mass of the first body\\
+is four times the mass of the second body. Find the ratio\\
+of their kinetic energies K_1:K_2.
+~1:4 | 1:2 | 2:1 | 4:1~#
+   
+
+#Two bodies have equal kinetic energies. The mass\\
+of the first body is nine times the mass of the second body.\\
+Find the ratio of their momenta p_1:p_2.
+~1:3 | 3:1 | 1:9 | 9:1~#
+   
+
+#A block slides from rest down a frictionless slope\\
+through a vertical height of 5\,m. Calculate its speed\\
+at the bottom of the slope. Take g=10\,m\,s^{-2}.
+~5\,m\,s^{-1} | 10\,m\,s^{-1} | 15\,m\,s^{-1} | 20\,m\,s^{-1}~#
+   
+
+#A block weighing 100\,N is pulled 5\,m up a slope\\
+of vertical height 3\,m by a force of 100\,N.\\
+What percentage of the work done by the force\\
+is converted into gravitational potential energy?
+~40\% | 50\% | 60\% | 80\%~#
+   
+
+#A block weighing 100\,N is moved 5\,m up a slope\\
+of vertical height 3\,m by a force of 100\,N.\\
+What percentage of the input work is converted into heat?
+~20\% | 40\% | 60\% | 80\%~#
+   
+
+#A compressed spring transfers 80\% of its stored energy\\
+to a trolley of mass 2\,kg. If the spring initially stores 100\,J,\\
+calculate the speed acquired by the trolley.
+~4\,m\,s^{-1} | 4\sqrt{5}\,m\,s^{-1} | 8\,m\,s^{-1} | 10\,m\,s^{-1}~#
+   
+
+#Assertion: When the speed of a body is halved,\\
+its kinetic energy becomes one-fourth of its initial value.\\
+Reason: Kinetic energy is directly proportional\\
+to the square of the speed.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: A body standing at rest can possess\\
+gravitational potential energy.\\
+Reason: Gravitational potential energy depends on the position\\
+of the body relative to a chosen reference level.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: Two bodies having equal momenta\\
+must also have equal kinetic energies.\\
+Reason: For a given momentum, kinetic energy\\
+is inversely proportional to the mass of the body.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: The work done in pulling a block up a rough slope\\
+can be greater than the increase in its gravitational potential energy.\\
+Reason: Some of the input work is converted into heat\\
+while overcoming friction.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: When a moving truck is stopped,\\
+the kinetic energy of the truck disappears completely.\\
+Reason: The kinetic energy is mainly converted into heat,\\
+sound, and internal energy during braking.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: The energy stored in a compressed spring\\
+can be converted into the kinetic energy of a trolley.\\
+Reason: A compressed spring possesses elastic potential energy.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: Doubling both the mass and speed\\
+of a moving body makes its kinetic energy eight times.\\
+Reason: Kinetic energy is directly proportional to mass\\
+and directly proportional to the square of speed.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+#A ball of mass m is projected vertically upward\\
+with an initial speed v and reaches a maximum height h.\\
+Which statement is correct if air resistance is neglected?
+~Its potential energy at the ground is mgh | Its kinetic energy at the ground is zero | Its kinetic energy at the highest point is mgh | Its potential energy at the highest point is mgh~#
+   
+
+#A ball is projected vertically upward from the ground.\\
+Which energy transformation occurs while the ball is rising\\
+if air resistance is neglected?
+~Potential energy changes into kinetic energy | Kinetic energy changes into potential energy | Mechanical energy changes entirely into heat | Both kinetic and potential energies remain constant~#
+   
+
+#A ball projected vertically upward momentarily comes to rest\\
+at its highest point. Which statement is correct at that point?
+~Both kinetic and potential energies are zero | Kinetic energy is maximum and potential energy is zero | Kinetic energy is zero and potential energy is maximum | Both kinetic and potential energies are maximum~#
+   
+
+#A ball of mass m is projected vertically upward with speed v.\\
+Which expression gives the maximum height reached\\
+if air resistance is neglected?
+~\frac{v}{2g} | \frac{v^{2}}{2g} | \frac{2v^{2}}{g} | \frac{vg}{2}~#
+   
+
+#A ball of mass 0.20\,kg is projected vertically upward\\
+with an initial speed of 20\,m\,s^{-1}. Calculate the maximum\\
+potential energy gained by the ball. Neglect air resistance.
+~20\,J | 40\,J | 80\,J | 400\,J~#
+   
+
+#A ball is projected vertically upward with an initial speed\\
+of 20\,m\,s^{-1}. Calculate the maximum height reached.\\
+Take g=10\,m\,s^{-2} and neglect air resistance.
+~10\,m | 20\,m | 30\,m | 40\,m~#
+   
+
+#A stone of mass 500\,g is projected vertically upward\\
+with a speed of 15\,m\,s^{-1}. Calculate its potential energy\\
+at the greatest height. Neglect air resistance.
+~28.125\,J | 56.25\,J | 112.5\,J | 225\,J~#
+   
+
+#A stone of mass 500\,g is projected vertically upward\\
+with a speed of 15\,m\,s^{-1}. Calculate its kinetic energy\\
+just before returning to the point of projection. Neglect air resistance.
+~28.125\,J | 56.25\,J | 112.5\,J | 225\,J~#
+   
+
+#A stone is projected vertically upward with kinetic energy K.\\
+What is its kinetic energy when the stone reaches\\
+half of its maximum height? Neglect air resistance.
+~0 | \frac{K}{4} | \frac{K}{2} | K~#
+   
+
+#A ball is projected vertically upward with kinetic energy 80\,J.\\
+What is its potential energy when the ball reaches\\
+half of its maximum height? Neglect air resistance.
+~20\,J | 40\,J | 60\,J | 80\,J~#
+   
+
+#A ball is projected vertically upward with total mechanical energy E.\\
+At a certain height, its potential energy is \frac{3E}{4}.\\
+What is its kinetic energy at that height?
+~\frac{E}{4} | \frac{E}{2} | \frac{3E}{4} | E~#
+   
+
+#A metal ball of mass 2\,kg falls freely\\
+from rest through a vertical height of 5\,m.\\
+Calculate its potential energy before falling.\\
+Take g=10\,m\,s^{-2}.
+~10\,J | 50\,J | 100\,J | 200\,J~#
+   
+
+#A metal ball of mass 2\,kg falls freely\\
+from rest through a vertical height of 5\,m.\\
+Calculate its kinetic energy just before reaching the ground.\\
+Take g=10\,m\,s^{-2} and neglect air resistance.
+~10\,J | 50\,J | 100\,J | 200\,J~#
+   
+
+#A metal ball falls freely from a height and comes to rest\\
+after striking the ground. What happens to its mechanical energy\\
+during the collision with the ground?
+~It is destroyed completely | It changes mainly into heat and sound energy | It remains entirely as kinetic energy | It changes entirely into gravitational potential energy~#
+   
+
+#A pendulum oscillates between its two extreme positions.\\
+Which statement about its mechanical energy is correct\\
+if friction and air resistance are neglected?
+~Only kinetic energy remains constant | Only potential energy remains constant | Both kinetic and potential energies remain separately constant | The sum of kinetic and potential energies remains constant~#
+   
+
+#At the mean position of an oscillating simple pendulum,\\
+which statement is correct?
+~Kinetic energy is maximum and potential energy is minimum | Potential energy is maximum and kinetic energy is zero | Both kinetic and potential energies are maximum | Both kinetic and potential energies are zero~#
+   
+
+#At an extreme position of an oscillating simple pendulum,\\
+which statement is correct?
+~Speed and kinetic energy are maximum | Speed is zero and potential energy is maximum | Speed is maximum and potential energy is minimum | Kinetic and potential energies are equal~#
+   
+
+#The bob of a simple pendulum is given a speed of 5\,m\,s^{-1}\\
+at its mean position. If 60\% of its initial kinetic energy remains\\
+available for conversion into potential energy, calculate the maximum\\
+vertical height reached. Take g=10\,m\,s^{-2}.
+~0.50\,m | 0.75\,m | 1.00\,m | 1.25\,m~#
+   
+
+#A pendulum bob of mass 0.4\,kg moves\\
+with a speed of 5\,m\,s^{-1} at its mean position.\\
+Calculate its kinetic energy at the mean position.
+~2\,J | 5\,J | 10\,J | 20\,J~#
+   
+
+#A pendulum bob of mass 0.4\,kg possesses 5\,J\\
+of potential energy at an extreme position. Calculate\\
+the maximum vertical height reached. Take g=10\,m\,s^{-2}.
+~0.50\,m | 0.75\,m | 1.00\,m | 1.25\,m~#
+   
+
+#A skier weighing 60\,kgf moves from a point 75\,m\\
+above a reference level to a take-off point 15\,m\\
+above the same reference level. Calculate the decrease\\
+in gravitational potential energy. Take g=10\,m\,s^{-2}.
+~9.0\times10^{3}\,J | 1.8\times10^{4}\,J | 3.6\times10^{4}\,J | 4.5\times10^{4}\,J~#
+   
+
+#A skier of mass 60\,kg descends through a vertical height of 60\,m.\\
+If 75\% of the lost potential energy becomes kinetic energy,\\
+calculate the kinetic energy gained by the skier.\\
+Take g=10\,m\,s^{-2}.
+~9.0\times10^{3}\,J | 1.8\times10^{4}\,J | 2.7\times10^{4}\,J | 3.6\times10^{4}\,J~#
+   
+
+#A skier of mass 60\,kg gains 2.7\times10^{4}\,J\\
+of kinetic energy while descending a slope.\\
+Calculate the speed of the skier at the bottom.
+~15\,m\,s^{-1} | 20\,m\,s^{-1} | 30\,m\,s^{-1} | 45\,m\,s^{-1}~#
+   
+
+#A skier descends from a height of 75\,m\\
+to a take-off point at a height of 15\,m.\\
+If all the lost potential energy becomes kinetic energy,\\
+calculate the speed at the take-off point. Take g=10\,m\,s^{-2}.
+~10\sqrt{3}\,m\,s^{-1} | 20\,m\,s^{-1} | 20\sqrt{3}\,m\,s^{-1} | 30\,m\,s^{-1}~#
+   
+
+#A skier descends through a vertical height h.\\
+If a fraction \eta of the lost potential energy\\
+is converted into kinetic energy, which expression gives\\
+the speed acquired from rest?
+~\sqrt{2\eta gh} | \sqrt{\frac{2gh}{\eta}} | 2\eta gh | \frac{\eta gh}{2}~#
+   
+
+#Water falls through a height of 50\,m\\
+in a hydroelectric power station. If the overall efficiency\\
+is 40\%, calculate the useful energy obtained from every\\
+1000\,kg of water. Take g=10\,m\,s^{-2}.
+~5.0\times10^{4}\,J | 1.0\times10^{5}\,J | 2.0\times10^{5}\,J | 5.0\times10^{5}\,J~#
+   
+
+#A hydroelectric power station produces 1\,MW of useful power.\\
+Water falls through a height of 50\,m and the overall efficiency\\
+of the station is 40\%. Calculate the mass of water\\
+flowing through the turbines every second. Take g=10\,m\,s^{-2}.
+~500\,kg | 2000\,kg | 5000\,kg | 20000\,kg~#
+   
+
+#Water flows through a hydroelectric turbine at 4000\,kg\,s^{-1}\\
+and falls through a height of 25\,m. If the efficiency is 60\%,\\
+calculate the useful electrical power generated.\\
+Take g=10\,m\,s^{-2}.
+~0.4\,MW | 0.6\,MW | 1.0\,MW | 1.5\,MW~#
+   
+
+#A hydroelectric station has efficiency \eta.\\
+Water flows through the turbine at a rate of m\,kg\,s^{-1}\\
+and falls through a height h. Which expression gives\\
+the useful power output?
+~\eta mgh | \frac{mgh}{\eta} | \eta\frac{mg}{h} | \frac{\eta h}{mg}~#
+   
+
+#A ball is projected vertically upward with speed v.\\
+At what height above the point of projection will its kinetic energy\\
+be equal to its gravitational potential energy?\\
+Take the potential energy at the point of projection as zero.
+~\frac{v^{2}}{8g} | \frac{v^{2}}{4g} | \frac{v^{2}}{2g} | \frac{v^{2}}{g}~#
+   
+
+#A ball is projected vertically upward to a maximum height H.\\
+At what height above the point of projection is its kinetic energy\\
+three times its potential energy?
+~\frac{H}{4} | \frac{H}{3} | \frac{H}{2} | \frac{3H}{4}~#
+   
+
+#A ball is projected vertically upward to a maximum height H.\\
+At what height above the point of projection is its potential energy\\
+three times its kinetic energy?
+~\frac{H}{4} | \frac{H}{2} | \frac{2H}{3} | \frac{3H}{4}~#
+   
+
+#A ball projected vertically upward has kinetic energy 120\,J\\
+at the point of projection. At a certain height, its potential energy\\
+is 90\,J. Calculate its kinetic energy at that height.
+~15\,J | 30\,J | 90\,J | 210\,J~#
+   
+
+#A ball of mass (x+1)\,kg is projected vertically upward\\
+with a speed of 10\,m\,s^{-1}. If its maximum potential energy\\
+is 150\,J, find x. Neglect air resistance.
+~1 | 2 | 3 | 4~#
+   
+
+#A ball of mass 2\,kg is projected vertically upward\\
+with speed (x+5)\,m\,s^{-1}. If its maximum potential energy\\
+is 225\,J, find the positive value of x.
+~5 | 10 | 15 | 20~#
+   
+
+#A ball of mass m is projected vertically upward\\
+and reaches a maximum height H. If the initial speed is doubled,\\
+what maximum height will the ball reach?
+~2H | 4H | 8H | 16H~#
+   
+
+#A ball is projected vertically upward with speed v\\
+and reaches a maximum height H. If its initial speed becomes 3v,\\
+what is the new maximum height?
+~3H | 6H | 9H | 27H~#
+   
+
+#Assertion: A ball projected vertically upward possesses\\
+zero kinetic energy at its highest point.\\
+Reason: The instantaneous speed of the ball is zero\\
+at the highest point.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: The total mechanical energy of a freely moving pendulum\\
+remains constant when friction and air resistance are neglected.\\
+Reason: Kinetic energy and potential energy continuously\\
+change into each other during the oscillation.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: The speed of a pendulum bob is maximum\\
+when the bob passes through its mean position.\\
+Reason: The gravitational potential energy is minimum\\
+at the mean position and is converted into kinetic energy.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: A skier descending a rough slope gains less kinetic energy\\
+than the gravitational potential energy lost by the skier.\\
+Reason: Some mechanical energy is converted into heat\\
+while overcoming friction and air resistance.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: Increasing the height through which water falls\\
+can increase the power output of a hydroelectric station.\\
+Reason: The gravitational potential energy available per unit mass\\
+of water is directly proportional to the vertical height.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+   
+
+#Assertion: A hydroelectric station can convert all the gravitational\\
+potential energy of falling water into electrical energy.\\
+Reason: Some energy is lost because of friction, turbulence,\\
+heating, sound, and inefficiency of the machinery.
+~Both Assertion and Reason are true, and Reason correctly explains Assertion | Both Assertion and Reason are true, but Reason does not correctly explain Assertion | Assertion is true, but Reason is false | Assertion is false, but Reason is true~#
+
+#
+4, 2, 3, 3, 2, 3, 3, 2, 3, 3,
+3, 3, 3, 1, 1, 1, 1, 1, 2, 3,
+3, 3, 2, 2, 1, 3, 3, 2, 3, 2,
+3, 2, 1, 2, 3, 3, 2, 3, 2, 3,
+4, 1, 1, 4, 1, 1, 1, 3, 3, 2,
+3, 3, 2, 3, 2, 3, 3, 3, 3, 3,
+3, 2, 4, 3, 3, 3, 3, 3, 4, 3,
+1, 2, 2, 3, 2, 2, 2, 1, 3, 2,
+1, 3, 1, 2, 2, 2, 2, 2, 2, 2,
+2, 3, 1, 2, 2, 3, 3, 3, 1, 4,
+1, 1, 1, 4, 1, 2, 2, 2, 2, 3,
+4, 3, 3, 3, 3, 2, 2, 2, 2, 2,
+2, 4, 2, 2, 2, 2, 2, 3, 3, 3,
+3, 1, 3, 3, 4, 4, 2, 2, 1, 3,
+2, 2, 3, 2, 2, 4, 1, 2, 2, 3,
+2, 2, 1, 1, 4, 1, 4, 1, 1, 4,
+2, 3, 2, 2, 2, 2, 3, 2, 1, 1,
+3, 3, 2, 4, 1, 2, 2, 2, 4, 3,
+3, 3, 1, 3, 3, 1, 2, 1, 2, 1,
+4, 2, 2, 2, 2, 2, 1, 1, 1, 1,
+1, 4#
