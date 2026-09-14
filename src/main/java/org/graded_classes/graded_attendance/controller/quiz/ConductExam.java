@@ -2,6 +2,7 @@ package org.graded_classes.graded_attendance.controller.quiz;
 
 
 import atlantafx.base.theme.Styles;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -11,33 +12,33 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
+import org.graded_classes.graded_attendance.Main;
 import org.graded_classes.graded_attendance.R;
+import org.graded_classes.graded_attendance.components.OMRParser;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.data.ExamData;
 import org.graded_classes.graded_attendance.data.OptionData;
 import org.graded_classes.graded_attendance.data.QuestionData;
 
+import java.io.File;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.ResourceBundle;
-import java.util.TreeMap;
+import java.time.LocalTime;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class ConductExam implements Initializable {
     MainController mainController;
 
     @FXML
     private TableColumn<ExamData, HBox> action;
+    @FXML
+    private TableColumn<ExamData, Button> generate, add;
 
     @FXML
     private TableColumn<ExamData, String> classes, doe, id, room, subject, time, topic;
@@ -58,6 +59,13 @@ public class ConductExam implements Initializable {
     void addNewExam() {
         mainController.modalPane.setPersistent(true);
         Node node = mainController.gradedFxmlLoader.createView(R.exam_create, new ExamCreator(mainController, this));
+        mainController.modalPane.show(node);
+    }
+
+    @FXML
+    void addDiagnosticExam() {
+        mainController.modalPane.setPersistent(true);
+        Node node = mainController.gradedFxmlLoader.createView(R.diagnostic_test, new DiagnosticTest(mainController, this));
         mainController.modalPane.show(node);
     }
 
@@ -92,6 +100,67 @@ public class ConductExam implements Initializable {
                 generateResult(examInfo);
             });
             return new SimpleObjectProperty<>(hBox);
+        });
+        add.setCellValueFactory(args -> {
+            Button button = new Button("Add exam OMR");
+            ExamData examInfo = args.getValue();
+            var questionMap = loadQuestion(examInfo);
+            button.setOnMouseClicked(_ -> {
+                File generatedFile = fileChooser();
+
+                CompletableFuture.runAsync(() -> {
+
+                    var omrData = OMRParser.parse(generatedFile.getAbsolutePath());
+
+                    List<String> notFoundStudents = new ArrayList<>();
+
+                    for (var roll : omrData.keySet()) {
+
+                        boolean exists = mainController.gradedDataLoader
+                                .getStudentData()
+                                .containsKey(roll);
+
+                        if (!exists) {
+                            notFoundStudents.add(roll);
+                            continue;
+                        }
+
+                        saveFromOMR(
+                                roll,
+                                omrData.get(roll).values().stream().toList(),
+                                questionMap,
+                                examInfo
+                        );
+                    }
+
+                    if (!notFoundStudents.isEmpty()) {
+                        Platform.runLater(() -> {
+                            Alert alert = new Alert(Alert.AlertType.WARNING);
+                            alert.setTitle("Student Not Found");
+                            alert.setHeaderText(
+                                    notFoundStudents.size() + " student(s) not found"
+                            );
+                            alert.setContentText(
+                                    String.join(", ", notFoundStudents)
+                            );
+                            alert.show();
+                        });
+                    }
+                });
+            });
+            return new SimpleObjectProperty<>(button);
+        });
+        generate.setCellValueFactory(cellData -> {
+            Button button = new Button("Exam Pdf");
+
+            button.getStyleClass().add(Styles.ACCENT);
+            button.setPadding(new Insets(8));
+
+            ExamData examInfo = cellData.getValue();
+
+            button.setOnAction(_ -> generateExamPdf(examInfo, button));
+
+            return new SimpleObjectProperty<>(button);
         });
         for (var sec : examSchedular) {
             items.addAll(sec);
@@ -242,7 +311,7 @@ public class ConductExam implements Initializable {
     public static TreeMap<Integer, Integer> getAnswers(int examId, String studentEd) {
 
         TreeMap<Integer, Integer> answersMap = new TreeMap<>();
-        String DB_URL = "jdbc:sqlite:" + "G:/My Drive/GradeEd_Exam_2026/" + studentEd + ".db";
+        String DB_URL = "jdbc:sqlite:" + Main.getRootPath() + "GradeEd_Exam_2026/" + studentEd + ".db";
 
         String sql = "SELECT question_id, selected_option_id FROM answers WHERE exam_id = ?";
 
@@ -269,6 +338,171 @@ public class ConductExam implements Initializable {
 
     private String format(String date) {
         return date.charAt(0) + date.substring(1).toLowerCase();
+    }
+
+    private void generateExamPdf(
+            ExamData examInfo,
+            Button sourceButton
+    ) {
+        sourceButton.setDisable(true);
+        sourceButton.setText("Loading...");
+
+        CompletableFuture
+                .supplyAsync(() -> {
+                    /*
+                     * loadQuestion currently returns:
+                     * TreeMap<String, QuestionData>
+                     */
+                    var questionMap = loadQuestion(examInfo);
+
+                    return new ArrayList<>(questionMap.values());
+                })
+                .whenComplete((questionList, throwable) ->
+                        Platform.runLater(() -> {
+                            sourceButton.setDisable(false);
+                            sourceButton.setText("Exam Pdf");
+
+                            if (throwable != null) {
+                                showPdfError(
+                                        "Unable to load exam questions.",
+                                        throwable
+                                );
+                                return;
+                            }
+
+                            if (questionList == null
+                                    || questionList.isEmpty()) {
+                                showPdfError(
+                                        "This exam does not contain any questions.",
+                                        null
+                                );
+                                return;
+                            }
+
+                            try {
+                                Window owner = scheduleTable
+                                        .getScene()
+                                        .getWindow();
+
+                                File generatedFile =
+                                        ExamPdfGenerator
+                                                .chooseLocationAndGenerate(
+                                                        owner,
+                                                        examInfo,
+                                                        questionList
+                                                );
+
+                                if (generatedFile != null) {
+                                    Alert alert =
+                                            new Alert(
+                                                    Alert.AlertType.INFORMATION
+                                            );
+
+                                    alert.setTitle("Exam PDF");
+                                    alert.setHeaderText(
+                                            "Exam PDF generated successfully"
+                                    );
+                                    alert.setContentText(
+                                            generatedFile.getAbsolutePath()
+                                    );
+
+                                    alert.initOwner(owner);
+                                    alert.show();
+                                }
+
+                            } catch (Exception exception) {
+                                showPdfError(
+                                        "Unable to generate the exam PDF.",
+                                        exception
+                                );
+                            }
+                        })
+                );
+    }
+
+    private void showPdfError(
+            String message,
+            Throwable throwable
+    ) {
+        if (throwable != null) {
+            throwable.printStackTrace();
+        }
+
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Exam PDF Error");
+        alert.setHeaderText(message);
+
+        if (throwable != null) {
+            Throwable cause = throwable.getCause() != null
+                    ? throwable.getCause()
+                    : throwable;
+
+            alert.setContentText(
+                    cause.getMessage() == null
+                            ? cause.getClass().getSimpleName()
+                            : cause.getMessage()
+            );
+        }
+
+        if (scheduleTable.getScene() != null) {
+            alert.initOwner(scheduleTable.getScene().getWindow());
+        }
+
+        alert.show();
+    }
+
+    public void saveFromOMR(String studentEd, List<String> selectedOption,
+                            TreeMap<String, QuestionData> map, ExamData examInfo) {
+        String endTime = LocalTime.now().toString();
+
+        String url = "jdbc:sqlite:" + Main.getRootPath() + "GradeEd_Exam_2026/" + studentEd + ".db";
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement()) {
+            int index = 0;
+            for (QuestionData question : map.values()) {
+                String createTableSQL = """
+                        INSERT INTO answers (
+                            exam_id,
+                            question_id,
+                            selected_option_id,
+                            time_slot,
+                            start_time,
+                            end_time,
+                            created_at
+                        ) VALUES (%s, %s, %s, '%s', '%s', '%s', '%s');
+                        """.formatted(
+                        examInfo.id(),
+                        question.question_id(),
+                        convertToNumeric(selectedOption.get(index++)),
+                        "",
+                        "",
+                        endTime,
+                        LocalDate.now()
+                );
+                stmt.execute(createTableSQL);
+            }
+        } catch (Exception e) {
+
+        }
+    }
+
+    private int convertToNumeric(String s) {
+        return switch (s) {
+            case "A" -> 1;
+            case "B" -> 2;
+            case "C" -> 3;
+            case "D" -> 4;
+            default -> 0;
+        };
+    }
+
+    public File fileChooser() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Option Image Selector");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("All Files", "*.txt")
+        );
+        return fileChooser.showOpenDialog(mainController.getStage());
     }
 }
 

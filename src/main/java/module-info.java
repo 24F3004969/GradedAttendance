@@ -37,7 +37,8 @@ module org.graded_classes.graded_attendance {
     requires annotations;
     requires org.bytedeco.opencv;
     requires sherpa.onnx.java.api;
-    
+    requires com.fasterxml.jackson.databind;
+
     opens org.graded_classes.graded_attendance.controller.leaderboard to javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc, java.sql;
 
     opens org.graded_classes.graded_attendance.controller.planner to javafx.fxml;
@@ -50,7 +51,8 @@ module org.graded_classes.graded_attendance {
     opens org.graded_classes.graded_attendance.calender;
     exports org.graded_classes.graded_attendance.components;
     opens org.graded_classes.graded_attendance.components;
-    opens org.graded_classes.graded_attendance.controller.quiz to java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
+    opens org.graded_classes.graded_attendance.controller.quiz to
+            java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
     opens org.graded_classes.graded_attendance.data to java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
     opens org.graded_classes.graded_attendance.controller.chat to java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
     opens org.graded_classes.graded_attendance.controller.dashboard to java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;

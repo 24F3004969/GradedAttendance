@@ -54,4 +54,9 @@
           <Label id="subject-name" text="GK/IQ" textAlignment="CENTER" wrapText="true" />
         </children>
     </StackPane>
+    <StackPane id="base" maxHeight="84.0" maxWidth="152.0" minHeight="84.0" minWidth="152.0" onMouseClicked="#createLessons" prefHeight="84.0" prefWidth="152.0" style="-fx-background-color: #b3b3b3;" stylesheets="@../css/tile_style.css">
+        <children>
+            <Label id="subject-name" text="Basic Test" textAlignment="CENTER" wrapText="true" />
+        </children>
+    </StackPane>
 </TilePane>

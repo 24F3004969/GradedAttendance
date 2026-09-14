@@ -21,6 +21,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
+import org.graded_classes.graded_attendance.Main;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.data.OptionData;
@@ -377,7 +378,7 @@ public class QuizTaker implements Initializable {
             selectedOptions) {
         String endTime = LocalTime.now().toString();
 
-        String url = "jdbc:sqlite:" + "G:/My Drive/GradeEd_Exam_2026/" + studentEd + ".db";
+        String url = "jdbc:sqlite:" + Main.getRootPath()+ "GradeEd_Exam_2026/" + studentEd + ".db";
         try (Connection conn = DriverManager.getConnection(url);
              Statement stmt = conn.createStatement()) {
             for (QuestionData question : selectedOptions.keySet()) {

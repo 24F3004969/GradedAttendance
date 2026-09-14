@@ -312,10 +312,10 @@ public class ExamCreator implements Initializable {
         close.setOnMouseClicked(event -> {
             this.mainController.modalPane.hide();
         });
-                topicName.setSuggestionProvider(request ->
-                        observableListTopics.stream().filter(country ->
-                                        country.toLowerCase().contains(request.getUserText().toLowerCase())).
-                                collect(Collectors.toList()));
+        topicName.setSuggestionProvider(request ->
+                observableListTopics.stream().filter(country ->
+                                country.toLowerCase().contains(request.getUserText().toLowerCase())).
+                        collect(Collectors.toList()));
         subject.setSuggestionProvider(request -> observableListSubject.stream().filter(country ->
                 country.toLowerCase().contains(request.getUserText().toLowerCase())).collect(Collectors.toList()));
         classNum.setItems(observableListClasses);

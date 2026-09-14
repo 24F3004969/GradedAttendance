@@ -25,6 +25,8 @@ public class AddStudent implements Initializable {
     private ComboBox<String> _class, blood_group, gender;
 
     @FXML
+    private ComboBox<String> board;
+    @FXML
     private CheckBox agree;
 
     @FXML
@@ -61,6 +63,7 @@ public class AddStudent implements Initializable {
         blood_group.setItems(FXCollections.observableArrayList(blood_groups_list));
         _class.setItems(FXCollections.observableArrayList(classes_list));
         str = getNextED();
+        board.getItems().addAll("ICSE", "CBSE", "OTHER");
         ed_no.setText(str);
     }
 
@@ -99,6 +102,10 @@ public class AddStudent implements Initializable {
         }
         if (_class.getSelectionModel().getSelectedItem() == null) {
             _class.pseudoClassStateChanged(Styles.STATE_DANGER, true);
+            counter++;
+        }
+        if (board.getSelectionModel().getSelectedItem() == null) {
+            board.pseudoClassStateChanged(Styles.STATE_DANGER, true);
             counter++;
         }
         if (blood_group.getSelectionModel().getSelectedItem() == null) {
@@ -141,7 +148,7 @@ public class AddStudent implements Initializable {
                 list_of_subjects.toArray(new String[0]),
                 telegram_id.getText(),
                 "",
-                info_about.getText(),0,"ICSE"
+                info_about.getText(),0,board.getValue()
                 );
     }
 

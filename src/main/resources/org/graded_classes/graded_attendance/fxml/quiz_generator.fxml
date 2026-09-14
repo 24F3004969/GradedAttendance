@@ -89,24 +89,13 @@
                   </HBox>
                   <HBox fx:id="topRightQuizView" alignment="CENTER" HBox.hgrow="NEVER">
                      <children>
-                        <ComboBox promptText="Subject" />
+                        <ComboBox fx:id="subjectList" promptText="Subject" />
                         <Separator orientation="VERTICAL">
                            <HBox.margin>
                               <Insets bottom="12.0" top="12.0" />
                            </HBox.margin>
                         </Separator>
-                        <Button mnemonicParsing="false" styleClass="button-outlined" text="Save Draft">
-                           <font>
-                              <Font name="HelveticaRounded-Bold" size="14.0" />
-                           </font></Button>
-                        <Separator orientation="VERTICAL">
-                           <HBox.margin>
-                              <Insets bottom="12.0" top="12.0" />
-                           </HBox.margin></Separator>
-                        <Button mnemonicParsing="false" styleClass="accent" text="Publish">
-                           <font>
-                              <Font name="HelveticaRounded-Bold" size="14.0" />
-                           </font></Button>
+                        <ComboBox fx:id="classList" promptText="Class" />
                      </children>
                      <HBox.margin>
                         <Insets right="10.0" />

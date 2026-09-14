@@ -97,9 +97,6 @@ public class FeeReport implements Initializable {
         feeRecords.clear();
         paidStudentData(checkMenuItem.getText());
         items.clear();
-        for (var keys : feeRecords.keySet()) {
-            items.add(feeRecords.get(keys));
-        }
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         sortedFeeRecords = feeRecords.entrySet()
@@ -115,6 +112,13 @@ public class FeeReport implements Initializable {
                         (oldValue, newValue) -> oldValue,
                         LinkedHashMap::new // Maintains the sorted order
                 ));
+        int dex=1;
+        for (var keys : sortedFeeRecords.keySet()) {
+            var st = feeRecords.get(keys).s_no();
+            feeRecords.get(keys).s_no().
+                    replace(0, st.length(), "" + (dex++));
+            items.add(feeRecords.get(keys));
+        }
         duePaymentRecord.clear();
         segmentControl.getSegments().getFirst().setSelected(true);
         duePaymentRecord = feeRepository.duePaymentRecord(mainController.

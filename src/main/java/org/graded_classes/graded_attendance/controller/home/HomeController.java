@@ -206,6 +206,7 @@ public class HomeController implements Initializable {
             stage.show();
             stage.setOnCloseRequest(event1 -> {
                 cameraController.stopCamera();
+                cameraController.dispose();
             });
         }
     }

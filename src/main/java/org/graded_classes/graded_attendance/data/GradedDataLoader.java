@@ -1,10 +1,13 @@
 package org.graded_classes.graded_attendance.data;
 
+import org.graded_classes.graded_attendance.Main;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -57,19 +60,42 @@ public class GradedDataLoader {
     public void removeStudent(Student... students) {
         String sql = "DELETE FROM StudentData WHERE ed_no = ?";
 
-        try (PreparedStatement preparedStatement = databaseLoader.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement =
+                     databaseLoader.getConnection().prepareStatement(sql)) {
+
             for (var s : students) {
-                System.out.println("OK button clicked.");
+
                 preparedStatement.setString(1, s.ed_no());
                 int affectedRows = preparedStatement.executeUpdate();
 
                 if (affectedRows > 0) {
-                    System.out.println("StudentScore with ed_no " + s.ed_no() + " removed successfully.");
+
+                    System.out.println("Student with ed_no " + s.ed_no() + " removed successfully.");
+
                     addEdToAbandonedEd(s.ed_no());
+
+                    // Delete exam database file
+                    Path dbFile = Paths.get(
+                            Main.getRootPath() + "GradeEd_Exam_2026",
+                            s.ed_no() + ".db"
+                    );
+
+                    try {
+                        if (Files.deleteIfExists(dbFile)) {
+                            System.out.println("Deleted file: " + dbFile);
+                        } else {
+                            System.out.println("DB file not found: " + dbFile);
+                        }
+                    } catch (IOException ex) {
+                        System.err.println("Failed to delete DB file: " + dbFile);
+                        ex.printStackTrace();
+                    }
+
                 } else {
                     System.out.println("No student found with ed_no " + s.ed_no());
                 }
             }
+
         } catch (SQLException e) {
             System.err.println("Error removing student: " + e.getMessage());
             throw new RuntimeException(e);
@@ -132,11 +158,35 @@ public class GradedDataLoader {
         try {
             studentData.put(student.ed_no(), student);
 
-            student.insertIntoDatabase(databaseLoader.getStatement().getConnection());
+            student.insertIntoDatabase(
+                    databaseLoader.getStatement().getConnection());
+
+            createStudentExamDatabase(student.ed_no());
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
         System.out.println(student);
+    }
+
+    private void createStudentExamDatabase(String edNo) {
+        Path dbPath = Paths.get(
+                Main.getRootPath() + "GradeEd_Exam_2026",
+                edNo + ".db"
+        );
+
+        try {
+            // Create empty SQLite database
+            if (!Files.exists(dbPath)) {
+                try (Connection conn =
+                             DriverManager.getConnection("jdbc:sqlite:" + dbPath)) {
+                    System.out.println("Created exam DB: " + dbPath);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to create exam database: " + dbPath, e);
+        }
     }
 
     private void loadData() throws SQLException {

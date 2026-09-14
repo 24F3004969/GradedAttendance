@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="body_new_pane" maxHeight="750.0" maxWidth="800.0" minHeight="750.0" minWidth="800.0" stylesheets="@../css/new-admission.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.home.AddStudent">
+<AnchorPane id="body_new_pane" maxHeight="750.0" maxWidth="800.0" minHeight="750.0" minWidth="850.0" stylesheets="@../css/new-admission.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.home.AddStudent">
     <children>
         <ScrollPane id="container" maxHeight="750.0" maxWidth="760.0" minHeight="750.0" minWidth="770.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
             <content>
@@ -40,6 +40,7 @@
                                 <TextField id="imp" fx:id="first_name" onMouseClicked="#onClicked" promptText="First Name" />
                                 <TextField id="imp" fx:id="last_name" onMouseClicked="#onClicked" promptText="Last Name" />
                                 <ComboBox fx:id="_class" onMouseClicked="#onClicked" prefWidth="150.0" promptText="Class" />
+                        <ComboBox fx:id="board" onMouseClicked="#onClicked" prefWidth="150.0" promptText="Board" />
                             </children>
                             <VBox.margin>
                                 <Insets bottom="5.0" left="30.0" right="30.0" top="5.0" />

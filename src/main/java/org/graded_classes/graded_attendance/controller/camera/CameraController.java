@@ -59,6 +59,35 @@ import static org.bytedeco.opencv.global.opencv_videoio.*;
 import static org.graded_classes.graded_attendance.controller.quiz.QuizTaker.extractResourceToTempFile;
 
 public class CameraController {
+    private static final int CAMERA_WIDTH = 1280;
+    private static final int CAMERA_HEIGHT = 720;
+    private static final int CAMERA_FPS = 30;
+
+    private static final int PREVIEW_WIDTH = 640;
+    private static final int PREVIEW_HEIGHT = 360;
+
+    /*
+     * Camera processing runs at around 15 FPS.
+     */
+    private static final long FRAME_DELAY_MS = 66;
+
+    /*
+     * JavaFX preview runs at around 6 to 7 FPS.
+     * Recognition and detection can still run at the camera-processing rate.
+     */
+    private static final long UI_FRAME_INTERVAL_NS =
+            TimeUnit.MILLISECONDS.toNanos(150);
+
+    private final AtomicBoolean uiFramePending =
+            new AtomicBoolean(false);
+
+    private final AtomicBoolean recognitionModeSelected =
+            new AtomicBoolean(false);
+
+    private volatile long lastUiFrameTime;
+
+    private Boolean mainViewFaceState;
+    private Boolean studentViewFaceState;
     private final ExecutorService executor =
             Executors.newSingleThreadExecutor();
     public ToggleGroup modes;
@@ -67,7 +96,6 @@ public class CameraController {
     private Label studentMessage;
     @FXML
     private StackPane rootLayer;
-    private final AtomicBoolean uiFramePending = new AtomicBoolean(false);
     @FXML
     private PhotoView cameraView;
     @FXML
@@ -114,7 +142,7 @@ public class CameraController {
     private double confidenceSum = 0.0;
 
     private static final long RECOGNITION_COOLDOWN_MS =
-            10_000L;
+            5_000L;
 
     private static final int REQUIRED_NO_FACE_FRAMES = 8;
 
@@ -164,35 +192,134 @@ public class CameraController {
 
     @FXML
     private void openStudentDisplay() {
-        var background = new SVGImageView();
-        background.setSvgUrl(GradedResourceLoader.load("icons/new-back1.svg"));
-        var studentLogo = new SVGImageView();
+        if (studentStage != null
+                && studentStage.isShowing()) {
+
+            studentStage.toFront();
+            studentStage.requestFocus();
+            return;
+        }
+
+        SVGImageView studentBackground =
+                new SVGImageView();
+
+        studentBackground.setSvgUrl(
+                GradedResourceLoader.load(
+                        "icons/new-back1.svg"
+                )
+        );
+
+        SVGImageView studentLogo =
+                new SVGImageView();
+
         studentLogo.setFitHeight(48);
-        studentLogo.setSvgUrl(GradedResourceLoader.load("icons/my-logo.svg"));
-        HBox logoBar = new HBox(studentLogo);
-        VBox.setVgrow(logoBar, Priority.ALWAYS);
-        logoBar.setAlignment(Pos.BOTTOM_CENTER);
-        VBox.setMargin(logoBar, new Insets(8));
-        studentCameraView = new PhotoView();
+
+        studentLogo.setSvgUrl(
+                GradedResourceLoader.load(
+                        "icons/my-logo.svg"
+                )
+        );
+
+        HBox logoBar =
+                new HBox(studentLogo);
+
+        VBox.setVgrow(
+                logoBar,
+                Priority.ALWAYS
+        );
+
+        logoBar.setAlignment(
+                Pos.BOTTOM_CENTER
+        );
+
+        VBox.setMargin(
+                logoBar,
+                new Insets(8)
+        );
+
+        studentCameraView =
+                new PhotoView();
+
         studentCameraView.setEditable(false);
         studentCameraView.setMinSize(512, 512);
         studentCameraView.setMaxSize(800, 800);
-        studentCameraView.getStyleClass().add("border-circle-green");
-        studentMessage = new Label("Please stand in front of the camera");
+
+        studentCameraView.getStyleClass()
+                .add("border-circle-red");
+
+        studentViewFaceState = false;
+
+        studentMessage =
+                new Label(
+                        "Please stand in front of the camera"
+                );
+
         studentMessage.setStyle("""
-                -fx-font-size: 22px;
-                -fx-font-weight: bold;
-                """);
-        VBox content = new VBox(20, studentCameraView, studentMessage);
-        content.setAlignment(Pos.CENTER);
-        VBox.setVgrow(content, Priority.ALWAYS);
-        VBox mainContent = new VBox(content, logoBar);
-        StackPane root = new StackPane(background, mainContent);
-        Scene scene = new Scene(root, 1280, 720);
-        scene.getStylesheets().add(GradedResourceLoader.load("css/camera-style.css"));
-        studentStage = new Stage();
-        studentStage.setTitle("Student Display");
+            -fx-font-size: 22px;
+            -fx-font-weight: bold;
+            """);
+
+        VBox content =
+                new VBox(
+                        20,
+                        studentCameraView,
+                        studentMessage
+                );
+
+        content.setAlignment(
+                Pos.CENTER
+        );
+
+        VBox.setVgrow(
+                content,
+                Priority.ALWAYS
+        );
+
+        VBox mainContent =
+                new VBox(
+                        content,
+                        logoBar
+                );
+
+        StackPane root =
+                new StackPane(
+                        studentBackground,
+                        mainContent
+                );
+
+        Scene scene =
+                new Scene(
+                        root,
+                        1280,
+                        720
+                );
+
+        scene.getStylesheets().add(
+                GradedResourceLoader.load(
+                        "css/camera-style.css"
+                )
+        );
+
+        studentStage =
+                new Stage();
+
+        studentStage.setTitle(
+                "Student Display"
+        );
+
         studentStage.setScene(scene);
+
+        studentStage.setOnHidden(event -> {
+            if (studentCameraView != null) {
+                studentCameraView.setPhoto(null);
+            }
+
+            studentCameraView = null;
+            studentMessage = null;
+            studentStage = null;
+            studentViewFaceState = null;
+        });
+
         studentStage.show();
     }
 
@@ -237,7 +364,7 @@ public class CameraController {
     }
 
     @FXML
-    void onSetting(ActionEvent event) {
+    void onSetting() {
 
         Slider thresholdSlider =
                 new Slider(20, 100, CONFIDENCE_THRESHOLD);
@@ -402,7 +529,6 @@ public class CameraController {
             startCapture.setDisable(true);
         }
     }
-    private final AtomicBoolean recognitionModeSelected = new AtomicBoolean(false);
     @FXML
     void startCapturing(ActionEvent event) {
         Button source = (Button) event.getSource();
@@ -1187,18 +1313,6 @@ public class CameraController {
             }
         }
     }
-
-
-    private static final int CAMERA_WIDTH = 1280;
-    private static final int CAMERA_HEIGHT = 720;
-    private static final int CAMERA_FPS = 30;
-
-    /*
-     * About 15 processed frames per second.
-     * This is normally sufficient for attendance recognition.
-     */
-    private static final long FRAME_DELAY_MS = 66;
-
     private final Object cameraLock = new Object();
 
     private void startCamera(int cameraIndex) {
@@ -1449,12 +1563,13 @@ public class CameraController {
 
 
     private void grabFrame() {
-        try (Mat localFrame = new Mat();
-             Mat localGray = new Mat();
-             RectVector faces = new RectVector();
-             Size minimumFaceSize = new Size(50, 50);
-             Size maximumFaceSize = new Size()) {
-
+        try (
+                Mat localFrame = new Mat();
+                Mat localGray = new Mat();
+                RectVector faces = new RectVector();
+                Size minimumFaceSize = new Size(50, 50);
+                Size maximumFaceSize = new Size()
+        ) {
             if (!readCameraFrame(localFrame)) {
                 System.err.println(
                         "Camera frame was not available."
@@ -1464,35 +1579,40 @@ public class CameraController {
                 return;
             }
 
-            flip(
-                    localFrame,
-                    localFrame,
-                    1
-            );
+            flip(localFrame, localFrame, 1);
 
-            cvtColor(
-                    localFrame,
-                    localGray,
-                    COLOR_BGR2GRAY
-            );
-
-            faceDetector.detectMultiScale(
-                    localGray,
-                    faces,
-                    1.1,
-                    5,
-                    0,
-                    minimumFaceSize,
-                    maximumFaceSize
-            );
+            boolean shouldDetect =
+                    recognitionModeSelected.get()
+                            || isTrainingModeSelected();
 
             Rect detectedFace = null;
 
             try {
-                detectedFace =
-                        findLargestFace(faces);
+                if (shouldDetect) {
+                    cvtColor(
+                            localFrame,
+                            localGray,
+                            COLOR_BGR2GRAY
+                    );
+
+                    faceDetector.detectMultiScale(
+                            localGray,
+                            faces,
+                            1.1,
+                            5,
+                            0,
+                            minimumFaceSize,
+                            maximumFaceSize
+                    );
+
+                    detectedFace = findLargestFace(faces);
+                }
 
                 synchronized (frameLock) {
+                    /*
+                     * Keep a clean frame without the face rectangle.
+                     * This frame is used for training and recognition.
+                     */
                     localFrame.copyTo(cleanFrame);
 
                     if (lastFace != null) {
@@ -1521,9 +1641,12 @@ public class CameraController {
                         detectedFace != null;
 
                 updateFacePresence(faceDetected);
-                requestRecognitionIfNecessary(
-                        faceDetected
-                );
+
+                if (recognitionModeSelected.get()) {
+                    requestRecognitionIfNecessary(
+                            faceDetected
+                    );
+                }
 
                 publishCameraFrame(
                         localFrame,
@@ -1545,51 +1668,139 @@ public class CameraController {
             exception.printStackTrace();
         }
     }
+    private boolean isTrainingModeSelected() {
+        /*
+         * This method is called from the camera thread.
+         * recognitionModeSelected is already thread-safe.
+         *
+         * Training controls require face detection, so detection remains
+         * enabled whenever Face Detector is not selected and the training
+         * interface is active.
+         */
+        return !recognitionModeSelected.get();
+    }
     private void publishCameraFrame(
             Mat frame,
             boolean faceDetected
     ) {
-        if (!uiFramePending.compareAndSet(
-                false,
-                true
-        )) {
+        long now = System.nanoTime();
+
+        /*
+         * Do not create a JavaFX Image for every camera frame.
+         */
+        if (now - lastUiFrameTime < UI_FRAME_INTERVAL_NS) {
             return;
         }
+
+        /*
+         * Allow only one unprocessed JavaFX preview update.
+         */
+        if (!uiFramePending.compareAndSet(false, true)) {
+            return;
+        }
+
+        lastUiFrameTime = now;
 
         final Image image;
 
         try {
             image = matToImage(frame);
-
         } catch (Exception exception) {
             uiFramePending.set(false);
+
+            System.err.println(
+                    "Unable to convert camera frame: "
+                            + exception.getMessage()
+            );
+
             exception.printStackTrace();
             return;
         }
 
         Platform.runLater(() -> {
             try {
-                cameraView.setPhoto(image);
+                if (cameraView != null) {
+                    cameraView.setPhoto(image);
+                    updateMainFaceBorder(faceDetected);
+                }
 
-                updateFaceBorder(
-                        cameraView,
-                        faceDetected
+                if (studentCameraView != null
+                        && studentStage != null
+                        && studentStage.isShowing()) {
+
+                    studentCameraView.setPhoto(image);
+                    updateStudentFaceBorder(faceDetected);
+                }
+
+            } catch (Exception exception) {
+                System.err.println(
+                        "Unable to publish camera preview: "
+                                + exception.getMessage()
                 );
 
-                if (studentCameraView != null) {
-                    studentCameraView.setPhoto(image);
-
-                    updateFaceBorder(
-                            studentCameraView,
-                            faceDetected
-                    );
-                }
-            } catch (Exception exception) {
                 exception.printStackTrace();
+
             } finally {
                 uiFramePending.set(false);
             }
         });
+    }
+    private void updateMainFaceBorder(
+            boolean faceDetected
+    ) {
+        if (mainViewFaceState != null
+                && mainViewFaceState == faceDetected) {
+            return;
+        }
+
+        mainViewFaceState = faceDetected;
+
+        applyFaceBorder(
+                cameraView,
+                faceDetected
+        );
+    }
+
+    private void updateStudentFaceBorder(
+            boolean faceDetected
+    ) {
+        if (studentViewFaceState != null
+                && studentViewFaceState == faceDetected) {
+            return;
+        }
+
+        studentViewFaceState = faceDetected;
+
+        applyFaceBorder(
+                studentCameraView,
+                faceDetected
+        );
+    }
+
+    private void applyFaceBorder(
+            PhotoView photoView,
+            boolean faceDetected
+    ) {
+        if (photoView == null) {
+            return;
+        }
+
+        photoView.getStyleClass().removeAll(
+                "border-circle-green",
+                "border-circle-red"
+        );
+
+        String requiredStyle =
+                faceDetected
+                        ? "border-circle-green"
+                        : "border-circle-red";
+
+        if (!photoView.getStyleClass()
+                .contains(requiredStyle)) {
+
+            photoView.getStyleClass()
+                    .add(requiredStyle);
+        }
     }
     private void drawFaceRectangle(
             Mat frame,
@@ -1658,10 +1869,6 @@ public class CameraController {
         VideoCapture cameraToClose;
 
         synchronized (cameraLock) {
-            /*
-             * Detach resources first so no new code obtains them from
-             * the controller while shutdown is in progress.
-             */
             timerToStop = timer;
             timer = null;
 
@@ -1672,14 +1879,14 @@ public class CameraController {
         if (timerToStop != null) {
             timerToStop.shutdownNow();
 
-            /*
-             * Do not await termination from the camera timer's own thread,
-             * because that would make the thread wait for itself.
-             */
-            if (!Thread.currentThread()
-                    .getName()
-                    .equals("attendance-camera-capture")) {
+            boolean calledFromCameraThread =
+                    Thread.currentThread()
+                            .getName()
+                            .equals(
+                                    "attendance-camera-capture"
+                            );
 
+            if (!calledFromCameraThread) {
                 try {
                     if (!timerToStop.awaitTermination(
                             2,
@@ -1693,29 +1900,25 @@ public class CameraController {
                     Thread.currentThread().interrupt();
                 }
             }
-            processing.set(false);
-            resetRecognitionSession();
         }
 
         if (cameraToClose != null) {
-            synchronized (cameraLock) {
-                try {
-                    cameraToClose.release();
-                } catch (Exception exception) {
-                    System.err.println(
-                            "Unable to release camera: "
-                                    + exception.getMessage()
-                    );
-                } finally {
-                    try {
-                        cameraToClose.close();
-                    } catch (Exception exception) {
-                        System.err.println(
-                                "Unable to close camera: "
-                                        + exception.getMessage()
-                        );
-                    }
-                }
+            try {
+                cameraToClose.release();
+            } catch (Exception exception) {
+                System.err.println(
+                        "Unable to release camera: "
+                                + exception.getMessage()
+                );
+            }
+
+            try {
+                cameraToClose.close();
+            } catch (Exception exception) {
+                System.err.println(
+                        "Unable to close camera: "
+                                + exception.getMessage()
+                );
             }
         }
 
@@ -1724,10 +1927,90 @@ public class CameraController {
                 lastFace.close();
                 lastFace = null;
             }
+
+            /*
+             * Release the pixel data, but keep the final Mat wrapper reusable.
+             */
+            cleanFrame.release();
         }
 
         processing.set(false);
+        uiFramePending.set(false);
+
         resetRecognition();
+        resetRecognitionSession();
+
+        mainViewFaceState = null;
+        studentViewFaceState = null;
+
+        Platform.runLater(() -> {
+            if (cameraView != null) {
+                cameraView.setPhoto(null);
+            }
+
+            if (studentCameraView != null) {
+                studentCameraView.setPhoto(null);
+            }
+        });
+    }
+    public void dispose() {
+        stopCamera();
+
+        executor.shutdownNow();
+
+        try {
+            if (!executor.awaitTermination(
+                    2,
+                    TimeUnit.SECONDS
+            )) {
+                System.err.println(
+                        "Camera worker executor did not terminate."
+                );
+            }
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+        }
+
+        synchronized (recognizerLock) {
+            recognizerReady.set(false);
+
+            if (recognizer != null) {
+                recognizer.close();
+                recognizer = null;
+            }
+        }
+
+        if (faceDetector != null) {
+            faceDetector.close();
+            faceDetector = null;
+        }
+
+        if (facemark != null) {
+            facemark.close();
+            facemark = null;
+        }
+
+        if (objectPoints != null) {
+            objectPoints.close();
+            objectPoints = null;
+        }
+
+        synchronized (frameLock) {
+            if (lastFace != null) {
+                lastFace.close();
+                lastFace = null;
+            }
+
+            cleanFrame.close();
+        }
+
+        if (studentStage != null) {
+            studentStage.close();
+        }
+
+        studentStage = null;
+        studentCameraView = null;
+        studentMessage = null;
     }
 
     private void switchCamera(
@@ -1751,7 +2034,9 @@ public class CameraController {
             }
         });
     }
-    private Rect findLargestFace(RectVector faces) {
+    private Rect findLargestFace(
+            RectVector faces
+    ) {
         if (faces == null || faces.size() == 0) {
             return null;
         }
@@ -1760,28 +2045,33 @@ public class CameraController {
         int largestY = 0;
         int largestWidth = 0;
         int largestHeight = 0;
+
         long largestArea = -1;
 
-        for (long index = 0; index < faces.size(); index++) {
-            Rect current = faces.get(index);
+        for (long index = 0;
+             index < faces.size();
+             index++) {
 
-            if (current == null
-                    || current.width() <= 0
-                    || current.height() <= 0) {
-                continue;
-            }
+            try (Rect current = faces.get(index)) {
+                if (current == null
+                        || current.width() <= 0
+                        || current.height() <= 0) {
 
-            long area =
-                    (long) current.width()
-                            * current.height();
+                    continue;
+                }
 
-            if (area > largestArea) {
-                largestArea = area;
+                long area =
+                        (long) current.width()
+                                * current.height();
 
-                largestX = current.x();
-                largestY = current.y();
-                largestWidth = current.width();
-                largestHeight = current.height();
+                if (area > largestArea) {
+                    largestArea = area;
+
+                    largestX = current.x();
+                    largestY = current.y();
+                    largestWidth = current.width();
+                    largestHeight = current.height();
+                }
             }
         }
 
@@ -1789,10 +2079,6 @@ public class CameraController {
             return null;
         }
 
-        /*
-         * Return an independent Rect. The returned Rect must be closed
-         * by the caller after it has finished using it.
-         */
         return new Rect(
                 largestX,
                 largestY,
@@ -1818,28 +2104,90 @@ public class CameraController {
         });
     }
 
-    private Image matToImage(Mat mat) {
-
-        try (BytePointer buffer =
-                     new BytePointer()) {
-
-            imencode(
-                    ".jpg",
-                    mat,
-                    buffer
+    private Image matToImage(Mat source) {
+        if (source == null || source.empty()) {
+            throw new IllegalArgumentException(
+                    "Cannot convert an empty camera frame"
             );
+        }
+
+        try (
+                Mat preview = new Mat();
+                Size previewSize =
+                        new Size(
+                                PREVIEW_WIDTH,
+                                PREVIEW_HEIGHT
+                        );
+                BytePointer encodedBuffer =
+                        new BytePointer()
+        ) {
+            resize(
+                    source,
+                    preview,
+                    previewSize,
+                    0,
+                    0,
+                    INTER_AREA
+            );
+
+            boolean encoded = imencode(
+                    ".jpg",
+                    preview,
+                    encodedBuffer
+            );
+
+            if (!encoded) {
+                throw new IllegalStateException(
+                        "OpenCV could not encode preview frame"
+                );
+            }
+
+            long nativeLength =
+                    encodedBuffer.limit();
+
+            if (nativeLength <= 0
+                    || nativeLength > Integer.MAX_VALUE) {
+
+                throw new IllegalStateException(
+                        "Invalid encoded image length: "
+                                + nativeLength
+                );
+            }
+
+            int length =
+                    Math.toIntExact(nativeLength);
 
             byte[] bytes =
-                    new byte[(int)
-                            buffer.limit()];
+                    new byte[length];
 
-            buffer.get(bytes);
+            encodedBuffer.position(0);
+            encodedBuffer.get(bytes);
 
-            return new Image(
-                    new ByteArrayInputStream(
-                            bytes
-                    )
-            );
+            try (ByteArrayInputStream input =
+                         new ByteArrayInputStream(bytes)) {
+
+                Image image = new Image(
+                        input,
+                        PREVIEW_WIDTH,
+                        PREVIEW_HEIGHT,
+                        true,
+                        true
+                );
+
+                if (image.isError()) {
+                    Throwable error =
+                            image.getException();
+
+                    throw new IllegalStateException(
+                            "JavaFX could not decode preview image",
+                            error
+                    );
+                }
+
+                return image;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -2156,50 +2504,19 @@ public class CameraController {
             return;
         }
 
-        if (training.get()) {
-            System.out.println(
-                    "Recognition skipped: training is running."
-            );
+        if (!recognitionModeSelected.get()) {
+            return;
+        }
 
+        if (training.get()) {
             return;
         }
 
         if (!recognizerReady.get()) {
-            System.out.println(
-                    "Recognition skipped: recognizer is not ready."
-            );
-
             return;
         }
 
         if (processing.get()) {
-            return;
-        }
-
-        if (modes == null) {
-            System.out.println(
-                    "Recognition skipped: ToggleGroup is null."
-            );
-
-            return;
-        }
-
-        Toggle selectedToggle =
-                modes.getSelectedToggle();
-
-        if (!(selectedToggle
-                instanceof ToggleButton toggleButton)) {
-
-            System.out.println(
-                    "Recognition skipped: no mode selected."
-            );
-
-            return;
-        }
-
-        if (!"Face Detector".equals(
-                toggleButton.getText()
-        )) {
             return;
         }
 

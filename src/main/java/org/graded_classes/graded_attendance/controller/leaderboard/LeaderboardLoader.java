@@ -4,6 +4,7 @@ package org.graded_classes.graded_attendance.controller.leaderboard;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
+import org.graded_classes.graded_attendance.Main;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 
 import java.io.IOException;
@@ -31,7 +32,7 @@ public class LeaderboardLoader {
         ArrayList<StackPane> panes = new ArrayList<>();
         panes.add(leader1);
         panes.add(leader2);
-       preview.add("Leaderboard1");
+        preview.add("Leaderboard1");
         preview.add("Leaderboard2");
         for (var a : list) {
             panes.add(new ImageSliderShow(a).getSliderPane());
@@ -46,9 +47,10 @@ public class LeaderboardLoader {
         layoutAnimator.animate();
         return scene;
     }
+
     public ArrayList<String> brandList(String path) {
         ArrayList<String> brandList = new ArrayList<>();
-        try (Stream<Path> paths = Files.walk(Paths.get("G:/My Drive/" + path))) {
+        try (Stream<Path> paths = Files.walk(Paths.get(Main.getRootPath() + path))) {
             paths.filter(Files::isRegularFile).forEach(p -> {
                 brandList.add(p.toAbsolutePath().toString());
             });
@@ -59,10 +61,15 @@ public class LeaderboardLoader {
     }
 
     public void generateDefaultAnimationDuration() {
-        defaultAnimationDuration.put(preview.getFirst(), new AnimationDuration(Duration.seconds(18).toSeconds(), Duration.seconds(2).toSeconds()));
-        defaultAnimationDuration.put(preview.get(1), new AnimationDuration(Duration.seconds(18).toSeconds(), Duration.seconds(2).toSeconds()));
+        defaultAnimationDuration.put(preview.getFirst(),
+                new AnimationDuration(Duration.seconds(18).toSeconds(),
+                        Duration.seconds(2).toSeconds()));
+        defaultAnimationDuration.put(preview.get(1),
+                new AnimationDuration(Duration.seconds(18).toSeconds(),
+                        Duration.seconds(2).toSeconds()));
         for (int i = 2; i < preview.size(); i++) {
-            defaultAnimationDuration.put(preview.get(i), new AnimationDuration(Duration.seconds(7).toSeconds(), Duration.seconds(2).toSeconds()));
+            defaultAnimationDuration.put(preview.get(i),
+                    new AnimationDuration(Duration.seconds(7).toSeconds(), Duration.seconds(2).toSeconds()));
         }
     }
 

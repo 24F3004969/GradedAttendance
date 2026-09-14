@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS Attendance
+ CREATE TABLE IF NOT EXISTS Attendance
 (
     ed_no        TEXT,
     date         TEXT,
@@ -21,6 +21,15 @@ CREATE TRIGGER remove_attendance_after_student_delete
 BEGIN
     DELETE FROM Attendance WHERE ed_no = OLD.ed_no;
 END;
+
+ DROP TRIGGER IF EXISTS remove_score_after_student_delete;
+
+ CREATE TRIGGER remove_score_after_student_delete
+     AFTER DELETE ON StudentData
+     FOR EACH ROW
+ BEGIN
+     DELETE FROM ScoreCard WHERE ed_no = OLD.ed_no;
+ END;
 
 CREATE TABLE IF NOT EXISTS camera_data (
                              id INTEGER PRIMARY KEY,

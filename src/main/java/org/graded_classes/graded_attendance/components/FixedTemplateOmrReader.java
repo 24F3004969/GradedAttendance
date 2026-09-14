@@ -13,14 +13,13 @@ import static org.bytedeco.opencv.global.opencv_imgproc.*;
 
 /**
  * OMR reader dedicated to the fixed 70-question Graded Coaching Classes sheet.
- * Requires Java 17+ and JavaCPP Presets for OpenCV.
  *
  * Instead of detecting every printed bubble, this reader:
  * 1. Finds the four large black registration squares.
  * 2. Corrects scanner rotation and perspective to the original 1414 x 2000 layout.
  * 3. Reads the 280 known bubble positions from the normalized sheet.
  */
-public final class OmrReader2 {
+public final class FixedTemplateOmrReader {
 
     private static final int PAGE_WIDTH = 1414;
     private static final int PAGE_HEIGHT = 2000;
@@ -46,11 +45,11 @@ public final class OmrReader2 {
     private static final double FILLED_THRESHOLD = 0.35;
     private static final double MIN_WINNING_MARGIN = 0.14;
 
-    private OmrReader2() {
+    private FixedTemplateOmrReader() {
     }
 
     public static void main(String[] args) {
-        String inputPath = args.length > 0 ? args[0] : "omr.jpeg";
+        String inputPath = args.length > 0 ? args[0] : "omr.png";
         OmrResult result = read(inputPath, true);
 
         for (QuestionResult question : result.questions()) {
@@ -278,13 +277,15 @@ public final class OmrReader2 {
         double best = scores[bestIndex];
         double second = scores[secondIndex];
 
+        int markedCount = 0;
+        for (double score : scores) {
+            if (score >= FILLED_THRESHOLD) markedCount++;
+        }
+
         char answer;
-        if (best < FILLED_THRESHOLD) {
-            // No option is dark enough to be considered selected.
+        if (markedCount == 0) {
             answer = '-';
-        } else if (second >= FILLED_THRESHOLD
-                && best - second < MIN_WINNING_MARGIN) {
-            // Two options are both dark and their scores are too close.
+        } else if (markedCount > 1 || best - second < MIN_WINNING_MARGIN) {
             answer = 'X';
         } else {
             answer = (char) ('A' + bestIndex);
@@ -349,17 +350,15 @@ public final class OmrReader2 {
                     new Scalar(0, 140, 255, 0), 3, LINE_AA, 0);
         }
 
-        boolean leftSide = questionNumber <= 35;
-        int labelX = leftSide ? optionX[3] + 28 : optionX[0] - 72;
-        int labelY = y + 4;
+        int labelX = Math.max(5, optionX[0] - 78);
         Scalar labelColor = answer == 'X'
                 ? new Scalar(0, 0, 255, 0)
                 : answer == '-'
                 ? new Scalar(0, 170, 255, 0)
                 : new Scalar(0, 150, 0, 0);
         putText(debug, "Q" + questionNumber + "=" + answer,
-                new Point(labelX, labelY), FONT_HERSHEY_SIMPLEX,
-                0.30, labelColor, 1, LINE_AA, false);
+                new Point(labelX, y + 4), FONT_HERSHEY_SIMPLEX,
+                0.32, labelColor, 1, LINE_AA, false);
     }
 
     private record MarkerCandidate(Point2d center, double area, Rect bounds) {}

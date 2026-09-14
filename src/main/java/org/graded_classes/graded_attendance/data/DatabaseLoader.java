@@ -21,18 +21,19 @@ public class DatabaseLoader {
             this.root_path = System.getProperty("user.home") + "\\";
         }
 
-        if (!new File(Main.getRootPath()+"My Drive" ,"imageData").exists()) {
-            System.out.println(new File(Main.getRootPath()+"My Drive" , "imageData").mkdirs());
+        if (!new File(Main.getRootPath(),"imageData").exists()) {
+            System.out.println(new File(Main.getRootPath() , "imageData").mkdirs());
         }
         init();
     }
 
     public DatabaseLoader(String name) {
-        this(Main.getRootPath() + "My Drive/", name);
+        this(Main.getRootPath(), name);
     }
 
     private void init() {
         try {
+            System.out.println( root_path + this.name + ".db");
             connection = DriverManager.getConnection("jdbc:sqlite:" + root_path + this.name + ".db");
             System.out.println("Opened database successfully");
         } catch (SQLException e) {

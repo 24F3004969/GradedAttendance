@@ -2,17 +2,20 @@ package org.graded_classes.graded_attendance.components;
 
 import javafx.application.Application;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
@@ -20,364 +23,295 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-public class OMRGeneratorApp extends Application {
+/**
+ * Generates the fixed 90-question OMR sheet used by OmrReader2.
+ *
+ * The sheet contains:
+ * - Four black registration markers
+ * - Six-digit roll/enrollment number OMR grid
+ * - Ninety questions in three columns of 30, each having A, B, C and D
+ */
+public final class OMRGeneratorApp extends Application {
 
-    // Sheet size
     public static final double SHEET_WIDTH = 800;
     public static final double SHEET_HEIGHT = 1200;
 
-    // Marker settings
     public static final double MARKER_SIZE = 40;
     public static final double MARKER_LEFT = 30;
     public static final double MARKER_TOP = 30;
     public static final double MARKER_RIGHT = 730;
     public static final double MARKER_BOTTOM = 1130;
 
-    // Bubble settings
     public static final double BUBBLE_RADIUS = 8;
     public static final double BUBBLE_STROKE_WIDTH = 1.5;
 
-    // Layout settings
-    public static final int TOTAL_QUESTIONS = 70;
-    public static final int QUESTIONS_PER_COLUMN = 35;
+    public static final int TOTAL_QUESTIONS = 90;
+    public static final int QUESTIONS_PER_COLUMN = 30;
 
-    public static final double LEFT_COLUMN_X = 90;
-    public static final double RIGHT_COLUMN_X = 420;
+    public static final int QUESTION_COLUMNS = 3;
+    public static final double[] QUESTION_COLUMN_X = {55, 310, 565};
 
-    public static final double FIRST_ROW_Y = 250;
-    public static final double QUESTION_GAP_Y = 22;
+    // Questions were moved down slightly to make room for roll-number bubbles.
+    public static final double FIRST_ROW_Y = 350;
+    public static final double QUESTION_GAP_Y = 25;
 
-    public static final double QUESTION_NUMBER_GAP = 45;
-    public static final double OPTION_GAP_X = 50;
+    public static final double QUESTION_NUMBER_GAP = 35;
+    public static final double OPTION_GAP_X = 36;
+
+    // Six-column roll/enrollment number grid.
+    public static final int ROLL_DIGITS = 6;
+    public static final int ROLL_VALUES = 7;
+    public static final double ROLL_LABEL_X = 482;
+    public static final double ROLL_FIRST_COLUMN_X = 515;
+    public static final double ROLL_COLUMN_GAP_X = 33;
+    public static final double ROLL_FIRST_ROW_Y = 148;
+    public static final double ROLL_ROW_GAP_Y = 20;
+    public static final double ROLL_BUBBLE_RADIUS = 8.0;
+    public static final double ROLL_BUBBLE_STROKE_WIDTH = 1.3;
 
     private Pane currentOMRPane;
 
     @Override
     public void start(Stage stage) {
-
         BorderPane root = new BorderPane();
 
-        Button generateBtn = new Button("Generate OMR");
-        Button savePdfBtn = new Button("Save PDF");
+        Button generateButton = new Button("Generate OMR");
+        Button savePdfButton = new Button("Save PDF");
 
-        ScrollPane scroll = new ScrollPane();
+        HBox toolbar = new HBox(10, generateButton, savePdfButton);
+        toolbar.setPadding(new Insets(8));
 
-        generateBtn.setOnAction(e -> {
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setPannable(true);
+        scrollPane.setFitToWidth(false);
+        scrollPane.setFitToHeight(false);
+
+        generateButton.setOnAction(event -> {
             currentOMRPane = createOMRSheet();
-            scroll.setContent(currentOMRPane);
+            scrollPane.setContent(currentOMRPane);
         });
 
-        savePdfBtn.setOnAction(e -> {
+        savePdfButton.setOnAction(event -> {
             if (currentOMRPane == null) {
                 currentOMRPane = createOMRSheet();
-                scroll.setContent(currentOMRPane);
+                scrollPane.setContent(currentOMRPane);
             }
-
             savePaneAsPdf(currentOMRPane, "omr-sheet.pdf");
         });
 
-        BorderPane topBar = new BorderPane();
-        topBar.setLeft(generateBtn);
-        topBar.setRight(savePdfBtn);
+        currentOMRPane = createOMRSheet();
+        scrollPane.setContent(currentOMRPane);
 
-        root.setTop(topBar);
-        root.setCenter(scroll);
+        root.setTop(toolbar);
+        root.setCenter(scrollPane);
 
-        Scene scene = new Scene(root, 1000, 800);
-
-        stage.setTitle("OMR Generator");
-        stage.setScene(scene);
+        stage.setTitle("OMR Generator With Roll Number");
+        stage.setScene(new Scene(root, 1000, 800));
         stage.show();
     }
 
-    private Pane createOMRSheet() {
+    public Pane createOMRSheet() {
+        Pane sheet = new Pane();
+        sheet.setPrefSize(SHEET_WIDTH, SHEET_HEIGHT);
+        sheet.setMinSize(SHEET_WIDTH, SHEET_HEIGHT);
+        sheet.setMaxSize(SHEET_WIDTH, SHEET_HEIGHT);
+        sheet.setStyle("-fx-background-color: white;");
 
-        Pane pane = new Pane();
+        addRegistrationMarkers(sheet);
+        addTitle(sheet);
+        addStudentInformation(sheet);
+        addInstructions(sheet);
 
-        pane.setPrefSize(SHEET_WIDTH, SHEET_HEIGHT);
-        pane.setMinSize(SHEET_WIDTH, SHEET_HEIGHT);
-        pane.setMaxSize(SHEET_WIDTH, SHEET_HEIGHT);
+        addRollNumberGrid(sheet);
 
-        // Use red border only for debugging/preview.
-        // Remove -fx-border-color:red before final printing if you want.
-
-        /*
-         * All actual OMR elements go inside this content pane.
-         * Then we center this content pane inside the main sheet pane.
-         */
-        Pane content = new Pane();
-
-        // Corner markers
-        content.getChildren().add(createMarker(MARKER_LEFT, MARKER_TOP));
-        content.getChildren().add(createMarker(MARKER_RIGHT, MARKER_TOP));
-        content.getChildren().add(createMarker(MARKER_LEFT, MARKER_BOTTOM));
-        content.getChildren().add(createMarker(MARKER_RIGHT, MARKER_BOTTOM));
-
-        // Title
-        Text title = new Text(
-                260,
-                70,
-                "GradeEd Coaching Classes"
-        );
-        title.setFont(Font.font(18));
-        content.getChildren().add(title);
-
-        Text subTitle = new Text(
-                310,
-                100,
-                "OMR ANSWER SHEET"
-        );
-        subTitle.setFont(Font.font(14));
-        content.getChildren().add(subTitle);
-
-        // Student info
-        Text nameText = new Text(
-                90,
-                145,
-                "Student Name: __________________________"
-        );
-        nameText.setFont(Font.font(13));
-
-        Text rollText = new Text(
-                430,
-                145,
-                "Roll No: ______________"
-        );
-        rollText.setFont(Font.font(13));
-
-        content.getChildren().add(nameText);
-        content.getChildren().add(rollText);
-
-        // Instructions
-        Text instruction = new Text(
-                90,
-                180,
-                "Instructions: Fill the bubble completely using black/blue pen. Do not tick, cross, or mark outside bubbles."
-        );
-        instruction.setFont(Font.font(11));
-        content.getChildren().add(instruction);
-
-        // Column headers
-        addHeader(
-                content,
-                LEFT_COLUMN_X,
-                FIRST_ROW_Y - 30
-        );
-
-        addHeader(
-                content,
-                RIGHT_COLUMN_X,
-                FIRST_ROW_Y - 30
-        );
-
-        // Questions
-        for (int q = 1; q <= TOTAL_QUESTIONS; q++) {
-
-            boolean rightColumn =
-                    q > QUESTIONS_PER_COLUMN;
-
-            int row;
-            double columnX;
-
-            if (rightColumn) {
-                row = q - QUESTIONS_PER_COLUMN - 1;
-                columnX = RIGHT_COLUMN_X;
-            } else {
-                row = q - 1;
-                columnX = LEFT_COLUMN_X;
-            }
-
-            double y =
-                    FIRST_ROW_Y + row * QUESTION_GAP_Y;
-
-            addQuestionRow(
-                    content,
-                    q,
-                    columnX,
-                    y
-            );
+        for (double columnX : QUESTION_COLUMN_X) {
+            addHeader(sheet, columnX, FIRST_ROW_Y - 27);
         }
 
-        // Add content first
-        pane.getChildren().add(content);
+        for (int question = 1; question <= TOTAL_QUESTIONS; question++) {
+            int zeroBasedQuestion = question - 1;
+            int columnIndex = zeroBasedQuestion / QUESTIONS_PER_COLUMN;
+            int rowIndex = zeroBasedQuestion % QUESTIONS_PER_COLUMN;
 
-        // Center all OMR content inside the page
-        centerContent(
-                pane,
-                content
+            double columnX = QUESTION_COLUMN_X[columnIndex];
+            double y = FIRST_ROW_Y + rowIndex * QUESTION_GAP_Y;
+
+            addQuestionRow(sheet, question, columnX, y);
+        }
+
+        return sheet;
+    }
+
+    private void addRegistrationMarkers(Pane sheet) {
+        sheet.getChildren().addAll(
+                createMarker(MARKER_LEFT, MARKER_TOP),
+                createMarker(MARKER_RIGHT, MARKER_TOP),
+                createMarker(MARKER_LEFT, MARKER_BOTTOM),
+                createMarker(MARKER_RIGHT, MARKER_BOTTOM)
+        );
+    }
+
+    private void addTitle(Pane sheet) {
+        Text title = new Text(274, 68, "GradeEd Coaching Classes");
+        title.setFont(Font.font("System", FontWeight.BOLD, 18));
+
+        Text subtitle = new Text(285, 95, "OMR ANSWER SHEET - 90 QUESTIONS");
+        subtitle.setFont(Font.font("System", FontWeight.NORMAL, 13));
+
+        sheet.getChildren().addAll(title, subtitle);
+    }
+
+    private void addStudentInformation(Pane sheet) {
+        Text name = new Text(90, 130, "Student Name: __________________________");
+        name.setFont(Font.font(12));
+        sheet.getChildren().addAll(name);
+    }
+
+    private void addInstructions(Pane sheet) {
+        Text instruction = new Text(
+                90,
+                292,
+                "Instructions: Fill one bubble in every roll-number column and one option per question using black/blue pen."
         );
 
-        return pane;
+        instruction.setFont(Font.font(10));
+        sheet.getChildren().add(instruction);
     }
-    private void centerContent(
-            Pane sheet,
-            Pane content
-    ) {
 
-        content.applyCss();
-        content.layout();
+    /**
+     * Draws six large, clearly separated digit columns. Each column contains digits 0 through 9.
+     * Example: for 123456, fill 1 in column 1, 2 in column 2, etc.
+     */
+    private void addRollNumberGrid(Pane sheet) {
+        // Position headers: 1, 2, 3, 4, 5, 6.
+        for (int position = 0; position < ROLL_DIGITS; position++) {
+            double x = rollColumnX(position);
+            Text positionLabel = new Text(x - 3, ROLL_FIRST_ROW_Y - 13,
+                    String.valueOf(position ));
+            positionLabel.setFont(Font.font("System", FontWeight.BOLD, 12));
+            sheet.getChildren().add(positionLabel);
+        }
 
-        double contentMinX =
-                content.getBoundsInLocal().getMinX();
+        // Digit labels and bubbles.
+        for (int digit = 0; digit < ROLL_VALUES; digit++) {
+            double y = rollDigitY(digit);
 
-        double contentMinY =
-                content.getBoundsInLocal().getMinY();
+            Text digitLabel = new Text(ROLL_LABEL_X, y + 3, String.valueOf(digit));
+            digitLabel.setFont(Font.font(12));
+            sheet.getChildren().add(digitLabel);
 
-        double contentWidth =
-                content.getBoundsInLocal().getWidth();
-
-        double contentHeight =
-                content.getBoundsInLocal().getHeight();
-
-        double offsetX =
-                (SHEET_WIDTH - contentWidth) / 2
-                        - contentMinX;
-
-        double offsetY =
-                (SHEET_HEIGHT - contentHeight) / 2
-                        - contentMinY;
-
-        content.setLayoutX(offsetX);
-        content.setLayoutY(offsetY);
+            for (int position = 0; position < ROLL_DIGITS; position++) {
+                Circle bubble = new Circle(
+                        rollColumnX(position),
+                        y,
+                        ROLL_BUBBLE_RADIUS
+                );
+                bubble.setFill(Color.WHITE);
+                bubble.setStroke(Color.BLACK);
+                bubble.setStrokeWidth(ROLL_BUBBLE_STROKE_WIDTH);
+                sheet.getChildren().add(bubble);
+            }
+        }
     }
-    private void addHeader(Pane pane, double columnX, double y) {
 
-        Text qNo = new Text(columnX, y, "Q.No");
-        qNo.setFont(Font.font(12));
+    public static double rollColumnX(int zeroBasedPosition) {
+        return ROLL_FIRST_COLUMN_X + zeroBasedPosition * ROLL_COLUMN_GAP_X;
+    }
 
-        Text a = new Text(columnX + QUESTION_NUMBER_GAP, y, "A");
-        Text b = new Text(columnX + QUESTION_NUMBER_GAP + OPTION_GAP_X, y, "B");
-        Text c = new Text(columnX + QUESTION_NUMBER_GAP + OPTION_GAP_X * 2, y, "C");
-        Text d = new Text(columnX + QUESTION_NUMBER_GAP + OPTION_GAP_X * 3, y, "D");
+    public static double rollDigitY(int digit) {
+        return ROLL_FIRST_ROW_Y + digit * ROLL_ROW_GAP_Y;
+    }
 
-        a.setFont(Font.font(12));
-        b.setFont(Font.font(12));
-        c.setFont(Font.font(12));
-        d.setFont(Font.font(12));
-
-        pane.getChildren().addAll(qNo, a, b, c, d);
+    private void addHeader(Pane sheet, double columnX, double y) {
+        Text questionNumber = createText(columnX, y, "Q.No", 12);
+        Text a = createText(columnX + QUESTION_NUMBER_GAP, y, "A", 12);
+        Text b = createText(columnX + QUESTION_NUMBER_GAP + OPTION_GAP_X, y, "B", 12);
+        Text c = createText(columnX + QUESTION_NUMBER_GAP + OPTION_GAP_X * 2, y, "C", 12);
+        Text d = createText(columnX + QUESTION_NUMBER_GAP + OPTION_GAP_X * 3, y, "D", 12);
+        sheet.getChildren().addAll(questionNumber, a, b, c, d);
     }
 
     private void addQuestionRow(
-            Pane pane,
-            int questionNo,
+            Pane sheet,
+            int questionNumber,
             double columnX,
             double y
     ) {
-
-        Text qText = new Text(
-                columnX,
-                y + 5,
-                String.valueOf(questionNo)
-        );
-
-        qText.setFont(Font.font(13));
-        pane.getChildren().add(qText);
+        Text number = createText(columnX, y + 5, String.valueOf(questionNumber), 12);
+        sheet.getChildren().add(number);
 
         for (int option = 0; option < 4; option++) {
+            double bubbleX = columnX
+                    + QUESTION_NUMBER_GAP
+                    + option * OPTION_GAP_X;
 
-            double bubbleX =
-                    columnX
-                            + QUESTION_NUMBER_GAP
-                            + option * OPTION_GAP_X;
-
-            Circle circle = new Circle(
-                    bubbleX,
-                    y,
-                    BUBBLE_RADIUS
-            );
-
-            circle.setFill(Color.WHITE);
-            circle.setStroke(Color.BLACK);
-            circle.setStrokeWidth(BUBBLE_STROKE_WIDTH);
-
-            pane.getChildren().add(circle);
+            Circle bubble = new Circle(bubbleX, y, BUBBLE_RADIUS);
+            bubble.setFill(Color.WHITE);
+            bubble.setStroke(Color.BLACK);
+            bubble.setStrokeWidth(BUBBLE_STROKE_WIDTH);
+            sheet.getChildren().add(bubble);
         }
     }
 
-    private Rectangle createMarker(
-            double x,
-            double y
-    ) {
+    private Text createText(double x, double y, String value, double size) {
+        Text text = new Text(x, y, value);
+        text.setFont(Font.font(size));
+        return text;
+    }
 
-        Rectangle marker = new Rectangle(
-                x,
-                y,
-                MARKER_SIZE,
-                MARKER_SIZE
-        );
-
+    private Rectangle createMarker(double x, double y) {
+        Rectangle marker = new Rectangle(x, y, MARKER_SIZE, MARKER_SIZE);
         marker.setFill(Color.BLACK);
-
         return marker;
     }
 
-    private void savePaneAsPdf(
-            Pane pane,
-            String outputFile
-    ) {
+    private void savePaneAsPdf(Pane pane, String outputFile) {
+        pane.applyCss();
+        pane.layout();
 
-        try {
+        SnapshotParameters parameters = new SnapshotParameters();
+        parameters.setTransform(new Scale(3, 3));
+        parameters.setFill(Color.WHITE);
 
-            SnapshotParameters params =
-                    new SnapshotParameters();
+        WritableImage writableImage = pane.snapshot(parameters, null);
+        BufferedImage bufferedImage = SwingFXUtils.fromFXImage(writableImage, null);
 
-            params.setTransform(new Scale(3, 3));
-            params.setFill(Color.WHITE);
-
-            WritableImage image =
-                    pane.snapshot(params, null);
-
-            PDDocument document =
-                    new PDDocument();
-
-            PDPage page =
-                    new PDPage(PDRectangle.A4);
-
+        try (PDDocument document = new PDDocument()) {
+            PDPage page = new PDPage(PDRectangle.A4);
             document.addPage(page);
 
-            PDImageXObject pdfImage =
-                    LosslessFactory.createFromImage(
-                            document,
-                            SwingFXUtils.fromFXImage(
-                                    image,
-                                    null
-                            )
-                    );
-
-            PDPageContentStream contentStream =
-                    new PDPageContentStream(
-                            document,
-                            page
-                    );
-
-            contentStream.drawImage(
-                    pdfImage,
-                    0,
-                    0,
-                    page.getMediaBox().getWidth(),
-                    page.getMediaBox().getHeight()
+            PDImageXObject pdfImage = LosslessFactory.createFromImage(
+                    document,
+                    bufferedImage
             );
 
-            contentStream.close();
+            try (PDPageContentStream stream = new PDPageContentStream(document, page)) {
+                stream.drawImage(
+                        pdfImage,
+                        0,
+                        0,
+                        page.getMediaBox().getWidth(),
+                        page.getMediaBox().getHeight()
+                );
+            }
 
             document.save(outputFile);
-            document.close();
-
-            System.out.println("High quality PDF saved: " + outputFile);
-
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to save PDF", e);
+            System.out.println("High-quality OMR PDF saved: " + outputFile);
+        } catch (IOException exception) {
+            throw new IllegalStateException(
+                    "Failed to save OMR PDF: " + outputFile,
+                    exception
+            );
         }
     }
 
     public static void main(String[] args) {
-        launch();
+        launch(args);
     }
 }

@@ -10,7 +10,6 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -24,7 +23,7 @@ public class Main extends Application {
         Parent root = fxmlLoader.load();
         var scene = new Scene(root);
         stage.setTitle("Graded Management");
-        Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+        Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
         stage.setScene(scene);
         stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("icons/app_icon.png"))));
         stage.setOnCloseRequest(_ -> System.exit(1));
@@ -40,14 +39,9 @@ public class Main extends Application {
         }
         Application.launch(Main.class);
     }
+
     public static String getRootPath() {
-        for (File r : File.listRoots()) {
-            File myDrive = new File(r, "My Drive");
-            if (myDrive.exists()) {
-               return r.toString();
-            }
-        }
-        return null;
+        return System.getProperty("user.home") + "\\My Drive\\";
     }
 }
 

@@ -1,5 +1,7 @@
 package org.graded_classes.graded_attendance.data;
 
+import org.graded_classes.graded_attendance.Main;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
@@ -46,6 +48,6 @@ public class ExamDBCreator {
     }
 
     public static void main(String[] args) {
-        createDatabasesWithTable(90, "G:/My Drive/GradeEd_Exam_2026");
+        createDatabasesWithTable(97, Main.getRootPath()+"GradeEd_Exam_2026");
     }
 }

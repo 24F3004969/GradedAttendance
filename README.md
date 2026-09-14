@@ -149,7 +149,7 @@ We welcome contributions! Please follow these steps:
 
 ##  License
 
-This project is licensed under the [License Type] - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the [License Type] - see the [LICENSE](omr4) file for details.
 
 ## 👨💻 Author
 

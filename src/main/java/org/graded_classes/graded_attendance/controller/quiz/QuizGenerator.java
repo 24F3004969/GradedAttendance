@@ -4,6 +4,7 @@ import com.lottie4j.core.file.LottieFileLoader;
 import com.lottie4j.core.model.animation.Animation;
 import com.lottie4j.fxplayer.LottiePlayer;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -34,6 +35,8 @@ import static org.graded_classes.graded_attendance.controller.quiz.QuizTaker.ext
 
 public class QuizGenerator implements Initializable {
     @FXML
+    private ComboBox<String> classList;
+    @FXML
     public TreeView<String> quizTree;
     @FXML
     public HBox topRightQuizView;
@@ -48,6 +51,9 @@ public class QuizGenerator implements Initializable {
     @FXML
     HBox selectedTab;
     Node previouslySelectedNode;
+    @FXML
+    private ComboBox<String> subjectList;
+    String selectedClass, selectedSubject;
 
     public QuizGenerator(MainController mainController) {
         this.mainController = mainController;
@@ -58,35 +64,57 @@ public class QuizGenerator implements Initializable {
         var newTopic = mainController.gradedFxmlLoader.createView(R.newTopic,
                 new QuizTopic(rootItem, mainController.modalPane, map.values()));
         mainController.modalPane.show(newTopic);
+
     }
 
     TreeMap<Integer, String> map = new TreeMap<>();
     TreeMap<Integer, TreeMap<Integer, QuestionData>> allQuestions = new TreeMap<>();
     TreeMap<String, Integer> invertedMap;
+    private static final List<String> CLASSES =
+            Arrays.asList("IV", "V", "VI", "VII", "VIII", "IX", "X");
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
-        CompletableFuture.runAsync(() -> {
-            allQuestions = extractAllQuestionData();
-            map = generateTopicMapping();
-            Platform.runLater(() ->
-            {
-                var player = generateLottie();
-                welcomeScreen.getChildren().add(player);
-                player.play();
-                generateTreeMap();
-            });
-            invertedMap = new TreeMap<>();
-            for (Map.Entry<Integer, String> entry : map.entrySet()) {
-                invertedMap.put(entry.getValue(), entry.getKey());
-            }
+        classList.setItems(FXCollections.observableList(CLASSES));
+        subjectList.setItems(FXCollections.observableArrayList(List.of("English",
+                "Math", "Computer", "Physics", "Chemistry", "Biology", "Social Science", "Diagnostic Test")));
+        classList.getSelectionModel().select(6);
+        subjectList.getSelectionModel().select(1);
+        selectedClass = "X";
+        selectedSubject = "Math";
+        subjectList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            selectedSubject = newValue;
+            resetUi();
+            initTreeMapUi();
         });
+        classList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            selectedClass = newValue;
+            resetUi();
+            initTreeMapUi();
+        });
+        CompletableFuture.runAsync(this::initTreeMapUi);
+    }
+
+    private void initTreeMapUi() {
+        allQuestions = extractAllQuestionData();
+        map = generateTopicMapping();
+        Platform.runLater(() ->
+        {
+            var player = generateLottie();
+            welcomeScreen.getChildren().add(player);
+            player.play();
+            generateTreeMap();
+        });
+        invertedMap = new TreeMap<>();
+        for (Map.Entry<Integer, String> entry : map.entrySet()) {
+            invertedMap.put(entry.getValue(), entry.getKey());
+        }
     }
 
     private TreeMap<Integer, String> generateTopicMapping() {
         TreeMap<Integer, String> map = new TreeMap<>();
-        String sql = "select * from Topics";
+        String sql = "select * from Topics where subject='%s' and class='%s'"
+                .formatted(selectedSubject, selectedClass);
         try {
             var conn = mainController.gradedDataLoader.databaseLoader.getConnection();
             Statement stmt = conn.createStatement();
@@ -100,6 +128,13 @@ public class QuizGenerator implements Initializable {
             throw new RuntimeException(e);
         }
         return map;
+    }
+
+    public void resetUi() {
+        allQuestions.clear();
+        map.clear();
+        invertedMap.clear();
+        rootItem.getChildren().clear();
     }
 
     MenuItem saveToDb = new MenuItem("Save to Db");
@@ -121,7 +156,8 @@ public class QuizGenerator implements Initializable {
                 if (allQuestions.containsKey(entry)) {
                     int size = allQuestions.get(entry).size();
                     for (int i = 1; i <= size; i++) {
-                        TreeItem<String> e = new TreeItem<>("Question " + i, new FontIcon("mdi2n-note"));
+                        TreeItem<String> e = new TreeItem<>("Question " + i,
+                                new FontIcon("mdi2n-note"));
                         item.getChildren().add(e);
 
                     }
@@ -137,46 +173,6 @@ public class QuizGenerator implements Initializable {
 
     }
 
-    /* private TreeCell<String> getTreeCell() {
-         var cell = new TreeCell<String>() {
-             @Override
-             protected void updateItem(String item, boolean empty) {
-                 super.updateItem(item, empty);
-
-                 if (empty || item == null) {
-                     setText(null);
-                     setGraphic(null);
-                     setContextMenu(null);
-                     return;
-                 }
-
-                 setText(item);
-
-                 if (getTreeItem() != null) {
-                     setGraphic(getTreeItem().getGraphic());
-                 }
-
-                 TreeItem<String> ti = getTreeItem();
-                 if (rootItem.getChildren().contains(ti))
-                     setContextMenu(createMenu(ti, ti.getValue()));
-             }
-         };
-
-
-         cell.setOnMouseClicked(event -> {
-             if (!cell.isEmpty() && event.getClickCount() == 2) {
-                 TabPane tabPane = (TabPane) quiz_gen_layout.lookup("#tabs");
-                 var tb = mainController.gradedFxmlLoader.createView(R.question_editor,
-                         new QuestionEditor(mainController, allQuestions.get(invertedMap.get(cell.getItem())), "" + invertedMap.get(cell.getItem())));
-                 Tab tab = new Tab(cell.getItem());
-                 tab.setContent(tb);
-                 tabPane.getTabs().add(tab);
-                 tabPane.getSelectionModel().select(tab);
-             }
-         });
-
-         return cell;
-     }*/
     private TreeCell<String> getTreeCell() {
         var cell = new TreeCell<String>() {
             @Override
@@ -304,9 +300,10 @@ public class QuizGenerator implements Initializable {
         TreeMap<Integer, TreeMap<Integer, QuestionData>> mapOfQuestion = new TreeMap<>();
         String sql = """
                 select *
-                    from QuestionOptions
-                             join Questions on Questions.question_id = QuestionOptions.question_id
-                """;
+                from QuestionOptions
+                         join Questions on Questions.question_id = QuestionOptions.question_id join Topics
+                on Questions.topic_id=Topics.topic_id and Topics.class='%s' and Topics.subject='%s';
+                """.formatted(selectedClass, selectedSubject);
         try {
             var conn = mainController.gradedDataLoader.databaseLoader.getConnection();
             Statement stmt = conn.createStatement();
@@ -534,7 +531,7 @@ public class QuizGenerator implements Initializable {
                     ps.setInt(1, questionId);
                     ps.setString(2, optionText);
                     ps.setInt(3, order);
-                    ps.setInt(4, order == correctIndex ? 1 : 0);
+                    ps.setInt(4, order == (correctIndex + 1) ? 1 : 0);
 
                     ps.addBatch();
                 }
@@ -546,8 +543,6 @@ public class QuizGenerator implements Initializable {
         } catch (Exception e) {
             conn.rollback();
             throw e;
-        } finally {
-
         }
     }
 }
