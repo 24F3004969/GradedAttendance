@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
 import org.graded_classes.graded_attendance.controller.home.MainController;
+import org.graded_classes.graded_attendance.data.ExamDBCreator;
 import org.graded_classes.graded_attendance.data.ExamData;
 
 import java.net.URL;
@@ -14,10 +15,12 @@ import java.util.ResourceBundle;
 public class LoginBeforeEntry implements Initializable {
     MainController mainController;
     ExamData examInfo;
+    String type;
 
-    public LoginBeforeEntry(MainController mainController, ExamData examInfo) {
+    public LoginBeforeEntry(MainController mainController, ExamData examInfo, String type) {
         this.mainController = mainController;
         this.examInfo = examInfo;
+        this.type = type;
     }
 
     @FXML
@@ -40,8 +43,16 @@ public class LoginBeforeEntry implements Initializable {
     @FXML
     void create() {
         if (validateBeforeLogin()) {
-            ExamLogin examLogin = new ExamLogin(mainController, rollCode.getText(), name.getText(), seatNo.getText(),examInfo);
-            examLogin.showLoginScreen();
+            if (type.equals("Normal")) {
+                ExamLogin examLogin = new ExamLogin(mainController, rollCode.getText(), name.getText(),
+                        seatNo.getText(), examInfo, "Normal");
+                examLogin.showLoginScreen();
+            } else if (type.equals("Diagnostic")) {
+                ExamDBCreator.createDatabasesWithName(name.getText());
+                ExamLogin examLogin = new ExamLogin(mainController, name.getText(),
+                        name.getText(), seatNo.getText(), examInfo, "Diagnostic");
+                examLogin.showLoginScreen();
+            }
         }
     }
 

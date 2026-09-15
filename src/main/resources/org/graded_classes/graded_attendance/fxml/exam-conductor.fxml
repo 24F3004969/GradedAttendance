@@ -49,7 +49,7 @@
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
          </VBox.margin>
       </HBox>
-      <TableView fx:id="scheduleTable" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+      <TableView fx:id="scheduleTable" prefHeight="200.0" prefWidth="200.0" stylesheets="@../css/time_table.css" VBox.vgrow="ALWAYS">
         <columns>
           <TableColumn fx:id="id" prefWidth="75.0" text="Id" />
           <TableColumn fx:id="topic" prefWidth="75.0" text="Topics" />

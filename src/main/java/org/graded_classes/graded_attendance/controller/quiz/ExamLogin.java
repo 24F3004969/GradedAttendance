@@ -27,13 +27,17 @@ public class ExamLogin {
     String name;
     String seatNo;
     ExamData examInfo;
+    String type;
 
-    public ExamLogin(MainController mainController, String rollCode, String name, String seatNo, ExamData examInfo) {
+    public ExamLogin(MainController mainController, String rollCode,
+                     String name, String seatNo, ExamData examInfo,
+                     String type) {
         this.mainController = mainController;
         this.rollCode = rollCode;
         this.name = name;
         this.seatNo = seatNo;
         this.examInfo = examInfo;
+        this.type = type;
     }
 
     private static final int PARTICLE_COUNT = 90;
@@ -50,7 +54,7 @@ public class ExamLogin {
                 mainController.gradedFxmlLoader.
                         createView(R.exam_login,
                                 new StudentExamLogin(mainController,
-                                        stage, this));
+                                        stage, this,type));
         Canvas canvas = new Canvas(800, 600);
         GraphicsContext gc = canvas.getGraphicsContext2D();
 

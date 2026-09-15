@@ -33,7 +33,7 @@ public class DataBaseController implements Initializable {
     @FXML
     VBox database_tab;
     @FXML
-    private TableColumn<StudentInfo, String> doa, ed_no, grade, name, sno;
+    private TableColumn<StudentInfo, String> doa, ed_no, grade, name, sno,phone_no;
     @FXML
     private TableColumn<StudentInfo, String> last_fee;
     @FXML
@@ -109,7 +109,7 @@ public class DataBaseController implements Initializable {
         board.setCellValueFactory(map -> map.getValue().board());
         fee.setCellValueFactory(map -> map.getValue().fee());
         sno.setCellValueFactory(map -> map.getValue().sno().asString());
-
+        phone_no.setCellValueFactory(map->map.getValue().phoneNo());
         doa.setCellFactory(TextFieldTableCell.forTableColumn());
         doa.setOnEditCommit(event -> {
             String value = event.getNewValue();
@@ -151,7 +151,7 @@ public class DataBaseController implements Initializable {
                     student.ed_no(), student.name(),
                     student._class(), student.getDoa(), student.getLastPaymentDate(), student.fee,
                     Arrays.toString(student.getSubjects()).replace("[", "").replace("]", ""),
-                    student.getBoard());
+                    student.getBoard(),student.guardian_phone());
             items.add(studentInfo);
         }
         studentData.setItems(filteredData);

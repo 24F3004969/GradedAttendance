@@ -57,6 +57,7 @@ public enum R {
     exam_entry_login("fxml/exam-entry-login.fxml"),
     camera("fxml/camera.fxml"),
     exam_report("fxml/exam-report.fxml"),
+    diagnostic_exam_report("fxml/diagnostic_exam_report.fxml"),
     diagnostic_test("fxml/diagnostic-exam-create.fxml");
     private final String path;
 

@@ -28,4 +28,20 @@ CREATE TABLE if not exists StudentData
     board             TEXT CHECK (board IN ('ICSE', 'CBSE') ) DEFAULT 'ICSE'
 );
 
+CREATE TABLE IF NOT EXISTS DiagnosticScoreCard
+(
+    diagnostic_result_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    exam_id               INTEGER NOT NULL,
+    student_name          TEXT NOT NULL COLLATE NOCASE,
+    subject               TEXT NOT NULL,
+    topic_name            TEXT,
+    marks_obtain          INTEGER NOT NULL DEFAULT 0,
+    total_marks           INTEGER NOT NULL DEFAULT 0,
+    total_attempted       INTEGER NOT NULL DEFAULT 0,
+    correct_answers       INTEGER NOT NULL DEFAULT 0,
+    wrong_answers         INTEGER NOT NULL DEFAULT 0,
+    remark                TEXT,
+    generated_at          TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
+    UNIQUE (exam_id, student_name)
+);

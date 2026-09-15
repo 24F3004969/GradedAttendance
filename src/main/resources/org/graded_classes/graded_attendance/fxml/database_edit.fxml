@@ -96,6 +96,7 @@
             <TableColumn fx:id="subjects" text="Subjects" />
                 <TableColumn fx:id="doa" text="Date of Admission" />
                 <TableColumn fx:id="last_fee" text="Last Fee Date" />
+            <TableColumn fx:id="phone_no" text="Phone" />
             </columns>
             <columnResizePolicy>
                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

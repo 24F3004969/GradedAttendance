@@ -14,6 +14,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import org.graded_classes.graded_attendance.Main;
@@ -92,12 +93,46 @@ public class ConductExam implements Initializable {
             HBox hBox = new HBox(button, result);
             hBox.setAlignment(Pos.CENTER);
             hBox.setSpacing(5);
-            button.setOnMouseClicked(_ -> mainController.modalPane.show(mainController.
-                    gradedFxmlLoader
-                    .createView(R.exam_entry_login,
-                            new LoginBeforeEntry(mainController, examInfo))));
-            result.setOnMouseClicked(_ -> {
-                generateResult(examInfo);
+            button.setOnMouseClicked(_ -> {
+                var sub = examInfo.subject();
+                if (!containsMoreThanOneSubject(sub)) {
+                    mainController.modalPane.show(mainController.
+                            gradedFxmlLoader
+                            .createView(R.exam_entry_login,
+                                    new LoginBeforeEntry(mainController, examInfo, "Normal")));
+                } else {
+                    mainController.modalPane.show(mainController.
+                            gradedFxmlLoader
+                            .createView(R.exam_entry_login,
+                                    new LoginBeforeEntry(mainController, examInfo, "Diagnostic")));
+                }
+            });
+            result.setOnAction(_ -> {
+                if (containsMoreThanOneSubject(examInfo.subject())) {
+                    generateDiagnosticResultAsync(
+                            examInfo,
+                            result
+                    );
+                    Node node = mainController
+                            .gradedFxmlLoader
+                            .createView(R.diagnostic_exam_report, new DiagnosticExamReport(mainController));
+                    node.setStyle("-fx-background-color: #fafafa");
+
+                    if (node instanceof Region region) {
+                        region.setPrefSize(900, 700);
+                        region.setMaxSize(900, 700);
+                    }
+
+                    mainController.modalPane.show(node);
+
+                } else {
+
+                    generateNormalResultAsync(
+                            examInfo,
+                            result
+                    );
+
+                }
             });
             return new SimpleObjectProperty<>(hBox);
         });
@@ -166,6 +201,115 @@ public class ConductExam implements Initializable {
             items.addAll(sec);
         }
         scheduleTable.setItems(items);
+    }
+
+    private void generateNormalResultAsync(
+            ExamData examInfo,
+            Button sourceButton
+    ) {
+        sourceButton.setDisable(true);
+        sourceButton.setText("Generating...");
+
+        CompletableFuture
+                .runAsync(() -> generateResult(examInfo))
+                .whenComplete((unused, throwable) ->
+                        Platform.runLater(() -> {
+
+                            sourceButton.setDisable(false);
+                            sourceButton.setText("Generate Result");
+
+                            if (throwable != null) {
+                                showResultAlert(
+                                        Alert.AlertType.ERROR,
+                                        "Result Generation Failed",
+                                        "Unable to generate the normal exam result.",
+                                        getThrowableMessage(throwable)
+                                );
+                                return;
+                            }
+
+                            showResultAlert(
+                                    Alert.AlertType.INFORMATION,
+                                    "Result Generated",
+                                    "Normal exam results generated successfully.",
+                                    "The ScoreCard table has been updated."
+                            );
+                        })
+                );
+    }
+
+    private boolean containsMoreThanOneSubject(String sub) {
+        return (sub.contains("[")
+                && sub.contains("]"));
+    }
+
+    private void generateDiagnosticResultAsync(
+            ExamData examInfo,
+            Button sourceButton
+    ) {
+        sourceButton.setDisable(true);
+        sourceButton.setText("Generating...");
+
+        CompletableFuture
+                .supplyAsync(() -> generateDiagnosticResult(examInfo))
+                .whenComplete((summary, throwable) ->
+                        Platform.runLater(() -> {
+
+                            sourceButton.setDisable(false);
+                            sourceButton.setText("Generate Result");
+
+                            if (throwable != null) {
+                                showResultAlert(
+                                        Alert.AlertType.ERROR,
+                                        "Diagnostic Result Failed",
+                                        "Unable to generate diagnostic results.",
+                                        getThrowableMessage(throwable)
+                                );
+                                return;
+                            }
+
+                            showResultAlert(
+                                    Alert.AlertType.INFORMATION,
+                                    "Diagnostic Result Generated",
+                                    "Diagnostic results generated successfully.",
+                                    summary
+                            );
+                        })
+                );
+    }
+
+    private void showResultAlert(
+            Alert.AlertType type,
+            String title,
+            String header,
+            String message
+    ) {
+        Alert alert = new Alert(type);
+
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(message);
+
+        if (scheduleTable.getScene() != null) {
+            alert.initOwner(
+                    scheduleTable.getScene().getWindow()
+            );
+        }
+
+        alert.show();
+    }
+
+    private String getThrowableMessage(Throwable throwable) {
+
+        Throwable cause = throwable;
+
+        while (cause.getCause() != null) {
+            cause = cause.getCause();
+        }
+
+        return cause.getMessage() == null
+                ? cause.getClass().getSimpleName()
+                : cause.getMessage();
     }
 
     private void generateResult(ExamData examInfo) {
@@ -336,6 +480,380 @@ public class ConductExam implements Initializable {
         return answersMap;
     }
 
+    private String generateDiagnosticResult(ExamData examInfo) {
+
+        int examId = Integer.parseInt(examInfo.id());
+
+        File diagnosisDirectory = getDiagnosisDirectory();
+
+        if (!diagnosisDirectory.exists()) {
+            throw new IllegalStateException(
+                    "Diagnosis directory does not exist:\n"
+                            + diagnosisDirectory.getAbsolutePath()
+            );
+        }
+
+        if (!diagnosisDirectory.isDirectory()) {
+            throw new IllegalStateException(
+                    "Diagnosis path is not a directory:\n"
+                            + diagnosisDirectory.getAbsolutePath()
+            );
+        }
+
+        /*
+         * Windows may hide the .db extension in File Explorer.
+         * Therefore, all regular files are initially accepted.
+         *
+         * Temporary SQLite files such as:
+         * -student.db-wal
+         * -student.db-shm
+         * -student.db-journal
+         *
+         * are excluded.
+         */
+        File[] diagnosticDatabases = diagnosisDirectory.listFiles(file -> {
+
+            if (!file.isFile()) {
+                return false;
+            }
+
+            String fileName = file.getName().toLowerCase(Locale.ROOT);
+
+            return !fileName.endsWith("-wal")
+                    && !fileName.endsWith("-shm")
+                    && !fileName.endsWith("-journal");
+        });
+
+        if (diagnosticDatabases == null
+                || diagnosticDatabases.length == 0) {
+            throw new IllegalStateException(
+                    "No diagnostic student databases were found in:\n"
+                            + diagnosisDirectory.getAbsolutePath()
+            );
+        }
+
+        Arrays.sort(
+                diagnosticDatabases,
+                Comparator.comparing(
+                        File::getName,
+                        String.CASE_INSENSITIVE_ORDER
+                )
+        );
+
+        TreeMap<String, QuestionData> questionDataMap =
+                loadQuestion(examInfo);
+
+        if (questionDataMap.isEmpty()) {
+            throw new IllegalStateException(
+                    "No questions were found for diagnostic exam "
+                            + examInfo.id()
+            );
+        }
+
+        final int marksPerQuestion = 4;
+        final int totalMarks =
+                questionDataMap.size() * marksPerQuestion;
+
+        String sql = """
+                INSERT INTO DiagnosticScoreCard
+                (
+                    exam_id,
+                    student_name,
+                    subject,
+                    topic_name,
+                    marks_obtain,
+                    total_marks,
+                    total_attempted,
+                    correct_answers,
+                    wrong_answers,
+                    remark
+                )
+                VALUES
+                (
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                )
+                ON CONFLICT(exam_id, student_name)
+                DO UPDATE SET
+                    subject = excluded.subject,
+                    topic_name = excluded.topic_name,
+                    marks_obtain = excluded.marks_obtain,
+                    total_marks = excluded.total_marks,
+                    total_attempted = excluded.total_attempted,
+                    correct_answers = excluded.correct_answers,
+                    wrong_answers = excluded.wrong_answers,
+                    remark = excluded.remark,
+                    generated_at = CURRENT_TIMESTAMP
+                """;
+
+        Connection connection = mainController
+                .gradedDataLoader
+                .databaseLoader
+                .getConnection();
+
+        int generatedCount = 0;
+        int skippedCount = 0;
+
+        List<String> skippedStudents = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            for (File databaseFile : diagnosticDatabases) {
+
+                String studentName =
+                        getStudentNameFromDatabaseFile(databaseFile);
+
+                if (studentName.isBlank()) {
+                    skippedCount++;
+                    skippedStudents.add(databaseFile.getName());
+                    continue;
+                }
+
+                DiagnosticAnswerReadResult readResult =
+                        getDiagnosticAnswers(examId, databaseFile);
+
+                if (!readResult.success()) {
+                    skippedCount++;
+                    skippedStudents.add(
+                            studentName + ": " + readResult.errorMessage()
+                    );
+                    continue;
+                }
+
+                TreeMap<Integer, Integer> selectedAnswers =
+                        readResult.answers();
+
+                int correctAnswers = 0;
+                int wrongAnswers = 0;
+                int totalAttempted = 0;
+
+                for (Map.Entry<Integer, Integer> answer
+                        : selectedAnswers.entrySet()) {
+
+                    int questionId = answer.getKey();
+                    int selectedOptionIndex = answer.getValue();
+
+                    /*
+                     * An option value of zero normally means that no valid
+                     * option was selected.
+                     */
+                    if (selectedOptionIndex <= 0) {
+                        continue;
+                    }
+
+                    QuestionData question =
+                            questionDataMap.get(
+                                    String.valueOf(questionId)
+                            );
+
+                    if (question == null
+                            || question.option_data() == null) {
+
+                        System.err.println(
+                                "Question not found for diagnostic answer."
+                                        + " Exam ID: " + examId
+                                        + ", student: " + studentName
+                                        + ", question ID: " + questionId
+                        );
+
+                        continue;
+                    }
+
+                    totalAttempted++;
+
+                    int correctOptionIndex =
+                            question.option_data().option_index();
+
+                    if (selectedOptionIndex == correctOptionIndex) {
+                        correctAnswers++;
+                    } else {
+                        wrongAnswers++;
+                    }
+                }
+
+                int score = correctAnswers * marksPerQuestion;
+
+                /*
+                 * Do not determine absence from score == 0.
+                 * A student may attempt the exam but get every answer wrong.
+                 */
+                String remark = selectedAnswers.isEmpty()
+                        ? "Not attempted"
+                        : "Present";
+
+                ps.setInt(1, examId);
+                ps.setString(2, studentName);
+                ps.setString(3, examInfo.subject());
+                ps.setString(4, examInfo.topic_name());
+                ps.setInt(5, score);
+                ps.setInt(6, totalMarks);
+                ps.setInt(7, totalAttempted);
+                ps.setInt(8, correctAnswers);
+                ps.setInt(9, wrongAnswers);
+                ps.setString(10, remark);
+
+                ps.addBatch();
+                generatedCount++;
+
+                System.out.println(
+                        "Diagnostic result"
+                                + " | Name: " + studentName
+                                + " | Score: " + score + "/" + totalMarks
+                                + " | Attempted: " + totalAttempted
+                                + " | Correct: " + correctAnswers
+                                + " | Wrong: " + wrongAnswers
+                                + " | Remark: " + remark
+                );
+            }
+
+            if (generatedCount > 0) {
+                ps.executeBatch();
+            }
+
+        } catch (SQLException exception) {
+            throw new RuntimeException(
+                    "Failed to save diagnostic results.",
+                    exception
+            );
+        }
+
+        StringBuilder summary = new StringBuilder();
+
+        summary.append("Exam ID: ")
+                .append(examInfo.id())
+                .append("\nGenerated: ")
+                .append(generatedCount)
+                .append("\nSkipped: ")
+                .append(skippedCount)
+                .append("\nTotal marks: ")
+                .append(totalMarks);
+
+        if (!skippedStudents.isEmpty()) {
+            summary.append("\n\nSkipped databases:\n")
+                    .append(String.join("\n", skippedStudents));
+        }
+
+        return summary.toString();
+    }
+
+    private File getDiagnosisDirectory() {
+
+        /*
+         * Main.getRootPath() should normally end with / or \.
+         * Using File(parent, child) works even if it does not.
+         */
+        return new File(
+                Main.getRootPath(),
+                "diagnosis"
+        );
+    }
+
+    private String getStudentNameFromDatabaseFile(File databaseFile) {
+
+        String fileName = databaseFile.getName();
+
+        String[] knownExtensions = {
+                ".sqlite3",
+                ".sqlite",
+                ".db"
+        };
+
+        for (String extension : knownExtensions) {
+
+            if (fileName.toLowerCase(Locale.ROOT)
+                    .endsWith(extension)) {
+
+                fileName = fileName.substring(
+                        0,
+                        fileName.length() - extension.length()
+                );
+
+                break;
+            }
+        }
+
+        return normalizeStudentName(fileName);
+    }
+
+    private String normalizeStudentName(String name) {
+
+        if (name == null) {
+            return "";
+        }
+
+        return name
+                .trim()
+                .replaceAll("\\s+", " ");
+    }
+
+    private record DiagnosticAnswerReadResult(
+            boolean success,
+            TreeMap<Integer, Integer> answers,
+            String errorMessage
+    ) {
+    }
+
+    private DiagnosticAnswerReadResult getDiagnosticAnswers(
+            int examId,
+            File databaseFile
+    ) {
+        TreeMap<Integer, Integer> answersMap =
+                new TreeMap<>();
+
+        String databaseUrl =
+                "jdbc:sqlite:" + databaseFile.getAbsolutePath();
+
+        String sql = """
+                SELECT
+                    question_id,
+                    selected_option_id
+                FROM answers
+                WHERE exam_id = ?
+                """;
+
+        try (
+                Connection connection =
+                        DriverManager.getConnection(databaseUrl);
+
+                PreparedStatement statement =
+                        connection.prepareStatement(sql)
+        ) {
+            statement.setInt(1, examId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+
+                while (resultSet.next()) {
+
+                    int questionId =
+                            resultSet.getInt("question_id");
+
+                    int selectedOptionId =
+                            resultSet.getInt("selected_option_id");
+
+                    answersMap.put(
+                            questionId,
+                            selectedOptionId
+                    );
+                }
+            }
+
+            return new DiagnosticAnswerReadResult(
+                    true,
+                    answersMap,
+                    null
+            );
+
+        } catch (SQLException exception) {
+
+            exception.printStackTrace();
+
+            return new DiagnosticAnswerReadResult(
+                    false,
+                    answersMap,
+                    exception.getMessage()
+            );
+        }
+    }
+
     private String format(String date) {
         return date.charAt(0) + date.substring(1).toLowerCase();
     }
@@ -349,12 +867,7 @@ public class ConductExam implements Initializable {
 
         CompletableFuture
                 .supplyAsync(() -> {
-                    /*
-                     * loadQuestion currently returns:
-                     * TreeMap<String, QuestionData>
-                     */
                     var questionMap = loadQuestion(examInfo);
-
                     return new ArrayList<>(questionMap.values());
                 })
                 .whenComplete((questionList, throwable) ->
@@ -504,5 +1017,6 @@ public class ConductExam implements Initializable {
         );
         return fileChooser.showOpenDialog(mainController.getStage());
     }
+
 }
 

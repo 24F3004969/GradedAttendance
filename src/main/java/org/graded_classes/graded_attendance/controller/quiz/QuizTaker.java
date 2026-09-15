@@ -76,10 +76,12 @@ public class QuizTaker implements Initializable {
     int selectedButtonIndex = 0;
     StudentExamLogin studentExamLogin;
     LocalTime leftOverTime;
+    String type;
 
-    public QuizTaker(MainController mainController, StudentExamLogin studentExamLogin) {
+    public QuizTaker(MainController mainController, StudentExamLogin studentExamLogin,String type) {
         this.mainController = mainController;
         this.studentExamLogin = studentExamLogin;
+        this.type = type;
         String x = studentExamLogin.examLogin.examInfo.time();
         var times = x.split("-");
         var diff = java.time.Duration.between(LocalTime.parse(times[0].trim() + ":00"), LocalTime.parse(times[1].trim() + ":00"));
@@ -285,8 +287,8 @@ public class QuizTaker implements Initializable {
         quizName.setText("Quiz");
         //totalTime = LocalTime.parse("00:45:00", DateTimeFormatter.ofPattern("HH:mm:ss"));
         System.out.println(totalTime);
-        leftOverTime = totalTime.isAfter(LocalTime.parse(totalTime.minusMinutes(5).toString() + ":00", DateTimeFormatter.ofPattern("HH:mm:ss")))
-                ? LocalTime.parse(totalTime.minusMinutes(5).toString() + ":00", DateTimeFormatter.ofPattern("HH:mm:ss")):
+        leftOverTime = totalTime.isAfter(LocalTime.parse(totalTime.minusMinutes(30).toString() + ":00", DateTimeFormatter.ofPattern("HH:mm:ss")))
+                ? LocalTime.parse(totalTime.minusMinutes(5).toString() + ":00", DateTimeFormatter.ofPattern("HH:mm:ss")) :
                 LocalTime.parse("00:00:00", DateTimeFormatter.ofPattern("HH:mm:ss"));
         Tooltip value = new Tooltip("Submit After " + leftOverTime);
         submitButton.setTooltip(value);
@@ -378,7 +380,9 @@ public class QuizTaker implements Initializable {
             selectedOptions) {
         String endTime = LocalTime.now().toString();
 
-        String url = "jdbc:sqlite:" + Main.getRootPath()+ "GradeEd_Exam_2026/" + studentEd + ".db";
+        String url = type.equals("Normal")?
+                "jdbc:sqlite:" + Main.getRootPath() + "GradeEd_Exam_2026/" + studentEd + ".db":
+                "jdbc:sqlite:" + Main.getRootPath() + "diagnosis/" + studentEd + ".db";
         try (Connection conn = DriverManager.getConnection(url);
              Statement stmt = conn.createStatement()) {
             for (QuestionData question : selectedOptions.keySet()) {
@@ -407,6 +411,7 @@ public class QuizTaker implements Initializable {
             e.printStackTrace();
         }
     }
+
 
     /**
      * Extract a classpath resource (even when inside a jar / jpackage image)

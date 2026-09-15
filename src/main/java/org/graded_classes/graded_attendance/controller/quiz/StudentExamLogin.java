@@ -30,18 +30,22 @@ public class StudentExamLogin implements Initializable {
     Label error;
     @FXML
     TextField studentEDNo;
+    String type;
 
-    public StudentExamLogin(MainController mainController, Stage stage, ExamLogin examLogin) {
+    public StudentExamLogin(MainController mainController, Stage stage, ExamLogin examLogin, String type) {
         this.mainController = mainController;
         this.stage = stage;
         this.examLogin = examLogin;
+        this.type = type;
     }
 
     @FXML
     private void login() {
-        var taker = new QuizTaker(mainController, this);
-        String dob = mainController.gradedDataLoader.getStudentData().get(studentEDNo.getText()).dob();
-        if (dob.equals(pass.getText())) {
+        var taker = new QuizTaker(mainController, this, type);
+        String dob = type.equals("Normal")?
+                mainController.gradedDataLoader.getStudentData().get(studentEDNo.getText()).dob():
+                "";
+        if (type.equals("Diagnostic") || dob.equals(pass.getText())) {
             error.setVisible(true);
             error.setTextFill(Paint.valueOf("#000000"));
             error.setText("Please Wait.....");

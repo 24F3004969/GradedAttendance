@@ -47,7 +47,33 @@ public class ExamDBCreator {
 
     }
 
-    public static void main(String[] args) {
-        createDatabasesWithTable(97, Main.getRootPath()+"GradeEd_Exam_2026");
+    public static void createDatabasesWithName(String nameOfStudent) {
+
+        File dir = new File(Main.getRootPath() + "/" + "diagnosis");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        String dbPath = Main.getRootPath() + "/" + "diagnosis/" + nameOfStudent;
+        String url = "jdbc:sqlite:" + dbPath + ".db";
+        try (Connection conn = DriverManager.getConnection(url);
+             Statement stmt = conn.createStatement()) {
+            String createTableSQL = """
+                      CREATE TABLE IF NOT EXISTS answers (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        exam_id INTEGER NOT NULL,
+                        question_id INTEGER NOT NULL,
+                        selected_option_id INTEGER NOT NULL,
+                        time_slot TEXT NOT NULL,
+                        start_time DATETIME NOT NULL,
+                        end_time DATETIME NOT NULL,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    );
+                    """;
+
+            stmt.execute(createTableSQL);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
 }
