@@ -201,15 +201,19 @@ public class QuizTaker implements Initializable {
         content.setOnMouseClicked(e -> dialog.cancel());
         dialog.setOnClose(buttonType -> {
             if (buttonType == ButtonType.OK) {
-                totalTime = LocalTime.parse("00:00:00",
-                        DateTimeFormatter.ofPattern("HH:mm:ss"));
-                CompletableFuture.runAsync(() -> saveQuizInstance(studentExamLogin.studentEDNo.getText(), selectedOptions));
-                submitButton.setDisable(true);
+                finalSubmission();
             } else if (buttonType == ButtonType.CANCEL) {
                 System.out.println("Cancel pressed");
             }
         });
         dialog.show();
+    }
+
+    private void finalSubmission() {
+        totalTime = LocalTime.parse("00:00:00",
+                DateTimeFormatter.ofPattern("HH:mm:ss"));
+        CompletableFuture.runAsync(() -> saveQuizInstance(studentExamLogin.studentEDNo.getText(), selectedOptions));
+        submitButton.setDisable(true);
     }
 
     @FXML
@@ -288,7 +292,7 @@ public class QuizTaker implements Initializable {
         //totalTime = LocalTime.parse("00:45:00", DateTimeFormatter.ofPattern("HH:mm:ss"));
         System.out.println(totalTime);
         leftOverTime = totalTime.isAfter(LocalTime.parse(totalTime.minusMinutes(30).toString() + ":00", DateTimeFormatter.ofPattern("HH:mm:ss")))
-                ? LocalTime.parse(totalTime.minusMinutes(5).toString() + ":00", DateTimeFormatter.ofPattern("HH:mm:ss")) :
+                ? LocalTime.parse(totalTime.minusMinutes(30).toString() + ":00", DateTimeFormatter.ofPattern("HH:mm:ss")) :
                 LocalTime.parse("00:00:00", DateTimeFormatter.ofPattern("HH:mm:ss"));
         Tooltip value = new Tooltip("Submit After " + leftOverTime);
         submitButton.setTooltip(value);
@@ -297,7 +301,7 @@ public class QuizTaker implements Initializable {
                     if (totalTime.equals(LocalTime.MIDNIGHT)) {
                         timeline.stop();
                         if (!submitButton.isDisable())
-                            onQuizSubmit();
+                            finalSubmission();
                         stage.setTitle("Exam Login");
                         stage.setFullScreen(true);
                         animationLottie4j(login.root);

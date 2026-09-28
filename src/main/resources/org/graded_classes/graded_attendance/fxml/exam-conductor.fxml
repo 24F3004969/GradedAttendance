@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="558.0" prefWidth="693.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.ConductExam">
+<VBox prefHeight="558.0" prefWidth="970.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.ConductExam">
    <children>
       <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
          <children>
@@ -58,9 +58,9 @@
             <TableColumn fx:id="doe" prefWidth="75.0" text="Date of Exam" />
             <TableColumn fx:id="time" prefWidth="75.0" text="Time" />
             <TableColumn fx:id="room" prefWidth="75.0" text="Room No" />
-            <TableColumn fx:id="action" prefWidth="75.0" text="Action" />
-            <TableColumn fx:id="generate" prefWidth="75.0" text="Generate" />
-            <TableColumn fx:id="add" prefWidth="75.0" text="Add" />
+            <TableColumn fx:id="action" prefWidth="200.0" text="Action" />
+            <TableColumn fx:id="generate" prefWidth="50.0" text="Generate" />
+            <TableColumn fx:id="add" prefWidth="50.0" text="Add" />
         </columns>
          <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

@@ -144,13 +144,12 @@ public class ConductExam implements Initializable {
                 File generatedFile = fileChooser();
 
                 CompletableFuture.runAsync(() -> {
-
                     var omrData = OMRParser.parse(generatedFile.getAbsolutePath());
-
+                    System.out.println(omrData);
                     List<String> notFoundStudents = new ArrayList<>();
 
                     for (var roll : omrData.keySet()) {
-
+                        System.out.println(roll);
                         boolean exists = mainController.gradedDataLoader
                                 .getStudentData()
                                 .containsKey(roll);
@@ -159,7 +158,7 @@ public class ConductExam implements Initializable {
                             notFoundStudents.add(roll);
                             continue;
                         }
-
+                        System.out.println( omrData.get(roll).values().stream().toList());
                         saveFromOMR(
                                 roll,
                                 omrData.get(roll).values().stream().toList(),
@@ -319,7 +318,7 @@ public class ConductExam implements Initializable {
                 .stream()
                 .filter(student -> student._class().equals(examInfo.classes())).
                 filter(student -> student.getBoard().equalsIgnoreCase(examInfo.board()) ||
-                        examInfo.board().equals("Both"))
+                        examInfo.board().equals("Other"))
                 .toList();
 
         System.out.println("Exam Result , Subject: " + examInfo.subject() + " ,Class: " + examInfo.classes());
@@ -402,7 +401,8 @@ public class ConductExam implements Initializable {
     }
 
     private TreeMap<String, QuestionData> loadQuestion(ExamData examData) {
-        TreeMap<String, QuestionData> map = new TreeMap<>();
+        TreeMap<String, QuestionData> map =
+                new TreeMap<>(Comparator.comparingInt(Integer::parseInt));
         try {
             var connection = mainController.gradedDataLoader.databaseLoader.getConnection();
             var sql = """
@@ -451,7 +451,82 @@ public class ConductExam implements Initializable {
             throw new RuntimeException(e);
         }
     }
+    private record DiagnosticQuestionInfo(
+            int questionId,
+            String subject,
+            String topicName,
+            int correctOptionIndex
+    ) {
+    }
+    private List<DiagnosticQuestionInfo> loadDiagnosticQuestionInfo(
+            int examId
+    ) {
+        String sql = """
+            SELECT
+                q.question_id,
+                TRIM(t.subject) AS subject,
+                TRIM(t.topic_name) AS topic_name,
+                qo.option_order AS correct_option_index
+            FROM ExamQuestion eq
+            INNER JOIN Questions q
+                ON q.question_id = eq.question_id
+            INNER JOIN Topics t
+                ON t.topic_id = q.topic_id
+            INNER JOIN QuestionOptions qo
+                ON qo.question_id = q.question_id
+               AND qo.is_correct = 1
+            WHERE eq.exam_id = ?
+            ORDER BY
+                t.subject COLLATE NOCASE,
+                q.question_id
+            """;
 
+        Connection connection = mainController
+                .gradedDataLoader
+                .databaseLoader
+                .getConnection();
+
+        List<DiagnosticQuestionInfo> questions = new ArrayList<>();
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, examId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+
+                    String subject = normalizeDiagnosticSubject(
+                            rs.getString("subject")
+                    );
+
+                    if (subject.isBlank()) {
+                        subject = "Unspecified";
+                    }
+
+                    String topicName = rs.getString("topic_name");
+
+                    questions.add(
+                            new DiagnosticQuestionInfo(
+                                    rs.getInt("question_id"),
+                                    subject,
+                                    topicName == null
+                                            ? ""
+                                            : topicName.trim(),
+                                    rs.getInt("correct_option_index")
+                            )
+                    );
+                }
+            }
+
+        } catch (SQLException exception) {
+            throw new RuntimeException(
+                    "Failed to load diagnostic exam questions.",
+                    exception
+            );
+        }
+
+        return questions;
+    }
     public static TreeMap<Integer, Integer> getAnswers(int examId, String studentEd) {
 
         TreeMap<Integer, Integer> answersMap = new TreeMap<>();
@@ -479,7 +554,74 @@ public class ConductExam implements Initializable {
 
         return answersMap;
     }
+    private String normalizeDiagnosticSubject(String subject) {
 
+        if (subject == null) {
+            return "";
+        }
+
+        String normalized = subject.trim();
+
+        if (normalized.equalsIgnoreCase("Mathematics")
+                || normalized.equalsIgnoreCase("Maths")) {
+            return "Math";
+        }
+
+        if (normalized.equalsIgnoreCase("Phy")) {
+            return "Physics";
+        }
+
+        if (normalized.equalsIgnoreCase("Chem")) {
+            return "Chemistry";
+        }
+
+        if (normalized.equalsIgnoreCase("Bio")) {
+            return "Biology";
+        }
+
+        if (normalized.equalsIgnoreCase("Eng")) {
+            return "English";
+        }
+
+        return normalized;
+    }
+    private static final class DiagnosticSubjectResult {
+
+        private final String subject;
+        private final Set<String> topicNames =
+                new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+
+        private int questionCount;
+        private int attempted;
+        private int correct;
+        private int wrong;
+
+        private DiagnosticSubjectResult(String subject) {
+            this.subject = subject;
+        }
+
+        private void addQuestion(String topicName) {
+            questionCount++;
+
+            if (topicName != null && !topicName.isBlank()) {
+                topicNames.add(topicName.trim());
+            }
+        }
+
+        private void addCorrectAnswer() {
+            attempted++;
+            correct++;
+        }
+
+        private void addWrongAnswer() {
+            attempted++;
+            wrong++;
+        }
+
+        private String joinedTopicNames() {
+            return String.join(", ", topicNames);
+        }
+    }
     private String generateDiagnosticResult(ExamData examInfo) {
 
         int examId = Integer.parseInt(examInfo.id());
@@ -500,24 +642,15 @@ public class ConductExam implements Initializable {
             );
         }
 
-        /*
-         * Windows may hide the .db extension in File Explorer.
-         * Therefore, all regular files are initially accepted.
-         *
-         * Temporary SQLite files such as:
-         * -student.db-wal
-         * -student.db-shm
-         * -student.db-journal
-         *
-         * are excluded.
-         */
         File[] diagnosticDatabases = diagnosisDirectory.listFiles(file -> {
 
             if (!file.isFile()) {
                 return false;
             }
 
-            String fileName = file.getName().toLowerCase(Locale.ROOT);
+            String fileName = file
+                    .getName()
+                    .toLowerCase(Locale.ROOT);
 
             return !fileName.endsWith("-wal")
                     && !fileName.endsWith("-shm")
@@ -526,6 +659,7 @@ public class ConductExam implements Initializable {
 
         if (diagnosticDatabases == null
                 || diagnosticDatabases.length == 0) {
+
             throw new IllegalStateException(
                     "No diagnostic student databases were found in:\n"
                             + diagnosisDirectory.getAbsolutePath()
@@ -540,192 +674,323 @@ public class ConductExam implements Initializable {
                 )
         );
 
-        TreeMap<String, QuestionData> questionDataMap =
-                loadQuestion(examInfo);
+        /*
+         * Each question contains:
+         * - question ID
+         * - subject from Topics.subject
+         * - topic name from Topics.topic_name
+         * - correct option index
+         */
+        List<DiagnosticQuestionInfo> examQuestions =
+                loadDiagnosticQuestionInfo(examId);
 
-        if (questionDataMap.isEmpty()) {
+        if (examQuestions.isEmpty()) {
             throw new IllegalStateException(
                     "No questions were found for diagnostic exam "
                             + examInfo.id()
             );
         }
 
+        /*
+         * Store questions by ID for fast answer lookup.
+         */
+        Map<Integer, DiagnosticQuestionInfo> questionById =
+                new HashMap<>();
+
+        for (DiagnosticQuestionInfo question : examQuestions) {
+            questionById.put(question.questionId(), question);
+        }
+
+        /*
+         * Count the number of questions available for each subject.
+         * TreeMap keeps the subjects ordered alphabetically.
+         */
+        Map<String, List<DiagnosticQuestionInfo>> questionsBySubject =
+                new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+        for (DiagnosticQuestionInfo question : examQuestions) {
+
+            questionsBySubject
+                    .computeIfAbsent(
+                            question.subject(),
+                            ignored -> new ArrayList<>()
+                    )
+                    .add(question);
+        }
+
         final int marksPerQuestion = 4;
-        final int totalMarks =
-                questionDataMap.size() * marksPerQuestion;
 
         String sql = """
-                INSERT INTO DiagnosticScoreCard
-                (
-                    exam_id,
-                    student_name,
-                    subject,
-                    topic_name,
-                    marks_obtain,
-                    total_marks,
-                    total_attempted,
-                    correct_answers,
-                    wrong_answers,
-                    remark
-                )
-                VALUES
-                (
-                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-                )
-                ON CONFLICT(exam_id, student_name)
-                DO UPDATE SET
-                    subject = excluded.subject,
-                    topic_name = excluded.topic_name,
-                    marks_obtain = excluded.marks_obtain,
-                    total_marks = excluded.total_marks,
-                    total_attempted = excluded.total_attempted,
-                    correct_answers = excluded.correct_answers,
-                    wrong_answers = excluded.wrong_answers,
-                    remark = excluded.remark,
-                    generated_at = CURRENT_TIMESTAMP
-                """;
+            INSERT INTO DiagnosticScoreCard
+            (
+                exam_id,
+                student_name,
+                subject,
+                topic_name,
+                marks_obtain,
+                total_marks,
+                total_attempted,
+                correct_answers,
+                wrong_answers,
+                remark
+            )
+            VALUES
+            (
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            )
+            ON CONFLICT(exam_id, student_name, subject)
+            DO UPDATE SET
+                topic_name = excluded.topic_name,
+                marks_obtain = excluded.marks_obtain,
+                total_marks = excluded.total_marks,
+                total_attempted = excluded.total_attempted,
+                correct_answers = excluded.correct_answers,
+                wrong_answers = excluded.wrong_answers,
+                remark = excluded.remark,
+                generated_at = CURRENT_TIMESTAMP
+            """;
 
         Connection connection = mainController
                 .gradedDataLoader
                 .databaseLoader
                 .getConnection();
 
-        int generatedCount = 0;
+        int generatedStudentCount = 0;
+        int generatedRowCount = 0;
         int skippedCount = 0;
 
         List<String> skippedStudents = new ArrayList<>();
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        boolean previousAutoCommit;
 
-            for (File databaseFile : diagnosticDatabases) {
+        try {
+            previousAutoCommit = connection.getAutoCommit();
+        } catch (SQLException exception) {
+            throw new RuntimeException(
+                    "Failed to read database transaction state.",
+                    exception
+            );
+        }
 
-                String studentName =
-                        getStudentNameFromDatabaseFile(databaseFile);
+        try {
+            connection.setAutoCommit(false);
 
-                if (studentName.isBlank()) {
-                    skippedCount++;
-                    skippedStudents.add(databaseFile.getName());
-                    continue;
-                }
+            try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
-                DiagnosticAnswerReadResult readResult =
-                        getDiagnosticAnswers(examId, databaseFile);
+                for (File databaseFile : diagnosticDatabases) {
 
-                if (!readResult.success()) {
-                    skippedCount++;
-                    skippedStudents.add(
-                            studentName + ": " + readResult.errorMessage()
-                    );
-                    continue;
-                }
+                    String studentName =
+                            getStudentNameFromDatabaseFile(databaseFile);
 
-                TreeMap<Integer, Integer> selectedAnswers =
-                        readResult.answers();
-
-                int correctAnswers = 0;
-                int wrongAnswers = 0;
-                int totalAttempted = 0;
-
-                for (Map.Entry<Integer, Integer> answer
-                        : selectedAnswers.entrySet()) {
-
-                    int questionId = answer.getKey();
-                    int selectedOptionIndex = answer.getValue();
-
-                    /*
-                     * An option value of zero normally means that no valid
-                     * option was selected.
-                     */
-                    if (selectedOptionIndex <= 0) {
+                    if (studentName == null || studentName.isBlank()) {
+                        skippedCount++;
+                        skippedStudents.add(databaseFile.getName());
                         continue;
                     }
 
-                    QuestionData question =
-                            questionDataMap.get(
-                                    String.valueOf(questionId)
-                            );
+                    studentName = studentName.trim();
 
-                    if (question == null
-                            || question.option_data() == null) {
+                    DiagnosticAnswerReadResult readResult =
+                            getDiagnosticAnswers(examId, databaseFile);
 
-                        System.err.println(
-                                "Question not found for diagnostic answer."
-                                        + " Exam ID: " + examId
-                                        + ", student: " + studentName
-                                        + ", question ID: " + questionId
+                    if (!readResult.success()) {
+                        skippedCount++;
+
+                        skippedStudents.add(
+                                studentName
+                                        + ": "
+                                        + readResult.errorMessage()
                         );
 
                         continue;
                     }
 
-                    totalAttempted++;
+                    TreeMap<Integer, Integer> selectedAnswers =
+                            readResult.answers();
 
-                    int correctOptionIndex =
-                            question.option_data().option_index();
-
-                    if (selectedOptionIndex == correctOptionIndex) {
-                        correctAnswers++;
-                    } else {
-                        wrongAnswers++;
+                    if (selectedAnswers == null) {
+                        selectedAnswers = new TreeMap<>();
                     }
+
+                    /*
+                     * Create an accumulator for every subject before checking
+                     * answers. Therefore, an unattempted subject still receives
+                     * its own DiagnosticScoreCard row.
+                     */
+                    Map<String, DiagnosticSubjectResult> subjectResults =
+                            new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+                    for (DiagnosticQuestionInfo question : examQuestions) {
+
+                        DiagnosticSubjectResult subjectResult =
+                                subjectResults.computeIfAbsent(
+                                        question.subject(),
+                                        DiagnosticSubjectResult::new
+                                );
+
+                        subjectResult.addQuestion(question.topicName());
+                    }
+
+                    /*
+                     * Evaluate the answers.
+                     */
+                    for (Map.Entry<Integer, Integer> answer
+                            : selectedAnswers.entrySet()) {
+
+                        int questionId = answer.getKey();
+
+                        Integer selectedOptionValue = answer.getValue();
+
+                        if (selectedOptionValue == null
+                                || selectedOptionValue <= 0) {
+                            continue;
+                        }
+
+                        DiagnosticQuestionInfo question =
+                                questionById.get(questionId);
+
+                        if (question == null) {
+                            System.err.println(
+                                    "Diagnostic answer does not belong "
+                                            + "to the current exam."
+                                            + " Exam ID: " + examId
+                                            + ", student: " + studentName
+                                            + ", question ID: " + questionId
+                            );
+
+                            continue;
+                        }
+
+                        DiagnosticSubjectResult result =
+                                subjectResults.get(question.subject());
+
+                        if (selectedOptionValue
+                                == question.correctOptionIndex()) {
+
+                            result.addCorrectAnswer();
+
+                        } else {
+                            result.addWrongAnswer();
+                        }
+                    }
+
+                    /*
+                     * Insert one database row for every subject.
+                     */
+                    for (DiagnosticSubjectResult result
+                            : subjectResults.values()) {
+
+                        int subjectTotalMarks =
+                                result.questionCount * marksPerQuestion;
+
+                        int subjectObtainedMarks =
+                                result.correct * marksPerQuestion;
+
+                        String remark = result.attempted == 0
+                                ? "Not attempted"
+                                : "Present";
+
+                        ps.setInt(1, examId);
+                        ps.setString(2, studentName);
+                        ps.setString(3, result.subject);
+                        ps.setString(4, result.joinedTopicNames());
+                        ps.setInt(5, subjectObtainedMarks);
+                        ps.setInt(6, subjectTotalMarks);
+                        ps.setInt(7, result.attempted);
+                        ps.setInt(8, result.correct);
+                        ps.setInt(9, result.wrong);
+                        ps.setString(10, remark);
+
+                        ps.addBatch();
+                        generatedRowCount++;
+
+                        System.out.println(
+                                "Diagnostic result"
+                                        + " | Exam: " + examId
+                                        + " | Name: " + studentName
+                                        + " | Subject: " + result.subject
+                                        + " | Score: "
+                                        + subjectObtainedMarks
+                                        + "/"
+                                        + subjectTotalMarks
+                                        + " | Attempted: "
+                                        + result.attempted
+                                        + " | Correct: "
+                                        + result.correct
+                                        + " | Wrong: "
+                                        + result.wrong
+                                        + " | Remark: "
+                                        + remark
+                        );
+                    }
+
+                    generatedStudentCount++;
                 }
 
-                int score = correctAnswers * marksPerQuestion;
+                if (generatedRowCount > 0) {
+                    ps.executeBatch();
+                }
 
-                /*
-                 * Do not determine absence from score == 0.
-                 * A student may attempt the exam but get every answer wrong.
-                 */
-                String remark = selectedAnswers.isEmpty()
-                        ? "Not attempted"
-                        : "Present";
-
-                ps.setInt(1, examId);
-                ps.setString(2, studentName);
-                ps.setString(3, examInfo.subject());
-                ps.setString(4, examInfo.topic_name());
-                ps.setInt(5, score);
-                ps.setInt(6, totalMarks);
-                ps.setInt(7, totalAttempted);
-                ps.setInt(8, correctAnswers);
-                ps.setInt(9, wrongAnswers);
-                ps.setString(10, remark);
-
-                ps.addBatch();
-                generatedCount++;
-
-                System.out.println(
-                        "Diagnostic result"
-                                + " | Name: " + studentName
-                                + " | Score: " + score + "/" + totalMarks
-                                + " | Attempted: " + totalAttempted
-                                + " | Correct: " + correctAnswers
-                                + " | Wrong: " + wrongAnswers
-                                + " | Remark: " + remark
-                );
-            }
-
-            if (generatedCount > 0) {
-                ps.executeBatch();
+                connection.commit();
             }
 
         } catch (SQLException exception) {
+
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackException) {
+                exception.addSuppressed(rollbackException);
+            }
+
             throw new RuntimeException(
                     "Failed to save diagnostic results.",
                     exception
             );
+
+        } finally {
+
+            try {
+                connection.setAutoCommit(previousAutoCommit);
+            } catch (SQLException exception) {
+                System.err.println(
+                        "Failed to restore auto-commit: "
+                                + exception.getMessage()
+                );
+            }
         }
+
+        int completeExamTotalMarks =
+                examQuestions.size() * marksPerQuestion;
 
         StringBuilder summary = new StringBuilder();
 
         summary.append("Exam ID: ")
                 .append(examInfo.id())
-                .append("\nGenerated: ")
-                .append(generatedCount)
-                .append("\nSkipped: ")
+                .append("\nStudents processed: ")
+                .append(generatedStudentCount)
+                .append("\nSubject rows generated: ")
+                .append(generatedRowCount)
+                .append("\nSubjects: ")
+                .append(String.join(", ", questionsBySubject.keySet()))
+                .append("\nSkipped databases: ")
                 .append(skippedCount)
-                .append("\nTotal marks: ")
-                .append(totalMarks);
+                .append("\nComplete exam marks: ")
+                .append(completeExamTotalMarks);
+
+        for (Map.Entry<String, List<DiagnosticQuestionInfo>> entry
+                : questionsBySubject.entrySet()) {
+
+            int subjectMarks =
+                    entry.getValue().size() * marksPerQuestion;
+
+            summary.append("\n")
+                    .append(entry.getKey())
+                    .append(": ")
+                    .append(entry.getValue().size())
+                    .append(" questions, ")
+                    .append(subjectMarks)
+                    .append(" marks");
+        }
 
         if (!skippedStudents.isEmpty()) {
             summary.append("\n\nSkipped databases:\n")
@@ -868,6 +1133,7 @@ public class ConductExam implements Initializable {
         CompletableFuture
                 .supplyAsync(() -> {
                     var questionMap = loadQuestion(examInfo);
+                    System.out.println(questionMap);
                     return new ArrayList<>(questionMap.values());
                 })
                 .whenComplete((questionList, throwable) ->
@@ -1019,4 +1285,3 @@ public class ConductExam implements Initializable {
     }
 
 }
-

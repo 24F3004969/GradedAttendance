@@ -1,0 +1,1 @@
+select * from FaceEmbedding group by ed_no;

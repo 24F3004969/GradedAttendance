@@ -46,7 +46,6 @@ public class ExamReport implements Initializable {
     MainController mainController;
     @FXML
     private Text avatar;
-    int count = 0;
     @FXML
     private Label class_of, grade,
             marks_obtain, name_class,
@@ -198,7 +197,7 @@ public class ExamReport implements Initializable {
 
                     }
                     removeIfNotNeed(subjectWiseResult.keySet());
-                    overallOfAllSubject += summary.averageMarks;
+                    overallOfAllSubject += summary.totalObtained;
                     overallOfAllTotalMarks += summary.totalPossible();
                 }
                 allSubjectPercentage.setProgress(overallOfAllSubject / overallOfAllTotalMarks);

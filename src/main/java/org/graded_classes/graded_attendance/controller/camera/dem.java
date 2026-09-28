@@ -1,3 +1,4 @@
+/*
 package org.graded_classes.graded_attendance.controller.camera;
 
 import com.dlsc.gemsfx.PhotoView;
@@ -759,10 +760,12 @@ public class dem {
         int initialCameraIndex =
                 cameras.size() > 1 ? 1 : 0;
 
-        /*
+        */
+/*
          * Selecting the camera triggers the listener.
          * Do not separately call startCamera() here.
-         */
+         *//*
+
         cameraList.getSelectionModel()
                 .select(initialCameraIndex);
     }
@@ -1246,10 +1249,12 @@ public class dem {
 
                 Rect detectedFace = findLargestFace(faces);
 
-                /*
+                */
+/*
                  * Publish the clean frame and detected rectangle quickly.
                  * Do not perform expensive processing while holding the lock.
-                 */
+                 *//*
+
                 synchronized (frameLock) {
                     localFrame.copyTo(cleanFrame);
 
@@ -1265,11 +1270,13 @@ public class dem {
 
                 if (detectedFace != null) {
                     // Use localGray/localFrame instead of shared gray/frame.
-                   /* faceMovementDetection(
+                   */
+/* faceMovementDetection(
                             localFrame,
                             localGray,
                             detectedFace
-                    );*/
+                    );*//*
+
 
                     rectangle(
                             localFrame,
@@ -1728,4 +1735,4 @@ public class dem {
                 || name.endsWith(".png")
                 || name.endsWith(".bmp");
     }
-}
+}*/

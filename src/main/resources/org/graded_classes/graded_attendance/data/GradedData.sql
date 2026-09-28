@@ -43,5 +43,5 @@ CREATE TABLE IF NOT EXISTS DiagnosticScoreCard
     remark                TEXT,
     generated_at          TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    UNIQUE (exam_id, student_name)
+    UNIQUE (exam_id, student_name, subject)
 );

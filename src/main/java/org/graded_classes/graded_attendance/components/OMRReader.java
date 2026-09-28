@@ -71,7 +71,7 @@ public class OMRReader {
 
     public static void main(String[] args) {
 
-        Mat image = imread("omr.png");
+        Mat image = imread("omr.jpeg");
 
         if (image.empty()) {
             throw new RuntimeException("Cannot load image");

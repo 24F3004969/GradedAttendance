@@ -24,9 +24,9 @@ public class BasicParser {
                     Path.of(path)
             );
             var list = text.split("#");
+            System.out.println(Arrays.toString(list));
             int no = 0;
             var correctOption = list[list.length - 1].replace("\r", "").replace("\n", " ").split(",");
-            ;
             for (int i = 0; i < list.length - 1; i++) {
                 var t = list[i];
                 if (!t.isBlank()) {
@@ -36,13 +36,15 @@ public class BasicParser {
                     if (firstTilde == -1 || lastTilde == -1 || firstTilde == lastTilde) {
                         continue; // invalid format
                     }
+                    QuestionData qu = null;
                     String q = t.substring(0, firstTilde);
                     String[] op = t.substring(firstTilde + 1, lastTilde)
                             .split("\\|");
-                    var qu = new QuestionData(no + "", topicId, "1", LocalDate.now().toString(), "mcq",
+
+                    qu = new QuestionData(no + "", topicId, "1", LocalDate.now().toString(), "mcq",
                             "Easy", q.replace("\r", "")
                             .replace("\n", " "), "", new OptionData(
-                            Integer.parseInt(correctOption[no].trim())-1, IntStream.range(0, op.length)
+                            Integer.parseInt(correctOption[no].trim()) - 1, IntStream.range(0, op.length)
                             .boxed()
                             .collect(Collectors.toMap(
                                     k -> k + 1,
@@ -59,7 +61,6 @@ public class BasicParser {
                     IO.println("Options: " + Arrays.toString(op));*/
                 }
             }
-            System.out.println(Arrays.toString(correctOption));
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -56,7 +56,7 @@ public final class Omr {
     private static final int ROLL_SCORE_RADIUS = 5;
     private static final int ROLL_DEBUG_RADIUS = 12;
 
-    private static final double QUESTION_FILLED_THRESHOLD = 0.30;
+    private static final double QUESTION_FILLED_THRESHOLD = 0.50;
     private static final double ROLL_FILLED_THRESHOLD = 0.30;
     private static final double MIN_WINNING_MARGIN = 0.12;
 
@@ -64,7 +64,7 @@ public final class Omr {
     }
 
     public static void main(String[] args) {
-        String inputPath = args.length > 0 ? args[0] : "omr1.jpeg";
+        String inputPath = args.length > 0 ? args[0] : "omr13.jpeg";
         OmrResult result = read(inputPath, true);
 
         System.out.printf("Roll/Enrollment No: %s (%s)%n",

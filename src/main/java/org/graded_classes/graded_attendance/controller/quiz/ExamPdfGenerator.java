@@ -273,7 +273,7 @@ public final class ExamPdfGenerator {
         PDPageContentStream s = new PDPageContentStream(doc, page);
         float w = page.getMediaBox().getWidth(), h = page.getMediaBox().getHeight();
         if (number == 1) {
-            centered(s, "GRADE ED - EXAMINATION", BOLD, 12.5f, w / 2, h - 18);
+            centered(s, "GradeEd - Examination", BOLD, 12.5f, w / 2, h - 18);
             text(s, "Subject: " + safe(exam.subject()), PAGE_MARGIN, h - 35, 8.2f, true);
             right(s, "Class: " + safe(exam.classes()), w - PAGE_MARGIN, h - 35, 8.2f, true);
             text(s, "Topic: " + safe(exam.topic_name()), PAGE_MARGIN, h - 49, 7.7f, false);

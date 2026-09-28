@@ -50,7 +50,7 @@ public final class OmrReader2 {
     }
 
     public static void main(String[] args) {
-        String inputPath = args.length > 0 ? args[0] : "omr.jpeg";
+        String inputPath = args.length > 0 ? args[0] : "omr1.jpeg";
         OmrResult result = read(inputPath, true);
 
         for (QuestionResult question : result.questions()) {

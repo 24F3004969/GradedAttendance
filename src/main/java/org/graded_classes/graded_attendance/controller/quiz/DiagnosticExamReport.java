@@ -939,4 +939,3 @@ public class DiagnosticExamReport implements Initializable {
         }
     }
 }
-

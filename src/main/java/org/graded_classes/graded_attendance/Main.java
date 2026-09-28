@@ -8,6 +8,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import org.bytedeco.javacpp.Loader;
+import org.bytedeco.opencv.opencv_java;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 
 import java.io.IOException;
@@ -15,7 +17,9 @@ import java.util.Objects;
 
 public class Main extends Application {
     public static AppMode appMode = AppMode.DEV;
-
+    static {
+        Loader.load(opencv_java.class);
+    }
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(GradedResourceLoader.loadURL("fxml/main_layout.fxml"));

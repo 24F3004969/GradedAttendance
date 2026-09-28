@@ -253,6 +253,7 @@ public class ExamCreator implements Initializable {
 
                 innerPst.setInt(1, generatedId);
                 innerPst.setInt(2, quesId);
+                System.out.println(generatedId+"     "+quesId);
                 innerPst.addBatch();
             }
 

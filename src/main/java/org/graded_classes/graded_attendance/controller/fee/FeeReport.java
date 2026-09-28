@@ -47,7 +47,7 @@ public class FeeReport implements Initializable {
     @FXML
     TableColumn<FeeData, String> amount, dueData, ed_no,
             grade, mode, name, payDate, payID, referenceNo,
-            dueAmount, s_no,phone_no;
+            dueAmount, s_no, phone_no;
     @FXML
     TableColumn<FeeData, Button> sendNotification;
     ObservableList<FeeData> items = FXCollections.observableList(new ArrayList<>());
@@ -112,7 +112,7 @@ public class FeeReport implements Initializable {
                         (oldValue, newValue) -> oldValue,
                         LinkedHashMap::new // Maintains the sorted order
                 ));
-        int dex=1;
+        int dex = 1;
         for (var keys : sortedFeeRecords.keySet()) {
             var st = feeRecords.get(keys).s_no();
             feeRecords.get(keys).s_no().
@@ -286,7 +286,7 @@ public class FeeReport implements Initializable {
                 new SimpleStringProperty("") : map.getValue().referenceNo());
         fine = feeRepository.duePaymentRecordMoreThanOneMonth(mainController.gradedDataLoader.databaseLoader.getConnection());
         s_no.setCellValueFactory(map -> new SimpleStringProperty(map.getValue().s_no().toString()));
-        phone_no.setCellValueFactory(map->map.getValue().phone_no());
+        phone_no.setCellValueFactory(map -> map.getValue().phone_no());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         sortedFeeRecords = feeRecords.entrySet()
                 .stream()
@@ -341,21 +341,25 @@ public class FeeReport implements Initializable {
                         });
                         return new SimpleObjectProperty<>(button);
                     });
+                    double totalDueFee = 0;
                     int vex = 1;
                     for (var keys : duePaymentRecord.keySet()) {
                         var st = duePaymentRecord.get(keys).s_no();
                         duePaymentRecord.get(keys).phone_no().set(mainController.gradedDataLoader.getStudentData().get(keys).guardian_phone());
                         duePaymentRecord.get(keys).s_no().
                                 replace(0, st.length(), "" + (vex++));
+                        totalDueFee += duePaymentRecord.get(keys).amount();
                         items.add(duePaymentRecord.get(keys));
                     }
+                    total_num.setVisible(true);
+                    total_num.setText("Total : ₹ " + totalDueFee);
                 } else if (l.getText().equals("Online")) {
                     items.clear();
                     double sum = 0;
                     sendNotification.setVisible(false);
                     payDate.setVisible(true);
                     dueData.setVisible(false);
-                    int tex=1;
+                    int tex = 1;
                     for (var keys : sortedFeeRecords.keySet()) {
                         if (feeRecords.get(keys).paymentMode().equals(FeeData.PaymentMode.Online)) {
                             var st = sortedFeeRecords.get(keys).s_no();
@@ -372,7 +376,7 @@ public class FeeReport implements Initializable {
                     payDate.setVisible(true);
                     sendNotification.setVisible(false);
                     dueData.setVisible(false);
-                    int tex=1;
+                    int tex = 1;
                     for (var keys : sortedFeeRecords.keySet()) {
                         if (feeRecords.get(keys).paymentMode().equals(FeeData.PaymentMode.Offline)) {
                             var st = sortedFeeRecords.get(keys).s_no();
@@ -390,14 +394,15 @@ public class FeeReport implements Initializable {
                     sendNotification.setVisible(false);
                     dueData.setVisible(true);
                     items.clear();
-                    int tex=1;
+                    int tex = 1;
+
                     for (var keys : last_10_day.keySet()) {
                         var st = last_10_day.get(keys).s_no();
                         last_10_day.get(keys).s_no().
                                 replace(0, st.length(), "" + (tex++));
-                        total_num.setText("");
                         items.add(last_10_day.get(keys));
                     }
+                    total_num.setText("");
                 } else if (l.getText().equals("All Dues")) {
                     referenceNo.setVisible(false);
                     mode.setVisible(false);
@@ -405,7 +410,7 @@ public class FeeReport implements Initializable {
                     sendNotification.setVisible(false);
                     dueData.setVisible(true);
                     items.clear();
-                    int tex=1;
+                    int tex = 1;
                     for (var keys : fine.keySet()) {
                         var st = fine.get(keys).s_no();
                         fine.get(keys).s_no().
@@ -597,7 +602,7 @@ public class FeeReport implements Initializable {
                             mode,
                             gateway,
                             nullToEmpty(referenceNo),
-                            nullToEmpty(dueAmount),new StringBuilder()
+                            nullToEmpty(dueAmount), new StringBuilder()
                     );
 
                     // Key by ed_no (change to something else if you prefer)
@@ -897,7 +902,7 @@ public class FeeReport implements Initializable {
                 FeeData data = new FeeData(new StringBuilder(results.size() + 1), rs.getInt("payment_id"), rs.getString("ed_no"),
                         rs.getString("student_name"), FeeData.MonthAbbrev.Jan, rs.getDouble("amount"),
                         rs.getString("paid_on"), rs.getString("last_due_date"), "Helal", FeeData.PaymentMode.Offline, FeeData.Gateway.UPI,
-                        "", rs.getString("due_amount"),new StringBuilder());
+                        "", rs.getString("due_amount"), new StringBuilder());
                 results.put(rs.getString("ed_no"), data);
             }
         } catch (SQLException e) {
