@@ -136,87 +136,230 @@ public class DiagnosticTest implements Initializable {
         });
 
     }
-
     private ExamData initDb() {
-        String sql = """
-                INSERT INTO ExamScheduler
-                (topic_id, subject, class, exam_date, start_time, end_time, room_no,board)
-                VALUES (?, ?, ?, ?, ?, ?, ?,?)
-                """;
+
+        String insertExamSql = """
+            INSERT INTO ExamScheduler (
+                subject,
+                class,
+                exam_date,
+                start_time,
+                end_time,
+                room_no,
+                board
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """;
+
+        String insertExamTopicSql = """
+            INSERT INTO ExamTopic (
+                exam_id,
+                topic_id
+            )
+            VALUES (?, ?)
+            """;
+
+        Connection conn = null;
+        boolean previousAutoCommit = true;
 
         try {
-            Connection conn = mainController.gradedDataLoader.databaseLoader.getConnection();
+            conn = mainController
+                    .gradedDataLoader
+                    .databaseLoader
+                    .getConnection();
 
-            PreparedStatement pstmt = conn.prepareStatement(
-                    sql,
-                    PreparedStatement.RETURN_GENERATED_KEYS
-            );
+            previousAutoCommit = conn.getAutoCommit();
+            conn.setAutoCommit(false);
+
+            // -----------------------------------------------------
+            // Read form values
+            // -----------------------------------------------------
 
             String classValue = classNum.getValue();
             String roomValue = roomNo.getValue();
+            String boardValue = board.getValue();
+
+            if (classValue == null || classValue.isBlank()) {
+                throw new IllegalStateException("Please select a class.");
+            }
+
+            if (exam.getValue() == null) {
+                throw new IllegalStateException("Please select an exam date.");
+            }
+
+            if (startTime.getTime() == null) {
+                throw new IllegalStateException("Please select a start time.");
+            }
+
+            if (endTime.getTime() == null) {
+                throw new IllegalStateException("Please select an end time.");
+            }
+
+            if (subjectList == null || subjectList.isEmpty()) {
+                throw new IllegalStateException(
+                        "Please select at least one subject."
+                );
+            }
 
             String examDate = exam.getValue().toString();
             String start = startTime.getTime().toString();
             String end = endTime.getTime().toString();
-            List<Integer> topicIds = getTopicIds(conn, classValue);
-
-            if (topicIds.isEmpty()) {
-                System.out.println("No matching topic IDs found.");
-                return null;
-            }
-
-            System.out.println("Topic IDs: " + topicIds);
 
             /*
-             * ExamScheduler currently accepts only one topic_id.
-             * So we save the first topic_id here.
-             * All topic IDs will still be used for question selection below.
+             * Store the selected subjects in the same display format
+             * currently used by diagnostic exams:
+             *
+             * [Math, Chemistry]
              */
-            int mainTopicId = topicIds.get(0);
+            String subjectValue = subjectList.toString();
 
-            pstmt.setInt(1, mainTopicId);
-            pstmt.setString(2, subjectList.toString());
-            pstmt.setString(3, classValue);
-            pstmt.setString(4, examDate);
-            pstmt.setString(5, start);
-            pstmt.setString(6, end);
-            pstmt.setString(7, roomValue);
-            pstmt.setString(8, board.getValue());
-            pstmt.executeUpdate();
+            // -----------------------------------------------------
+            // Find associated topics
+            // -----------------------------------------------------
 
-            ResultSet rs = pstmt.getGeneratedKeys();
+            List<Integer> topicIds = getTopicIds(conn, classValue)
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .toList();
 
-            int generatedId = -1;
-
-            if (rs.next()) {
-                generatedId = rs.getInt(1);
+            if (topicIds.isEmpty()) {
+                throw new IllegalStateException(
+                        "No matching topic IDs were found for class "
+                                + classValue
+                                + " and subjects "
+                                + subjectValue
+                );
             }
 
-            if (generatedId == -1) {
-                System.out.println("Failed to get generated exam ID.");
-                return null;
+            System.out.println("Subjects: " + subjectValue);
+            System.out.println("Topic IDs: " + topicIds);
+
+            // -----------------------------------------------------
+            // Insert ExamScheduler row
+            // -----------------------------------------------------
+
+            int generatedExamId;
+
+            try (PreparedStatement pstmt = conn.prepareStatement(
+                    insertExamSql,
+                    Statement.RETURN_GENERATED_KEYS
+            )) {
+                pstmt.setString(1, subjectValue);
+                pstmt.setString(2, classValue);
+                pstmt.setString(3, examDate);
+                pstmt.setString(4, start);
+                pstmt.setString(5, end);
+                pstmt.setString(6, roomValue);
+                pstmt.setString(7, boardValue);
+
+                int affectedRows = pstmt.executeUpdate();
+
+                if (affectedRows != 1) {
+                    throw new SQLException(
+                            "Failed to insert diagnostic exam."
+                    );
+                }
+
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (!generatedKeys.next()) {
+                        throw new SQLException(
+                                "Diagnostic exam was inserted, but no exam ID was returned."
+                        );
+                    }
+
+                    generatedExamId = generatedKeys.getInt(1);
+                }
             }
 
-            // Now create exam questions using all selected topic IDs
-            createExamQuestion(conn, generatedId);
+            // -----------------------------------------------------
+            // Insert all relationships into ExamTopic
+            // -----------------------------------------------------
+
+            try (PreparedStatement pstmt = conn.prepareStatement(
+                    insertExamTopicSql
+            )) {
+                for (Integer topicId : topicIds) {
+                    pstmt.setInt(1, generatedExamId);
+                    pstmt.setInt(2, topicId);
+                    pstmt.addBatch();
+                }
+
+                int[] results = pstmt.executeBatch();
+
+                for (int result : results) {
+                    if (result == Statement.EXECUTE_FAILED) {
+                        throw new SQLException(
+                                "Failed to associate one or more topics with the exam."
+                        );
+                    }
+                }
+            }
+
+            // -----------------------------------------------------
+            // Create diagnostic exam questions
+            // -----------------------------------------------------
+
+            createExamQuestion(conn, generatedExamId);
+
+            /*
+             * If createExamQuestion accepts topic IDs, prefer:
+             *
+             * createExamQuestion(conn, generatedExamId, topicIds);
+             */
+
+            conn.commit();
+
+            System.out.println(
+                    "Diagnostic exam created successfully. Exam ID: "
+                            + generatedExamId
+            );
+
+            /*
+             * Diagnostic exams may span subjects, so the topic names
+             * displayed in the schedule can remain "Diagnosis".
+             */
+            List<String> displayTopicNames = List.of("Diagnosis");
 
             return new ExamData(
-                    "" + generatedId,
+                    String.valueOf(generatedExamId),
                     classValue,
                     examDate,
                     roomValue,
-                    subjectList.toString(),
-                    start + "-" + end,
-                    topicIds.toString(),
-                    "Diagnosis",
-                    board.getValue()
+                    subjectValue,
+                    start + " - " + end,
+                    topicIds,
+                    displayTopicNames,
+                    boardValue
             );
 
         } catch (Exception e) {
-            e.printStackTrace();
-        }
 
-        return null;
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                    System.err.println(
+                            "Diagnostic exam creation failed. "
+                                    + "Database changes were rolled back."
+                    );
+                } catch (SQLException rollbackException) {
+                    e.addSuppressed(rollbackException);
+                }
+            }
+
+            e.printStackTrace();
+            return null;
+
+        } finally {
+
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(previousAutoCommit);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     private List<Integer> getTopicIds(Connection conn,

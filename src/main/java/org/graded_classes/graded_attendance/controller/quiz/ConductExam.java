@@ -81,7 +81,7 @@ public class ConductExam implements Initializable {
         room.setCellValueFactory(map -> new SimpleStringProperty(map.getValue().room()));
         subject.setCellValueFactory(map -> new SimpleStringProperty(map.getValue().subject()));
         time.setCellValueFactory(map -> new SimpleStringProperty(map.getValue().time()));
-        topic.setCellValueFactory(map -> new SimpleStringProperty(map.getValue().topic_name()));
+        topic.setCellValueFactory(map -> new SimpleStringProperty(map.getValue().topicNamesForDisplay()));
         action.setCellValueFactory(arg0 -> {
             Button button = new Button("Start Exam");
             Button result = new Button("Generate Result");
@@ -143,7 +143,7 @@ public class ConductExam implements Initializable {
             button.setOnMouseClicked(_ -> {
                 File generatedFile = fileChooser();
 
-                CompletableFuture.runAsync(() -> {
+
                     var omrData = OMRParser.parse(generatedFile.getAbsolutePath());
                     System.out.println(omrData);
                     List<String> notFoundStudents = new ArrayList<>();
@@ -181,7 +181,7 @@ public class ConductExam implements Initializable {
                         });
                     }
                 });
-            });
+
             return new SimpleObjectProperty<>(button);
         });
         generate.setCellValueFactory(cellData -> {
@@ -313,90 +313,201 @@ public class ConductExam implements Initializable {
 
     private void generateResult(ExamData examInfo) {
 
-        var listOfStudents = mainController.gradedDataLoader.getStudentData()
+        int examId = Integer.parseInt(examInfo.id());
+
+        String topicNamesForDisplay = examInfo.topicNamesForDisplay();
+        var listOfStudents = mainController.gradedDataLoader
+                .getStudentData()
                 .sequencedValues()
                 .stream()
-                .filter(student -> student._class().equals(examInfo.classes())).
-                filter(student -> student.getBoard().equalsIgnoreCase(examInfo.board()) ||
-                        examInfo.board().equals("Other"))
+                .filter(student ->
+                        student._class() != null
+                                && student._class().equals(examInfo.classes())
+                )
+                .filter(student ->
+                        student.getBoard() != null
+                                && examInfo.board() != null
+                                && (
+                                student.getBoard().equalsIgnoreCase(examInfo.board())
+                                        || examInfo.board().equalsIgnoreCase("Both")
+                        )
+                )
                 .toList();
 
-        System.out.println("Exam Result , Subject: " + examInfo.subject() + " ,Class: " + examInfo.classes());
-        System.out.println("Conducted on " + examInfo.doe() + " , Topic Name:  " + examInfo.topic_name());
+        System.out.println(
+                "Exam Result, Subject: " + examInfo.subject()
+                        + ", Class: " + examInfo.classes()
+        );
+
+        System.out.println(
+                "Conducted on " + examInfo.doe()
+                        + ", Topics: " + topicNamesForDisplay
+        );
 
         var questionDataMap = loadQuestion(examInfo);
 
+        if (questionDataMap == null || questionDataMap.isEmpty()) {
+            System.err.println(
+                    "No questions were found for exam ID: " + examId
+            );
+            return;
+        }
+
+        int marksPerQuestion = 4;
+        int totalMarks = questionDataMap.size() * marksPerQuestion;
+
         String sql = """
-                INSERT INTO ScoreCard
-                (
-                    exam_id,
-                    ed_no,
-                    subject,
-                    topic_name,
-                    marks_obtain,
-                    total_marks,
-                    remark
-                )
-                VALUES
-                (
-                    ?, ?, ?, ?, ?, ?, ?
-                )
-                ON CONFLICT(exam_id, ed_no)
-                DO UPDATE SET
-                    subject = excluded.subject,
-                    topic_name = excluded.topic_name,
-                    marks_obtain = excluded.marks_obtain,
-                    total_marks = excluded.total_marks,
-                    remark = excluded.remark
-                """;
-        var con = mainController.gradedDataLoader.databaseLoader.getConnection();
-        try (var ps = con.prepareStatement(sql)) {
+            INSERT INTO ScoreCard (
+                exam_id,
+                ed_no,
+                subject,
+                topic_name,
+                marks_obtain,
+                total_marks,
+                remark
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(exam_id, ed_no)
+            DO UPDATE SET
+                subject = excluded.subject,
+                topic_name = excluded.topic_name,
+                marks_obtain = excluded.marks_obtain,
+                total_marks = excluded.total_marks,
+                remark = excluded.remark
+            """;
 
-            for (var st : listOfStudents) {
+        var con = mainController
+                .gradedDataLoader
+                .databaseLoader
+                .getConnection();
 
-                int score = 0;
+        boolean previousAutoCommit = true;
 
-                var map = getAnswers(Integer.parseInt(examInfo.id()), st.ed_no());
+        try {
+            previousAutoCommit = con.getAutoCommit();
+            con.setAutoCommit(false);
 
-                for (var n : map.keySet()) {
-                    int opId = map.get(n);
-                    var question = questionDataMap.get("" + n);
+            try (var ps = con.prepareStatement(sql)) {
 
-                    if (question != null
-                            && question.option_data() != null
-                            && question.option_data().option_index() == opId) {
-                        score = score + 4;
+                for (var student : listOfStudents) {
+
+                    var submittedAnswers = getAnswers(
+                            examId,
+                            student.ed_no()
+                    );
+
+                    int score = 0;
+                    int attemptedQuestions = 0;
+
+                    if (submittedAnswers != null) {
+
+                        for (var answerEntry : submittedAnswers.entrySet()) {
+
+                            var questionId = String.valueOf(
+                                    answerEntry.getKey()
+                            );
+
+                            Integer selectedOptionId = answerEntry.getValue();
+
+                            if (selectedOptionId == null) {
+                                continue;
+                            }
+
+                            var question = questionDataMap.get(questionId);
+
+                            if (question == null) {
+                                System.err.println(
+                                        "Question not found in exam: "
+                                                + questionId
+                                                + ", student: "
+                                                + student.ed_no()
+                                );
+                                continue;
+                            }
+
+                            attemptedQuestions++;
+
+                            if (question.option_data() != null
+                                    && question.option_data().option_index()
+                                    == selectedOptionId) {
+
+                                score += marksPerQuestion;
+                            }
+                        }
                     }
+
+                    /*
+                     * Empty answer map means the student did not submit
+                     * any answers. A student who attempted questions but
+                     * scored zero should still be marked Present.
+                     */
+                    String remark = attemptedQuestions == 0
+                            ? "Absent or not eligible"
+                            : "Present";
+
+                    System.out.println(
+                            student.ed_no()
+                                    + ": "
+                                    + score
+                                    + "/"
+                                    + totalMarks
+                                    + ", attempted: "
+                                    + attemptedQuestions
+                                    + ", name: "
+                                    + student.name()
+                                    + ", status: "
+                                    + remark
+                    );
+
+                    ps.setInt(1, examId);
+                    ps.setString(2, student.ed_no());
+                    ps.setString(3, examInfo.subject());
+                    ps.setString(4, topicNamesForDisplay);
+                    ps.setInt(5, score);
+                    ps.setInt(6, totalMarks);
+                    ps.setString(7, remark);
+
+                    ps.addBatch();
                 }
 
-                String remark = (score <= 0)
-                        ? "Absent or not eligible"
-                        : "Present";
+                int[] results = ps.executeBatch();
 
-                int totalMarks = 80;
-
-                System.out.println(
-                        st.ed_no() + ":    " +
-                                ((score <= 0)
-                                        ? "Absent or not eligible"
-                                        : score + "/80" + "       Name: " + st.name())
-                );
-
-                ps.setInt(1, Integer.parseInt(examInfo.id()));
-                ps.setString(2, st.ed_no());
-                ps.setString(3, examInfo.subject());
-                ps.setString(4, examInfo.topic_name());
-                ps.setInt(5, score);
-                ps.setInt(6, totalMarks);
-                ps.setString(7, remark);
-
-                ps.addBatch();
+                for (int result : results) {
+                    if (result == java.sql.Statement.EXECUTE_FAILED) {
+                        throw new java.sql.SQLException(
+                                "One or more ScoreCard records failed."
+                        );
+                    }
+                }
             }
 
-            ps.executeBatch();
+            con.commit();
+
+            System.out.println(
+                    "Results generated successfully for exam ID: " + examId
+            );
 
         } catch (Exception e) {
+
+            try {
+                con.rollback();
+            } catch (java.sql.SQLException rollbackException) {
+                e.addSuppressed(rollbackException);
+            }
+
+            System.err.println(
+                    "Failed to generate results for exam ID: " + examId
+            );
+
             e.printStackTrace();
+
+        } finally {
+
+            try {
+                con.setAutoCommit(previousAutoCommit);
+            } catch (java.sql.SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -527,29 +638,129 @@ public class ConductExam implements Initializable {
 
         return questions;
     }
-    public static TreeMap<Integer, Integer> getAnswers(int examId, String studentEd) {
-
+    public static TreeMap<Integer, Integer> getAnswers(
+            int examId,
+            String studentEd
+    ) {
         TreeMap<Integer, Integer> answersMap = new TreeMap<>();
-        String DB_URL = "jdbc:sqlite:" + Main.getRootPath() + "GradeEd_Exam_2026/" + studentEd + ".db";
 
-        String sql = "SELECT question_id, selected_option_id FROM answers WHERE exam_id = ?";
+        if (examId <= 0) {
+            System.err.println("Invalid exam ID: " + examId);
+            return answersMap;
+        }
 
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        if (studentEd == null || studentEd.isBlank()) {
+            System.err.println("Student enrollment number is missing.");
+            return answersMap;
+        }
 
-            pstmt.setInt(1, examId);
+        File databaseFile = new File(
+                Main.getRootPath(),
+                "GradeEd_Exam_2026/" + studentEd.trim() + ".db"
+        );
 
-            ResultSet rs = pstmt.executeQuery();
+        if (!databaseFile.isFile()) {
+            System.err.println(
+                    "Student answer database does not exist: "
+                            + databaseFile.getAbsolutePath()
+            );
 
-            while (rs.next()) {
-                int questionId = rs.getInt("question_id");
-                int selectedOptionId = rs.getInt("selected_option_id");
+            return answersMap;
+        }
 
-                answersMap.put(questionId, selectedOptionId);
+        String databaseUrl =
+                "jdbc:sqlite:" + databaseFile.getAbsolutePath();
+
+        String sql = """
+            SELECT
+                question_id,
+                selected_option_id
+            FROM answers
+            WHERE exam_id = ?
+            ORDER BY question_id
+            """;
+
+        try (
+                Connection connection =
+                        DriverManager.getConnection(databaseUrl);
+
+                PreparedStatement statement =
+                        connection.prepareStatement(sql)
+        ) {
+            statement.setInt(1, examId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+
+                while (resultSet.next()) {
+
+                    int questionId =
+                            resultSet.getInt("question_id");
+
+                    /*
+                     * getObject() is used instead of getInt() because
+                     * getInt() returns 0 when the SQL value is NULL.
+                     */
+                    Integer selectedOptionId = resultSet.getObject(
+                            "selected_option_id",
+                            Integer.class
+                    );
+
+                    if (questionId <= 0) {
+                        System.err.println(
+                                "Ignoring invalid question ID "
+                                        + questionId
+                                        + " for exam "
+                                        + examId
+                                        + ", student "
+                                        + studentEd
+                        );
+
+                        continue;
+                    }
+
+                    /*
+                     * Ignore unanswered questions when NULL represents
+                     * an answer that was never selected.
+                     */
+                    if (selectedOptionId == null) {
+                        continue;
+                    }
+
+                    /*
+                     * Keep this validation if options are stored as
+                     * indexes 1, 2, 3 and 4.
+                     */
+                    if (selectedOptionId < 1 || selectedOptionId > 4) {
+                        System.err.println(
+                                "Ignoring invalid selected option "
+                                        + selectedOptionId
+                                        + " for question "
+                                        + questionId
+                                        + ", student "
+                                        + studentEd
+                        );
+
+                        continue;
+                    }
+
+                    answersMap.put(
+                            questionId,
+                            selectedOptionId
+                    );
+                }
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException exception) {
+            System.err.println(
+                    "Could not read answers for exam "
+                            + examId
+                            + ", student "
+                            + studentEd
+                            + ", database "
+                            + databaseFile.getAbsolutePath()
+            );
+
+            exception.printStackTrace();
         }
 
         return answersMap;
@@ -1061,19 +1272,44 @@ public class ConductExam implements Initializable {
             int examId,
             File databaseFile
     ) {
-        TreeMap<Integer, Integer> answersMap =
-                new TreeMap<>();
+        TreeMap<Integer, Integer> answersMap = new TreeMap<>();
+
+        if (examId <= 0) {
+            return new DiagnosticAnswerReadResult(
+                    false,
+                    answersMap,
+                    "Invalid exam ID: " + examId
+            );
+        }
+
+        if (databaseFile == null) {
+            return new DiagnosticAnswerReadResult(
+                    false,
+                    answersMap,
+                    "The diagnostic database file is null."
+            );
+        }
+
+        if (!databaseFile.isFile()) {
+            return new DiagnosticAnswerReadResult(
+                    false,
+                    answersMap,
+                    "Diagnostic database does not exist: "
+                            + databaseFile.getAbsolutePath()
+            );
+        }
 
         String databaseUrl =
                 "jdbc:sqlite:" + databaseFile.getAbsolutePath();
 
         String sql = """
-                SELECT
-                    question_id,
-                    selected_option_id
-                FROM answers
-                WHERE exam_id = ?
-                """;
+            SELECT
+                question_id,
+                selected_option_id
+            FROM answers
+            WHERE exam_id = ?
+            ORDER BY question_id
+            """;
 
         try (
                 Connection connection =
@@ -1091,8 +1327,43 @@ public class ConductExam implements Initializable {
                     int questionId =
                             resultSet.getInt("question_id");
 
-                    int selectedOptionId =
-                            resultSet.getInt("selected_option_id");
+                    Integer selectedOptionId = resultSet.getObject(
+                            "selected_option_id",
+                            Integer.class
+                    );
+
+                    if (questionId <= 0) {
+                        System.err.println(
+                                "Ignoring invalid question ID "
+                                        + questionId
+                                        + " in "
+                                        + databaseFile.getName()
+                        );
+
+                        continue;
+                    }
+
+                    // NULL means that no option was selected.
+                    if (selectedOptionId == null) {
+                        continue;
+                    }
+
+                    /*
+                     * This validation assumes selected_option_id stores
+                     * option indexes 1 to 4.
+                     */
+                    if (selectedOptionId < 1 || selectedOptionId > 4) {
+                        System.err.println(
+                                "Ignoring invalid selected option "
+                                        + selectedOptionId
+                                        + " for question "
+                                        + questionId
+                                        + " in "
+                                        + databaseFile.getName()
+                        );
+
+                        continue;
+                    }
 
                     answersMap.put(
                             questionId,
@@ -1109,12 +1380,19 @@ public class ConductExam implements Initializable {
 
         } catch (SQLException exception) {
 
+            String errorMessage =
+                    "Could not read diagnostic answers from "
+                            + databaseFile.getName()
+                            + ": "
+                            + exception.getMessage();
+
+            System.err.println(errorMessage);
             exception.printStackTrace();
 
             return new DiagnosticAnswerReadResult(
                     false,
                     answersMap,
-                    exception.getMessage()
+                    errorMessage
             );
         }
     }
@@ -1279,7 +1557,7 @@ public class ConductExam implements Initializable {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Option Image Selector");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("All Files", "*.txt")
+                new FileChooser.ExtensionFilter("All Files", "*.json")
         );
         return fileChooser.showOpenDialog(mainController.getStage());
     }

@@ -18,10 +18,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,7 +52,7 @@ public class ExamCreator implements Initializable {
     ObservableList<String> observableListTopics = FXCollections.observableArrayList(List.of());
     ObservableList<String> observableListClasses = FXCollections.observableArrayList(List.of());
     ObservableList<String> observableListBoard = FXCollections.observableArrayList(List.of(
-            "CBSE", "ICSE", "Other"
+            "CBSE", "ICSE", "Both"
 
     ));
     ObservableList<String> observableListRoom = FXCollections.observableArrayList(List.of(
@@ -106,97 +103,241 @@ public class ExamCreator implements Initializable {
     }
 
     private ExamData initDb() {
-        String sql = """
-                INSERT INTO ExamScheduler
-                (topic_id, subject, class, exam_date, start_time, end_time, room_no,board)
-                VALUES (?, ?, ?, ?, ?, ?, ?,?)
-                """;
+
+        String insertExamSql = """
+            INSERT INTO ExamScheduler (
+                subject,
+                class,
+                exam_date,
+                start_time,
+                end_time,
+                room_no,
+                board
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """;
+
+        String insertExamTopicSql = """
+            INSERT INTO ExamTopic (
+                exam_id,
+                topic_id
+            )
+            VALUES (?, ?)
+            """;
+
+        Connection conn = null;
+        boolean previousAutoCommit = true;
 
         try {
-            Connection conn = mainController.gradedDataLoader.databaseLoader.getConnection();
+            conn = mainController
+                    .gradedDataLoader
+                    .databaseLoader
+                    .getConnection();
 
-            PreparedStatement pstmt = conn.prepareStatement(
-                    sql,
-                    PreparedStatement.RETURN_GENERATED_KEYS
-            );
+            previousAutoCommit = conn.getAutoCommit();
+            conn.setAutoCommit(false);
+
+            // -----------------------------------------------------
+            // Read and validate the form values
+            // -----------------------------------------------------
 
             String classValue = classNum.getValue();
             String subjectValue = subject.getSelectedItem();
             String roomValue = roomNo.getValue();
+            String boardValue = board.getValue();
+
+            if (classValue == null || classValue.isBlank()) {
+                throw new IllegalStateException("Please select a class.");
+            }
+
+            if (subjectValue == null || subjectValue.isBlank()) {
+                throw new IllegalStateException("Please select a subject.");
+            }
+
+            if (exam.getValue() == null) {
+                throw new IllegalStateException("Please select the exam date.");
+            }
+
+            if (startTime.getTime() == null) {
+                throw new IllegalStateException("Please select the start time.");
+            }
+
+            if (endTime.getTime() == null) {
+                throw new IllegalStateException("Please select the end time.");
+            }
 
             String examDate = exam.getValue().toString();
             String start = startTime.getTime().toString();
             String end = endTime.getTime().toString();
 
-            // Get selected topic names as CSV, for display/storage in ExamData
-            String topicName = getAsCSW(topicList);
+            // -----------------------------------------------------
+            // Get selected topic names and corresponding IDs
+            // -----------------------------------------------------
 
-            // Convert CSV topic names into List<String>
-            List<String> topicNames = Arrays.stream(topicName.split(","))
+            String topicNameCsv = getAsCSW(topicList);
+
+            List<String> topicNames = Arrays.stream(topicNameCsv.split(","))
                     .map(String::trim)
-                    .filter(s -> !s.isEmpty())
+                    .filter(name -> !name.isEmpty())
+                    .distinct()
                     .toList();
 
-            // Get all matching topic IDs
-            List<Integer> topicIds = getTopicIds(conn, topicNames, subjectValue, classValue);
+            if (topicNames.isEmpty()) {
+                throw new IllegalStateException(
+                        "Please select at least one topic."
+                );
+            }
+
+            List<Integer> topicIds = getTopicIds(
+                    conn,
+                    topicNames,
+                    subjectValue,
+                    classValue
+            ).stream()
+                    .distinct()
+                    .toList();
 
             if (topicIds.isEmpty()) {
-                System.out.println("No matching topic IDs found.");
-                return null;
+                throw new IllegalStateException(
+                        "No matching topic IDs were found."
+                );
             }
-
-            System.out.println("Topic IDs: " + topicIds);
 
             /*
-             * ExamScheduler currently accepts only one topic_id.
-             * So we save the first topic_id here.
-             * All topic IDs will still be used for question selection below.
+             * This prevents continuing when some selected topic names
+             * could not be resolved to IDs.
+             *
+             * This assumes topic names are unique for a particular
+             * subject and class.
              */
-            int mainTopicId = topicIds.get(0);
-
-            pstmt.setInt(1, mainTopicId);
-            pstmt.setString(2, subjectValue);
-            pstmt.setString(3, classValue);
-            pstmt.setString(4, examDate);
-            pstmt.setString(5, start);
-            pstmt.setString(6, end);
-            pstmt.setString(7, roomValue);
-            pstmt.setString(8, board.getValue());
-            pstmt.executeUpdate();
-
-            ResultSet rs = pstmt.getGeneratedKeys();
-
-            int generatedId = -1;
-
-            if (rs.next()) {
-                generatedId = rs.getInt(1);
+            if (topicIds.size() != topicNames.size()) {
+                throw new IllegalStateException(
+                        "Some selected topics could not be matched. " +
+                                "Selected topics: " + topicNames +
+                                ", matched topic IDs: " + topicIds
+                );
             }
 
-            if (generatedId == -1) {
-                System.out.println("Failed to get generated exam ID.");
-                return null;
+            System.out.println("Selected topic names: " + topicNames);
+            System.out.println("Selected topic IDs: " + topicIds);
+
+            // -----------------------------------------------------
+            // Insert the main ExamScheduler record
+            // -----------------------------------------------------
+
+            int generatedExamId;
+
+            try (PreparedStatement pstmt = conn.prepareStatement(
+                    insertExamSql,
+                    Statement.RETURN_GENERATED_KEYS
+            )) {
+                pstmt.setString(1, subjectValue);
+                pstmt.setString(2, classValue);
+                pstmt.setString(3, examDate);
+                pstmt.setString(4, start);
+                pstmt.setString(5, end);
+                pstmt.setString(6, roomValue);
+                pstmt.setString(7, boardValue);
+
+                int insertedRows = pstmt.executeUpdate();
+
+                if (insertedRows != 1) {
+                    throw new SQLException(
+                            "Failed to insert the exam schedule."
+                    );
+                }
+
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (!generatedKeys.next()) {
+                        throw new SQLException(
+                                "Exam was inserted, but no generated ID was returned."
+                        );
+                    }
+
+                    generatedExamId = generatedKeys.getInt(1);
+                }
             }
 
-            // Now create exam questions using all selected topic IDs
-            createExamQuestion(conn, generatedId, topicIds);
+            // -----------------------------------------------------
+            // Insert all selected topics into ExamTopic
+            // -----------------------------------------------------
+
+            try (PreparedStatement pstmt = conn.prepareStatement(
+                    insertExamTopicSql
+            )) {
+                for (Integer topicId : topicIds) {
+                    pstmt.setInt(1, generatedExamId);
+                    pstmt.setInt(2, topicId);
+                    pstmt.addBatch();
+                }
+
+                int[] topicInsertResults = pstmt.executeBatch();
+
+                for (int result : topicInsertResults) {
+                    if (result == Statement.EXECUTE_FAILED) {
+                        throw new SQLException(
+                                "Failed to assign one or more topics to the exam."
+                        );
+                    }
+                }
+            }
+
+            // -----------------------------------------------------
+            // Create exam questions using all selected topics
+            // -----------------------------------------------------
+
+            createExamQuestion(
+                    conn,
+                    generatedExamId,
+                    topicIds
+            );
+
+            // Save everything only after every step succeeds.
+            conn.commit();
+
+            System.out.println(
+                    "Exam successfully created with ID: " + generatedExamId
+            );
 
             return new ExamData(
-                    "" + generatedId,
+                    String.valueOf(generatedExamId),
                     classValue,
                     examDate,
                     roomValue,
                     subjectValue,
-                    start + "-" + end,
-                    topicIds.toString(),
-                    topicName,
-                    board.getValue()
+                    start + " - " + end,
+                    topicIds,
+                    topicNames,
+                    boardValue
             );
 
         } catch (Exception e) {
-            e.printStackTrace();
-        }
 
-        return null;
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                    System.err.println(
+                            "Exam creation failed. Database changes were rolled back."
+                    );
+                } catch (SQLException rollbackException) {
+                    rollbackException.addSuppressed(e);
+                    rollbackException.printStackTrace();
+                }
+            }
+
+            e.printStackTrace();
+            return null;
+
+        } finally {
+
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(previousAutoCommit);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     private String getAsCSW(List<String> topicList) {

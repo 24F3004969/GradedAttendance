@@ -14,9 +14,16 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.SnapshotParameters;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
@@ -27,7 +34,6 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
-import org.graded_classes.graded_attendance.Main;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.data.Student;
 
@@ -35,438 +41,1238 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 public class ExamReport implements Initializable {
-    MainController mainController;
-    @FXML
-    private Text avatar;
-    @FXML
-    private Label class_of, grade,
-            marks_obtain, name_class,
-            remarks, roll_no, total_marks,
-            overAllRemark, totalRemark, rank;
-    @FXML
-    private SVGImageView icons;
-    @FXML
-    RingProgressIndicator allSubjectPercentage;
-    @FXML
-    private VBox report;
-    @FXML
-    private VBox mathResult;
-    @FXML
-    private VBox physicsResult;
-    @FXML
-    private VBox biologyResult;
-    @FXML
-    HBox performanceLayer;
+
+    private static final String REPORT_DIRECTORY =
+            "C:\\Users\\hilal\\StudentReport\\";
+
+    private final MainController mainController;
 
     @FXML
-    private VBox chemistryResult, englishResult;
+    private Text avatar;
+
+    @FXML
+    private Label class_of;
+
+    @FXML
+    private Label grade;
+
+    @FXML
+    private Label marks_obtain;
+
+    @FXML
+    private Label name_class;
+
+    @FXML
+    private Label remarks;
+
+    @FXML
+    private Label roll_no;
+
+    @FXML
+    private Label total_marks;
+
+    @FXML
+    private Label overAllRemark;
+
+    @FXML
+    private Label totalRemark;
+
+    @FXML
+    private Label rank;
+
+    @FXML
+    private SVGImageView icons;
+
+    @FXML
+    private RingProgressIndicator allSubjectPercentage;
+
+    @FXML
+    private VBox report;
+
+    @FXML
+    private VBox mathResult;
+
+    @FXML
+    private VBox physicsResult;
+
+    @FXML
+    private VBox biologyResult;
+
+    @FXML
+    private VBox chemistryResult;
+
+    @FXML
+    private VBox englishResult;
+
+    @FXML
+    private HBox performanceLayer;
 
     @FXML
     private SearchField<String> search;
+
+    private final ObservableList<String> studentData =
+            FXCollections.observableArrayList();
+
+    private final Map<String, VBox> subjectBoxes =
+            new LinkedHashMap<>();
+
+    private LinkedHashMap<String, Student> data;
+
+    private final VBox dialogContent =
+            new VBox();
+
+    private final ProgressBar generation =
+            new ProgressBar();
+
+    private final ScrollPane listOfGenerated =
+            new ScrollPane();
+
+    private final VBox sentItems =
+            new VBox();
 
     public ExamReport(MainController mainController) {
         this.mainController = mainController;
     }
 
-    ObservableList<String> studentData = FXCollections.observableArrayList(List.of());
-    LinkedHashMap<String, Student> data;
-    VBox dialogContent = new VBox();
-    ProgressBar generation = new ProgressBar();
-    ScrollPane listOfGenerated = new ScrollPane();
-    VBox sentItems = new VBox();
-
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        icons.setSvgUrl(GradedResourceLoader.load("icons/my-logo.svg"));
-        data = mainController.gradedDataLoader.getStudentData();
-        studentData.addAll(asList(data.values()));
-        search.setSuggestionProvider(request ->
-                studentData.stream().filter(country ->
-                                country.toLowerCase().contains(request.getUserText().toLowerCase())).
-                        collect(Collectors.toList()));
+    public void initialize(
+            URL location,
+            ResourceBundle resources
+    ) {
+        icons.setSvgUrl(
+                GradedResourceLoader.load("icons/my-logo.svg")
+        );
+
+        data = mainController
+                .gradedDataLoader
+                .getStudentData();
+
+        studentData.setAll(
+                createStudentSearchList(data.values())
+        );
+
+        search.setSuggestionProvider(request -> {
+            String searchText = request
+                    .getUserText()
+                    .trim()
+                    .toLowerCase(Locale.ROOT);
+
+            return studentData.stream()
+                    .filter(student ->
+                            student.toLowerCase(Locale.ROOT)
+                                    .contains(searchText)
+                    )
+                    .collect(Collectors.toList());
+        });
+
         search.setOnCommit(this::generateReport);
-        dialogContent.getChildren().add(generation);
-        dialogContent.getChildren().add(listOfGenerated);
+
+        dialogContent.getChildren().setAll(
+                generation,
+                listOfGenerated
+        );
+
+        /*
+         * Canonical subject name -> subject report VBox.
+         *
+         * The subject VBoxes are never removed from performanceLayer.
+         * They are shown or hidden using managed and visible properties.
+         */
+        subjectBoxes.put("Math", mathResult);
+        subjectBoxes.put("Physics", physicsResult);
+        subjectBoxes.put("Chemistry", chemistryResult);
+        subjectBoxes.put("Biology", biologyResult);
+        subjectBoxes.put("English", englishResult);
+
+        resetSubjectBoxes();
     }
 
-    private int generateReport(String s) {
-        if (s == null || s.isBlank()) {
+    /**
+     * Generates a single student's report in the displayed report pane.
+     *
+     * @return 1 when generated, otherwise -1
+     */
+    private int generateReport(String selectedStudent) {
+        if (selectedStudent == null
+                || selectedStudent.isBlank()) {
+
             return -1;
         }
-        String roll = s.trim().split("\\s+", 2)[0];
-        String name = s.trim().split("\\s+", 2)[1];
-        var resultList = getClassRank(data.get(roll)._class());
-        String abr = getNameAbbreviation(name);
+
+        String[] studentParts =
+                selectedStudent.trim().split("\\s+", 2);
+
+        if (studentParts.length < 2) {
+            showError(
+                    "Invalid student selection",
+                    "Expected student data in the format: "
+                            + "enrollment-number student-name"
+            );
+
+            return -1;
+        }
+
+        String roll = studentParts[0].trim();
+        String name = studentParts[1].trim();
+
+        Student student = data.get(roll);
+
+        if (student == null) {
+            showError(
+                    "Student not found",
+                    "No student record was found for enrollment number "
+                            + roll + "."
+            );
+
+            return -1;
+        }
+
+        /*
+         * Restore and clear all subject boxes before every report.
+         *
+         * This prevents a subject hidden for one student from remaining
+         * hidden for the next student during batch generation.
+         */
+        resetSubjectBoxes();
+
+        LinkedHashMap<String, StudentRank> resultList =
+                getClassRank(student._class());
+
         String sql = """
-                SELECT 
-                    subject,
+                SELECT
+                    TRIM(subject) AS subject,
                     COUNT(*) AS exam_count,
-                    SUM(marks_obtain) AS total_obtained,
-                    SUM(total_marks) AS total_possible,
-                    AVG(marks_obtain) AS average_marks
+                    COALESCE(SUM(marks_obtain), 0) AS total_obtained,
+                    COALESCE(SUM(total_marks), 0) AS total_possible,
+                    COALESCE(AVG(marks_obtain), 0) AS average_marks
                 FROM ScoreCard
                 WHERE ed_no = ?
-                GROUP BY subject
-                ORDER BY subject
+                GROUP BY TRIM(subject)
+                ORDER BY TRIM(subject)
                 """;
 
-        var connection = mainController.gradedDataLoader.databaseLoader.getConnection();
+        Map<String, SubjectScoreSummary> subjectWiseResult =
+                new LinkedHashMap<>();
 
-        Map<String, SubjectScoreSummary> subjectWiseResult = new LinkedHashMap<>();
+        var connection = mainController
+                .gradedDataLoader
+                .databaseLoader
+                .getConnection();
 
-        try (var ps = connection.prepareStatement(sql)) {
+        try (var preparedStatement =
+                     connection.prepareStatement(sql)) {
 
-            ps.setString(1, roll);
+            preparedStatement.setString(1, roll);
 
-            try (var rs = ps.executeQuery()) {
+            try (var resultSet =
+                         preparedStatement.executeQuery()) {
 
-                boolean found = false;
+                while (resultSet.next()) {
+                    String rawSubject =
+                            resultSet.getString("subject");
 
-                while (rs.next()) {
-                    found = true;
+                    String normalizedSubject =
+                            normalizeSubject(rawSubject);
 
-                    String subject = rs.getString("subject");
-                    int examCount = rs.getInt("exam_count");
-                    int totalObtained = rs.getInt("total_obtained");
-                    int totalPossible = rs.getInt("total_possible");
-                    double averageMarks = rs.getDouble("average_marks");
+                    int examCount =
+                            resultSet.getInt("exam_count");
 
-                    double percentage = totalPossible == 0
-                            ? 0
-                            : (totalObtained * 100.0) / totalPossible;
+                    int totalObtained =
+                            resultSet.getInt("total_obtained");
 
-                    SubjectScoreSummary summary = new SubjectScoreSummary(
-                            subject,
-                            examCount,
-                            totalObtained,
-                            totalPossible,
-                            averageMarks,
-                            percentage
+                    int totalPossible =
+                            resultSet.getInt("total_possible");
+
+                    double averageMarks =
+                            resultSet.getDouble("average_marks");
+
+                    double percentage =
+                            calculatePercentage(
+                                    totalObtained,
+                                    totalPossible
+                            );
+
+                    SubjectScoreSummary summary =
+                            new SubjectScoreSummary(
+                                    normalizedSubject,
+                                    examCount,
+                                    totalObtained,
+                                    totalPossible,
+                                    averageMarks,
+                                    percentage
+                            );
+
+                    /*
+                     * Merge database aliases.
+                     *
+                     * For example, "Math", "Maths", and "Mathematics"
+                     * all become the canonical subject "Math".
+                     */
+                    subjectWiseResult.merge(
+                            normalizedSubject,
+                            summary,
+                            this::mergeSubjectSummaries
                     );
-
-                    subjectWiseResult.put(subject, summary);
                 }
-
-                if (!found) {
-                    System.out.println("No score card found for roll number: " + roll);
-                    report.setVisible(false);
-                    return -1;
-                }
-                avatar.setText(abr);
-                name_class.setText(name);
-                roll_no.setText("Roll No. " + roll);
-                class_of.setText("Class " + data.get(roll)._class());
-                double overallOfAllSubject = 0.0;
-                double overallOfAllTotalMarks = 0.0;
-                for (var entry : subjectWiseResult.entrySet()) {
-                    SubjectScoreSummary summary = entry.getValue();
-                    switch (summary.subject()) {
-                        case "Math" -> {
-                            plotData(mathResult, summary.percentage / 100,
-                                    summary.totalObtained + "/" + summary.totalPossible(),
-                                    getGrade(summary.percentage).grade());
-                        }
-                        case "Chemistry" -> {
-                            plotData(chemistryResult, summary.percentage / 100,
-                                    summary.totalObtained + "/" + summary.totalPossible(),
-                                    getGrade(summary.percentage).grade());
-                        }
-                        case "Physics" -> {
-                            plotData(physicsResult, summary.percentage / 100,
-                                    summary.totalObtained + "/" + summary.totalPossible(),
-                                    getGrade(summary.percentage).grade());
-                        }
-                        case "Biology" -> {
-                            plotData(biologyResult, summary.percentage / 100,
-                                    summary.totalObtained + "/" + summary.totalPossible(),
-                                    getGrade(summary.percentage).grade());
-                        }
-                        case "English" -> {
-                            plotData(englishResult, summary.percentage / 100,
-                                    summary.totalObtained + "/" + summary.totalPossible(),
-                                    getGrade(summary.percentage).grade());
-                        }
-
-                    }
-                    removeIfNotNeed(subjectWiseResult.keySet());
-                    overallOfAllSubject += summary.totalObtained;
-                    overallOfAllTotalMarks += summary.totalPossible();
-                }
-                allSubjectPercentage.setProgress(overallOfAllSubject / overallOfAllTotalMarks);
-                total_marks.setText(" / " + overallOfAllTotalMarks);
-                marks_obtain.setText("" + overallOfAllSubject);
-                grade.setText(getGrade(overallOfAllSubject / overallOfAllTotalMarks * 100).grade());
-                rank.setText(resultList.containsKey(roll) ? resultList.get(roll).rank() + "" : "None");
-                overAllRemark.setText(getGrade(overallOfAllSubject / overallOfAllTotalMarks * 100).remark());
-                totalRemark.setText(getGrade(overallOfAllSubject / overallOfAllTotalMarks * 100).remark());
-                remarks.setText(getGrade(overallOfAllSubject / overallOfAllTotalMarks * 100).teacherRemark());
-
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            if (subjectWiseResult.isEmpty()) {
+                report.setVisible(false);
+                report.setManaged(false);
+
+                System.out.println(
+                        "No ScoreCard records found for roll number: "
+                                + roll
+                );
+
+                return -1;
+            }
+
+            avatar.setText(
+                    getNameAbbreviation(name)
+            );
+
+            name_class.setText(name);
+            roll_no.setText("Roll No. " + roll);
+            class_of.setText("Class " + student._class());
+
+            Set<String> displayedSubjects =
+                    new LinkedHashSet<>();
+
+            double overallObtained = 0.0;
+            double overallPossible = 0.0;
+
+            for (SubjectScoreSummary summary
+                    : subjectWiseResult.values()) {
+
+                overallObtained +=
+                        summary.totalObtained();
+
+                overallPossible +=
+                        summary.totalPossible();
+
+                VBox subjectBox =
+                        subjectBoxes.get(summary.subject());
+
+                if (subjectBox == null) {
+                    System.err.println(
+                            "No report box exists for subject '"
+                                    + summary.subject()
+                                    + "' for enrollment number "
+                                    + roll
+                    );
+
+                    /*
+                     * Unknown subjects still contribute to the overall
+                     * percentage, but cannot be displayed because there
+                     * is no corresponding subject VBox in the FXML.
+                     */
+                    continue;
+                }
+
+                displayedSubjects.add(summary.subject());
+
+                showSubjectBox(subjectBox);
+
+                plotData(
+                        subjectBox,
+                        summary.percentage() / 100.0,
+                        summary.totalObtained()
+                                + "/"
+                                + summary.totalPossible(),
+                        getGrade(
+                                summary.percentage()
+                        ).grade()
+                );
+            }
+
+            /*
+             * Hide only unavailable subjects.
+             *
+             * The nodes remain attached to performanceLayer, so they can
+             * be made visible again for the next student.
+             */
+            updateSubjectBoxVisibility(displayedSubjects);
+
+            double overallPercentage =
+                    calculatePercentage(
+                            overallObtained,
+                            overallPossible
+                    );
+
+            allSubjectPercentage.setProgress(
+                    clampProgress(
+                            overallPercentage / 100.0
+                    )
+            );
+
+            marks_obtain.setText(
+                    formatNumber(overallObtained)
+            );
+
+            total_marks.setText(
+                    " / " + formatNumber(overallPossible)
+            );
+
+            GradeResult overallGrade =
+                    getGrade(overallPercentage);
+
+            grade.setText(
+                    overallGrade.grade()
+            );
+
+            StudentRank studentRank =
+                    resultList.get(roll);
+
+            rank.setText(
+                    studentRank == null
+                            ? "None"
+                            : String.valueOf(
+                            studentRank.rank()
+                    )
+            );
+
+            overAllRemark.setText(
+                    overallGrade.remark()
+            );
+
+            totalRemark.setText(
+                    overallGrade.remark()
+            );
+
+            remarks.setText(
+                    overallGrade.teacherRemark()
+            );
+
+            report.setManaged(true);
+            report.setVisible(true);
+
+            /*
+             * Ensure CSS and layout are completed before a PDF snapshot
+             * is taken during batch generation.
+             */
+            report.applyCss();
+            report.layout();
+
+            return 1;
+
+        } catch (SQLException exception) {
+            report.setVisible(false);
+            report.setManaged(false);
+
+            exception.printStackTrace();
+
+            showError(
+                    "Unable to generate report",
+                    "The score data for enrollment number "
+                            + roll
+                            + " could not be loaded.\n\n"
+                            + exception.getMessage()
+            );
+
+            return -1;
         }
-        return 1;
     }
 
-    private void removeIfNotNeed(Set<String> strings) {
-        if (!strings.contains(physicsResult.getId()))
-            performanceLayer.getChildren().remove(physicsResult);
-        if (!strings.contains(mathResult.getId()))
-            performanceLayer.getChildren().remove(mathResult);
-        if (!strings.contains(chemistryResult.getId()))
-            performanceLayer.getChildren().remove(chemistryResult);
-        if (!strings.contains(englishResult.getId()))
-            performanceLayer.getChildren().remove(englishResult);
-        if (!strings.contains(biologyResult.getId()))
-            performanceLayer.getChildren().remove(biologyResult);
+    /**
+     * Restores every subject box and clears data from the previous report.
+     */
+    private void resetSubjectBoxes() {
+        for (VBox subjectBox : subjectBoxes.values()) {
+            showSubjectBox(subjectBox);
+            clearSubjectBox(subjectBox);
+        }
     }
 
+    /**
+     * Shows subjects that have results and hides subjects that do not.
+     *
+     * setManaged(false) ensures that a hidden subject does not continue
+     * occupying space in the HBox.
+     */
+    private void updateSubjectBoxVisibility(
+            Set<String> availableSubjects
+    ) {
+        for (Map.Entry<String, VBox> entry
+                : subjectBoxes.entrySet()) {
 
-    private void plotData(VBox box, double p, String ma, String gr) {
-        RingProgressIndicator per = (RingProgressIndicator) box.lookup("#percentage");
-        Label mark = (Label) box.lookup("#marks");
-        Label grade = (Label) box.lookup("#garde");
-        per.setProgress(p);
-        mark.setText(ma);
-        grade.setText(gr);
+            boolean available =
+                    availableSubjects.contains(
+                            entry.getKey()
+                    );
+
+            entry.getValue().setVisible(available);
+            entry.getValue().setManaged(available);
+        }
+    }
+
+    private void showSubjectBox(VBox subjectBox) {
+        if (subjectBox == null) {
+            return;
+        }
+
+        subjectBox.setManaged(true);
+        subjectBox.setVisible(true);
+    }
+
+    private void clearSubjectBox(VBox subjectBox) {
+        if (subjectBox == null) {
+            return;
+        }
+
+        RingProgressIndicator percentageIndicator =
+                lookupRingProgressIndicator(
+                        subjectBox,
+                        "#percentage"
+                );
+
+        Label marksLabel =
+                lookupLabel(
+                        subjectBox,
+                        "#marks"
+                );
+
+        /*
+         * Your existing FXML appears to use the ID "garde".
+         *
+         * This method also tries "grade" as a fallback in case the FXML
+         * spelling is later corrected.
+         */
+        Label gradeLabel =
+                lookupLabel(
+                        subjectBox,
+                        "#garde"
+                );
+
+        if (gradeLabel == null) {
+            gradeLabel = lookupLabel(
+                    subjectBox,
+                    "#grade"
+            );
+        }
+
+        if (percentageIndicator != null) {
+            percentageIndicator.setProgress(0);
+        }
+
+        if (marksLabel != null) {
+            marksLabel.setText("0/0");
+        }
+
+        if (gradeLabel != null) {
+            gradeLabel.setText("-");
+        }
+    }
+
+    private void plotData(
+            VBox subjectBox,
+            double progress,
+            String marksText,
+            String gradeText
+    ) {
+        if (subjectBox == null) {
+            return;
+        }
+
+        subjectBox.applyCss();
+        subjectBox.layout();
+
+        RingProgressIndicator percentageIndicator =
+                lookupRingProgressIndicator(
+                        subjectBox,
+                        "#percentage"
+                );
+
+        Label marksLabel =
+                lookupLabel(
+                        subjectBox,
+                        "#marks"
+                );
+
+        Label gradeLabel =
+                lookupLabel(
+                        subjectBox,
+                        "#garde"
+                );
+
+        if (gradeLabel == null) {
+            gradeLabel = lookupLabel(
+                    subjectBox,
+                    "#grade"
+            );
+        }
+
+        if (percentageIndicator != null) {
+            percentageIndicator.setProgress(
+                    clampProgress(progress)
+            );
+        } else {
+            System.err.println(
+                    "RingProgressIndicator with id 'percentage' "
+                            + "was not found in subject box: "
+                            + subjectBox.getId()
+            );
+        }
+
+        if (marksLabel != null) {
+            marksLabel.setText(marksText);
+        } else {
+            System.err.println(
+                    "Label with id 'marks' was not found "
+                            + "in subject box: "
+                            + subjectBox.getId()
+            );
+        }
+
+        if (gradeLabel != null) {
+            gradeLabel.setText(gradeText);
+        } else {
+            System.err.println(
+                    "Label with id 'garde' or 'grade' was not found "
+                            + "in subject box: "
+                            + subjectBox.getId()
+            );
+        }
+    }
+
+    private RingProgressIndicator lookupRingProgressIndicator(
+            VBox subjectBox,
+            String selector
+    ) {
+        var node = subjectBox.lookup(selector);
+
+        if (node instanceof RingProgressIndicator indicator) {
+            return indicator;
+        }
+
+        return null;
+    }
+
+    private Label lookupLabel(
+            VBox subjectBox,
+            String selector
+    ) {
+        var node = subjectBox.lookup(selector);
+
+        if (node instanceof Label label) {
+            return label;
+        }
+
+        return null;
+    }
+
+    /**
+     * Converts different database subject names into canonical names.
+     */
+    private String normalizeSubject(String subject) {
+        if (subject == null || subject.isBlank()) {
+            return "Unknown";
+        }
+
+        String normalized = subject
+                .trim()
+                .toLowerCase(Locale.ROOT)
+                .replaceAll("\\s+", " ");
+
+        return switch (normalized) {
+            case "math",
+                 "maths",
+                 "mathematics",
+                 "mathematic" -> "Math";
+
+            case "physics",
+                 "physic",
+                 "phy" -> "Physics";
+
+            case "chemistry",
+                 "chemical science",
+                 "chem" -> "Chemistry";
+
+            case "biology",
+                 "biological science",
+                 "bio" -> "Biology";
+
+            case "english",
+                 "english language",
+                 "eng" -> "English";
+
+            default -> toDisplayCase(subject.trim());
+        };
+    }
+
+    private String toDisplayCase(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+
+        String[] words =
+                value.trim().split("\\s+");
+
+        StringBuilder result =
+                new StringBuilder();
+
+        for (String word : words) {
+            if (word.isBlank()) {
+                continue;
+            }
+
+            if (!result.isEmpty()) {
+                result.append(' ');
+            }
+
+            result.append(
+                    Character.toUpperCase(word.charAt(0))
+            );
+
+            if (word.length() > 1) {
+                result.append(
+                        word.substring(1)
+                                .toLowerCase(Locale.ROOT)
+                );
+            }
+        }
+
+        return result.toString();
+    }
+
+    /**
+     * Merges summaries when multiple subject aliases exist.
+     */
+    private SubjectScoreSummary mergeSubjectSummaries(
+            SubjectScoreSummary first,
+            SubjectScoreSummary second
+    ) {
+        int examCount =
+                first.examCount()
+                        + second.examCount();
+
+        int totalObtained =
+                first.totalObtained()
+                        + second.totalObtained();
+
+        int totalPossible =
+                first.totalPossible()
+                        + second.totalPossible();
+
+        double averageMarks =
+                examCount == 0
+                        ? 0.0
+                        : totalObtained * 1.0 / examCount;
+
+        double percentage =
+                calculatePercentage(
+                        totalObtained,
+                        totalPossible
+                );
+
+        return new SubjectScoreSummary(
+                first.subject(),
+                examCount,
+                totalObtained,
+                totalPossible,
+                averageMarks,
+                percentage
+        );
+    }
+
+    private double calculatePercentage(
+            double obtained,
+            double possible
+    ) {
+        if (possible <= 0) {
+            return 0.0;
+        }
+
+        double percentage =
+                obtained * 100.0 / possible;
+
+        if (Double.isNaN(percentage)
+                || Double.isInfinite(percentage)) {
+
+            return 0.0;
+        }
+
+        return Math.max(
+                0.0,
+                Math.min(100.0, percentage)
+        );
+    }
+
+    private double clampProgress(double progress) {
+        if (Double.isNaN(progress)
+                || Double.isInfinite(progress)) {
+
+            return 0.0;
+        }
+
+        return Math.max(
+                0.0,
+                Math.min(1.0, progress)
+        );
+    }
+
+    private String formatNumber(double number) {
+        if (number == Math.rint(number)) {
+            return String.valueOf((long) number);
+        }
+
+        return String.format(
+                Locale.ROOT,
+                "%.2f",
+                number
+        );
     }
 
     private String getNameAbbreviation(String name) {
-        var split = name.split(" ");
-        return split.length > 1 ? "" + split[0].charAt(0) + split[split.length - 1].charAt(0) :
-                (split[0].length() > 2 ? split[0].substring(0, 2) : split[0]);
+        if (name == null || name.isBlank()) {
+            return "";
+        }
+
+        String[] parts =
+                name.trim().split("\\s+");
+
+        if (parts.length > 1) {
+            return (String.valueOf(parts[0].charAt(0))
+                    + parts[parts.length - 1].charAt(0))
+                    .toUpperCase(Locale.ROOT);
+        }
+
+        String firstName = parts[0];
+
+        if (firstName.length() >= 2) {
+            return firstName
+                    .substring(0, 2)
+                    .toUpperCase(Locale.ROOT);
+        }
+
+        return firstName.toUpperCase(Locale.ROOT);
     }
 
-    private List<String> asList(Collection<Student> values) {
-        List<String> result = new ArrayList<>();
-        for (Student student : values) {
-            studentData.add(student.ed_no() + " " + student.name());
+    private List<String> createStudentSearchList(
+            Collection<Student> students
+    ) {
+        List<String> result =
+                new ArrayList<>();
+
+        if (students == null) {
+            return result;
         }
+
+        for (Student student : students) {
+            if (student == null) {
+                continue;
+            }
+
+            result.add(
+                    student.ed_no()
+                            + " "
+                            + student.name()
+            );
+        }
+
         return result;
     }
 
     @FXML
     void sendAllReport(ActionEvent event) {
+        sentItems.getChildren().clear();
+
         listOfGenerated.setContent(sentItems);
+
         generation.progressProperty().unbind();
         generation.setProgress(0);
-        Button button = (Button) event.getSource();
+
+        Button button =
+                (Button) event.getSource();
+
         button.setDisable(true);
 
-        dialogWhileGeneration("Report sending progress","Send the report");
+        dialogWhileGeneration(
+                "Report sending progress",
+                "Sending the reports"
+        );
 
         File reportFolder =
-                new File(Main.getRootPath() + "/My Drive/StudentReport/");
+                new File(REPORT_DIRECTORY);
 
         CompletableFuture.runAsync(() -> {
-
             int total = data.size();
             int current = 0;
 
-            for (var entry : data.entrySet()) {
+            for (Map.Entry<String, Student> entry
+                    : data.entrySet()) {
 
                 String roll = entry.getKey();
                 Student student = entry.getValue();
 
                 try {
+                    String telegramId =
+                            student.telegram_id();
 
-                    String telegramId = student.telegram_id();
+                    if (telegramId != null
+                            && !telegramId.isBlank()) {
 
-                    if (telegramId != null && !telegramId.isBlank()) {
+                        File pdf = new File(
+                                reportFolder,
+                                roll + "_report.pdf"
+                        );
 
-                        File pdf =
-                                new File(reportFolder,
-                                        roll + "_report.pdf");
-
-                        if (pdf.exists()) {
+                        if (pdf.exists()
+                                && pdf.isFile()) {
 
                             mainController.messageSender.sendDocument(
                                     pdf,
-                                    Long.parseLong(telegramId),"progress report"
+                                    Long.parseLong(
+                                            telegramId.trim()
+                                    ),
+                                    "Progress report"
                             );
 
-                            Platform.runLater(() -> {
-                                sentItems.getChildren().add(
-                                        new Label(
-                                                "✅ Sent : "
-                                                        + student.name()
-                                                        + " (" + roll + ")"
-                                        )
-                                );
-                            });
-
+                            addSendingStatus(
+                                    "✅ Sent: "
+                                            + student.name()
+                                            + " ("
+                                            + roll
+                                            + ")"
+                            );
                         } else {
-
-                            Platform.runLater(() -> {
-                                sentItems.getChildren().add(
-                                        new Label(
-                                                "❌ PDF Not Found : "
-                                                        + student.name()
-                                        )
-                                );
-                            });
+                            addSendingStatus(
+                                    "❌ PDF not found: "
+                                            + student.name()
+                                            + " ("
+                                            + roll
+                                            + ")"
+                            );
                         }
                     } else {
-
-                        Platform.runLater(() -> {
-                            sentItems.getChildren().add(
-                                    new Label(
-                                            "⚠ No Telegram ID : "
-                                                    + student.name()
-                                    )
-                            );
-                        });
+                        addSendingStatus(
+                                "⚠ No Telegram ID: "
+                                        + student.name()
+                                        + " ("
+                                        + roll
+                                        + ")"
+                        );
                     }
 
-                    // Telegram rate limiting protection
+                    /*
+                     * Basic Telegram rate-limit protection.
+                     */
                     Thread.sleep(1000);
 
-                } catch (Exception ex) {
+                } catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
 
-                    Platform.runLater(() -> {
-                        sentItems.getChildren().add(
-                                new Label(
-                                        "❌ Failed : "
-                                                + student.name()
-                                                + " -> "
-                                                + ex.getMessage()
-                                )
-                        );
-                    });
+                    addSendingStatus(
+                            "⚠ Sending interrupted."
+                    );
 
-                    ex.printStackTrace();
+                    break;
+
+                } catch (Exception exception) {
+                    addSendingStatus(
+                            "❌ Failed: "
+                                    + student.name()
+                                    + " ("
+                                    + roll
+                                    + ") - "
+                                    + exception.getMessage()
+                    );
+
+                    exception.printStackTrace();
                 }
 
                 current++;
 
-                double progress = (double) current / total;
+                double progress =
+                        total == 0
+                                ? 1.0
+                                : (double) current / total;
 
                 Platform.runLater(() ->
                         generation.setProgress(progress)
                 );
             }
+        }).whenComplete((result, exception) ->
+                Platform.runLater(() -> {
+                    button.setDisable(false);
+                    generation.setProgress(1);
 
-        }).whenComplete((r, ex) -> {
+                    if (exception != null) {
+                        exception.printStackTrace();
 
-            Platform.runLater(() -> {
+                        showError(
+                                "Report sending failed",
+                                exception.getMessage()
+                        );
 
-                button.setDisable(false);
+                        return;
+                    }
 
-                generation.setProgress(1);
+                    Alert alert = new Alert(
+                            Alert.AlertType.INFORMATION,
+                            "All reports have been processed."
+                    );
 
-                Alert alert = new Alert(
-                        Alert.AlertType.INFORMATION,
-                        "All reports processed."
-                );
+                    alert.setHeaderText(
+                            "Report sending completed"
+                    );
 
-                alert.show();
-            });
-        });
+                    alert.show();
+                })
+        );
+    }
+
+    private void addSendingStatus(String message) {
+        Platform.runLater(() ->
+                sentItems.getChildren().add(
+                        new Label(message)
+                )
+        );
     }
 
     @FXML
     void generateReport(ActionEvent event) {
+        File outputFolder =
+                new File(REPORT_DIRECTORY);
 
-        File file = new File(Main.getRootPath() + "/My Drive/StudentReport/");
-        file.mkdirs();
+        if (!outputFolder.exists()
+                && !outputFolder.mkdirs()) {
 
-        Button bt = (Button) event.getSource();
-        bt.setDisable(true);
+            showError(
+                    "Unable to create report folder",
+                    "The application could not create:\n"
+                            + outputFolder.getAbsolutePath()
+            );
 
-        dialogWhileGeneration("Report generation progress","Generating the report");
+            return;
+        }
 
-        Task<Void> reportTask = new Task<>() {
-            @Override
-            protected Void call() throws Exception {
-                report.setVisible(true);
-                int total = data.size();
-                int current = 0;
+        Button button =
+                (Button) event.getSource();
 
-                for (var x : data.keySet()) {
-                    String student = x + " " + data.get(x).name();
+        button.setDisable(true);
 
-                    CountDownLatch latch = new CountDownLatch(1);
+        dialogWhileGeneration(
+                "Report generation progress",
+                "Generating reports"
+        );
 
-                    Platform.runLater(() -> {
-                        try {
-                            int result = generateReport(student);
-                            report.setVisible(true);
-                            if (result == 1) {
-                                savePaneAsPdf(
-                                        report,
-                                        file.getAbsolutePath() + "/" + x + "_report.pdf"
+        Task<Void> reportTask =
+                new Task<>() {
+
+                    @Override
+                    protected Void call()
+                            throws Exception {
+
+                        int total = data.size();
+                        int current = 0;
+
+                        for (Map.Entry<String, Student> entry
+                                : data.entrySet()) {
+
+                            if (isCancelled()) {
+                                break;
+                            }
+
+                            String roll =
+                                    entry.getKey();
+
+                            Student studentData =
+                                    entry.getValue();
+
+                            String studentSearchValue =
+                                    roll
+                                            + " "
+                                            + studentData.name();
+
+                            CountDownLatch latch =
+                                    new CountDownLatch(1);
+
+                            final Throwable[] error =
+                                    new Throwable[1];
+
+                            Platform.runLater(() -> {
+                                try {
+                                    int result =
+                                            generateReport(
+                                                    studentSearchValue
+                                            );
+
+                                    if (result == 1) {
+                                        File outputFile =
+                                                new File(
+                                                        outputFolder,
+                                                        roll
+                                                                + "_report.pdf"
+                                                );
+
+                                        savePaneAsPdf(
+                                                report,
+                                                outputFile.getAbsolutePath()
+                                        );
+                                    }
+                                } catch (Throwable throwable) {
+                                    error[0] = throwable;
+                                } finally {
+                                    latch.countDown();
+                                }
+                            });
+
+                            latch.await();
+
+                            if (error[0] != null) {
+                                throw new RuntimeException(
+                                        "Failed to generate report for "
+                                                + roll,
+                                        error[0]
                                 );
                             }
-                        } finally {
-                            latch.countDown();
+
+                            current++;
+
+                            updateProgress(
+                                    current,
+                                    total
+                            );
+
+                            updateMessage(
+                                    current
+                                            + " / "
+                                            + total
+                                            + " reports generated"
+                            );
                         }
-                    });
 
-                    latch.await();
+                        return null;
+                    }
+                };
 
-                    current++;
+        generation.progressProperty().unbind();
+        generation.progressProperty().bind(
+                reportTask.progressProperty()
+        );
 
-                    updateProgress(current, total);
-                    updateMessage(current + " / " + total);
-                }
+        reportTask.messageProperty().addListener(
+                (observable, oldValue, newValue) ->
+                        listOfGenerated.setContent(
+                                new Label(newValue)
+                        )
+        );
 
-                return null;
-            }
-        };
+        reportTask.setOnSucceeded(workerStateEvent -> {
+            button.setDisable(false);
 
-        generation.progressProperty().bind(reportTask.progressProperty());
+            Alert alert = new Alert(
+                    Alert.AlertType.INFORMATION,
+                    "All available reports were generated successfully."
+            );
 
-        reportTask.messageProperty().addListener((obs, oldVal, newVal) -> {
-            Platform.runLater(() ->
-                    listOfGenerated.setContent(new Label(newVal))
+            alert.setHeaderText(
+                    "Report generation completed"
+            );
+
+            alert.show();
+
+            System.out.println(
+                    "Report generation completed."
             );
         });
 
-        reportTask.setOnSucceeded(e -> {
-            bt.setDisable(false);
-            System.out.println("Completed");
+        reportTask.setOnFailed(workerStateEvent -> {
+            button.setDisable(false);
+
+            Throwable exception =
+                    reportTask.getException();
+
+            if (exception != null) {
+                exception.printStackTrace();
+            }
+
+            showError(
+                    "Report generation failed",
+                    exception == null
+                            ? "An unknown error occurred."
+                            : exception.getMessage()
+            );
         });
 
-        reportTask.setOnFailed(e -> {
-            bt.setDisable(false);
-            reportTask.getException().printStackTrace();
-        });
+        reportTask.setOnCancelled(workerStateEvent ->
+                button.setDisable(false)
+        );
 
-        Thread thread = new Thread(reportTask);
+        Thread thread =
+                new Thread(
+                        reportTask,
+                        "student-report-generator"
+                );
+
         thread.setDaemon(true);
         thread.start();
     }
 
+    /**
+     * Must be called on the JavaFX Application Thread.
+     */
     private void savePaneAsPdf(
             VBox pane,
             String outputFile
     ) {
-
-        try {
-
-            SnapshotParameters params =
-                    new SnapshotParameters();
-
-            params.setTransform(new Scale(3, 3));
-            params.setFill(Color.WHITE);
-            PDDocument document =
-                    new PDDocument();
-
-            WritableImage image = pane.snapshot(params, null);
-
-
-            PDPage page = new PDPage(
-                    new PDRectangle((float) image.getWidth(), (float) image.getHeight())
+        if (!Platform.isFxApplicationThread()) {
+            throw new IllegalStateException(
+                    "PDF snapshot must be created on "
+                            + "the JavaFX Application Thread."
             );
+        }
+
+        if (pane == null) {
+            throw new IllegalArgumentException(
+                    "Report pane cannot be null."
+            );
+        }
+
+        pane.applyCss();
+        pane.layout();
+
+        SnapshotParameters parameters =
+                new SnapshotParameters();
+
+        parameters.setTransform(
+                new Scale(3, 3)
+        );
+
+        parameters.setFill(Color.WHITE);
+
+        WritableImage image =
+                pane.snapshot(
+                        parameters,
+                        null
+                );
+
+        PDRectangle pageSize =
+                new PDRectangle(
+                        (float) image.getWidth(),
+                        (float) image.getHeight()
+                );
+
+        try (PDDocument document =
+                     new PDDocument()) {
+
+            PDPage page =
+                    new PDPage(pageSize);
 
             document.addPage(page);
 
@@ -479,45 +1285,64 @@ public class ExamReport implements Initializable {
                             )
                     );
 
-            PDPageContentStream contentStream =
-                    new PDPageContentStream(
-                            document,
-                            page
+            float pageWidth =
+                    page.getMediaBox().getWidth();
+
+            float pageHeight =
+                    page.getMediaBox().getHeight();
+
+            float imageWidth =
+                    pdfImage.getWidth();
+
+            float imageHeight =
+                    pdfImage.getHeight();
+
+            float scale =
+                    Math.min(
+                            pageWidth / imageWidth,
+                            pageHeight / imageHeight
                     );
-            float pageWidth = page.getMediaBox().getWidth();
-            float pageHeight = page.getMediaBox().getHeight();
 
-            float imageWidth = pdfImage.getWidth();
-            float imageHeight = pdfImage.getHeight();
+            float drawWidth =
+                    imageWidth * scale;
 
-            float scale = Math.min(
-                    pageWidth / imageWidth,
-                    pageHeight / imageHeight
-            );
+            float drawHeight =
+                    imageHeight * scale;
 
-            float drawWidth = imageWidth * scale;
-            float drawHeight = imageHeight * scale;
+            float x =
+                    (pageWidth - drawWidth) / 2.0f;
 
-            float x = (pageWidth - drawWidth) / 2;
-            float y = (pageHeight - drawHeight) / 2;
+            float y =
+                    (pageHeight - drawHeight) / 2.0f;
 
-            contentStream.drawImage(
-                    pdfImage,
-                    x,
-                    pageHeight - drawHeight,
-                    drawWidth,
-                    drawHeight
-            );
+            try (PDPageContentStream contentStream =
+                         new PDPageContentStream(
+                                 document,
+                                 page
+                         )) {
 
-            contentStream.close();
+                contentStream.drawImage(
+                        pdfImage,
+                        x,
+                        y,
+                        drawWidth,
+                        drawHeight
+                );
+            }
 
             document.save(outputFile);
-            document.close();
 
-            System.out.println("High quality PDF saved: " + outputFile);
+            System.out.println(
+                    "High-quality PDF saved: "
+                            + outputFile
+            );
 
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to save PDF", e);
+        } catch (IOException exception) {
+            throw new RuntimeException(
+                    "Failed to save PDF: "
+                            + outputFile,
+                    exception
+            );
         }
     }
 
@@ -531,7 +1356,11 @@ public class ExamReport implements Initializable {
     ) {
     }
 
-    public record GradeResult(String grade, String remark, String teacherRemark) {
+    public record GradeResult(
+            String grade,
+            String remark,
+            String teacherRemark
+    ) {
     }
 
     public GradeResult getGrade(double percentage) {
@@ -541,7 +1370,8 @@ public class ExamReport implements Initializable {
                 || percentage > 100) {
 
             throw new IllegalArgumentException(
-                    "Percentage must be between 0 and 100"
+                    "Percentage must be between 0 and 100. Found: "
+                            + percentage
             );
         }
 
@@ -549,7 +1379,8 @@ public class ExamReport implements Initializable {
             return new GradeResult(
                     "A+",
                     "Outstanding",
-                    "Exceptional performance. Keep up the excellent work."
+                    "Exceptional performance. "
+                            + "Keep up the excellent work."
             );
         }
 
@@ -557,7 +1388,8 @@ public class ExamReport implements Initializable {
             return new GradeResult(
                     "A",
                     "Excellent",
-                    "Excellent work. Continue striving for even greater achievement."
+                    "Excellent work. Continue striving "
+                            + "for even greater achievement."
             );
         }
 
@@ -565,7 +1397,8 @@ public class ExamReport implements Initializable {
             return new GradeResult(
                     "B+",
                     "Very Good",
-                    "Very good performance. With consistent effort, you can achieve excellence."
+                    "Very good performance. With consistent "
+                            + "effort, you can achieve excellence."
             );
         }
 
@@ -573,7 +1406,8 @@ public class ExamReport implements Initializable {
             return new GradeResult(
                     "B",
                     "Good",
-                    "Good progress. Continue practising to strengthen your understanding."
+                    "Good progress. Continue practising "
+                            + "to strengthen your understanding."
             );
         }
 
@@ -581,7 +1415,8 @@ public class ExamReport implements Initializable {
             return new GradeResult(
                     "C",
                     "Satisfactory",
-                    "Satisfactory performance. More regular practice will help you improve."
+                    "Satisfactory performance. More regular "
+                            + "practice will help you improve."
             );
         }
 
@@ -589,7 +1424,8 @@ public class ExamReport implements Initializable {
             return new GradeResult(
                     "D",
                     "Needs Improvement",
-                    "You have shown some understanding, but focused effort is needed."
+                    "You have shown some understanding, "
+                            + "but focused effort is needed."
             );
         }
 
@@ -597,14 +1433,16 @@ public class ExamReport implements Initializable {
             return new GradeResult(
                     "E",
                     "Passed",
-                    "You have passed, but you should revise the fundamentals and practise regularly."
+                    "You have passed, but you should revise "
+                            + "the fundamentals and practise regularly."
             );
         }
 
         return new GradeResult(
                 "F",
                 "Failed",
-                "You need significant improvement. Please seek guidance and work consistently."
+                "You need significant improvement. "
+                        + "Please seek guidance and work consistently."
         );
     }
 
@@ -622,8 +1460,9 @@ public class ExamReport implements Initializable {
     ) {
     }
 
-    public LinkedHashMap<String, StudentRank> getClassRank(String className) {
-
+    public LinkedHashMap<String, StudentRank> getClassRank(
+            String className
+    ) {
         String sql = """
                 WITH StudentTotals AS
                 (
@@ -634,38 +1473,40 @@ public class ExamReport implements Initializable {
                         COUNT(sc.exam_id) AS exams_count,
                         COALESCE(SUM(sc.marks_obtain), 0) AS total_obtained,
                         COALESCE(SUM(sc.total_marks), 0) AS total_possible,
-                
+
                         CASE
-                            WHEN COALESCE(SUM(sc.total_marks), 0) = 0 THEN 0
-                            ELSE COALESCE(SUM(sc.marks_obtain), 0) * 100.0
-                                 / SUM(sc.total_marks)
+                            WHEN COALESCE(SUM(sc.total_marks), 0) = 0
+                                THEN 0
+                            ELSE
+                                COALESCE(SUM(sc.marks_obtain), 0) * 100.0
+                                / SUM(sc.total_marks)
                         END AS percentage
-                
+
                     FROM StudentData sd
-                
+
                     LEFT JOIN ScoreCard sc
                         ON sc.ed_no = sd.ed_no
-                
+
                     WHERE sd.class = ?
-                
+
                     GROUP BY
                         sd.ed_no,
                         sd.name,
                         sd.class
                 ),
-                
+
                 EligibleStudents AS
                 (
                     SELECT *
                     FROM StudentTotals
                     WHERE percentage >= 40
                 )
-                
+
                 SELECT
                     DENSE_RANK() OVER (
                         ORDER BY percentage DESC
                     ) AS student_rank,
-                
+
                     ed_no,
                     name,
                     student_class,
@@ -673,80 +1514,175 @@ public class ExamReport implements Initializable {
                     total_obtained,
                     total_possible,
                     percentage
-                
+
                 FROM EligibleStudents
-                
+
                 ORDER BY
                     student_rank,
                     name
                 """;
 
-        LinkedHashMap<String, StudentRank> rankedStudents = new LinkedHashMap<>();
+        LinkedHashMap<String, StudentRank> rankedStudents =
+                new LinkedHashMap<>();
 
-        var connection =
-                mainController.gradedDataLoader.databaseLoader.getConnection();
+        var connection = mainController
+                .gradedDataLoader
+                .databaseLoader
+                .getConnection();
 
-        try (var ps = connection.prepareStatement(sql)) {
+        try (var preparedStatement =
+                     connection.prepareStatement(sql)) {
 
-            ps.setString(1, className);
+            preparedStatement.setString(
+                    1,
+                    className
+            );
 
-            try (var rs = ps.executeQuery()) {
+            try (var resultSet =
+                         preparedStatement.executeQuery()) {
 
-                while (rs.next()) {
+                while (resultSet.next()) {
+                    double percentage =
+                            resultSet.getDouble(
+                                    "percentage"
+                            );
 
-                    double percentage = rs.getDouble("percentage");
-                    GradeResult gradeResult = getGrade(percentage);
+                    GradeResult gradeResult =
+                            getGrade(
+                                    Math.max(
+                                            0.0,
+                                            Math.min(
+                                                    100.0,
+                                                    percentage
+                                            )
+                                    )
+                            );
 
-                    StudentRank studentRank = new StudentRank(
-                            rs.getInt("student_rank"),
-                            rs.getString("ed_no"),
-                            rs.getString("name"),
-                            rs.getString("student_class"),
-                            rs.getInt("exams_count"),
-                            rs.getInt("total_obtained"),
-                            rs.getInt("total_possible"),
-                            percentage,
-                            gradeResult.grade(),
-                            gradeResult.teacherRemark()
+                    StudentRank studentRank =
+                            new StudentRank(
+                                    resultSet.getInt(
+                                            "student_rank"
+                                    ),
+                                    resultSet.getString(
+                                            "ed_no"
+                                    ),
+                                    resultSet.getString(
+                                            "name"
+                                    ),
+                                    resultSet.getString(
+                                            "student_class"
+                                    ),
+                                    resultSet.getInt(
+                                            "exams_count"
+                                    ),
+                                    resultSet.getInt(
+                                            "total_obtained"
+                                    ),
+                                    resultSet.getInt(
+                                            "total_possible"
+                                    ),
+                                    percentage,
+                                    gradeResult.grade(),
+                                    gradeResult.teacherRemark()
+                            );
+
+                    rankedStudents.put(
+                            studentRank.edNo(),
+                            studentRank
                     );
-
-                    rankedStudents.put(rs.getString("ed_no"), studentRank);
                 }
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException exception) {
             throw new RuntimeException(
-                    "Unable to calculate ranking for class: " + className,
-                    e
+                    "Unable to calculate ranking for class: "
+                            + className,
+                    exception
             );
         }
 
         return rankedStudents;
     }
 
+    public void dialogWhileGeneration(
+            String title,
+            String message
+    ) {
+        DialogPane dialogPane =
+                new DialogPane();
 
-    public void dialogWhileGeneration(String message1,String message2) {
-        com.dlsc.gemsfx.DialogPane dialogPane = new com.dlsc.gemsfx.DialogPane();
-        com.dlsc.gemsfx.DialogPane.Dialog<ButtonType> dialog = new com.dlsc.gemsfx.DialogPane.Dialog<>(dialogPane, DialogPane.Type.WARNING);
-        dialog.setTitle(message1);
+        DialogPane.Dialog<ButtonType> dialog =
+                new DialogPane.Dialog<>(
+                        dialogPane,
+                        DialogPane.Type.WARNING
+                );
+
+        dialog.setTitle(title);
         dialog.setContentAlignment(Pos.CENTER);
+
         dialogContent.setSpacing(10);
 
-        generation.setMaxWidth(Double.MAX_VALUE);
+        generation.setMaxWidth(
+                Double.MAX_VALUE
+        );
 
-        VBox.setVgrow(listOfGenerated, Priority.ALWAYS);
         generation.setMinHeight(10);
+
+        VBox.setVgrow(
+                listOfGenerated,
+                Priority.ALWAYS
+        );
+
         dialogContent.getChildren().setAll(
-                new Label(message2),
+                new Label(message),
                 generation,
                 listOfGenerated
         );
 
-        dialogContent.setPrefSize(700, 600);
-        dialogContent.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        dialogContent.setPrefSize(
+                700,
+                600
+        );
+
+        dialogContent.setMaxSize(
+                Double.MAX_VALUE,
+                Double.MAX_VALUE
+        );
+
         dialog.setContent(dialogContent);
-        mainController.stackPane.getChildren().add(dialogPane);
+
+        mainController.stackPane
+                .getChildren()
+                .add(dialogPane);
+
         dialog.show();
     }
 
+    private void showError(
+            String title,
+            String message
+    ) {
+        if (!Platform.isFxApplicationThread()) {
+            Platform.runLater(() ->
+                    showError(title, message)
+            );
+
+            return;
+        }
+
+        Alert alert =
+                new Alert(
+                        Alert.AlertType.ERROR
+                );
+
+        alert.setTitle(title);
+        alert.setHeaderText(title);
+        alert.setContentText(
+                message == null || message.isBlank()
+                        ? "An unknown error occurred."
+                        : message
+        );
+
+        alert.show();
+    }
 }

@@ -8,6 +8,7 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -72,27 +73,43 @@ public class QuizGenerator implements Initializable {
     TreeMap<String, Integer> invertedMap;
     private static final List<String> CLASSES =
             Arrays.asList("IV", "V", "VI", "VII", "VIII", "IX", "X");
+    Node examReport, examList, quizTaker;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        classList.setItems(FXCollections.observableList(CLASSES));
-        subjectList.setItems(FXCollections.observableArrayList(List.of("English",
-                "Math", "Computer", "Physics", "Chemistry", "Biology", "Social Science", "Diagnostic Test")));
-        classList.getSelectionModel().select(6);
-        subjectList.getSelectionModel().select(1);
+        CompletableFuture.runAsync(this::initialPhase);
+        CompletableFuture.runAsync(this::initTreeMapUi);
+    }
+
+    private void initialPhase() {
+        Platform.runLater(() -> {
+            examReport = mainController.
+                    gradedFxmlLoader.
+                    createView(R.exam_report, new ExamReport(mainController));
+            examList = mainController.
+                    gradedFxmlLoader.createView(R.exam_conductor, new ConductExam(mainController, initExamSchedule()));
+            quizTaker = quiz_gen_layout.getCenter();
+            classList.setItems(FXCollections.observableList(CLASSES));
+            subjectList.setItems(FXCollections.observableArrayList(List.of("English", "Math", "Computer", "Physics", "Chemistry", "Biology", "Social Science", "Diagnostic Test")));
+            classList.getSelectionModel().select(6);
+            subjectList.getSelectionModel().select(1);
+            subjectList.getSelectionModel().
+                    selectedItemProperty().
+                    addListener((observable, oldValue, newValue) -> {
+                        selectedSubject = newValue;
+                        resetUi();
+                        initTreeMapUi();
+                    });
+            classList.getSelectionModel().
+                    selectedItemProperty().
+                    addListener((observable, oldValue, newValue) -> {
+                        selectedClass = newValue;
+                        resetUi();
+                        initTreeMapUi();
+                    });
+        });
         selectedClass = "X";
         selectedSubject = "Math";
-        subjectList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            selectedSubject = newValue;
-            resetUi();
-            initTreeMapUi();
-        });
-        classList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            selectedClass = newValue;
-            resetUi();
-            initTreeMapUi();
-        });
-        CompletableFuture.runAsync(this::initTreeMapUi);
     }
 
     private void initTreeMapUi() {
@@ -364,24 +381,23 @@ public class QuizGenerator implements Initializable {
                 selectedTab.getStyleClass().clear();
                 source.getStyleClass().add("tab_selector");
                 selectedTab = source;
-                previouslySelectedNode = quiz_gen_layout.getCenter();
-                quiz_gen_layout.setCenter(mainController.gradedFxmlLoader.createView(R.exam_report, new ExamReport(mainController)));
+                // previouslySelectedNode = quiz_gen_layout.getCenter();
+                quiz_gen_layout.setCenter(examReport);
             }
             case "quizGen" -> {
                 topRightQuizView.setVisible(true);
                 selectedTab.getStyleClass().clear();
                 source.getStyleClass().add("tab_selector");
                 selectedTab = source;
-                quiz_gen_layout.setCenter(previouslySelectedNode);
+                quiz_gen_layout.setCenter(quizTaker);
             }
             case "exam" -> {
                 topRightQuizView.setVisible(false);
                 selectedTab.getStyleClass().clear();
                 source.getStyleClass().add("tab_selector");
                 selectedTab = source;
-                previouslySelectedNode = quiz_gen_layout.getCenter();
-                quiz_gen_layout.setCenter(mainController.
-                        gradedFxmlLoader.createView(R.exam_conductor, new ConductExam(mainController, initExamSchedule())));
+                // previouslySelectedNode = quiz_gen_layout.getCenter();
+                quiz_gen_layout.setCenter(examList);
             }
         }
     }
@@ -391,53 +407,112 @@ public class QuizGenerator implements Initializable {
         ArrayList<ExamData> examList = new ArrayList<>();
 
         String sql = """
-                    SELECT e.exam_id,
-                           e.class,
-                           e.exam_date,
-                           e.room_no,
-                           e.subject,
-                           e.start_time,
-                           e.end_time,
-                           t.topic_id,
-                           t.topic_name,
-                           e.board
-                    FROM ExamScheduler e
-                    LEFT JOIN Topics t ON e.topic_id = t.topic_id
-                    ORDER BY e.exam_date, e.start_time
-                """;
+            SELECT
+                e.exam_id,
+                e.class,
+                e.exam_date,
+                e.room_no,
+                e.subject,
+                e.start_time,
+                e.end_time,
+                e.board,
+                GROUP_CONCAT(et.topic_id, ',') AS topic_ids,
+                GROUP_CONCAT(t.topic_name, '|||') AS topic_names
+            FROM ExamScheduler e
+            LEFT JOIN ExamTopic et
+                   ON et.exam_id = e.exam_id
+            LEFT JOIN Topics t
+                   ON t.topic_id = et.topic_id
+            GROUP BY
+                e.exam_id,
+                e.class,
+                e.exam_date,
+                e.room_no,
+                e.subject,
+                e.start_time,
+                e.end_time,
+                e.board
+            ORDER BY
+                e.exam_date,
+                e.start_time
+            """;
+
         try {
-            var conn = mainController.gradedDataLoader.databaseLoader.getConnection();
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
-            while (rs.next()) {
-                String id = String.valueOf(rs.getInt("exam_id"));
-                String classes = rs.getString("class");
-                String doe = rs.getString("exam_date");
-                String room = rs.getString("room_no");
-                String subject = rs.getString("subject");
-                String time = rs.getString("start_time") + " - " + rs.getString("end_time");
-                String topic_id = rs.getString("topic_id");
-                String topic_name = rs.getString("topic_name");
-                String board = rs.getString("board");
-                ExamData exam = new ExamData(
-                        id,
-                        classes,
-                        doe,
-                        room,
-                        subject,
-                        time,
-                        topic_id,
-                        topic_name,
-                        board
-                );
-                examList.add(exam);
+            var conn = mainController
+                    .gradedDataLoader
+                    .databaseLoader
+                    .getConnection();
+
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+
+                while (rs.next()) {
+
+                    String id = String.valueOf(rs.getInt("exam_id"));
+                    String classes = rs.getString("class");
+                    String doe = rs.getString("exam_date");
+                    String room = rs.getString("room_no");
+                    String subject = rs.getString("subject");
+
+                    String startTime = rs.getString("start_time");
+                    String endTime = rs.getString("end_time");
+                    String time = startTime + " - " + endTime;
+
+                    String board = rs.getString("board");
+
+                    List<Integer> topicIds =
+                            parseTopicIds(rs.getString("topic_ids"));
+
+                    List<String> topicNames =
+                            parseTopicNames(rs.getString("topic_names"));
+
+                    ExamData exam = new ExamData(
+                            id,
+                            classes,
+                            doe,
+                            room,
+                            subject,
+                            time,
+                            topicIds,
+                            topicNames,
+                            board
+                    );
+
+                    examList.add(exam);
+                }
             }
-        } catch (Exception e) {
+
+        } catch (SQLException e) {
+            System.err.println("Unable to initialize exam schedule.");
             e.printStackTrace();
         }
+
         return examList;
     }
+    private List<Integer> parseTopicIds(String value) {
 
+        if (value == null || value.isBlank()) {
+            return List.of();
+        }
+
+        return Arrays.stream(value.split(","))
+                .map(String::trim)
+                .filter(topicId -> !topicId.isEmpty())
+                .map(Integer::parseInt)
+                .toList();
+    }
+
+    private List<String> parseTopicNames(String value) {
+
+        if (value == null || value.isBlank()) {
+            return List.of();
+        }
+
+        return Arrays.stream(value.split("\\|\\|\\|"))
+                .map(String::trim)
+                .filter(topicName -> !topicName.isEmpty())
+                .toList();
+    }
     private LottiePlayer generateLottie() {
         final String resource = "/org/graded_classes/graded_attendance/css/Exams Preparation1.json";
         final Animation animationFile;

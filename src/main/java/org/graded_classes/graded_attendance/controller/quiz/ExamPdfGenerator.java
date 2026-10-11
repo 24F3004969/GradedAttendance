@@ -276,7 +276,7 @@ public final class ExamPdfGenerator {
             centered(s, "GradeEd - Examination", BOLD, 12.5f, w / 2, h - 18);
             text(s, "Subject: " + safe(exam.subject()), PAGE_MARGIN, h - 35, 8.2f, true);
             right(s, "Class: " + safe(exam.classes()), w - PAGE_MARGIN, h - 35, 8.2f, true);
-            text(s, "Topic: " + safe(exam.topic_name()), PAGE_MARGIN, h - 49, 7.7f, false);
+            text(s, "Topic: " + safe(exam.topicNamesForDisplay()), PAGE_MARGIN, h - 49, 7.7f, false);
             right(s, "Date: " + safe(exam.doe()) + "   Time: " + safe(exam.time()),
                     w - PAGE_MARGIN, h - 49, 7.7f, false);
             line(s, PAGE_MARGIN, h - 57, w - PAGE_MARGIN, h - 57);

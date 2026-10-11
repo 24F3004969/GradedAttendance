@@ -36,16 +36,18 @@
             <version>26</version>
         </dependency>
 
+        <!-- Source: https://mvnrepository.com/artifact/com.lottie4j/fxplayer -->
         <dependency>
             <groupId>com.lottie4j</groupId>
             <artifactId>fxplayer</artifactId>
-            <version>1.2.3</version>
+            <version>1.2.6</version>
+            <scope>compile</scope>
         </dependency>
         <!-- Source: https://mvnrepository.com/artifact/io.github.mkpaz/atlantafx-base -->
         <dependency>
             <groupId>io.github.mkpaz</groupId>
             <artifactId>atlantafx-base</artifactId>
-            <version>2.1.0</version>
+            <version>3.0.0</version>
             <scope>compile</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-batik -->
@@ -72,10 +74,12 @@
             <scope>compile</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.calendarfx/view -->
+        <!-- Source: https://mvnrepository.com/artifact/com.calendarfx/view -->
         <dependency>
             <groupId>com.calendarfx</groupId>
             <artifactId>view</artifactId>
-            <version>12.0.1</version>
+            <version>12.2.0</version>
+            <scope>compile</scope>
         </dependency>
         <!-- Source: https://mvnrepository.com/artifact/net.java.dev.jna/jna -->
         <dependency>
@@ -125,11 +129,6 @@
             <artifactId>fxgraphics2d</artifactId>
             <version>1.7</version>
         </dependency>
-        <dependency>
-            <groupId>tools.maran</groupId>
-            <artifactId>svgnode</artifactId>
-            <version>2.0.0</version>
-        </dependency>
         <!-- Source: https://mvnrepository.com/artifact/org.bytedeco/javacv -->
         <dependency>
             <groupId>org.bytedeco</groupId>
@@ -169,10 +168,12 @@
             <artifactId>ikonli-whhg-pack</artifactId>
             <version>12.4.0</version>
         </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/com.dlsc.pdfviewfx/pdfviewfx -->
         <dependency>
             <groupId>com.dlsc.pdfviewfx</groupId>
             <artifactId>pdfviewfx</artifactId>
-            <version>3.4.2</version>
+            <version>3.5.0</version>
+            <scope>compile</scope>
         </dependency>
         <!-- Source: https://mvnrepository.com/artifact/com.litongjava/sherpa-onnx-java-api -->
         <dependency>
@@ -188,10 +189,11 @@
             <version>3.0.7</version>
         </dependency>
         <!-- Source: https://mvnrepository.com/artifact/com.dlsc.gemsfx/gemsfx -->
+        <!-- Source: https://mvnrepository.com/artifact/com.dlsc.gemsfx/gemsfx -->
         <dependency>
             <groupId>com.dlsc.gemsfx</groupId>
             <artifactId>gemsfx</artifactId>
-            <version>4.4.4</version>
+            <version>4.5.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

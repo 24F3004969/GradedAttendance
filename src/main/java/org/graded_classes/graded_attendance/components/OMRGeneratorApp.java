@@ -65,13 +65,13 @@ public final class OMRGeneratorApp extends Application {
     public static final double OPTION_GAP_X = 36;
 
     // Six-column roll/enrollment number grid.
-    public static final int ROLL_DIGITS = 6;
-    public static final int ROLL_VALUES = 7;
+    public static final int ROLL_DIGITS = 3;
+    public static final int ROLL_VALUES = 3;
     public static final double ROLL_LABEL_X = 482;
     public static final double ROLL_FIRST_COLUMN_X = 515;
     public static final double ROLL_COLUMN_GAP_X = 33;
     public static final double ROLL_FIRST_ROW_Y = 148;
-    public static final double ROLL_ROW_GAP_Y = 20;
+    public static final double ROLL_ROW_GAP_Y = 30;
     public static final double ROLL_BUBBLE_RADIUS = 8.0;
     public static final double ROLL_BUBBLE_STROKE_WIDTH = 1.3;
 

@@ -58,3 +58,17 @@ CREATE TABLE IF NOT EXISTS ScoreCard
 
     PRIMARY KEY(exam_id, ed_no)
 );
+CREATE TABLE IF NOT EXISTS ExamTopic (
+                           exam_id INTEGER NOT NULL,
+                           topic_id INTEGER NOT NULL,
+
+                           PRIMARY KEY (exam_id, topic_id),
+
+                           FOREIGN KEY (exam_id)
+                               REFERENCES ExamScheduler(exam_id)
+                               ON DELETE CASCADE,
+
+                           FOREIGN KEY (topic_id)
+                               REFERENCES Topics(topic_id)
+                               ON DELETE CASCADE
+);

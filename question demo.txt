@@ -1,0 +1,244 @@
+{
+  "questions": [
+    {
+      "question": "Find the square of 17.",
+      "options": [
+        "279",
+        "289",
+        "299",
+        "309"
+      ],
+      "correctOption": 2,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "Find the value of:\n35^{2}",
+      "options": [
+        "1,125",
+        "1,205",
+        "1,225",
+        "1,325"
+      ],
+      "correctOption": 3,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "Evaluate using an identity:\n99^{2}",
+      "options": [
+        "9,701",
+        "9,801",
+        "9,901",
+        "10,001"
+      ],
+      "correctOption": 2,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "Find the positive square root of 225.",
+      "options": [
+        "12",
+        "13",
+        "15",
+        "25"
+      ],
+      "correctOption": 3,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "Evaluate:\n\\sqrt{1,764}",
+      "options": [
+        "38",
+        "40",
+        "42",
+        "44"
+      ],
+      "correctOption": 3,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "Find the value of:\n\\sqrt{3,136}",
+      "options": [
+        "54",
+        "56",
+        "58",
+        "64"
+      ],
+      "correctOption": 2,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "Which of the following is a perfect square?",
+      "options": [
+        "1,152",
+        "1,296",
+        "1,350",
+        "1,458"
+      ],
+      "correctOption": 2,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "Which of the following is not a perfect square?",
+      "options": [
+        "441",
+        "625",
+        "784",
+        "9000"
+      ],
+      "correctOption": 4,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "What is the unit digit of 23^{2}?",
+      "options": [
+        "3",
+        "6",
+        "9",
+        "1"
+      ],
+      "correctOption": 3,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "A perfect square ends in the digit 6.\nWhich digit can be the unit digit of its square root?",
+      "options": [
+        "2",
+        "4",
+        "5",
+        "8"
+      ],
+      "correctOption": 2,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "Which digit cannot be the unit digit of a perfect square?",
+      "options": [
+        "0",
+        "1",
+        "2",
+        "9"
+      ],
+      "correctOption": 3,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "How many natural numbers lie between 12^{2} and 13^{2}?",
+      "options": [
+        "12",
+        "13",
+        "24",
+        "25"
+      ],
+      "correctOption": 3,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "Find the smallest number by which 150 must be multiplied\nto make the product a perfect square.",
+      "options": [
+        "2",
+        "3",
+        "5",
+        "6"
+      ],
+      "correctOption": 4,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "Find the smallest number by which 540 must be divided\nso that the quotient is a perfect square.",
+      "options": [
+        "5",
+        "10",
+        "15",
+        "20"
+      ],
+      "correctOption": 3,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "Find the square root of 2,304 using prime factorisation.",
+      "options": [
+        "42",
+        "46",
+        "48",
+        "52"
+      ],
+      "correctOption": 3,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "Between which two consecutive whole numbers does\n\\sqrt{70} lie?",
+      "options": [
+        "6 and 7",
+        "7 and 8",
+        "8 and 9",
+        "9 and 10"
+      ],
+      "correctOption": 3,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "Evaluate using an identity:\n18^{2}-12^{2}",
+      "options": [
+        "144",
+        "180",
+        "216",
+        "324"
+      ],
+      "correctOption": 2,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "Evaluate using an identity:\n31^{2}-19^{2}",
+      "options": [
+        "500",
+        "600",
+        "700",
+        "800"
+      ],
+      "correctOption": 2,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "Find the value of:\n\\sqrt{81\\times144}",
+      "options": [
+        "96",
+        "108",
+        "112",
+        "124"
+      ],
+      "correctOption": 2,
+      "type": "mcq",
+      "level": "Easy"
+    },
+    {
+      "question": "Find the square root of:\n\\frac{196}{225}",
+      "options": [
+        "\\frac{13}{15}",
+        "\\frac{14}{15}",
+        "\\frac{14}{25}",
+        "\\frac{15}{14}"
+      ],
+      "correctOption": 2,
+      "type": "mcq",
+      "level": "Easy"
+    }
+  ]
+}

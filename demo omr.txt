@@ -1,0 +1,38 @@
+{
+  "students": [
+    {
+      "enrollmentNumber": "ED01",
+      "answers": [
+        {
+          "questionNumber": 1,
+          "option": "A"
+        },
+        {
+          "questionNumber": 2,
+          "option": "B"
+        },
+        {
+          "questionNumber": 3,
+          "option": "-"
+        },
+        {
+          "questionNumber": 4,
+          "option": "A+C"
+        }
+      ]
+    },
+    {
+      "enrollmentNumber": "ED02",
+      "answers": [
+        {
+          "questionNumber": 1,
+          "option": "C"
+        },
+        {
+          "questionNumber": 2,
+          "option": "D"
+        }
+      ]
+    }
+  ]
+}
