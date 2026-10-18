@@ -43,7 +43,7 @@
                         </VBox>
                         <HBox alignment="CENTER_RIGHT" spacing="10.0" HBox.hgrow="ALWAYS">
                            <children>
-                              <ComboBox fx:id="months" prefWidth="150.0">
+                              <ComboBox fx:id="examId" prefWidth="150.0" promptText="Exam Id">
                                  <padding>
                                     <Insets bottom="5.0" left="20.0" right="20.0" top="5.0" />
                                  </padding>

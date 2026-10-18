@@ -231,18 +231,17 @@ public class AttendanceDataView implements Initializable {
     @FXML
     void viewReport(ActionEvent event) {
         AttendanceReport attendanceReport = new AttendanceReport(studentAttendance.mainController.
-                gradedDataLoader.databaseLoader);
+                gradedDataLoader.databaseLoader,LocalDate.now().getMonthValue());
         attendanceReport.init();
         var x = studentAttendance.mainController.gradedDataLoader;
         Student student = x.getStudentData().get(ed_no);
-        var view = attendanceReport.getStudentAttendanceReport();
         studentAttendance.mainController.
                 modalPane.setAlignment(Pos.CENTER);
         studentAttendance.mainController.
                 modalPane.show(studentAttendance.mainController.
                         gradedFxmlLoader.createView(R.attendance_report,
                                 new AttendanceReportController(firstLetterToUpperCase(student.name()),
-                                        ed_no, view)));
+                                        ed_no, this)));
     }
 
     @FXML

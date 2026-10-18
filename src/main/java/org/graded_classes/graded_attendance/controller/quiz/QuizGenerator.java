@@ -530,7 +530,7 @@ public class QuizGenerator implements Initializable {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Option Image Selector");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("All Files", "*.txt")
+                new FileChooser.ExtensionFilter("All Files", "*.json")
         );
         return fileChooser.showOpenDialog(mainController.getStage());
     }

@@ -14,20 +14,27 @@ public class AttendanceReport {
 
     LinkedHashMap<String, String> studentAttendanceReport = new LinkedHashMap<>();
     public DatabaseLoader databaseLoader;
-
-    public AttendanceReport(DatabaseLoader databaseLoader) {
+    int monthIndex;
+    public AttendanceReport(DatabaseLoader databaseLoader,int monthIndex) {
         this.databaseLoader = databaseLoader;
+        this.monthIndex=monthIndex;
         init();
     }
 
     public void init() {
         try {
             var connection = databaseLoader.getStatement().getConnection();
-            LocalDate startDate = LocalDate.of(LocalDate.now().getYear(), LocalDate.now().getMonthValue(), 1);
-            LocalDate lastDate = startDate.plusDays(LocalDate.now().lengthOfMonth());
-            System.out.println(startDate +"   "+ lastDate);
-            var sql = new SqlFileReader("data/attendance_data_report.sql").getQuery().formatted(startDate.toString(),
-                    startDate.toString(), lastDate.toString());
+
+            // CORRECTION 1: Correctly frame the exact boundaries of the selected month
+            LocalDate startDate = LocalDate.of(LocalDate.now().getYear(), monthIndex, 1);
+            LocalDate lastDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+
+            System.out.println(startDate + "   " + lastDate); // Will print: 2026-01-01   2026-01-31
+
+            var sql = new SqlFileReader("data/attendance_data_report.sql")
+                    .getQuery()
+                    .formatted(startDate.toString(), lastDate.toString(),
+                            startDate.toString(), lastDate.toString());
 
             try (var pst = connection.prepareStatement(sql);
                  var r = pst.executeQuery()) {
@@ -47,6 +54,6 @@ public class AttendanceReport {
             e.printStackTrace();
         }
         System.out.println(studentAttendanceReport);
-
     }
+
 }

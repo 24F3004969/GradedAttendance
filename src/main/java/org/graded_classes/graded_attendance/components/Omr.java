@@ -14,7 +14,7 @@ import static org.bytedeco.opencv.global.opencv_imgproc.*;
 
 /**
  * Fixed-template blue-ink OMR scanner.
- *
+ * <p>
  * Expected layout:
  * - Normalized page: 800 x 1200
  * - Four black registration markers
@@ -23,7 +23,7 @@ import static org.bytedeco.opencv.global.opencv_imgproc.*;
  * - Ninety questions
  * - Three columns of thirty questions
  * - Four options: A, B, C and D
- *
+ * <p>
  * Rules:
  * - Blue ballpoint pen is required.
  * - Questions return A/B/C/D, '-' for blank, '+' for multiple.
@@ -34,7 +34,8 @@ public final class Omr {
     // =========================================================
     // Normalized page dimensions
     // =========================================================
-
+    private static final double QUESTION_ABSOLUTE_MINIMUM = 0.35;
+    private static final double ROLL_ABSOLUTE_MINIMUM = 0.35;
     private static final int PAGE_WIDTH = 800;
     private static final int PAGE_HEIGHT = 1200;
 
@@ -72,37 +73,105 @@ public final class Omr {
 
     private static final int FIRST_ROW_Y = 350;
     private static final int QUESTION_GAP_Y = 25;
-
+    private static final double STRICT_CONFIDENCE_MINIMUM = 0.75;
+    private static final double REVIEW_CONFIDENCE_MINIMUM = 0.55;
     private static final int[][] QUESTION_OPTION_X = {
             {90, 126, 162, 198},
             {345, 381, 417, 453},
             {600, 636, 672, 708}
     };
+// =========================================================
+// Roll-number layout
+// Physical layout remains exactly as generated
+// =========================================================
 
-    // =========================================================
-    // Roll-number layout
-    // =========================================================
+    /*
+     * Four rows represent the four places of the roll number.
+     * Nine columns represent selectable digits 1 through 9.
+     *
+     * Example: 1649
+     *
+     * Row 1 -> column 1
+     * Row 2 -> column 6
+     * Row 3 -> column 4
+     * Row 4 -> column 9
+     */
 
-    private static final int ROLL_DIGITS = 3;
-    private static final int ROLL_VALUES = 3;
+    // Number of places in the resulting roll number.
+    private static final int ROLL_DIGITS = 4;
 
+    // Number of selectable digit values: 1 through 9.
+    private static final int ROLL_VALUES = 9;
+
+    // X coordinate of digit 1.
     private static final int ROLL_FIRST_COLUMN_X = 515;
+
+    // Horizontal gap between digit columns.
     private static final int ROLL_COLUMN_GAP_X = 33;
 
+    // Y coordinate of the first roll-number place.
     private static final int ROLL_FIRST_ROW_Y = 148;
+
+    // Vertical gap between roll-number places.
     private static final int ROLL_ROW_GAP_Y = 30;
 
-    private static final int[] ROLL_COLUMN_X = {
-            ROLL_FIRST_COLUMN_X,
-            ROLL_FIRST_COLUMN_X + ROLL_COLUMN_GAP_X,
-            ROLL_FIRST_COLUMN_X + ROLL_COLUMN_GAP_X * 2
-    };
+    /*
+     * Nine X coordinates representing digit values 1 through 9:
+     *
+     * 1 -> 515
+     * 2 -> 548
+     * 3 -> 581
+     * 4 -> 614
+     * 5 -> 647
+     * 6 -> 680
+     * 7 -> 713
+     * 8 -> 746
+     * 9 -> 779
+     */
+    private static final int[] ROLL_COLUMN_X =
+            createRollColumnXCoordinates();
 
-    private static final int[] ROLL_VALUE_Y = {
-            ROLL_FIRST_ROW_Y,
-            ROLL_FIRST_ROW_Y + ROLL_ROW_GAP_Y,
-            ROLL_FIRST_ROW_Y + ROLL_ROW_GAP_Y * 2
-    };
+    /*
+     * Four Y coordinates representing roll-number places:
+     *
+     * First digit  -> 148
+     * Second digit -> 178
+     * Third digit  -> 208
+     * Fourth digit -> 238
+     */
+    private static final int[] ROLL_VALUE_Y =
+            createRollValueYCoordinates();
+
+    private static int[] createRollColumnXCoordinates() {
+        int[] coordinates = new int[ROLL_VALUES];
+
+        for (int valueIndex = 0;
+             valueIndex < ROLL_VALUES;
+             valueIndex++) {
+
+            coordinates[valueIndex] =
+                    ROLL_FIRST_COLUMN_X
+                            + valueIndex * ROLL_COLUMN_GAP_X;
+        }
+
+        return coordinates;
+    }
+
+    private static int[] createRollValueYCoordinates() {
+        int[] coordinates = new int[ROLL_DIGITS];
+
+        for (int position = 0;
+             position < ROLL_DIGITS;
+             position++) {
+
+            coordinates[position] =
+                    ROLL_FIRST_ROW_Y
+                            + position * ROLL_ROW_GAP_Y;
+        }
+
+        return coordinates;
+    }
+
     // =========================================================
     // Bubble-scoring configuration
     // =========================================================
@@ -124,8 +193,8 @@ public final class Omr {
      * These are lower than grayscale thresholds because black
      * printing is mostly absent from the blue mask.
      */
-    private static final double QUESTION_ABSOLUTE_MINIMUM = 0.10;
-    private static final double QUESTION_RELATIVE_OFFSET = 0.035;
+    private static final double QUESTION_RELATIVE_OFFSET = 0.08;
+    private static final double ROLL_RELATIVE_OFFSET = 0.08;
 
     private static final double QUESTION_FAINT_MINIMUM = 0.045;
     private static final double QUESTION_FAINT_MARGIN = 0.035;
@@ -133,8 +202,7 @@ public final class Omr {
     /*
      * Blue-mask roll-number thresholds.
      */
-    private static final double ROLL_ABSOLUTE_MINIMUM = 0.10;
-    private static final double ROLL_RELATIVE_OFFSET = 0.035;
+
 
     private static final double ROLL_FAINT_MINIMUM = 0.045;
     private static final double ROLL_FAINT_MARGIN = 0.035;
@@ -165,7 +233,7 @@ public final class Omr {
         String inputPath =
                 args.length > 0
                         ? args[0]
-                        : "omr16.png";
+                        : "omr19.jpg";
 
         try (OmrResult result = read(inputPath, true)) {
 
@@ -185,7 +253,7 @@ public final class Omr {
                         Locale.US,
                         "Q%02d -> %s "
                                 + "[A=%.3f B=%.3f C=%.3f D=%.3f, "
-                                + "threshold=%.3f, confidence=%.3f]%n",
+                                + "threshold=%.3f, confidence=%.3f, status=%s]%n",
                         question.questionNumber(),
                         question.answer(),
                         scores[0],
@@ -193,7 +261,12 @@ public final class Omr {
                         scores[2],
                         scores[3],
                         question.threshold(),
-                        question.confidence()
+                        question.confidence(),
+                        confidenceStatus(
+                                question.answer(),
+                                question.confidence(),
+                                question.faintRecovery()
+                        )
                 );
             }
 
@@ -1092,21 +1165,20 @@ public final class Omr {
              position < ROLL_DIGITS;
              position++) {
 
-            for (int value = 0;
-                 value < ROLL_VALUES;
-                 value++) {
+            for (int valueIndex = 0;
+                 valueIndex < ROLL_VALUES;
+                 valueIndex++) {
 
                 totalScore += fillRatio(
                         blueMask,
-                        ROLL_COLUMN_X[position],
-                        ROLL_VALUE_Y[value],
+                        ROLL_COLUMN_X[valueIndex],
+                        ROLL_VALUE_Y[position],
                         ROLL_SCORE_RADIUS
                 );
 
                 measuredBubbles++;
             }
         }
-
         return measuredBubbles == 0
                 ? 0.0
                 : totalScore / measuredBubbles;
@@ -1120,7 +1192,7 @@ public final class Omr {
             Mat blueMask,
             Mat debug
     ) {
-        StringBuilder value =
+        StringBuilder rollNumber =
                 new StringBuilder(ROLL_DIGITS);
 
         List<RollDigitResult> digitResults =
@@ -1128,32 +1200,57 @@ public final class Omr {
 
         boolean valid = true;
 
+        /*
+         * Each horizontal row represents one place in the
+         * four-digit roll number.
+         *
+         * Row 0 = first roll-number digit
+         * Row 1 = second roll-number digit
+         * Row 2 = third roll-number digit
+         * Row 3 = fourth roll-number digit
+         */
         for (int position = 0;
              position < ROLL_DIGITS;
              position++) {
 
+            /*
+             * Each row contains nine selectable digit columns.
+             *
+             * scores[0] = digit 1
+             * scores[1] = digit 2
+             * ...
+             * scores[8] = digit 9
+             */
             double[] scores =
                     new double[ROLL_VALUES];
 
             BubbleLocation[] locations =
                     new BubbleLocation[ROLL_VALUES];
 
-            for (int rollValue = 0;
-                 rollValue < ROLL_VALUES;
-                 rollValue++) {
+            /*
+             * Scan all nine digit columns across the current row.
+             */
+            for (int valueIndex = 0;
+                 valueIndex < ROLL_VALUES;
+                 valueIndex++) {
 
                 BubbleMeasurement measurement =
                         measureBubbleWithLocalSearch(
                                 blueMask,
-                                ROLL_COLUMN_X[position],
-                                ROLL_VALUE_Y[rollValue],
+
+                                // Column decides the digit value 1-9.
+                                ROLL_COLUMN_X[valueIndex],
+
+                                // Row decides the place in the roll number.
+                                ROLL_VALUE_Y[position],
+
                                 ROLL_SCORE_RADIUS
                         );
 
-                scores[rollValue] =
+                scores[valueIndex] =
                         measurement.score();
 
-                locations[rollValue] =
+                locations[valueIndex] =
                         new BubbleLocation(
                                 measurement.centerX(),
                                 measurement.centerY()
@@ -1163,13 +1260,13 @@ public final class Omr {
             RankedScores ranking =
                     rank(scores);
 
-            double columnAverage =
+            double rowAverage =
                     average(scores);
 
             double adaptiveThreshold =
                     Math.max(
                             ROLL_ABSOLUTE_MINIMUM,
-                            columnAverage
+                            rowAverage
                                     + ROLL_RELATIVE_OFFSET
                     );
 
@@ -1188,66 +1285,73 @@ public final class Omr {
             double confidence;
             boolean faintRecovery = false;
 
+            /*
+             * No bubble passed the normal threshold.
+             * Attempt faint-mark recovery.
+             */
             if (markedCount == 0) {
-
-                double winningMargin =
-                        ranking.bestScore()
-                                - ranking.secondScore();
-
-                if (ranking.bestScore()
-                        >= ROLL_FAINT_MINIMUM
-                        && winningMargin
-                        >= ROLL_FAINT_MARGIN) {
-
-                    digit = (char) (
-                            '0'
-                                    + ranking.bestIndex()
-                    );
-
-                    faintRecovery = true;
-
-                    confidence =
-                            calculateConfidence(
-                                    ranking.bestScore(),
-                                    ranking.secondScore(),
-                                    adaptiveThreshold,
-                                    true
-                            );
-
-                } else {
-                    digit = '-';
-                    confidence = 0.0;
-                }
+                digit = '-';
+                confidence = 0.0;
+                faintRecovery = false;
 
             } else if (markedCount > 1) {
                 digit = '?';
                 confidence = 0.0;
+                faintRecovery = false;
 
             } else {
-                int selectedValue =
+                int selectedValueIndex =
                         firstTrueIndex(marked);
 
-                digit = (char) (
-                        '0' + selectedValue
-                );
+                double selectedScore =
+                        scores[selectedValueIndex];
 
-                confidence =
-                        calculateConfidence(
-                                scores[selectedValue],
-                                highestOtherScore(
-                                        scores,
-                                        selectedValue
-                                ),
-                                adaptiveThreshold,
-                                false
+                double competingScore =
+                        highestOtherScore(
+                                scores,
+                                selectedValueIndex
                         );
-            }
 
-            if (!Character.isDigit(digit)) {
+                double winningMargin =
+                        selectedScore - competingScore;
+
+                if (selectedScore < 0.30
+                        || winningMargin < 0.15) {
+
+                    digit = '-';
+                    confidence = 0.0;
+                    faintRecovery = false;
+
+                } else {
+                    digit = (char) (
+                            '1' + selectedValueIndex
+                    );
+
+                    confidence =
+                            calculateConfidence(
+                                    selectedScore,
+                                    competingScore,
+                                    adaptiveThreshold,
+                                    false
+                            );
+
+                    if (confidence < 0.75) {
+                        digit = '-';
+                        confidence = 0.0;
+                    }
+                }
+            }
+            /*
+             * Only 1 through 9 are valid.
+             *
+             * A blank '-' or multiple mark '?' makes the
+             * complete roll number invalid.
+             */
+            if (digit < '1' || digit > '9') {
                 valid = false;
             }
 
-            value.append(digit);
+            rollNumber.append(digit);
 
             digitResults.add(
                     new RollDigitResult(
@@ -1272,18 +1376,19 @@ public final class Omr {
 
         drawRollResult(
                 debug,
-                value.toString(),
+                rollNumber.toString(),
                 valid
         );
 
         return new RollNumberResult(
-                value.toString(),
+                rollNumber.toString(),
                 valid,
                 digitResults
         );
     }
 
     // =========================================================
+    // Question scanning
     // Question scanning
     // =========================================================
 
@@ -1351,58 +1456,82 @@ public final class Omr {
         boolean faintRecovery = false;
 
         if (markedCount == 0) {
-
-            double winningMargin =
-                    ranking.bestScore()
-                            - ranking.secondScore();
-
-            if (ranking.bestScore()
-                    >= QUESTION_FAINT_MINIMUM
-                    && winningMargin
-                    >= QUESTION_FAINT_MARGIN) {
-
-                answer = (char) (
-                        'A'
-                                + ranking.bestIndex()
-                );
-
-                faintRecovery = true;
-
-                confidence =
-                        calculateConfidence(
-                                ranking.bestScore(),
-                                ranking.secondScore(),
-                                adaptiveThreshold,
-                                true
-                        );
-
-            } else {
-                answer = '-';
-                confidence = 0.0;
-            }
+            /*
+             * Strict mode:
+             * Never convert a weak or faint mark into an answer.
+             *
+             * A question with no bubble passing the required thresholds
+             * is treated as blank.
+             */
+            answer = '-';
+            confidence = 0.0;
+            faintRecovery = false;
 
         } else if (markedCount > 1) {
+            /*
+             * More than one sufficiently strong bubble was detected.
+             */
             answer = '+';
             confidence = 0.0;
+            faintRecovery = false;
 
         } else {
             int selectedOption =
                     firstTrueIndex(marked);
 
-            answer = (char) (
-                    'A' + selectedOption
-            );
+            double selectedScore =
+                    scores[selectedOption];
 
-            confidence =
-                    calculateConfidence(
-                            scores[selectedOption],
-                            highestOtherScore(
-                                    scores,
-                                    selectedOption
-                            ),
-                            adaptiveThreshold,
-                            false
+            double competingScore =
+                    highestOtherScore(
+                            scores,
+                            selectedOption
                     );
+
+            double winningMargin =
+                    selectedScore - competingScore;
+
+            /*
+             * Final strict validation.
+             *
+             * The mark must:
+             * 1. Have at least 30% blue fill.
+             * 2. Be at least 15 percentage points stronger than
+             *    every competing bubble.
+             */
+            boolean strongEnough =
+                    selectedScore >= 0.30;
+
+            boolean separatedEnough =
+                    winningMargin >= 0.15;
+
+            if (!strongEnough || !separatedEnough) {
+                answer = '-';
+                confidence = 0.0;
+                faintRecovery = false;
+
+            } else {
+                answer = (char) (
+                        'A' + selectedOption
+                );
+
+                confidence =
+                        calculateConfidence(
+                                selectedScore,
+                                competingScore,
+                                adaptiveThreshold,
+                                false
+                        );
+
+                /*
+                 * Do not retain an answer unless confidence itself
+                 * reaches the strict acceptance level.
+                 */
+                if (confidence < 0.75) {
+                    answer = '-';
+                    confidence = 0.0;
+                }
+            }
         }
 
         drawQuestionDebug(
@@ -1616,15 +1745,42 @@ public final class Omr {
         RankedScores ranking =
                 rank(scores);
 
-        if (ranking.bestIndex() < 0
-                || ranking.bestScore()
-                < adaptiveThreshold) {
+        if (ranking.bestIndex() < 0) {
             return marked;
         }
 
-        marked[ranking.bestIndex()] =
-                true;
+        double requiredBestScore =
+                Math.max(
+                        absoluteMinimum,
+                        adaptiveThreshold
+                );
 
+        /*
+         * The strongest mark must independently pass the strict
+         * absolute and adaptive thresholds.
+         */
+        if (ranking.bestScore() < requiredBestScore) {
+            return marked;
+        }
+
+        /*
+         * Reject weakly separated marks.
+         */
+        double winningMargin =
+                ranking.bestScore()
+                        - ranking.secondScore();
+
+        if (winningMargin < 0.15) {
+            return marked;
+        }
+
+        marked[ranking.bestIndex()] = true;
+
+        /*
+         * A second mark counts as multiple only when it is itself
+         * strong. This prevents small amounts of blue noise from
+         * producing a multiple-mark result.
+         */
         double secondaryThreshold =
                 Math.max(
                         absoluteMinimum,
@@ -1632,10 +1788,6 @@ public final class Omr {
                                 * relativeFactor
                 );
 
-        /*
-         * Every other bubble is checked independently.
-         * Two marks do not need similar scores.
-         */
         for (int index = 0;
              index < scores.length;
              index++) {
@@ -1644,9 +1796,7 @@ public final class Omr {
                 continue;
             }
 
-            if (scores[index]
-                    >= secondaryThreshold) {
-
+            if (scores[index] >= secondaryThreshold) {
                 marked[index] = true;
             }
         }
@@ -1781,35 +1931,97 @@ public final class Omr {
             double threshold,
             boolean faintRecovery
     ) {
-        double winningMargin =
-                Math.max(
-                        0.0,
-                        selectedScore
-                                - secondScore
-                );
+        selectedScore = clamp(selectedScore, 0.0, 1.0);
+        secondScore = clamp(secondScore, 0.0, 1.0);
+        threshold = clamp(threshold, 0.0, 1.0);
 
-        double thresholdExcess =
-                Math.max(
-                        0.0,
-                        selectedScore
-                                - threshold
-                );
-
-        double confidence =
-                winningMargin * 2.0
-                        + thresholdExcess;
-
-        if (faintRecovery) {
-            confidence *= 0.70;
+        if (selectedScore < threshold) {
+            return 0.0;
         }
+
+        /*
+         * Measures how far the selected bubble is above the required
+         * threshold.
+         *
+         * A score only slightly above the threshold receives a low value.
+         */
+        double thresholdStrength =
+                (selectedScore - threshold)
+                        / Math.max(1.0e-9, 1.0 - threshold);
+
+        thresholdStrength = clamp(
+                thresholdStrength,
+                0.0,
+                1.0
+        );
+
+        /*
+         * Measures the absolute difference between the strongest
+         * and second-strongest bubble.
+         */
+        double separation =
+                clamp(
+                        selectedScore - secondScore,
+                        0.0,
+                        1.0
+                );
+
+        /*
+         * Measures how small the second bubble is relative to the
+         * selected bubble.
+         *
+         * For example:
+         * selected = 1.000
+         * second   = 0.114
+         * dominance = 0.886
+         */
+        double dominance;
+
+        if (selectedScore <= 1.0e-9) {
+            dominance = 0.0;
+        } else {
+            dominance = clamp(
+                    1.0 - secondScore / selectedScore,
+                    0.0,
+                    1.0
+            );
+        }
+
+        /*
+         * Strict weighted confidence:
+         *
+         * 35% mark strength above threshold
+         * 35% absolute separation
+         * 30% relative dominance
+         *
+         * Using multiplication prevents one excellent measurement
+         * from hiding a weak measurement.
+         */
+        double confidence =
+                Math.pow(thresholdStrength, 0.35)
+                        * Math.pow(separation, 0.35)
+                        * Math.pow(dominance, 0.30);
+
+        /*
+         * Faint recovery should never receive normal confidence.
+         */
+        if (faintRecovery) {
+            confidence *= 0.55;
+            confidence = Math.min(confidence, 0.65);
+        }
+
+        /*
+         * Avoid displaying perfect confidence because image-based
+         * OMR detection is never absolutely certain.
+         */
+        confidence = Math.min(confidence, 0.99);
 
         return clamp(
                 confidence,
                 0.0,
-                1.0
+                0.99
         );
     }
-
     private static double clamp(
             double value,
             double minimum,
@@ -2033,33 +2245,28 @@ public final class Omr {
             char result,
             boolean faintRecovery
     ) {
-        /*
-         * OpenCV Scalar order is BGR, not RGB.
-         *
-         * Each roll-number column receives a different debug color.
-         */
-        Scalar[] columnColors = {
-                new Scalar(255, 0, 0, 0),       // Column 0: blue
-                new Scalar(0, 165, 255, 0),     // Column 1: orange
-                new Scalar(0, 215, 255, 0),     // Column 2: yellow
-                new Scalar(255, 0, 255, 0),     // Column 3: magenta
-                new Scalar(255, 255, 0, 0),     // Column 4: cyan
-                new Scalar(180, 0, 180, 0)      // Column 5: purple
+        Scalar[] positionColors = {
+                new Scalar(255, 0, 0, 0),
+                new Scalar(0, 165, 255, 0),
+                new Scalar(0, 215, 255, 0),
+                new Scalar(255, 0, 255, 0)
         };
 
-        Scalar columnColor =
-                columnColors[position % columnColors.length];
+        Scalar positionColor =
+                positionColors[
+                        position % positionColors.length
+                        ];
 
         /*
-         * Draw every expected roll bubble using its column color.
-         * These are debug overlays only.
+         * Draw all nine selectable digit locations
+         * in the current position row.
          */
-        for (int rollValue = 0;
-             rollValue < ROLL_VALUES;
-             rollValue++) {
+        for (int valueIndex = 0;
+             valueIndex < ROLL_VALUES;
+             valueIndex++) {
 
             BubbleLocation location =
-                    locations[rollValue];
+                    locations[valueIndex];
 
             circle(
                     debug,
@@ -2068,66 +2275,48 @@ public final class Omr {
                             location.y()
                     ),
                     ROLL_SCORE_RADIUS,
-                    columnColor,
+                    positionColor,
                     1,
                     LINE_AA,
                     0
             );
+
+            if (marked[valueIndex]) {
+                Scalar selectedColor =
+                        result == '?'
+                                ? new Scalar(0, 0, 255, 0)
+                                : new Scalar(0, 200, 0, 0);
+
+                circle(
+                        debug,
+                        new Point(
+                                location.x(),
+                                location.y()
+                        ),
+                        ROLL_DEBUG_RADIUS,
+                        selectedColor,
+                        3,
+                        LINE_AA,
+                        0
+                );
+            }
         }
 
         /*
-         * Highlight bubbles classified as marked.
+         * Highlight a faint-recovered mark.
          */
-        for (int rollValue = 0;
-             rollValue < ROLL_VALUES;
-             rollValue++) {
+        if (faintRecovery
+                && result >= '1'
+                && result <= '9') {
 
-            if (!marked[rollValue]) {
-                continue;
-            }
+            int selectedValueIndex =
+                    result - '1';
 
-            BubbleLocation location =
-                    locations[rollValue];
-
-            Scalar selectedColor;
-
-            if (result == '?') {
-                // Multiple marks in one column
-                selectedColor =
-                        new Scalar(0, 0, 255, 0);       // Red
-            } else {
-                // One valid selected digit
-                selectedColor =
-                        new Scalar(0, 200, 0, 0);       // Green
-            }
-
-            circle(
-                    debug,
-                    new Point(
-                            location.x(),
-                            location.y()
-                    ),
-                    ROLL_DEBUG_RADIUS,
-                    selectedColor,
-                    3,
-                    LINE_AA,
-                    0
-            );
-        }
-
-        /*
-         * Highlight faint-recovered selection in orange.
-         * For faint recovery, marked[] is normally empty.
-         */
-        if (faintRecovery && Character.isDigit(result)) {
-
-            int selectedValue = result - '0';
-
-            if (selectedValue >= 0
-                    && selectedValue < locations.length) {
+            if (selectedValueIndex >= 0
+                    && selectedValueIndex < locations.length) {
 
                 BubbleLocation location =
-                        locations[selectedValue];
+                        locations[selectedValueIndex];
 
                 circle(
                         debug,
@@ -2144,37 +2333,32 @@ public final class Omr {
             }
         }
 
-        /*
-         * Write the detected digit underneath the corresponding column.
-         */
         Scalar textColor;
 
         if (result == '?') {
             textColor =
-                    new Scalar(0, 0, 255, 0);       // Red
-
-        } else if (result == '-') {
+                    new Scalar(0, 0, 255, 0);
+        } else if (result == '-' || faintRecovery) {
             textColor =
-                    new Scalar(0, 165, 255, 0);     // Orange
-
-        } else if (faintRecovery) {
-            textColor =
-                    new Scalar(0, 165, 255, 0);     // Orange
-
+                    new Scalar(0, 165, 255, 0);
         } else {
             textColor =
-                    new Scalar(0, 160, 0, 0);       // Green
+                    new Scalar(0, 160, 0, 0);
         }
 
+        /*
+         * Display the detected digit at the left side
+         * of the corresponding position row.
+         */
         putText(
                 debug,
                 String.valueOf(result),
                 new Point(
-                        ROLL_COLUMN_X[position] - 4,
-                        291
+                        ROLL_COLUMN_X[0] - 8,
+                        ROLL_VALUE_Y[position] - 13
                 ),
                 FONT_HERSHEY_SIMPLEX,
-                0.40,
+                0.35,
                 textColor,
                 1,
                 LINE_AA,
@@ -2345,11 +2529,11 @@ public final class Omr {
 
     /**
      * OmrResult owns all three native Mat objects.
-     *
+     * <p>
      * Always close the result:
-     *
+     * <p>
      * try (OmrResult result = Omr.read(path, true)) {
-     *     ...
+     * ...
      * }
      */
     public record OmrResult(
@@ -2386,7 +2570,7 @@ public final class Omr {
 
         /**
          * Output format:
-         *
+         * <p>
          * #roll_no|question_no:option,...|#
          */
         public String toMachineReadableLine() {
@@ -2435,5 +2619,59 @@ public final class Omr {
                 debugImage.close();
             }
         }
+    }
+    private static NormalizedImages normalizeWithoutBottomMarkers(Mat input) {
+        Mat normalizedColor = new Mat();
+        Mat normalizedBlueMask = null;
+
+        try {
+            resize(
+                    input,
+                    normalizedColor,
+                    new Size(PAGE_WIDTH, PAGE_HEIGHT),
+                    0.0,
+                    0.0,
+                    INTER_CUBIC
+            );
+
+            normalizedBlueMask = makeBlueInkMask(normalizedColor);
+
+            return new NormalizedImages(
+                    normalizedColor,
+                    normalizedBlueMask
+            );
+
+        } catch (RuntimeException exception) {
+            normalizedColor.close();
+
+            if (normalizedBlueMask != null) {
+                normalizedBlueMask.close();
+            }
+
+            throw exception;
+        }
+    }
+    private static String confidenceStatus(
+            char result,
+            double confidence,
+            boolean faintRecovery
+    ) {
+        if (result == '-' || result == '+' || result == '?') {
+            return "INVALID";
+        }
+
+        if (faintRecovery) {
+            return "REVIEW";
+        }
+
+        if (confidence >= STRICT_CONFIDENCE_MINIMUM) {
+            return "ACCEPTED";
+        }
+
+        if (confidence >= REVIEW_CONFIDENCE_MINIMUM) {
+            return "REVIEW";
+        }
+
+        return "UNRELIABLE";
     }
 }

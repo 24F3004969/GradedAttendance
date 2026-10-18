@@ -65,8 +65,8 @@ public final class OMRGeneratorApp extends Application {
     public static final double OPTION_GAP_X = 36;
 
     // Six-column roll/enrollment number grid.
-    public static final int ROLL_DIGITS = 3;
-    public static final int ROLL_VALUES = 3;
+    public static final int ROLL_DIGITS = 9;
+    public static final int ROLL_VALUES = 4;
     public static final double ROLL_LABEL_X = 482;
     public static final double ROLL_FIRST_COLUMN_X = 515;
     public static final double ROLL_COLUMN_GAP_X = 33;
@@ -190,10 +190,10 @@ public final class OMRGeneratorApp extends Application {
      */
     private void addRollNumberGrid(Pane sheet) {
         // Position headers: 1, 2, 3, 4, 5, 6.
-        for (int position = 0; position < ROLL_DIGITS; position++) {
+        for (int position = 0; position <ROLL_DIGITS; position++) {
             double x = rollColumnX(position);
             Text positionLabel = new Text(x - 3, ROLL_FIRST_ROW_Y - 13,
-                    String.valueOf(position ));
+                    String.valueOf(position+1 ));
             positionLabel.setFont(Font.font("System", FontWeight.BOLD, 12));
             sheet.getChildren().add(positionLabel);
         }
@@ -202,7 +202,7 @@ public final class OMRGeneratorApp extends Application {
         for (int digit = 0; digit < ROLL_VALUES; digit++) {
             double y = rollDigitY(digit);
 
-            Text digitLabel = new Text(ROLL_LABEL_X, y + 3, String.valueOf(digit));
+            Text digitLabel = new Text(ROLL_LABEL_X, y + 3, String.valueOf(digit+1));
             digitLabel.setFont(Font.font(12));
             sheet.getChildren().add(digitLabel);
 
