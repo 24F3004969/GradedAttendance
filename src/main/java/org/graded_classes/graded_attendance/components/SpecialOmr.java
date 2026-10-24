@@ -1,15 +1,19 @@
 package org.graded_classes.graded_attendance.components;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bytedeco.opencv.opencv_core.Mat;
 import org.bytedeco.opencv.opencv_core.Point;
 import org.bytedeco.opencv.opencv_core.Rect;
 import org.bytedeco.opencv.opencv_core.Scalar;
 import org.bytedeco.opencv.opencv_core.Size;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.*;
 
 import static org.bytedeco.opencv.global.opencv_core.CV_8UC1;
 import static org.bytedeco.opencv.global.opencv_core.bitwise_and;
@@ -118,40 +122,102 @@ public final class SpecialOmr {
     }
 
     public static void main(String[] args) {
-        String inputPath = args.length > 0 ? args[0] : "omr2.jpg";
+        File[] files = new File("C:\\Users\\hilal\\GradedAttendance\\omr").listFiles();
+        List<OmrResult> omrResults = new ArrayList<>();
+        SpecialOmr omr = new SpecialOmr();
+        if (files != null) {
+            for (File file : files) {
+                String inputPath = file.getAbsolutePath();
 
-        try (OmrResult result = read(inputPath, true)) {
-            System.out.printf(
-                    "Roll/Enrollment No: %s (%s)%n",
-                    result.rollNumber().value(),
-                    result.rollNumber().valid() ? "VALID" : "INVALID"
-            );
+                try (OmrResult result = read(inputPath, true)) {
 
-            for (QuestionResult question : result.questions()) {
-                double[] scores = question.scores();
-                System.out.printf(
-                        Locale.US,
-                        "Q%02d -> %s [A=%.3f B=%.3f C=%.3f D=%.3f, "
-                                + "threshold=%.3f, confidence=%.3f, status=%s]%n",
-                        question.questionNumber(),
-                        question.answer(),
-                        scores[0], scores[1], scores[2], scores[3],
-                        question.threshold(),
-                        question.confidence(),
-                        confidenceStatus(question.answer(), question.confidence())
-                );
+                    System.out.printf(
+                            "Roll/Enrollment No: %s (%s)%n",
+                            result.rollNumber().value(),
+                            result.rollNumber().valid() ? "VALID" : "INVALID"
+                    );
+
+                    for (QuestionResult question : result.questions()) {
+                        double[] scores = question.scores();
+                        System.out.printf(
+                                Locale.US,
+                                "Q%02d -> %s [A=%.3f B=%.3f C=%.3f D=%.3f, "
+                                        + "threshold=%.3f, confidence=%.3f, status=%s]%n",
+                                question.questionNumber(),
+                                question.answer(),
+                                scores[0], scores[1], scores[2], scores[3],
+                                question.threshold(),
+                                question.confidence(),
+                                confidenceStatus(question.answer(), question.confidence())
+                        );
+                    }
+                    omrResults.add(result);
+                }
             }
 
-            System.out.println();
-            System.out.println(result.toMachineReadableLine());
-            System.out.println();
-            System.out.println("Normalized color: special_normalized_original.png");
-            System.out.println("Blue mask:       special_normalized_blue_mask.png");
-            System.out.println("Debug image:     special_normalized_debug.png");
+        }
+        omr.writeJsonFile(omrResults, new ArrayList<>(),new File("result_X.json").toPath());
+
+
+    }
+
+
+    public void writeJsonFile(
+            List<OmrResult> scanResults,
+            List<String> notes,
+            Path outputFile
+    ) {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        List<StudentResult> students = scanResults.stream()
+                .map(scan -> {
+                    List<AnswerResult> answers = scan.questions()
+                            .stream()
+                            .limit(20)
+                            .map(question -> new AnswerResult(
+                                    question.questionNumber(),
+                                    question.answer()
+                            ))
+                            .toList();
+
+                    return new StudentResult(
+                            scan.rollNumber().value().replace("-",""),
+                            answers
+                    );
+                })
+                .toList();
+
+        OmrJsonResult result = new OmrJsonResult(students, notes);
+
+        try {
+            String json = objectMapper
+                    .writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(result);
+
+            Path parentDirectory = outputFile.getParent();
+
+            if (parentDirectory != null) {
+                Files.createDirectories(parentDirectory);
+            }
+
+            Files.writeString(
+                    outputFile,
+                    json,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING,
+                    StandardOpenOption.WRITE
+            );
+
+        } catch (IOException exception) {
+            throw new IllegalStateException(
+                    "Failed to write OMR results to JSON file: " + outputFile,
+                    exception
+            );
         }
     }
 
     public static OmrResult read(String imagePath, boolean saveDebugImages) {
+        System.out.println("Reading image: " + imagePath);
         if (imagePath == null || imagePath.isBlank()) {
             throw new IllegalArgumentException("The OMR image path is empty.");
         }
@@ -226,9 +292,7 @@ public final class SpecialOmr {
                     }
 
                     if (saveDebugImages) {
-                        imwrite("special_normalized_original.png", normalizedColor);
-                        imwrite("special_normalized_blue_mask.png", normalizedBlueMask);
-                        imwrite("special_normalized_debug.png", debug);
+                        imwrite("C:\\Users\\hilal\\GradedAttendance\\debugOmr\\" + new File(imagePath).getName() + "special_normalized_debug.png", debug);
                     }
 
                     return new OmrResult(
@@ -1062,7 +1126,9 @@ public final class SpecialOmr {
         }
     }
 
-    /** Owns its three native Mat objects and must be closed. */
+    /**
+     * Owns its three native Mat objects and must be closed.
+     */
     public record OmrResult(
             RollNumberResult rollNumber,
             List<QuestionResult> questions,
@@ -1087,22 +1153,6 @@ public final class SpecialOmr {
             return questions.get(questionNumber - 1);
         }
 
-        public String toMachineReadableLine() {
-            StringBuilder output = new StringBuilder();
-            output.append('#').append(rollNumber.value()).append('|');
-
-            for (int index = 0; index < questions.size(); index++) {
-                if (index > 0) {
-                    output.append(',');
-                }
-                QuestionResult question = questions.get(index);
-                output.append(question.questionNumber())
-                        .append(':')
-                        .append(question.answer());
-            }
-
-            return output.append("|#").toString();
-        }
 
         @Override
         public void close() {
@@ -1116,5 +1166,23 @@ public final class SpecialOmr {
                 debugImage.close();
             }
         }
+    }
+
+    public record OmrJsonResult(
+            List<StudentResult> students,
+            List<String> notes
+    ) {
+    }
+
+    public record StudentResult(
+            String enrollmentNumber,
+            List<AnswerResult> answers
+    ) {
+    }
+
+    public record AnswerResult(
+            int questionNumber,
+            char option
+    ) {
     }
 }

@@ -38,7 +38,14 @@ public final class Omr {
     private static final double ROLL_ABSOLUTE_MINIMUM = 0.35;
     private static final int PAGE_WIDTH = 800;
     private static final int PAGE_HEIGHT = 1200;
+    private static final int ROLL_DIGITS = 4;
+    private static final int ROLL_VALUES = 10;
 
+    private static final int ROLL_FIRST_COLUMN_X = 415;
+    private static final int ROLL_COLUMN_GAP_X = 33;
+
+    private static final int ROLL_FIRST_ROW_Y = 148;
+    private static final int ROLL_ROW_GAP_Y = 30;
     /*
      * Destination registration-marker centers.
      *
@@ -97,23 +104,7 @@ public final class Omr {
      * Row 4 -> column 9
      */
 
-    // Number of places in the resulting roll number.
-    private static final int ROLL_DIGITS = 4;
 
-    // Number of selectable digit values: 1 through 9.
-    private static final int ROLL_VALUES = 9;
-
-    // X coordinate of digit 1.
-    private static final int ROLL_FIRST_COLUMN_X = 515;
-
-    // Horizontal gap between digit columns.
-    private static final int ROLL_COLUMN_GAP_X = 33;
-
-    // Y coordinate of the first roll-number place.
-    private static final int ROLL_FIRST_ROW_Y = 148;
-
-    // Vertical gap between roll-number places.
-    private static final int ROLL_ROW_GAP_Y = 30;
 
     /*
      * Nine X coordinates representing digit values 1 through 9:
@@ -233,7 +224,7 @@ public final class Omr {
         String inputPath =
                 args.length > 0
                         ? args[0]
-                        : "omr19.jpg";
+                        : "omr5.png";
 
         try (OmrResult result = read(inputPath, true)) {
 
@@ -1323,9 +1314,8 @@ public final class Omr {
                     faintRecovery = false;
 
                 } else {
-                    digit = (char) (
-                            '1' + selectedValueIndex
-                    );
+                    digit = (char) ('0' + selectedValueIndex);
+
 
                     confidence =
                             calculateConfidence(
@@ -1347,7 +1337,7 @@ public final class Omr {
              * A blank '-' or multiple mark '?' makes the
              * complete roll number invalid.
              */
-            if (digit < '1' || digit > '9') {
+            if (digit < '0' || digit > '9') {
                 valid = false;
             }
 
@@ -2306,11 +2296,11 @@ public final class Omr {
          * Highlight a faint-recovered mark.
          */
         if (faintRecovery
-                && result >= '1'
+                && result >= '0'
                 && result <= '9') {
 
             int selectedValueIndex =
-                    result - '1';
+                    result - '0';
 
             if (selectedValueIndex >= 0
                     && selectedValueIndex < locations.length) {
