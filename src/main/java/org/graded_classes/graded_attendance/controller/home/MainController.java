@@ -46,7 +46,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
@@ -75,7 +74,7 @@ public class MainController implements Initializable {
     public GradedDataLoader gradedDataLoader = new GradedDataLoader(this);
     public MessageSender messageSender;
     StudentDataLoader studentDataLoader;
-    Leaderboard1 l1;
+    Leaderboard l1;
     SeatingPlan l2;
 
     public MainController(Stage stage) {
@@ -98,7 +97,7 @@ public class MainController implements Initializable {
         Tooltip.install(selectedTab, tooltip);
         messageSender = new MessageSender(gradedDataLoader.databaseLoader, this, getToken());
         studentDataLoader = new StudentDataLoader(gradedDataLoader.getStudentData());
-        l1 = new Leaderboard1(studentDataLoader, this);
+        l1 = new Leaderboard(studentDataLoader, this);
         l2 = new SeatingPlan(getSeatingPlan());
         leaderboard=gradedFxmlLoader.createView(R.points_table, new PointsTable(studentDataLoader,
                 l1,

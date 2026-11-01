@@ -1,3 +1,4 @@
+/*
 package org.graded_classes.graded_attendance.components;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,6 +42,7 @@ import static org.bytedeco.opencv.global.opencv_imgproc.putText;
 import static org.bytedeco.opencv.global.opencv_imgproc.resize;
 import static org.bytedeco.opencv.global.opencv_imgproc.threshold;
 
+*/
 /**
  * Special fixed-template blue-ink OMR scanner for sheets where the two
  * bottom registration squares were not printed.
@@ -54,7 +56,8 @@ import static org.bytedeco.opencv.global.opencv_imgproc.threshold;
  *     <li>Questions: A/B/C/D, '-' for blank, '+' for multiple.</li>
  *     <li>Roll number: 1-9, '-' for blank, '?' for multiple.</li>
  * </ul>
- */
+ *//*
+
 public final class SpecialOmr {
 
     private static final int PAGE_WIDTH = 800;
@@ -65,7 +68,9 @@ public final class SpecialOmr {
     private static final int MINIMUM_INPUT_HEIGHT = 900;
     private static final double MAXIMUM_CROPPABLE_RATIO_ERROR = 0.12;
 
-    /* Change these only if the debug image shows a consistent crop offset. */
+    */
+/* Change these only if the debug image shows a consistent crop offset. *//*
+
     private static final int FALLBACK_HORIZONTAL_CROP_OFFSET = 0;
     private static final int FALLBACK_VERTICAL_CROP_OFFSET = 0;
 
@@ -76,10 +81,12 @@ public final class SpecialOmr {
     private static final int FIRST_ROW_Y = 348;
     private static final int QUESTION_GAP_Y = 25;
 
-    /*
+    */
+/*
      * Special coordinates calibrated from the original sheet after
      * centre cropping to the 2:3 ratio and resizing to 800 x 1200.
-     */
+     *//*
+
     private static final int[][] QUESTION_OPTION_X = {
             {55, 93, 132, 170},
             {327, 365, 404, 443},
@@ -156,7 +163,7 @@ public final class SpecialOmr {
             }
 
         }
-        omr.writeJsonFile(omrResults, new ArrayList<>(),new File("result_X.json").toPath());
+        omr.writeJsonFile(omrResults, new ArrayList<>(),new File("result.json").toPath());
 
 
     }
@@ -1126,9 +1133,11 @@ public final class SpecialOmr {
         }
     }
 
-    /**
+    */
+/**
      * Owns its three native Mat objects and must be closed.
-     */
+     *//*
+
     public record OmrResult(
             RollNumberResult rollNumber,
             List<QuestionResult> questions,
@@ -1186,3 +1195,4 @@ public final class SpecialOmr {
     ) {
     }
 }
+*/

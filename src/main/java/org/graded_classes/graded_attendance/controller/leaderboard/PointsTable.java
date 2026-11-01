@@ -32,20 +32,20 @@ public class PointsTable implements Initializable {
     @FXML
     private MenuButton filterMenu;
     StudentDataLoader studentDataLoader;
-    ArrayList<CustomView> l1customView, l2customView;
+ /*   ArrayList<CustomView> l1customView, l2customView;*/
     ArrayList<String> sqlQueries = new ArrayList<>();
     ObservableList<Map<String, Object>> items = FXCollections.observableArrayList();
     Stage stage2 = new Stage();
     SeatingPlan l2;
-    Leaderboard1 l1;
+    Leaderboard l1;
     LeaderboardLoader lb_loader;
     MainController mainController;
 
-    public PointsTable(StudentDataLoader studentDataLoader, Leaderboard1 l1, SeatingPlan l2, MainController mainController) {
+    public PointsTable(StudentDataLoader studentDataLoader, Leaderboard l1, SeatingPlan l2, MainController mainController) {
         this.studentDataLoader = studentDataLoader;
         this.l1 = l1;
         this.l2 = l2;
-        l1customView = l1.customViews;
+      /*  l1customView = l1.customViews;*/
         /*l2customView = l2.customViews;*/
         this.mainController = mainController;
     }

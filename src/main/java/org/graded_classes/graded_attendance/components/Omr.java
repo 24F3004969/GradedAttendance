@@ -1,7 +1,13 @@
 package org.graded_classes.graded_attendance.components;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.bytedeco.opencv.opencv_core.*;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -87,49 +93,8 @@ public final class Omr {
             {345, 381, 417, 453},
             {600, 636, 672, 708}
     };
-// =========================================================
-// Roll-number layout
-// Physical layout remains exactly as generated
-// =========================================================
-
-    /*
-     * Four rows represent the four places of the roll number.
-     * Nine columns represent selectable digits 1 through 9.
-     *
-     * Example: 1649
-     *
-     * Row 1 -> column 1
-     * Row 2 -> column 6
-     * Row 3 -> column 4
-     * Row 4 -> column 9
-     */
-
-
-
-    /*
-     * Nine X coordinates representing digit values 1 through 9:
-     *
-     * 1 -> 515
-     * 2 -> 548
-     * 3 -> 581
-     * 4 -> 614
-     * 5 -> 647
-     * 6 -> 680
-     * 7 -> 713
-     * 8 -> 746
-     * 9 -> 779
-     */
     private static final int[] ROLL_COLUMN_X =
             createRollColumnXCoordinates();
-
-    /*
-     * Four Y coordinates representing roll-number places:
-     *
-     * First digit  -> 148
-     * Second digit -> 178
-     * Third digit  -> 208
-     * Fourth digit -> 238
-     */
     private static final int[] ROLL_VALUE_Y =
             createRollValueYCoordinates();
 
@@ -162,11 +127,6 @@ public final class Omr {
 
         return coordinates;
     }
-
-    // =========================================================
-    // Bubble-scoring configuration
-    // =========================================================
-
     private static final int QUESTION_SCORE_RADIUS = 7;
     private static final int ROLL_SCORE_RADIUS = 7;
 
@@ -220,67 +180,99 @@ public final class Omr {
     // =========================================================
 
     public static void main(String[] args) {
+        File[] files = new File("C:\\Users\\hilal\\GradedAttendance\\omr").listFiles();
+        List<OmrResult> omrResults = new ArrayList<>();
+         Omr omr = new Omr();
+        if (files != null) {
+            for (File file : files) {
+                String inputPath = file.getAbsolutePath();
 
-        String inputPath =
-                args.length > 0
-                        ? args[0]
-                        : "omr5.png";
+                try (OmrResult result = read(inputPath, true)) {
 
-        try (OmrResult result = read(inputPath, true)) {
+                    System.out.printf(
+                            "Roll/Enrollment No: %s (%s)%n",
+                            result.rollNumber().value(),
+                            result.rollNumber().valid() ? "VALID" : "INVALID"
+                    );
 
-            System.out.printf(
-                    "Roll/Enrollment No: %s (%s)%n",
-                    result.rollNumber().value(),
-                    result.rollNumber().valid()
-                            ? "VALID"
-                            : "INVALID"
-            );
-
-            for (QuestionResult question : result.questions()) {
-
-                double[] scores = question.scores();
-
-                System.out.printf(
-                        Locale.US,
-                        "Q%02d -> %s "
-                                + "[A=%.3f B=%.3f C=%.3f D=%.3f, "
-                                + "threshold=%.3f, confidence=%.3f, status=%s]%n",
-                        question.questionNumber(),
-                        question.answer(),
-                        scores[0],
-                        scores[1],
-                        scores[2],
-                        scores[3],
-                        question.threshold(),
-                        question.confidence(),
-                        confidenceStatus(
+                    for (QuestionResult question : result.questions()) {
+                        double[] scores = question.scores();
+                        System.out.printf(
+                                Locale.US,
+                                "Q%02d -> %s [A=%.3f B=%.3f C=%.3f D=%.3f, "
+                                        + "threshold=%.3f, confidence=%.3f, status=%s]%n",
+                                question.questionNumber(),
                                 question.answer(),
+                                scores[0], scores[1], scores[2], scores[3],
+                                question.threshold(),
                                 question.confidence(),
-                                question.faintRecovery()
-                        )
-                );
+                                confidenceStatus(question.answer(), question.confidence(),question.faintRecovery())
+                        );
+                    }
+                    omrResults.add(result);
+                }
             }
 
-            System.out.println();
-            System.out.println(result.toMachineReadableLine());
-
-            System.out.println();
-            System.out.println(
-                    "Normalized color: normalized_original.png"
-            );
-            System.out.println(
-                    "Blue mask:       normalized_blue_mask.png"
-            );
-            System.out.println(
-                    "Debug image:     normalized_debug.png"
-            );
         }
+        omr.writeJsonFile(omrResults, new ArrayList<>(),new File("result.json").toPath());
     }
 
     // =========================================================
     // Main scanning method
     // =========================================================
+    public void writeJsonFile(
+            List<OmrResult> scanResults,
+            List<String> notes,
+            Path outputFile
+    ) {
+        ObjectMapper objectMapper = new ObjectMapper();
 
+        List<StudentResult> students = scanResults.stream()
+                .map(scan -> {
+                    List<AnswerResult> answers = scan.questions()
+                            .stream()
+                            .limit(20)
+                            .map(question -> new AnswerResult(
+                                    question.questionNumber(),
+                                    question.answer()
+                            ))
+                            .toList();
+
+                    return new StudentResult(
+                            scan.rollNumber().value().replace("-",""),
+                            answers
+                    );
+                })
+                .toList();
+
+        OmrJsonResult result = new OmrJsonResult(students, notes);
+
+        try {
+            String json = objectMapper
+                    .writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(result);
+
+            Path parentDirectory = outputFile.getParent();
+
+            if (parentDirectory != null) {
+                Files.createDirectories(parentDirectory);
+            }
+
+            Files.writeString(
+                    outputFile,
+                    json,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING,
+                    StandardOpenOption.WRITE
+            );
+
+        } catch (IOException exception) {
+            throw new IllegalStateException(
+                    "Failed to write OMR results to JSON file: " + outputFile,
+                    exception
+            );
+        }
+    }
     public static OmrResult read(
             String imagePath,
             boolean saveDebugImages
@@ -414,22 +406,8 @@ public final class Omr {
                     }
 
                     if (saveDebugImages) {
-                        imwrite(
-                                "normalized_original.png",
-                                normalizedColor
-                        );
-
-                        imwrite(
-                                "normalized_blue_mask.png",
-                                normalizedBlueMask
-                        );
-
-                        imwrite(
-                                "normalized_debug.png",
-                                debug
-                        );
+                        imwrite("C:\\Users\\hilal\\GradedAttendance\\debugOmr\\" + new File(imagePath).getName() + "special_normalized_debug.png", debug);
                     }
-
                     /*
                      * NormalizedImages closes its own Mats when its
                      * try block ends. Therefore, clones are returned
@@ -2663,5 +2641,22 @@ public final class Omr {
         }
 
         return "UNRELIABLE";
+    }
+    public record OmrJsonResult(
+            List<StudentResult> students,
+            List<String> notes
+    ) {
+    }
+
+    public record StudentResult(
+            String enrollmentNumber,
+            List<AnswerResult> answers
+    ) {
+    }
+
+    public record AnswerResult(
+            int questionNumber,
+            char option
+    ) {
     }
 }

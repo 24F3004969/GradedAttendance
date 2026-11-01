@@ -19,9 +19,10 @@ import org.graded_classes.graded_attendance.controller.home.MainController;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
-public class Leaderboard1 implements Initializable {
+public class Leaderboard implements Initializable {
     public Text title;
     @FXML
     private VBox board;
@@ -32,16 +33,22 @@ public class Leaderboard1 implements Initializable {
     @FXML
     private Label level1Point, level2Point, level3Point;
     StudentDataLoader studentDataLoader;
-    public ArrayList<CustomView> customViews = new ArrayList<>();
+    /* public ArrayList<CustomView> customViews = new ArrayList<>();*/
     MainController mainController;
 
-    public Leaderboard1(StudentDataLoader studentDataLoader, MainController mainController) {
+    public Leaderboard(StudentDataLoader studentDataLoader, MainController mainController) {
         this.studentDataLoader = studentDataLoader;
         this.mainController = mainController;
     }
 
+    List<StudentScore> listOfStudent;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        listOfStudent = studentDataLoader.getSortedStudentList();
+        level1Name.setText(listOfStudent.get(0).getName());
+        level2Name.setText(listOfStudent.get(1).getName());
+        level3Name.setText(listOfStudent.get(2).getName());
         startLoop();
     }
 
@@ -57,15 +64,16 @@ public class Leaderboard1 implements Initializable {
     }
 
     private void addItems() {
-
-        for (int i = 0; i <=4; i++) {
-
-            int index = i;
+        for (int i = 4; i <= 8; i++) {
+            StudentScore studentScore = listOfStudent.get(i);
+            int index = i - 4;
 
             Timeline delay = new Timeline(
                     new KeyFrame(Duration.millis(150 * index), ev -> {
 
-                        var msg = mainController.gradedFxmlLoader.createView(R.leader_view);
+                        var msg = mainController.gradedFxmlLoader.createView(R.leader_view, new LeaderView(
+                                studentScore, index + 3
+                        ));
 
                         board.getChildren().add(msg);
                         board.setFillWidth(true);

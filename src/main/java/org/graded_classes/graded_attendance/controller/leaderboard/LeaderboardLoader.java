@@ -32,7 +32,7 @@ public class LeaderboardLoader {
         ArrayList<StackPane> panes = new ArrayList<>();
         panes.add(leader1);
         panes.add(leader2);
-        preview.add("Leaderboard1");
+        preview.add("Leaderboard");
         preview.add("Leaderboard2");
         for (var a : list) {
             panes.add(new ImageSliderShow(a).getSliderPane());
