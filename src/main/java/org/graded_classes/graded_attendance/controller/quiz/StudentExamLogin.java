@@ -1,11 +1,13 @@
 package org.graded_classes.graded_attendance.controller.quiz;
 
 import com.dlsc.gemsfx.EnhancedPasswordField;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import org.graded_classes.graded_attendance.R;
@@ -13,6 +15,7 @@ import org.graded_classes.graded_attendance.controller.home.MainController;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 
 
 public class StudentExamLogin implements Initializable {
@@ -41,24 +44,46 @@ public class StudentExamLogin implements Initializable {
 
     @FXML
     private void login() {
-        var taker = new QuizTaker(mainController, this, type);
-        String dob = type.equals("Normal")?
-                mainController.gradedDataLoader.getStudentData().get(studentEDNo.getText()).dob():
-                "";
-        if (type.equals("Diagnostic") || dob.equals(pass.getText())) {
-            error.setVisible(true);
-            error.setTextFill(Paint.valueOf("#000000"));
-            error.setText("Please Wait.....");
-            Parent view = (Parent) mainController.gradedFxmlLoader.createView(R.quiz_taker, taker);
-            stage.getScene().setRoot(view);
-            stage.setTitle("Exam");
-            stage.setFullScreen(true);
+        error.setVisible(false);
 
-            taker.startQuiz(examLogin, stage);
-        } else {
-            error.setVisible(true);
-            error.setText("Incorrect Password");
+        String enteredDob = pass.getText();
+        String dob = "";
+
+        if ("Normal".equals(type)) {
+            var student = mainController.gradedDataLoader
+                    .getStudentData()
+                    .get(studentEDNo.getText());
+
+            if (student == null) {
+                error.setText("Student not found");
+                error.setVisible(true);
+                return;
+            }
+
+            dob = student.dob();
         }
+
+        if (!"Diagnostic".equals(type) && !dob.equals(enteredDob)) {
+            error.setText("Incorrect Password");
+            error.setVisible(true);
+            return;
+        }
+        examLogin.root.getChildren().add(examLogin.loadingScreen);
+        CompletableFuture.runAsync(()->{
+            Platform.runLater(() -> {
+                var taker = new QuizTaker(mainController, this, type);
+
+                Parent view = (Parent) mainController.gradedFxmlLoader.createView(
+                        R.quiz_taker,
+                        taker
+                );
+                stage.getScene().setRoot(view);
+                stage.setTitle("Exam");
+                stage.setFullScreen(true);
+                taker.startQuiz(examLogin, stage);
+                examLogin.root.getChildren().remove(examLogin.loadingScreen);
+            });
+        });
     }
 
 

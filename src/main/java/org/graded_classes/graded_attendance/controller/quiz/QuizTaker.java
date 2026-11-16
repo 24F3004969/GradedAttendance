@@ -86,7 +86,7 @@ public class QuizTaker implements Initializable {
         var times = x.split("-");
         var diff = java.time.Duration.between(LocalTime.parse(times[0].trim() + ":00"), LocalTime.parse(times[1].trim() + ":00"));
         totalTime = LocalTime.parse(LocalTime.MIDNIGHT.plus(diff).format(DateTimeFormatter.ofPattern("HH:mm:ss")));
-        CompletableFuture.runAsync(this::initDb);
+        initDb();
     }
 
     private void initDb() {

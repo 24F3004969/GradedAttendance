@@ -3,6 +3,7 @@ package org.graded_classes.graded_attendance.controller.quiz;
 import com.dlsc.gemsfx.SearchField;
 import com.dlsc.gemsfx.TimePicker;
 import impl.com.calendarfx.view.NumericTextField;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -301,6 +302,7 @@ public class ExamCreator implements Initializable {
 
             return new ExamData(
                     String.valueOf(generatedExamId),
+                    new SimpleBooleanProperty(false),
                     classValue,
                     examDate,
                     roomValue,

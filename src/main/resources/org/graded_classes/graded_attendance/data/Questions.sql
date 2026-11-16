@@ -72,3 +72,11 @@ CREATE TABLE IF NOT EXISTS ExamTopic (
                                REFERENCES Topics(topic_id)
                                ON DELETE CASCADE
 );
+CREATE INDEX IF NOT EXISTS idx_topic_score_student
+    ON TopicWiseScoreCard(ed_no);
+
+CREATE INDEX IF NOT EXISTS idx_topic_score_exam
+    ON TopicWiseScoreCard(exam_id);
+
+CREATE INDEX IF NOT EXISTS idx_topic_score_topic
+    ON TopicWiseScoreCard(topic_id);

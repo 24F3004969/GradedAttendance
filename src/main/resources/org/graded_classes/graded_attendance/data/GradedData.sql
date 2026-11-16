@@ -45,3 +45,38 @@ CREATE TABLE IF NOT EXISTS DiagnosticScoreCard
 
     UNIQUE (exam_id, student_name, subject)
 );
+CREATE TABLE IF NOT EXISTS TopicWiseScoreCard (
+                                                  topic_score_id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+                                                  exam_id INTEGER NOT NULL,
+                                                  ed_no TEXT NOT NULL,
+                                                  topic_id INTEGER NOT NULL,
+
+                                                  subject TEXT NOT NULL,
+                                                  topic_name TEXT NOT NULL,
+
+                                                  total_questions INTEGER NOT NULL DEFAULT 0,
+                                                  attempted_questions INTEGER NOT NULL DEFAULT 0,
+                                                  correct_answers INTEGER NOT NULL DEFAULT 0,
+                                                  wrong_answers INTEGER NOT NULL DEFAULT 0,
+
+                                                  marks_obtain INTEGER NOT NULL DEFAULT 0,
+                                                  total_marks INTEGER NOT NULL DEFAULT 0,
+
+                                                  remark TEXT,
+                                                  generated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+                                                  UNIQUE (exam_id, ed_no, topic_id),
+
+                                                  FOREIGN KEY (exam_id)
+                                                      REFERENCES ExamScheduler(exam_id)
+                                                      ON DELETE CASCADE,
+
+                                                  FOREIGN KEY (ed_no)
+                                                      REFERENCES StudentData(ed_no)
+                                                      ON DELETE CASCADE,
+
+                                                  FOREIGN KEY (topic_id)
+                                                      REFERENCES Topics(topic_id)
+                                                      ON DELETE CASCADE
+);

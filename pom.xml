@@ -26,6 +26,11 @@
             <version>26</version>
         </dependency>
         <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-fontawesome6-pack</artifactId>
+            <version>12.4.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>26</version>
@@ -52,16 +57,6 @@
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-batik -->
         <dependency>
-            <groupId>com.twelvemonkeys.imageio</groupId>
-            <artifactId>imageio-batik</artifactId>
-            <version>3.12.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>batik-transcoder</artifactId>
-            <version>1.18</version>
-        </dependency>
-        <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots-longpolling</artifactId>
             <version>10.2.0</version>
@@ -73,8 +68,6 @@
             <version>10.2.0</version>
             <scope>compile</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.calendarfx/view -->
-        <!-- Source: https://mvnrepository.com/artifact/com.calendarfx/view -->
         <dependency>
             <groupId>com.calendarfx</groupId>
             <artifactId>view</artifactId>
@@ -118,11 +111,16 @@
             <version>2.0.17</version>
             <scope>compile</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.kordamp.ikonli/ikonli-javafx -->
         <dependency>
             <groupId>org.kordamp.ikonli</groupId>
             <artifactId>ikonli-javafx</artifactId>
             <version>12.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-feather-pack</artifactId>
+            <version>12.4.0</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.jfree</groupId>
@@ -133,14 +131,14 @@
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>javacv</artifactId>
-            <version>1.5.13</version>
+            <version>1.5.14</version>
             <scope>compile</scope>
         </dependency>
         <!-- Source: https://mvnrepository.com/artifact/org.bytedeco/opencv-platform -->
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>opencv-platform</artifactId>
-            <version>4.13.0-1.5.13</version>
+            <version>4.14.0-1.5.14</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -157,11 +155,6 @@
             <groupId>org.kordamp.ikonli</groupId>
             <artifactId>ikonli-material2-pack</artifactId>
             <version>12.4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.gluonhq.emoji</groupId>
-            <artifactId>offline</artifactId>
-            <version>1.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.kordamp.ikonli</groupId>
@@ -188,18 +181,11 @@
             <artifactId>pdfbox</artifactId>
             <version>3.0.7</version>
         </dependency>
-        <!-- Source: https://mvnrepository.com/artifact/com.dlsc.gemsfx/gemsfx -->
-        <!-- Source: https://mvnrepository.com/artifact/com.dlsc.gemsfx/gemsfx -->
         <dependency>
             <groupId>com.dlsc.gemsfx</groupId>
             <artifactId>gemsfx</artifactId>
             <version>4.5.0</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.dlsc.fxmlkit</groupId>
-            <artifactId>fxmlkit</artifactId>
-            <version>1.5.1</version>
         </dependency>
     </dependencies>
     <build>

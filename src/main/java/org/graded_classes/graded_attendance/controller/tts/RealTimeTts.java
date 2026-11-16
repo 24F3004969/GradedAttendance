@@ -1,4 +1,3 @@
-/*
 package org.graded_classes.graded_attendance.controller.tts;
 
 import com.k2fsa.sherpa.onnx.*;
@@ -132,4 +131,11 @@ public class RealTimeTts {
 
         tts.release();
     }
-}*/
+
+    static void main() {
+        RealTimeTts realTimeTts=new RealTimeTts();
+        realTimeTts.init();
+        realTimeTts.readAloud("ED01 shifa u are marked as present");
+        realTimeTts.stop();
+    }
+}

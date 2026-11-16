@@ -4,6 +4,7 @@ import com.lottie4j.core.file.LottieFileLoader;
 import com.lottie4j.core.model.animation.Animation;
 import com.lottie4j.fxplayer.LottiePlayer;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -90,7 +91,7 @@ public class QuizGenerator implements Initializable {
                     gradedFxmlLoader.createView(R.exam_conductor, new ConductExam(mainController, initExamSchedule()));
             quizTaker = quiz_gen_layout.getCenter();
             classList.setItems(FXCollections.observableList(CLASSES));
-            subjectList.setItems(FXCollections.observableArrayList(List.of("English", "Math", "Computer", "Physics", "Chemistry", "Biology", "Social Science", "Diagnostic Test")));
+            subjectList.setItems(FXCollections.observableArrayList(List.of("English", "Math", "Basic Science", "Computer", "Physics", "Chemistry", "Biology", "Social Science")));
             classList.getSelectionModel().select(6);
             subjectList.getSelectionModel().select(1);
             subjectList.getSelectionModel().
@@ -265,7 +266,7 @@ public class QuizGenerator implements Initializable {
         delete.setOnAction(e -> {
             if (target.getParent() != null) target.getParent().getChildren().remove(target);
         });
-        MenuItem importFile = new MenuItem("Import *.ed file");
+        MenuItem importFile = new MenuItem("Import *.json file");
         importFile.setGraphic(new FontIcon("bi-cloud-upload-fill"));
         importFile.setOnAction(e -> {
             File file = fileChooser();
@@ -407,35 +408,35 @@ public class QuizGenerator implements Initializable {
         ArrayList<ExamData> examList = new ArrayList<>();
 
         String sql = """
-            SELECT
-                e.exam_id,
-                e.class,
-                e.exam_date,
-                e.room_no,
-                e.subject,
-                e.start_time,
-                e.end_time,
-                e.board,
-                GROUP_CONCAT(et.topic_id, ',') AS topic_ids,
-                GROUP_CONCAT(t.topic_name, '|||') AS topic_names
-            FROM ExamScheduler e
-            LEFT JOIN ExamTopic et
-                   ON et.exam_id = e.exam_id
-            LEFT JOIN Topics t
-                   ON t.topic_id = et.topic_id
-            GROUP BY
-                e.exam_id,
-                e.class,
-                e.exam_date,
-                e.room_no,
-                e.subject,
-                e.start_time,
-                e.end_time,
-                e.board
-            ORDER BY
-                e.exam_date,
-                e.start_time
-            """;
+                SELECT
+                    e.exam_id,
+                    e.class,
+                    e.exam_date,
+                    e.room_no,
+                    e.subject,
+                    e.start_time,
+                    e.end_time,
+                    e.board,
+                    GROUP_CONCAT(et.topic_id, ',') AS topic_ids,
+                    GROUP_CONCAT(t.topic_name, '|||') AS topic_names
+                FROM ExamScheduler e
+                LEFT JOIN ExamTopic et
+                       ON et.exam_id = e.exam_id
+                LEFT JOIN Topics t
+                       ON t.topic_id = et.topic_id
+                GROUP BY
+                    e.exam_id,
+                    e.class,
+                    e.exam_date,
+                    e.room_no,
+                    e.subject,
+                    e.start_time,
+                    e.end_time,
+                    e.board
+                ORDER BY
+                    e.exam_date,
+                    e.start_time
+                """;
 
         try {
             var conn = mainController
@@ -468,6 +469,7 @@ public class QuizGenerator implements Initializable {
 
                     ExamData exam = new ExamData(
                             id,
+                            new SimpleBooleanProperty(false),
                             classes,
                             doe,
                             room,
@@ -489,6 +491,7 @@ public class QuizGenerator implements Initializable {
 
         return examList;
     }
+
     private List<Integer> parseTopicIds(String value) {
 
         if (value == null || value.isBlank()) {
@@ -513,6 +516,7 @@ public class QuizGenerator implements Initializable {
                 .filter(topicName -> !topicName.isEmpty())
                 .toList();
     }
+
     private LottiePlayer generateLottie() {
         final String resource = "/org/graded_classes/graded_attendance/css/Exams Preparation1.json";
         final Animation animationFile;

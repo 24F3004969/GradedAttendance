@@ -6,8 +6,6 @@ module org.graded_classes.graded_attendance {
     requires org.slf4j.nop;
     requires java.sql;
     requires atlantafx.base;
-    requires com.twelvemonkeys.common.image;
-    requires org.apache.xmlgraphics.batik.transcoder;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.materialdesign2;
     requires javafx.controls;
@@ -19,7 +17,6 @@ module org.graded_classes.graded_attendance {
     requires org.kordamp.ikonli.core;
     requires org.kordamp.ikonli.material2;
     requires java.desktop;
-    requires com.gluonhq.emoji;
     requires com.sun.jna;
     requires com.sun.jna.platform;
     requires org.checkerframework.checker.qual;
@@ -29,7 +26,6 @@ module org.graded_classes.graded_attendance {
     requires javafx.swing;
     requires com.dlsc.pdfviewfx;
     requires org.apache.pdfbox;
-    requires com.dlsc.fxmlkit;
     requires com.dlsc.gemsfx;
     requires com.lottie4j.core;
     requires com.lottie4j.fxplayer;
@@ -38,6 +34,7 @@ module org.graded_classes.graded_attendance {
     requires org.bytedeco.opencv;
     requires sherpa.onnx.java.api;
     requires com.fasterxml.jackson.databind;
+    requires org.kordamp.ikonli.feather;
 
     opens org.graded_classes.graded_attendance.controller.leaderboard to javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc, java.sql;
 

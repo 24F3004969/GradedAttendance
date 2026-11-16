@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+        -fx-icon-code: "fth-image";
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.TilePane?>
 
-<TilePane hgap="10.0" vgap="10.0" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.planner.Subject">
+<TilePane hgap="10.0" vgap="10.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.planner.Subject">
     <padding>
         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
     </padding>
@@ -56,7 +56,7 @@
     </StackPane>
     <StackPane id="base" maxHeight="84.0" maxWidth="152.0" minHeight="84.0" minWidth="152.0" onMouseClicked="#createLessons" prefHeight="84.0" prefWidth="152.0" style="-fx-background-color: #b3b3b3;" stylesheets="@../css/tile_style.css">
         <children>
-            <Label id="subject-name" text="Basic Test" textAlignment="CENTER" wrapText="true" />
+            <Label id="subject-name" text="Basic Science" textAlignment="CENTER" wrapText="true" />
         </children>
     </StackPane>
 </TilePane>

@@ -7,7 +7,6 @@ import com.dlsc.gemsfx.SearchField;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -15,55 +14,70 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.image.PixelFormat;
+import javafx.scene.image.WritableImage;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import org.bytedeco.javacpp.BytePointer;
-import org.bytedeco.javacpp.indexer.DoubleIndexer;
-import org.bytedeco.opencv.opencv_core.*;
-import org.bytedeco.opencv.opencv_face.FacemarkLBF;
-import org.bytedeco.opencv.opencv_face.LBPHFaceRecognizer;
-import org.bytedeco.opencv.opencv_objdetect.CascadeClassifier;
-import org.bytedeco.opencv.opencv_videoio.VideoCapture;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.controller.home.HomeController;
 import org.graded_classes.graded_attendance.controller.home.MainController;
-import org.graded_classes.graded_attendance.controller.tts.RealTimeTts;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.opencv.core.*;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.FaceDetectorYN;
+import org.opencv.objdetect.FaceRecognizerSF;
+import org.opencv.videoio.VideoCapture;
+import org.opencv.videoio.Videoio;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.nio.IntBuffer;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.*;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import static org.bytedeco.opencv.global.opencv_core.*;
-import static org.bytedeco.opencv.global.opencv_imgcodecs.*;
-import static org.bytedeco.opencv.global.opencv_imgproc.*;
-import static org.bytedeco.opencv.global.opencv_videoio.*;
 import static org.graded_classes.graded_attendance.controller.quiz.QuizTaker.extractResourceToTempFile;
 
-public class dem {
-    private final ExecutorService executor =
-            Executors.newSingleThreadExecutor();
-    public ToggleGroup modes;
-    private Stage studentStage;
-    private PhotoView studentCameraView;
-    private Label studentMessage;
+public final class CameraController {
+    private static final int CAMERA_WIDTH = 1280;
+    private static final int CAMERA_HEIGHT = 720;
+    private static final int CAMERA_FPS = 30;
+    private static final int DETECTION_WIDTH = 640;
+    private static final int DETECTION_HEIGHT = 360;
+    private static final long FRAME_DELAY_MS = 66;
+    private static final long UI_INTERVAL_NS = TimeUnit.MILLISECONDS.toNanos(150);
+    private static final long RECOGNITION_INTERVAL_NS = TimeUnit.MILLISECONDS.toNanos(300);
+    private static final long RECOGNITION_COOLDOWN_MS = 5_000L;
+    private static final int REQUIRED_NO_FACE_FRAMES = 8;
+    private static final int MAX_CAMERA_INDEX = 5;
+    private static final int MAX_READ_FAILURES = 5;
     @FXML
-    private StackPane rootLayer;
-
+    private Button rebuildAllButton;
+    private static final double DEFAULT_SIMILARITY_THRESHOLD = 0.60;
+    private static final double DEFAULT_SCORE_MARGIN = 0.06;
+    private static final int DEFAULT_REQUIRED_CHECKS = 3;
+    private static final double DETECTION_SCORE_THRESHOLD = 0.85;
+    private static final double NMS_THRESHOLD = 0.30;
+    private static final int TOP_K = 5000;
+    private static final String YUNET_RESOURCE =
+            "/org/graded_classes/graded_attendance/opencv/face_detection_yunet_2023mar.onnx";
+    private static final String SFACE_RESOURCE =
+            "/org/graded_classes/graded_attendance/opencv/face_recognition_sface_2021dec.onnx";
+    private final AtomicBoolean folderTraining =
+            new AtomicBoolean(false);
+    private static final int PREFERRED_CAMERA_BACKEND =
+            Videoio.CAP_MSMF;
+    private final MainController mainController;
+    private final HomeController homeController;
     @FXML
     private PhotoView cameraView;
     @FXML
@@ -72,1667 +86,2798 @@ public class dem {
     private ScrollPane scrollAtt;
     @FXML
     private VBox glasses;
-    int requiredRecognitionCount = 5;
     @FXML
     private VBox hijab;
     @FXML
     private HBox checkBoxGroup;
     @FXML
-    private ComboBox<String> cameraList;
-    private final AtomicBoolean processing =
-            new AtomicBoolean(false);
+    private ComboBox<CameraDevice> cameraList;
     @FXML
     private SearchField<String> searchBox;
-    private VideoCapture camera;
-    private ScheduledExecutorService timer;
-
-    private CascadeClassifier faceDetector;
-    private LBPHFaceRecognizer recognizer;
-    private final Object frameLock = new Object();
-    private Rect lastFace;
-    ObservableList<String> studentData = FXCollections.observableArrayList(List.of());
-    long recognitionTime = 0;
-    private static final int FACE_SIZE = 200;
-    private static double CONFIDENCE_THRESHOLD = 40;
     @FXML
     private Button startCapture;
     @FXML
     private SVGImageView myLogo;
     @FXML
     private SVGImageView background;
-    private Mat objectPoints;
-    MainController mainController;
-    ArrayList<Button> sourceList = new ArrayList<>();
-    private final Mat cleanFrame = new Mat();
     @FXML
     private Label gFront, hFront, ldFront, llFront, nFront, nDown, nLeft, nRight, outputMessage;
-    private final LinkedHashMap<Integer, ArrayList<Double>> tempAttendanceRecord = new LinkedHashMap<>();
-    private final LinkedHashMap<Integer, AttendanceStatus> attendanceRecord = new LinkedHashMap<>();
-
-    HomeController homeController;
-
-    public dem(MainController mainController, HomeController homeController) {
-        this.mainController = mainController;
-        this.homeController = homeController;
-    }
-
     @FXML
-    void onClicked(ActionEvent event) {
-        var box = (CheckBox) (event.getSource());
-        var text = box.getText();
-        if (text.equals("Glasses") && box.isSelected()) {
-            glasses.setDisable(false);
-        } else if (text.equals("Hijab") && box.isSelected()) {
-            hijab.setDisable(false);
-        } else if (text.equals("Glasses") && !box.isSelected()) {
-            glasses.setDisable(true);
-        } else if (text.equals("Hijab") && !box.isSelected()) {
-            hijab.setDisable(true);
-        }
-    }
+    public ToggleGroup modes;
+    private final ObservableList<String> studentData = FXCollections.observableArrayList();
+    private final List<Button> completedCaptureButtons = new ArrayList<>();
+    private final Map<String, List<float[]>> knownEmbeddings = new ConcurrentHashMap<>();
+    private static final int DEFAULT_CAMERA_INDEX = 0;
 
+    private final AtomicBoolean cameraStarted =
+            new AtomicBoolean(false);
+
+    private final AtomicBoolean cameraListListenerInstalled =
+            new AtomicBoolean(false);
     @FXML
-    private void openStudentDisplay() {
-        var background = new SVGImageView();
-        background.setSvgUrl(
-                GradedResourceLoader.load(
-                        "icons/new-back1.svg"
-                )
-        );
-        var studentLogo = new SVGImageView();
-        studentLogo.setFitHeight(48);
-        studentLogo.setSvgUrl(
-                GradedResourceLoader.load(
-                        "icons/my-logo.svg"
-                )
-        );
-
-        HBox logoBar = new HBox(studentLogo);
-        VBox.setVgrow(logoBar, Priority.ALWAYS);
-        logoBar.setAlignment(Pos.BOTTOM_CENTER);
-        VBox.setMargin(logoBar, new Insets(8));
-        studentCameraView = new PhotoView();
-        studentCameraView.setEditable(false);
-
-        studentCameraView.setMinSize(512, 512);
-        studentCameraView.setMaxSize(800, 800);
-
-        studentCameraView.getStyleClass()
-                .add("border-circle-green");
-
-        studentMessage = new Label(
-                "Please stand in front of the camera"
-        );
-
-        studentMessage.setStyle("""
-                -fx-font-size: 22px;
-                -fx-font-weight: bold;
-                """);
-
-        VBox content = new VBox(
-                20,
-                studentCameraView,
-                studentMessage
-        );
-
-        content.setAlignment(Pos.CENTER);
-        VBox.setVgrow(content, Priority.ALWAYS);
-        VBox mainContent = new VBox(content, logoBar);
-
-        StackPane root = new StackPane(background, mainContent);
-        Scene scene = new Scene(root, 1280, 720);
-
-        scene.getStylesheets().add(
-                GradedResourceLoader.load(
-                        "css/camera-style.css"
-                )
-        );
-
-        studentStage = new Stage();
-        studentStage.setTitle("Student Display");
-        studentStage.setScene(scene);
-        studentStage.show();
-    }
-
-    private void loadCameraSettings() {
-
-        String sql = """
-                SELECT
-                    confidence_threshold,
-                    required_checks
-                FROM camera_data
-                WHERE id = 1
-                """;
-
-        try (
-                PreparedStatement statement =
-                        mainController.gradedDataLoader.databaseLoader.getConnection().prepareStatement(sql);
-                ResultSet rs = statement.executeQuery()
-        ) {
-
-            if (rs.next()) {
-
-                CONFIDENCE_THRESHOLD =
-                        rs.getDouble("confidence_threshold");
-
-                requiredRecognitionCount =
-                        rs.getInt("required_checks");
-
-                System.out.println(
-                        "Threshold Loaded = "
-                                + CONFIDENCE_THRESHOLD
-                );
-
-                System.out.println(
-                        "Required Checks Loaded = "
-                                + requiredRecognitionCount
-                );
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    void onSetting(ActionEvent event) {
-
-        Slider thresholdSlider =
-                new Slider(20, 100, CONFIDENCE_THRESHOLD);
-
-        thresholdSlider.setShowTickLabels(true);
-        thresholdSlider.setShowTickMarks(true);
-
-        Label thresholdLabel = new Label(
-                String.format(
-                        "Confidence Threshold : %.0f",
-                        CONFIDENCE_THRESHOLD
-                )
-        );
-        Spinner<Integer> checkSpinner =
-                new Spinner<>(1, 20, requiredRecognitionCount);
-        thresholdSlider.valueProperty().addListener((obs, oldVal, newVal) ->
-                thresholdLabel.setText(
-                        String.format(
-                                "Confidence Threshold : %.0f",
-                                newVal.doubleValue()
-                        )
-                )
-        );
-        checkSpinner.setEditable(true);
-
-        VBox content = new VBox(
-                15,
-                new Label("Recognition Settings"),
-                thresholdLabel,
-                thresholdSlider,
-                new Label("Required Consecutive Matches"),
-                checkSpinner
-        );
-
-        com.dlsc.gemsfx.DialogPane dialogPane =
-                new com.dlsc.gemsfx.DialogPane();
-
-        com.dlsc.gemsfx.DialogPane.Dialog<ButtonType> dialog =
-                new com.dlsc.gemsfx.DialogPane.Dialog<>(
-                        dialogPane,
-                        com.dlsc.gemsfx.DialogPane.Type.INFORMATION
-                );
-
-        dialog.setTitle("Face Recognition Settings");
-        dialog.setContent(content);
-
-        ButtonType saveButton =
-                new ButtonType(
-                        "Save",
-                        ButtonBar.ButtonData.OK_DONE
-                );
-
-        dialog.getButtonTypes().setAll(
-                saveButton,
-                ButtonType.CANCEL
-        );
-
-        rootLayer.getChildren().add(dialogPane);
-
-        dialog.show();
-
-        dialog.onClose(e -> {
-
-            if (e == saveButton) {
-
-                CONFIDENCE_THRESHOLD =
-                        thresholdSlider.getValue();
-
-                requiredRecognitionCount =
-                        checkSpinner.getValue();
-
-                System.out.println(
-                        "Threshold = " +
-                                CONFIDENCE_THRESHOLD
-                );
-                saveCameraSettings(
-                        CONFIDENCE_THRESHOLD,
-                        requiredRecognitionCount
-                );
-                System.out.println(
-                        "Required Checks = " +
-                                requiredRecognitionCount
-                );
-            }
-
-            rootLayer.getChildren().remove(dialogPane);
-        });
-    }
-
-    private void saveCameraSettings(
-            double threshold,
-            int checks
-    ) {
-        String sql = """
-                UPDATE camera_data
-                SET confidence_threshold = ?,
-                    required_checks = ?
-                """;
-
-        try (PreparedStatement statement =
-                     mainController.gradedDataLoader.databaseLoader.getConnection().prepareStatement(sql)) {
-
-            statement.setDouble(1, threshold);
-            statement.setInt(2, checks);
-
-            statement.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private Result getKnownStudentIfPresent(String id) {
-        String ed = id.substring(0, id.indexOf(' '));
-        String name = id.substring(id.indexOf(' ') + 1).trim();
-
-        imagePath = System.getProperty("user.home")
-                + "/gardeEdAttendanceData/"
-                + ed;
-
-        File folder = new File(imagePath);
-
-        if (folder.exists()) {
-
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Student Already Exists");
-            alert.setHeaderText("Training data already exists");
-            alert.setContentText(
-                    ed + " (" + name + ") already has training images."
+    private void rebuildAllStudents() {
+        if (!modelsReady.get()
+                || detector == null
+                || recognizer == null) {
+            showRecognitionMessage(
+                    "YuNet and SFace are still loading."
             );
-            alert.showAndWait();
-            return null;
-        }
-        return new Result(ed, name);
-    }
-
-    @FXML
-    void onModeChange(ActionEvent event) {
-        var toggle = (ToggleButton) event.getSource();
-        if (toggle.getText().equals("Training")) {
-            addStudent.setDisable(false);
-            searchBox.setDisable(false);
-            checkBoxGroup.setVisible(true);
-            startCapture.setText("Start Training");
-            startCapture.setDisable(false);
-        } else if (toggle.getText().equals("Face Detector")) {
-            startCapture.setDisable(false);
-            addStudent.setDisable(true);
-            searchBox.setDisable(true);
-            scrollAtt.setVisible(false);
-            startCapture.setDisable(true);
-            checkBoxGroup.setVisible(false);
-        }
-    }
-
-    @FXML
-    void startCapturing(ActionEvent event) {
-        Button source = (Button) event.getSource();
-        String buttonId = source.getId();
-        switch (buttonId) {
-            case "nf" -> initCapture(buttonId, source, nFront);
-            case "nd" -> initCapture(buttonId, source, nDown);
-            case "nl" -> initCapture(buttonId, source, nLeft);
-            case "nr" -> initCapture(buttonId, source, nRight);
-            case "llf" -> initCapture(buttonId, source, llFront);
-            case "ldf" -> initCapture(buttonId, source, ldFront);
-            case "hf" -> initCapture(buttonId, source, hFront);
-            case "gf" -> initCapture(buttonId, source, gFront);
-        }
-    }
-
-    private void initCapture(String buttonId, Button source, Label label) {
-        if (lastFace == null || cleanFrame.empty()) {
-            System.out.println("No face detected.");
             return;
         }
-        int x = label.getText().contains(" ") ? (Integer.parseInt(label.
-                getText().substring(label.getText().indexOf(' ')).trim())) + 1 : 1;
-        label.setText(label.getText().contains(" ") ?
-                (label.getText().substring(0, label.getText().indexOf(' ')) + " " + x) :
-                label.getText() + " " + x);
-        clickThePhoto(buttonId);
-        if (x >= 10) {
-            source.setDisable(true);
-            label.setText(label.getText().substring(0, label.getText().length() - 3));
-            sourceList.add(source);
+        if (!folderTraining.compareAndSet(false, true)) {
+            showRecognitionMessage(
+                    "Another training operation is already running."
+            );
+            return;
+        }
+        Path trainingRoot = Path.of(
+                System.getProperty("user.home"),
+                "gardeEdAttendanceData"
+        );
+        if (!Files.isDirectory(trainingRoot)) {
+            folderTraining.set(false);
+            showRecognitionMessage(
+                    "Training folder was not found: "
+                            + trainingRoot
+            );
+            return;
+        }
+        Alert confirmation = new Alert(
+                Alert.AlertType.CONFIRMATION
+        );
+        confirmation.setTitle(
+                "Rebuild All Face Embeddings"
+        );
+        confirmation.setHeaderText(
+                "Rebuild embeddings for every student?"
+        );
+        confirmation.setContentText(
+                """
+                        This operation will process every valid student folder \
+                        and replace the current face-embedding database.
+
+                        The previous embeddings will remain unchanged \
+                        if processing fails before database replacement."""
+        );
+        Optional<ButtonType> result =
+                confirmation.showAndWait();
+        if (result.isEmpty()
+                || result.get() != ButtonType.OK) {
+            folderTraining.set(false);
+            return;
+        }
+        startRebuildAllTask(trainingRoot);
+    }
+
+    private void startRebuildAllTask(
+            Path trainingRoot
+    ) {
+        Dialog<ButtonType> dialog =
+                new Dialog<>();
+        dialog.setTitle(
+                "Rebuilding All Face Embeddings"
+        );
+        Label statusLabel =
+                new Label(
+                        "Scanning student folders..."
+                );
+        statusLabel.setWrapText(true);
+        ProgressBar progressBar =
+                new ProgressBar(0);
+        progressBar.setPrefWidth(520);
+        Label warningLabel = new Label(
+                "Do not close the application while "
+                        + "the embedding database is being saved."
+        );
+        warningLabel.setWrapText(true);
+        warningLabel.getStyleClass()
+                .add("warning-label");
+        VBox content = new VBox(
+                12,
+                statusLabel,
+                progressBar,
+                warningLabel
+        );
+        content.setPadding(
+                new Insets(16)
+        );
+        dialog.getDialogPane()
+                .setContent(content);
+        ButtonType cancelButton =
+                new ButtonType(
+                        "Cancel",
+                        ButtonBar.ButtonData.CANCEL_CLOSE
+                );
+        dialog.getDialogPane()
+                .getButtonTypes()
+                .setAll(cancelButton);
+        FolderTrainingTask task =
+                new FolderTrainingTask(
+                        trainingRoot
+                );
+        progressBar.progressProperty()
+                .bind(
+                        task.progressProperty()
+                );
+        statusLabel.textProperty()
+                .bind(
+                        task.messageProperty()
+                );
+        setEmbeddingControlsDisabled(true);
+        dialog.setOnCloseRequest(event -> {
+            if (task.isRunning()) {
+                task.cancel(true);
+            }
+        });
+        task.setOnSucceeded(event -> {
+            cleanupTrainingDialog(
+                    dialog,
+                    progressBar,
+                    statusLabel
+            );
+
+            TrainingSummary summary =
+                    task.getValue();
+
+            String message = String.format(
+                    Locale.ROOT,
+                    "Rebuild complete: %d students, "
+                            + "%d embeddings and "
+                            + "%d rejected images.",
+                    summary.students(),
+                    summary.embeddings(),
+                    summary.rejected()
+            );
+
+            */
+/*
+             * Reset before displaying the completion message because
+             * resetTrainingCaptureUi() clears the search and capture UI.
+             *//*
+
+            resetTrainingCaptureUi();
+
+            showRecognitionMessage(message);
+        });
+        task.setOnFailed(event -> {
+            cleanupTrainingDialog(
+                    dialog,
+                    progressBar,
+                    statusLabel
+            );
+            Throwable exception =
+                    task.getException();
+            if (exception != null) {
+                exception.printStackTrace();
+            }
+            showError(
+                    "Rebuild-all operation failed",
+                    exception == null
+                            ? "Unknown rebuild error."
+                            : rootMessage(excepion)
+            );
+        });
+        task.setOnCancelled(event -> {
+            cleanupTrainingDialog(
+                    dialog,
+                    progressBar,
+                    statusLabel
+            );
+            showRecognitionMessage(
+                    "Rebuild-all operation was cancelled. "
+                            + "Existing embeddings were kept."
+            );
+        });
+        dialog.show();
+        try {
+            maintenanceWorker.submit(task);
+        } catch (RejectedExecutionException exception) {
+            cleanupTrainingDialog(
+                    dialog,
+                    progressBar,
+                    statusLabel
+            );
+            showError(
+                    "Unable to start rebuild",
+                    "The face-recognition worker "
+                            + "is shutting down."
+            );
         }
     }
 
-    private void clickThePhoto(String id) {
-        Mat capturedFace;
-
-        synchronized (frameLock) {
-            if (lastFace == null || cleanFrame.empty()) {
-                System.out.println("No face detected.");
-                return;
-            }
-
-            Rect safeFace = clampFaceToFrame(lastFace, cleanFrame);
-
-            if (safeFace.width() <= 0 || safeFace.height() <= 0) {
-                System.out.println("Invalid face area.");
-                return;
-            }
-
-            capturedFace = new Mat(cleanFrame, safeFace).clone();
-        }
-
-        executor.submit(() -> saveCapturedFace(capturedFace, id));
+    private void cleanupTrainingDialog(
+            Dialog<ButtonType> dialog,
+            ProgressBar progressBar,
+            Label statusLabel
+    ) {
+        progressBar.progressProperty()
+                .unbind();
+        statusLabel.textProperty()
+                .unbind();
+        folderTraining.set(false);
+        processing.set(false);
+        setEmbeddingControlsDisabled(false);
+        dialog.close();
     }
 
-    private void saveCapturedFace(Mat capturedFace, String id) {
-        try (capturedFace; Mat faceGray = new Mat()) {
-            cvtColor(
-                    capturedFace,
-                    faceGray,
-                    COLOR_BGR2GRAY
-            );
-
-            // Keep training and recognition preprocessing consistent.
-            resize(
-                    faceGray,
-                    faceGray,
-                    new Size(FACE_SIZE, FACE_SIZE)
-            );
-
-            equalizeHist(faceGray, faceGray);
-
-            File directory = new File(imagePath, id);
-
-            if (!directory.exists() && !directory.mkdirs()) {
-                System.err.println(
-                        "Unable to create directory: "
-                                + directory.getAbsolutePath()
-                );
-                return;
-            }
-
-            File outputFile = new File(
-                    directory,
-                    System.currentTimeMillis() + ".jpg"
-            );
-
-            boolean saved = imwrite(
-                    outputFile.getAbsolutePath(),
-                    faceGray
-            );
-
-            if (saved) {
-                System.out.println(
-                        "Photo saved: " + outputFile.getAbsolutePath()
-                );
-            } else {
-                System.err.println(
-                        "Failed to save photo: "
-                                + outputFile.getAbsolutePath()
-                );
-            }
-        } catch (Exception exception) {
-            exception.printStackTrace();
+    private void setEmbeddingControlsDisabled(
+            boolean disabled
+    ) {
+        if (rebuildAllButton != null) {
+            rebuildAllButton.setDisable(disabled);
+        }
+        if (addStudent != null) {
+            addStudent.setDisable(disabled);
+        }
+        if (searchBox != null) {
+            searchBox.setDisable(disabled);
+        }
+        if (startCapture != null) {
+            startCapture.setDisable(disabled);
+        }
+        if (cameraList != null) {
+            cameraList.setDisable(disabled);
+        }
+        if (checkBoxGroup != null) {
+            checkBoxGroup.setDisable(disabled);
         }
     }
 
-    private Rect clampFaceToFrame(Rect face, Mat source) {
-        int x = Math.max(0, face.x());
-        int y = Math.max(0, face.y());
+    */
+/*
+     * Camera opening, model initialization, recognition and database rebuilding
+     * must not share one executor. A slow camera scan or training operation would
+     * otherwise prevent the camera from opening.
+     *//*
 
-        int right = Math.min(
-                source.cols(),
-                face.x() + face.width()
-        );
-
-        int bottom = Math.min(
-                source.rows(),
-                face.y() + face.height()
-        );
-
-        return new Rect(
-                x,
-                y,
-                Math.max(0, right - x),
-                Math.max(0, bottom - y)
-        );
-    }
-
-    String imagePath;
-
-    @FXML
-    void addNewTraining(ActionEvent event) {
-        String id = searchBox.getText();
-        if (!id.isEmpty() && getKnownStudentIfPresent(id) != null) {
-            scrollAtt.setVisible(true);
-            Result result = getResult(id);
-            CompletableFuture.runAsync(() -> {
-                timeTts.readAloud(", , " + result.ed() + result.name() +
-                        "Welcome to GradeED Coaching Classes. Please be ready and stand in front of the camera.");
+    private final ExecutorService cameraWorker =
+            Executors.newSingleThreadExecutor(runnable -> {
+                Thread thread = new Thread(
+                        runnable,
+                        "attendance-camera-worker"
+                );
+                thread.setDaemon(true);
+                return thread;
             });
-        }
-    }
 
-    private Result getResult(String id) {
-        String ed = id.substring(0, id.indexOf(' '));
-        String name = id.substring(id.indexOf(' ') + 1).trim();
-        imagePath = System.getProperty("user.home") + "/gardeEdAttendanceData/" + id.substring(0, id.indexOf(' '));
-        File f = new File(imagePath);
-        if (!f.exists()) {
-            f.mkdirs();
-        }
-        Result result = new Result(ed, name);
-        return result;
-    }
+    private final ExecutorService initializationWorker =
+            Executors.newFixedThreadPool(2, runnable -> {
+                Thread thread = new Thread(
+                        runnable,
+                        "attendance-initialization-worker"
+                );
+                thread.setDaemon(true);
+                return thread;
+            });
 
-    private record Result(String ed, String name) {
-    }
+    private final ExecutorService recognitionWorker =
+            Executors.newSingleThreadExecutor(runnable -> {
+                Thread thread = new Thread(
+                        runnable,
+                        "attendance-recognition-worker"
+                );
+                thread.setDaemon(true);
+                return thread;
+            });
 
-    RealTimeTts timeTts;
+    private final ExecutorService maintenanceWorker =
+            Executors.newSingleThreadExecutor(runnable -> {
+                Thread thread = new Thread(
+                        runnable,
+                        "attendance-maintenance-worker"
+                );
+                thread.setDaemon(true);
+                return thread;
+            });
+    private ScheduledExecutorService cameraTimer;
+    private final Object cameraLock = new Object();
+    private final Object frameLock = new Object();
+    private final Object modelLock = new Object();
+    private final AtomicBoolean disposed = new AtomicBoolean(false);
+    private final AtomicBoolean processing = new AtomicBoolean(false);
+    private final AtomicBoolean uiFramePending = new AtomicBoolean(false);
+    private final AtomicBoolean cameraSwitching = new AtomicBoolean(false);
+    private final AtomicBoolean restartingCamera = new AtomicBoolean(false);
+    private final AtomicBoolean recognitionMode = new AtomicBoolean(false);
+    private final AtomicBoolean modelsReady = new AtomicBoolean(false);
+    private VideoCapture camera;
+    private FaceDetectorYN detector;
+    private FaceRecognizerSF recognizer;
+    private final Mat cleanFrame = new Mat();
+    private Mat lastFaceRow;
+    private int currentCameraIndex;
+    private int consecutiveReadFailures;
+    private long lastUiFrameTime;
+    private long lastRecognitionTime;
+    private double similarityThreshold = DEFAULT_SIMILARITY_THRESHOLD;
+    private double scoreMargin = DEFAULT_SCORE_MARGIN;
+    private int requiredRecognitionCount = DEFAULT_REQUIRED_CHECKS;
+    private String currentCandidate;
+    private int consecutiveMatches;
+    private double scoreSum;
+    private String lastAcceptedEdNo;
+    private long lastAcceptedAt;
+    private int consecutiveNoFaceFrames;
+    private boolean acceptedFaceMustLeave;
+    private String imagePath;
+    private Result selectedStudent;
+    private Stage studentStage;
+    private PhotoView studentCameraView;
+    private Label studentMessage;
+    private Boolean mainViewFaceState;
+    private Boolean studentViewFaceState;
+
+    public CameraController(MainController mainController, HomeController homeController) {
+        this.mainController = Objects.requireNonNull(mainController);
+        this.homeController = Objects.requireNonNull(homeController);
+    }
 
     @FXML
     public void initialize() {
         initializeStudentSearch();
         initializeGraphics();
-        initializeTtsAsync();
-        initializeCameraAsync();
         loadCameraSettings();
+        initializeAsync();
     }
 
-    private void initializeStudentSearch() {
-        studentData.setAll(
-                mainController.gradedDataLoader
-                        .getStudentData()
-                        .values()
-                        .stream()
-                        .map(student ->
-                                student.ed_no() + " " + student.name()
-                        )
-                        .toList()
-        );
+    private Connection connection() throws SQLException {
+        return mainController.gradedDataLoader.databaseLoader.getConnection();
+    }
+    private VideoCapture openCameraDevice(int index) {
+        int[] backends = {
+                Videoio.CAP_MSMF,
+                Videoio.CAP_ANY,
+                Videoio.CAP_DSHOW
+        };
 
-        searchBox.setSuggestionProvider(request -> {
-            String searchText = request.getUserText();
+        List<String> failures =
+                new ArrayList<>();
 
-            if (searchText == null || searchText.isBlank()) {
-                return List.of();
+        for (int backend : backends) {
+            if (disposed.get()
+                    || Thread.currentThread().isInterrupted()) {
+                throw new CancellationException(
+                        "Camera opening was cancelled."
+                );
             }
 
-            String normalizedSearch =
-                    searchText.toLowerCase().trim();
+            VideoCapture candidate =
+                    new VideoCapture();
 
-            return studentData.stream()
-                    .filter(student ->
-                            student.toLowerCase()
-                                    .contains(normalizedSearch)
-                    )
-                    .collect(Collectors.toList());
-        });
-        searchBox.setOnCommit(event -> {
-            System.out.println(event);
-
-            for (var bt : sourceList) {
-                bt.setDisable(false);
-            }
-            sourceList.clear();
-            scrollAtt.setVisible(false);
-        });
-
-    }
-
-    private void initializeGraphics() {
-        background.setSvgUrl(
-                GradedResourceLoader.load(
-                        "icons/new-back1.svg"
-                )
-        );
-
-        background.setOpacity(0.3);
-
-        myLogo.setSvgUrl(
-                GradedResourceLoader.load(
-                        "icons/my-logo.svg"
-                )
-        );
-    }
-
-    private final AtomicBoolean ttsReady =
-            new AtomicBoolean(false);
-
-    private void initializeTtsAsync() {
-        CompletableFuture.runAsync(() -> {
             try {
-                RealTimeTts initializedTts =
-                        new RealTimeTts();
+                boolean opened;
 
-                initializedTts.init();
+                if (backend == Videoio.CAP_ANY) {
+                    opened = candidate.open(index);
+                } else {
+                    opened = candidate.open(index, backend);
+                }
 
-                timeTts = initializedTts;
-                ttsReady.set(true);
+                if (!opened || !candidate.isOpened()) {
+                    failures.add(
+                            backendName(backend)
+                                    + ": device did not open"
+                    );
 
-                System.out.println(
-                        "Text-to-speech initialized."
+                    candidate.release();
+                    continue;
+                }
+
+                */
+/*
+                 * Request conservative values first. Some Windows camera
+                 * drivers take significantly longer or fail when 1280x720
+                 * and 30 FPS are forced before the first frame.
+                 *//*
+
+                candidate.set(
+                        Videoio.CAP_PROP_FRAME_WIDTH,
+                        640
                 );
+
+                candidate.set(
+                        Videoio.CAP_PROP_FRAME_HEIGHT,
+                        480
+                );
+
+                candidate.set(
+                        Videoio.CAP_PROP_FPS,
+                        30
+                );
+
+                candidate.set(
+                        Videoio.CAP_PROP_BUFFERSIZE,
+                        1
+                );
+
+                Mat testFrame =
+                        new Mat();
+
+                try {
+                    boolean receivedFrame =
+                            false;
+
+                    */
+/*
+                     * Some webcams need several reads to warm up.
+                     *//*
+
+                    for (int attempt = 0;
+                         attempt < 15;
+                         attempt++) {
+
+                        if (disposed.get()
+                                || Thread.currentThread()
+                                .isInterrupted()) {
+                            candidate.release();
+
+                            throw new CancellationException(
+                                    "Camera opening was cancelled."
+                            );
+                        }
+
+                        if (candidate.read(testFrame)
+                                && !testFrame.empty()) {
+                            receivedFrame = true;
+                            break;
+                        }
+
+                        try {
+                            Thread.sleep(40);
+                        } catch (InterruptedException exception) {
+                            Thread.currentThread().interrupt();
+                            candidate.release();
+
+                            throw new CancellationException(
+                                    "Camera opening was interrupted."
+                            );
+                        }
+                    }
+
+                    if (!receivedFrame) {
+                        failures.add(
+                                backendName(backend)
+                                        + ": opened but returned no frames"
+                        );
+
+                        candidate.release();
+                        continue;
+                    }
+
+                    System.out.println(
+                            "Camera "
+                                    + index
+                                    + " opened using "
+                                    + backendName(backend)
+                    );
+
+                    return candidate;
+                } finally {
+                    testFrame.release();
+                }
+            } catch (CancellationException exception) {
+                candidate.release();
+                throw exception;
             } catch (Exception exception) {
-                System.err.println(
-                        "Could not initialize text-to-speech."
+                failures.add(
+                        backendName(backend)
+                                + ": "
+                                + rootMessage(exception)
                 );
-
-                exception.printStackTrace();
+                candidate.release();
             }
-        });
-    }
-
-    @FXML
-    void play(ActionEvent event) {
-        if (!ttsReady.get() || timeTts == null) {
-            System.out.println(
-                    "Text-to-speech is still loading."
-            );
-            return;
         }
 
-        String id = ((Button) event.getSource()).getId();
-
-        switch (id) {
-            case "normal" -> timeTts.readAloud(
-                    ", , Normal mode , ,"
-            );
-
-            case "long" -> timeTts.readAloud(
-                    ", , Long distance mode , ,"
-            );
-
-            case "low" -> timeTts.readAloud(
-                    ", , Low Light mode , ,"
-            );
-
-            case "glasses" -> timeTts.readAloud(
-                    ", , Glasses mode , ,"
-            );
-
-            case "hijab" -> timeTts.readAloud(
-                    ", , Hijab mode , ,"
-            );
-
-            default -> System.out.println(
-                    "Unknown TTS button: " + id
-            );
-        }
+        throw new IllegalStateException(
+                "Unable to open camera "
+                        + index
+                        + ". "
+                        + String.join("; ", failures)
+        );
     }
+    private static String backendName(int backend) {
+        if (backend == Videoio.CAP_MSMF) {
+            return "Microsoft Media Foundation";
+        }
 
-    private final AtomicBoolean cameraSwitching =
-            new AtomicBoolean(false);
+        if (backend == Videoio.CAP_DSHOW) {
+            return "DirectShow";
+        }
 
-    private void initializeCameraAsync() {
+        if (backend == Videoio.CAP_ANY) {
+            return "Automatic backend";
+        }
+
+        return "Backend " + backend;
+    }
+    private void initializeAsync() {
         cameraList.setDisable(true);
         startCapture.setDisable(true);
 
+        showRecognitionMessage("Starting camera...");
+
         CompletableFuture
-                .supplyAsync(() -> {
-                    loadFaceDetector();
-                    loadRecognizer();
-                    //loadFacemark();
-                    //create3DModel();
-
-                    return getAvailableCameras();
-                })
-                .thenAccept(cameras ->
-                        Platform.runLater(() ->
-                                configureCameras(cameras)
-                        )
+                .runAsync(
+                        () -> startCamera(DEFAULT_CAMERA_INDEX),
+                        cameraWorker
                 )
-                .exceptionally(exception -> {
-                    exception.printStackTrace();
-
-                    Platform.runLater(() -> {
-                        cameraList.setDisable(true);
-                        startCapture.setDisable(true);
-
-                        showInitializationError(
-                                "Camera initialization failed",
-                                getRootCauseMessage(exception)
-                        );
-                    });
-
-                    return null;
-                });
-    }
-
-    private void configureCameras(
-            ObservableList<String> cameras
-    ) {
-        cameraList.setItems(cameras);
-
-        if (cameras.isEmpty()) {
-            System.out.println("No camera found");
-
-            cameraList.setDisable(true);
-            startCapture.setDisable(true);
-
-            return;
-        }
-
-        cameraList.getSelectionModel()
-                .selectedIndexProperty()
-                .addListener(
-                        (observable, oldValue, newValue) -> {
-                            if (newValue == null) {
+                .whenComplete((unused, error) ->
+                        runFx(() -> {
+                            if (error != null) {
+                                showError(
+                                        "Unable to start camera",
+                                        rootMessage(error)
+                                );
                                 return;
                             }
 
-                            int newIndex = newValue.intValue();
+                            cameraStarted.set(true);
 
-                            if (newIndex < 0) {
-                                return;
-                            }
+                            CameraDevice defaultCamera =
+                                    new CameraDevice(
+                                            DEFAULT_CAMERA_INDEX,
+                                            "Camera 0"
+                                    );
 
-                            switchCamera(newIndex);
-                        }
+                            installCameraSelectionListener();
+
+                            cameraList.setItems(
+                                    FXCollections.observableArrayList(
+                                            defaultCamera
+                                    )
+                            );
+
+                            cameraList.getSelectionModel()
+                                    .select(defaultCamera);
+
+                            cameraList.setDisable(false);
+
+                            startCapture.setDisable(
+                                    recognitionMode.get()
+                            );
+
+                            showRecognitionMessage(
+                                    modelsReady.get()
+                                            ? "Camera and face recognition are ready."
+                                            : "Camera started. Loading face models..."
+                            );
+                        })
                 );
 
-        cameraList.setDisable(false);
-        startCapture.setDisable(false);
+        CompletableFuture
+                .runAsync(() -> {
+                    initializeSchema();
+                    loadModels();
+                    reloadEmbeddings();
+                }, initializationWorker)
+                .whenComplete((unused, error) ->
+                        runFx(() -> {
+                            if (error != null) {
+                                showError(
+                                        "Face system initialization failed",
+                                        rootMessage(error)
+                                );
+                                return;
+                            }
 
-        int initialCameraIndex =
-                cameras.size() > 1 ? 1 : 0;
+                            showRecognitionMessage(
+                                    cameraStarted.get()
+                                            ? "Camera and face recognition are ready. "
+                                            + knownEmbeddings.size()
+                                            + " students loaded."
+                                            : "Face recognition is ready. Starting camera..."
+                            );
 
-        */
+                            */
 /*
-         * Selecting the camera triggers the listener.
-         * Do not separately call startCamera() here.
-         *//*
+                             * Do not call scanAndConfigureCamerasAsync() here.
+                             * It can reopen devices while the active camera is
+                             * already using the Windows camera backend.
+                             *//*
 
-        cameraList.getSelectionModel()
-                .select(initialCameraIndex);
+                        })
+                );
     }
-
-    private void switchCamera(int cameraIndex) {
-        if (!cameraSwitching.compareAndSet(false, true)) {
+    private void installCameraSelectionListener() {
+        if (!cameraListListenerInstalled.compareAndSet(
+                false,
+                true
+        )) {
             return;
         }
 
-        try {
-            stopCamera();
+        cameraList.valueProperty().addListener(
+                (observable, oldDevice, newDevice) -> {
+                    if (newDevice == null || disposed.get()) {
+                        return;
+                    }
 
-            currentCameraIndex = cameraIndex;
+                    synchronized (cameraLock) {
+                        */
+/*
+                         * Selecting the item representing the already-open
+                         * camera must not close and reopen that camera.
+                         *//*
 
-            startCamera(cameraIndex);
-        } finally {
-            cameraSwitching.set(false);
-        }
-    }
+                        if (camera != null
+                                && camera.isOpened()
+                                && currentCameraIndex
+                                == newDevice.index()) {
+                            return;
+                        }
+                    }
 
-    private void showInitializationError(
-            String header,
-            String message
-    ) {
-        Alert alert = new Alert(
-                Alert.AlertType.ERROR
+                    switchCamera(newDevice.index());
+                }
         );
-
-        alert.setTitle("Initialization Error");
-        alert.setHeaderText(header);
-        alert.setContentText(message);
-        alert.show();
     }
-
-    private String getRootCauseMessage(
-            Throwable throwable
-    ) {
-        Throwable cause = throwable;
-
-        while (cause.getCause() != null) {
-            cause = cause.getCause();
+    private void scanAndConfigureCamerasAsync() {
+        if (disposed.get()) {
+            return;
         }
 
-        return cause.getMessage() == null
-                ? cause.getClass().getSimpleName()
-                : cause.getMessage();
+        CompletableFuture
+                .supplyAsync(
+                        this::scanCameras,
+                        initializationWorker
+                )
+                .whenComplete((devices, error) ->
+                        runFx(() -> {
+                            if (error != null
+                                    || devices == null
+                                    || devices.isEmpty()) {
+                                */
+/*
+                                 * Do not clear the list if the default camera
+                                 * is already running.
+                                 *//*
+
+                                if (!cameraStarted.get()) {
+                                    showRecognitionMessage(
+                                            "No usable camera was found."
+                                    );
+                                }
+                                return;
+                            }
+
+                            installCameraSelectionListener();
+
+                            int selectedIndex =
+                                    currentCameraIndex;
+
+                            cameraList.setItems(
+                                    FXCollections.observableArrayList(
+                                            devices
+                                    )
+                            );
+
+                            CameraDevice selectedDevice =
+                                    devices.stream()
+                                            .filter(device ->
+                                                    device.index()
+                                                            == selectedIndex
+                                            )
+                                            .findFirst()
+                                            .orElse(devices.getFirst());
+
+                            cameraList.getSelectionModel()
+                                    .select(selectedDevice);
+
+                            cameraList.setDisable(false);
+
+                            startCapture.setDisable(
+                                    recognitionMode.get()
+                            );
+                        })
+                );
+    }
+    private void initializeSchema() {
+        String sql = """
+                CREATE TABLE IF NOT EXISTS FaceEmbedding (
+                embedding_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ed_no TEXT NOT NULL,
+                capture_mode TEXT,
+                embedding BLOB NOT NULL,
+                embedding_length INTEGER NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                );
+                """;
+        try (Statement statement = connection().createStatement()) {
+            statement.execute(sql);
+            statement.execute("CREATE INDEX IF NOT EXISTS idx_face_embedding_ed_no ON FaceEmbedding(ed_no)");
+        } catch (SQLException e) {
+            throw new CompletionException(e);
+        }
+    }
+
+    private void loadModels() {
+        try {
+            File yunet = extractResourceToTempFile(YUNET_RESOURCE, "yunet-", ".onnx");
+            File sface = extractResourceToTempFile(SFACE_RESOURCE, "sface-", ".onnx");
+            synchronized (modelLock) {
+                detector = FaceDetectorYN.create(yunet.getAbsolutePath(), "",
+                        new Size(DETECTION_WIDTH, DETECTION_HEIGHT),
+                        (float) DETECTION_SCORE_THRESHOLD, (float) NMS_THRESHOLD, TOP_K);
+                recognizer = FaceRecognizerSF.create(sface.getAbsolutePath(), "");
+                modelsReady.set(true);
+            }
+        } catch (Exception e) {
+            modelsReady.set(false);
+            throw new CompletionException(e);
+        }
+    }
+
+    private void reloadEmbeddings() {
+        Map<String, List<float[]>> loaded = new HashMap<>();
+        String sql = "SELECT ed_no, embedding, embedding_length FROM FaceEmbedding";
+        try (PreparedStatement st = connection().prepareStatement(sql); ResultSet rs = st.executeQuery()) {
+            while (rs.next()) {
+                byte[] bytes = rs.getBytes("embedding");
+                int length = rs.getInt("embedding_length");
+                if (bytes == null || length <= 0 || bytes.length != length * Float.BYTES) continue;
+                float[] vector = bytesToFloats(bytes);
+                normalize(vector);
+                loaded.computeIfAbsent(rs.getString("ed_no"), k -> new ArrayList<>()).add(vector);
+            }
+        } catch (SQLException e) {
+            throw new CompletionException(e);
+        }
+        knownEmbeddings.clear();
+        knownEmbeddings.putAll(loaded);
     }
 
     @FXML
-    public void goForTraining() {
+    void onModeChange(ActionEvent event) {
+        ToggleButton toggle = (ToggleButton) event.getSource();
+        boolean recognize = "Face Detector".equals(toggle.getText());
+        recognitionMode.set(recognize);
+        resetRecognitionSession();
+        addStudent.setDisable(recognize);
+        searchBox.setDisable(recognize);
+        scrollAtt.setVisible(false);
+        checkBoxGroup.setVisible(!recognize);
+        startCapture.setText(recognize ? "Recognition Active" : "Start Training");
+        startCapture.setDisable(recognize);
+    }
+    private void resetTrainingCaptureUi() {
+        if (!Platform.isFxApplicationThread()) {
+            Platform.runLater(this::resetTrainingCaptureUi);
+            return;
+        }
 
-        ProgressBar progressBar = new ProgressBar(0);
-        progressBar.setPrefWidth(500);
+        resetCaptureLabel(nFront);
+        resetCaptureLabel(nDown);
+        resetCaptureLabel(nLeft);
+        resetCaptureLabel(nRight);
+        resetCaptureLabel(llFront);
+        resetCaptureLabel(ldFront);
+        resetCaptureLabel(hFront);
+        resetCaptureLabel(gFront);
 
-        Label statusLabel = new Label("Preparing training...");
+        */
+/*
+         * Re-enable buttons that were disabled after reaching
+         * their required capture count.
+         *//*
 
-        VBox content = new VBox(10,
-                statusLabel,
-                progressBar
-        );
-        content.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        com.dlsc.gemsfx.DialogPane dialogPane = new com.dlsc.gemsfx.DialogPane();
-
-        com.dlsc.gemsfx.DialogPane.Dialog<ButtonType> dialog =
-                new com.dlsc.gemsfx.DialogPane.Dialog<>(
-                        dialogPane,
-                        com.dlsc.gemsfx.DialogPane.Type.INFORMATION
-                );
-
-        dialog.setTitle("Model Training");
-        dialog.setContent(content);
-
-        rootLayer.getChildren()
-                .add(dialogPane);
-
-        Task<Void> trainingTask = new Task<>() {
-
-            @Override
-            protected Void call() throws Exception {
-
-                startTraining(this);
-
-                return null;
+        for (Button button : completedCaptureButtons) {
+            if (button != null) {
+                button.setDisable(false);
             }
+        }
+
+        completedCaptureButtons.clear();
+
+        selectedStudent = null;
+        imagePath = null;
+
+        if (searchBox != null) {
+            searchBox.setText("");
+        }
+
+        if (scrollAtt != null) {
+            scrollAtt.setVisible(false);
+        }
+
+        if (glasses != null) {
+            glasses.setDisable(true);
+        }
+
+        if (hijab != null) {
+            hijab.setDisable(true);
+        }
+    }
+    @FXML
+    void addNewTraining(ActionEvent event) {
+        String text = searchBox.getText();
+        Result result = parseSelectedStudent(text);
+        if (result == null) {
+            showRecognitionMessage("Select a valid student first.");
+            return;
+        }
+        imagePath = Path.of(System.getProperty("user.home"), "gardeEdAttendanceData", result.ed()).toString();
+        try {
+            Files.createDirectories(Path.of(imagePath));
+            selectedStudent = result;
+            scrollAtt.setVisible(true);
+            showRecognitionMessage("Capture face samples for " + result.ed() + " " + result.name());
+        } catch (IOException e) {
+            showError("Unable to prepare enrollment", e.getMessage());
+        }
+    }
+    private void resetCaptureLabel(Label label) {
+        if (label == null) {
+            return;
+        }
+
+        String currentText = label.getText();
+
+        if (currentText == null || currentText.isBlank()) {
+            return;
+        }
+
+        label.setText(
+                currentText.replaceFirst(
+                        "\\s+\\d+$",
+                        ""
+                )
+        );
+    }
+    @FXML
+    void startCapturing(ActionEvent event) {
+        Button source =
+                (Button) event.getSource();
+
+        Label label = switch (source.getId()) {
+            case "nf" -> nFront;
+            case "nd" -> nDown;
+            case "nl" -> nLeft;
+            case "nr" -> nRight;
+            case "llf" -> llFront;
+            case "ldf" -> ldFront;
+            case "hf" -> hFront;
+            case "gf" -> gFront;
+            default -> null;
         };
 
-        progressBar.progressProperty()
-                .bind(trainingTask.progressProperty());
+        Result student =
+                selectedStudent;
 
-        statusLabel.textProperty()
-                .bind(trainingTask.messageProperty());
+        String enrollmentImagePath =
+                imagePath;
 
-        trainingTask.setOnSucceeded(e -> {
-
-            progressBar.progressProperty().unbind();
-            statusLabel.textProperty().unbind();
-
-            statusLabel.setText(
-                    "Training completed successfully"
+        if (label == null || student == null) {
+            showRecognitionMessage(
+                    "Select a student before capturing."
             );
-
-            dialog.cancel();
-        });
-
-        trainingTask.setOnFailed(e -> {
-
-            progressBar.progressProperty().unbind();
-            statusLabel.textProperty().unbind();
-
-            statusLabel.setText(
-                    "Training failed"
-            );
-
-            trainingTask.getException()
-                    .printStackTrace();
-        });
-
-        dialog.show();
-
-        Thread thread = new Thread(trainingTask);
-        thread.setDaemon(true);
-        thread.start();
-    }
-
-    private void tryIdentifying() {
-        if (!processing.compareAndSet(false, true)) {
-            System.out.println("Recognition already running");
             return;
         }
-        Mat capturedFace;
+
+        Mat frameCopy;
+
         synchronized (frameLock) {
-            if (lastFace == null) {
-                processing.set(false);
-                System.out.println("No face detected.");
+            if (cleanFrame.empty()
+                    || lastFaceRow == null) {
+                showRecognitionMessage(
+                        "No usable face detected."
+                );
                 return;
             }
-            Rect roi = new Rect(lastFace.x(), lastFace.y(), lastFace.width(), lastFace.height());
-            capturedFace = new Mat(cleanFrame, roi).clone();
+
+            frameCopy = cleanFrame.clone();
         }
 
-        executor.submit(() -> {
-            Mat faceGray = new Mat();
-            cvtColor(capturedFace, faceGray, COLOR_BGR2GRAY);
-            resize(faceGray, faceGray, new Size(FACE_SIZE, FACE_SIZE));
-            int[] label = new int[1];
-            double[] confidence = new double[1];
-            recognizer.predict(faceGray, label, confidence);
-            Platform.runLater(() -> {
+        source.setDisable(true);
+
+        try {
+            maintenanceWorker.submit(() -> {
                 try {
+                    float[] embedding =
+                            extractEmbedding(
+                                    frameCopy,
+                                    true
+                            );
 
-                    if (confidence[0] < CONFIDENCE_THRESHOLD) {
-
-                        if (currentCandidate == label[0]) {
-
-                            consecutiveMatches++;
-                            confidenceSum += confidence[0];
-
-                        } else {
-
-                            currentCandidate = label[0];
-                            consecutiveMatches = 1;
-                            confidenceSum = confidence[0];
-                        }
-
-                        if (consecutiveMatches >= requiredRecognitionCount) {
-                            recognitionTime = System.currentTimeMillis();
-                            int id = currentCandidate;
-
-                            double avgConfidence =
-                                    confidenceSum / consecutiveMatches;
-
-                            if (avgConfidence < CONFIDENCE_THRESHOLD
-                                    && id == label[0]) {
-
-                                System.out.println("Student ID: " + id);
-                                System.out.println(
-                                        "Average Confidence: "
-                                                + avgConfidence
-                                );
-
-                                String key =
-                                        "ED" + (id < 10
-                                                ? "0" + id
-                                                : id);
-
-                                if (!attendanceRecord.containsKey(id)
-                                        && !homeController.studentAttendance
-                                        .attendanceMap.containsKey(key)) {
-
-                                    attendanceRecord.put(
-                                            id,
-                                            new AttendanceStatus(
-                                                    true,
-                                                    false
-                                            )
-                                    );
-
-                                    homeController.studentAttendance
-                                            .updateCheckIn(key, LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a")));
-
-                                    String name =
-                                            homeController.studentAttendance
-                                                    .mainController
-                                                    .gradedDataLoader
-                                                    .getStudentData()
-                                                    .get(key)
-                                                    .name();
-
-                                    outputMessage.setText(
-                                            "ED"
-                                                    + id
-                                                    + " "
-                                                    + name
-                                                    + " you are marked as present"
-                                    );
-                                    if (studentMessage != null)
-                                        studentMessage.setText(
-                                                "ED"
-                                                        + id
-                                                        + " "
-                                                        + name
-                                                        + " you are marked as present"
-                                        );
-
-                                    CompletableFuture.runAsync(
-                                            () -> {
-                                                timeTts.readAloud(
-                                                        "ED"
-                                                                + id
-                                                                + " "
-                                                                + name
-                                                                + " you are marked as present"
-                                                );
-                                            }
-                                    );
-
-                                } else if (
-                                        homeController.studentAttendance
-                                                .attendanceMap.containsKey(key)
-                                                && homeController.studentAttendance
-                                                .attendanceMap.get(key)
-                                                .getCheck_out() == null
-                                ) {
-
-                                    var attendance =
-                                            homeController.studentAttendance
-                                                    .attendanceMap.get(key);
-
-                                    String in =
-                                            attendance.getCheck_in();
-
-                                    DateTimeFormatter formatter =
-                                            DateTimeFormatter.ofPattern(
-                                                    "hh:mm a",
-                                                    Locale.ENGLISH
-                                            );
-
-                                    LocalTime givenTime =
-                                            LocalTime.parse(
-                                                    in.toUpperCase(
-                                                            Locale.ENGLISH
-                                                    ),
-                                                    formatter
-                                            );
-
-                                    LocalTime currentTime =
-                                            LocalTime.now();
-
-                                    Duration duration =
-                                            Duration.between(
-                                                    givenTime,
-                                                    currentTime
-                                            );
-
-                                    if (duration.toMinutes() >= 45) {
-
-                                        homeController.studentAttendance
-                                                .updateCheckOut(key);
-
-                                        outputMessage.setText(
-                                                "ED"
-                                                        + id
-                                                        + " checkout done"
-                                        );
-                                        studentMessage.setText(
-                                                "ED"
-                                                        + id
-                                                        + " checkout done"
-                                        );
-                                        CompletableFuture.runAsync(
-                                                () -> {
-                                                    timeTts.readAloud(
-                                                            "ED"
-                                                                    + id
-                                                                    + " checkout done"
-                                                    );
-                                                }
-                                        );
-
-                                    } else {
-                                        if (studentMessage != null)
-                                            studentMessage.setText(
-                                                    "Cannot checkout before 45 minutes. Spent "
-                                                            + duration.toMinutes()
-                                                            + " minutes."
-                                            );
-                                    }
-                                }
-                            }
-
-                            resetRecognition();
-                        }
-
-                    } else {
-
-                        System.out.println("Unknown Person");
-                        resetRecognition();
+                    if (embedding == null) {
+                        throw new IllegalStateException(
+                                "Exactly one clear face is required."
+                        );
                     }
 
-                } finally {
+                    saveEmbedding(
+                            student.ed(),
+                            source.getId(),
+                            embedding
+                    );
 
-                    processing.set(false);
+                    knownEmbeddings
+                            .computeIfAbsent(
+                                    student.ed(),
+                                    key ->
+                                            new CopyOnWriteArrayList<>()
+                            )
+                            .add(embedding);
+
+                    saveEnrollmentImage(
+                            frameCopy,
+                            source.getId(),
+                            enrollmentImagePath
+                    );
+
+                    runFx(() -> {
+                        int count =
+                                countLabel(label) + 1;
+
+                        label.setText(
+                                baseLabel(label)
+                                        + " "
+                                        + count
+                        );
+
+                        source.setDisable(
+                                count >= 10
+                        );
+
+                        if (count >= 10
+                                && !completedCaptureButtons
+                                .contains(source)) {
+                            completedCaptureButtons.add(
+                                    source
+                            );
+                        }
+
+                        showRecognitionMessage(
+                                "Sample saved for "
+                                        + student.ed()
+                        );
+                    });
+                } catch (Exception exception) {
+                    runFx(() -> {
+                        source.setDisable(false);
+
+                        showRecognitionMessage(
+                                "Capture rejected: "
+                                        + rootMessage(exception)
+                        );
+                    });
+                } finally {
+                    frameCopy.release();
                 }
             });
-        });
-    }
+        } catch (RejectedExecutionException exception) {
+            frameCopy.release();
+            source.setDisable(false);
 
-    private int currentCandidate = -1;
-    private int consecutiveMatches = 0;
-    private double confidenceSum = 0;
-
-    private void resetRecognition() {
-        currentCandidate = -1;
-        consecutiveMatches = 0;
-        confidenceSum = 0;
-    }
-
-    private FacemarkLBF facemark;
-
-    private void loadFacemark() {
-        try {
-            File modelFile = extractResourceToTempFile(
-                    "/org/graded_classes/graded_attendance/opencv/lbfmodel.yaml",
-                    "lbfmodel-",
-                    ".yaml"
-            );
-
-            facemark = FacemarkLBF.create();
-            facemark.loadModel(modelFile.getAbsolutePath());
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void loadFaceDetector() {
-
-        faceDetector = loadFaceDetectorFromFile();
-
-        if (faceDetector.empty()) {
-            throw new RuntimeException(
-                    "Unable to load Haar Cascade."
+            showRecognitionMessage(
+                    "Capture worker is shutting down."
             );
         }
     }
 
-    private CascadeClassifier loadFaceDetectorFromFile() {
-        try {
-            File cascadeFile = extractResourceToTempFile(
-                    "/org/graded_classes/graded_attendance/opencv/haarcascade_frontalface_default.xml",
-                    "haarcascade-",
-                    ".xml"
-            );
+    */
+/**
+     * Compatibility handler: embeddings are created during capture, so no global model training is needed.
+     *//*
 
-            CascadeClassifier classifier =
-                    new CascadeClassifier(cascadeFile.getAbsolutePath());
-
-            if (classifier.empty()) {
-                throw new RuntimeException("Failed to load cascade classifier");
-            }
-
-            return classifier;
-
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to load face detector", e);
-        }
-    }
-
-    private void loadRecognizer() {
-        if (recognizer != null) {
-            recognizer.close();
-        }
-        recognizer = LBPHFaceRecognizer.create();
-
-        try {
-
-            recognizer.read(System.getProperty("user.home") + "/attendance_model.yml");
-
-            System.out.println(
-                    "Attendance model loaded."
-            );
-
-        } catch (Exception e) {
-            System.out.println(
-                    "Could not load model: "
-                            + e.getMessage()
-            );
-        }
-    }
-
-    private void startCamera(int cameraIndex) {
-        currentCameraIndex = cameraIndex;
-        camera = new VideoCapture(
-                cameraIndex,
-                CAP_DSHOW
+    @FXML
+    public void goForTraining() {
+        Result student = parseSelectedStudent(
+                searchBox.getText()
         );
+        if (student == null) {
+            showRecognitionMessage(
+                    "Select a student before training."
+            );
+            return;
+        }
+        Path studentFolder = Path.of(
+                System.getProperty("user.home"),
+                "gardeEdAttendanceData",
+                student.ed()
+        );
+        if (!Files.isDirectory(studentFolder)) {
+            showRecognitionMessage(
+                    "Training folder not found for "
+                            + student.ed()
+            );
+            return;
+        }
+        rebuildSelectedStudent(
+                student.ed(),
+                studentFolder
+        );
+    }
 
-        if (!camera.isOpened()) {
+    private void rebuildSelectedStudent(
+            String edNo,
+            Path studentFolder
+    ) {
+        if (!modelsReady.get()) {
+            showRecognitionMessage(
+                    "YuNet and SFace are still loading."
+            );
+            return;
+        }
+        if (!folderTraining.compareAndSet(false, true)) {
+            showRecognitionMessage(
+                    "Training is already running."
+            );
+            return;
+        }
+        javafx.concurrent.Task<TrainingSummary> task =
+                new javafx.concurrent.Task<>() {
+                    @Override
+                    protected TrainingSummary call()
+                            throws Exception {
+                        return rebuildOneStudent(
+                                edNo,
+                                studentFolder,
+                                this
+                        );
+                    }
+                };
+        task.setOnSucceeded(event -> {
+            folderTraining.set(false);
 
-            System.out.println(
-                    "Failed to open camera "
-                            + cameraIndex
+            TrainingSummary summary =
+                    task.getValue();
+
+            showRecognitionMessage(
+                    "Training completed for "
+                            + edNo
+                            + ": "
+                            + summary.embeddings()
+                            + " embeddings, "
+                            + summary.rejected()
+                            + " rejected images."
             );
 
+            resetTrainingCaptureUi();
+        });
+        task.setOnFailed(event -> {
+            folderTraining.set(false);
+            Throwable error =
+                    task.getException();
+            if (error != null) {
+                error.printStackTrace();
+            }
+            showError(
+                    "Student training failed",
+                    error == null
+                            ? "Unknown error"
+                            : rootMessage(error)
+            );
+        });
+        task.setOnCancelled(event -> {
+            folderTraining.set(false);
+            showRecognitionMessage(
+                    "Training cancelled for "
+                            + edNo
+            );
+        });
+        try {
+            maintenanceWorker.submit(task);
+        } catch (RejectedExecutionException exception) {
+            folderTraining.set(false);
+            showError(
+                    "Student training failed",
+                    "Face worker is shutting down."
+            );
+        }
+    }
+
+    private TrainingSummary rebuildOneStudent(
+            String edNo,
+            Path studentFolder,
+            javafx.concurrent.Task<?> task
+    ) throws Exception {
+        List<Path> imageFiles;
+        try (var paths = Files.walk(studentFolder)) {
+            imageFiles = paths
+                    .filter(Files::isRegularFile)
+                    .filter(this::isSupportedTrainingImage)
+                    .sorted()
+                    .toList();
+        }
+        if (imageFiles.isEmpty()) {
+            throw new IllegalStateException(
+                    "No training images found for "
+                            + edNo
+            );
+        }
+        List<PendingEmbedding> generated =
+                new ArrayList<>();
+        int rejected = 0;
+        for (int index = 0;
+             index < imageFiles.size();
+             index++) {
+            if (task.isCancelled()
+                    || Thread.currentThread().isInterrupted()) {
+                throw new CancellationException(
+                        "Training cancelled."
+                );
+            }
+            Path imagePath =
+                    imageFiles.get(index);
+            Mat loadedImage =
+                    Imgcodecs.imread(
+                            imagePath.toString(),
+                            Imgcodecs.IMREAD_UNCHANGED
+                    );
+            if (loadedImage.empty()) {
+                loadedImage.release();
+                rejected++;
+                continue;
+            }
+            Mat bgrImage = null;
+            try {
+                bgrImage =
+                        ensureBgr(loadedImage);
+                float[] embedding =
+                        extractLegacyEmbedding(
+                                bgrImage
+                        );
+                if (embedding == null) {
+                    rejected++;
+                    continue;
+                }
+                Path relative =
+                        studentFolder.relativize(
+                                imagePath
+                        );
+                String captureMode =
+                        relative.getNameCount() > 1
+                                ? relative
+                                .getName(0)
+                                .toString()
+                                : "training";
+                generated.add(
+                        new PendingEmbedding(
+                                edNo,
+                                captureMode,
+                                embedding
+                        )
+                );
+            } catch (Exception exception) {
+                rejected++;
+                System.err.println(
+                        "Rejected image: "
+                                + imagePath
+                                + " because "
+                                + exception.getMessage()
+                );
+            } finally {
+                if (bgrImage != null) {
+                    bgrImage.release();
+                }
+                loadedImage.release();
+            }
+        }
+        if (generated.isEmpty()) {
+            throw new IllegalStateException(
+                    "No valid embeddings were generated for "
+                            + edNo
+            );
+        }
+        replaceStudentEmbeddings(
+                edNo,
+                generated
+        );
+        reloadEmbeddings();
+        return new TrainingSummary(
+                1,
+                generated.size(),
+                rejected
+        );
+    }
+
+    private void replaceStudentEmbeddings(
+            String edNo,
+            List<PendingEmbedding> embeddings
+    ) throws SQLException {
+        Connection databaseConnection =
+                connection();
+        boolean previousAutoCommit =
+                databaseConnection.getAutoCommit();
+        String deleteSql = """
+                DELETE FROM FaceEmbedding
+                WHERE ed_no = ?
+                """;
+        String insertSql = """
+                INSERT INTO FaceEmbedding (
+                ed_no,
+                capture_mode,
+                embedding,
+                embedding_length
+                )
+                VALUES (?, ?, ?, ?)
+                """;
+        try {
+            databaseConnection.setAutoCommit(false);
+            try (PreparedStatement deleteStatement =
+                         databaseConnection.prepareStatement(
+                                 deleteSql
+                         )) {
+                deleteStatement.setString(
+                        1,
+                        edNo
+                );
+                deleteStatement.executeUpdate();
+            }
+            try (PreparedStatement insertStatement =
+                         databaseConnection.prepareStatement(
+                                 insertSql
+                         )) {
+                for (PendingEmbedding embedding
+                        : embeddings) {
+                    insertStatement.setString(
+                            1,
+                            embedding.edNo()
+                    );
+                    insertStatement.setString(
+                            2,
+                            embedding.captureMode()
+                    );
+                    insertStatement.setBytes(
+                            3,
+                            floatsToBytes(
+                                    embedding.embedding()
+                            )
+                    );
+                    insertStatement.setInt(
+                            4,
+                            embedding.embedding().length
+                    );
+                    insertStatement.addBatch();
+                }
+                insertStatement.executeBatch();
+            }
+            databaseConnection.commit();
+        } catch (Exception exception) {
+            databaseConnection.rollback();
+            if (exception instanceof SQLException sql) {
+                throw sql;
+            }
+            throw new SQLException(
+                    "Unable to replace embeddings for "
+                            + edNo,
+                    exception
+            );
+        } finally {
+            databaseConnection.setAutoCommit(
+                    previousAutoCommit
+            );
+        }
+    }
+
+    private final class FolderTrainingTask
+            extends javafx.concurrent.Task<TrainingSummary> {
+        private final Path trainingRoot;
+
+        private FolderTrainingTask(Path trainingRoot) {
+            this.trainingRoot = trainingRoot;
+        }
+
+        @Override
+        protected TrainingSummary call() throws Exception {
+            return rebuildEmbeddingsFromFolders(
+                    trainingRoot,
+                    this
+            );
+        }
+
+        private void reportMessage(String message) {
+            updateMessage(message);
+        }
+
+        private void reportProgress(
+                long completed,
+                long total
+        ) {
+            updateProgress(completed, total);
+        }
+    }
+
+    private TrainingSummary rebuildEmbeddingsFromFolders(
+            Path trainingRoot,
+            FolderTrainingTask task
+    ) throws Exception {
+        task.reportMessage(
+                "Scanning existing training images..."
+        );
+        List<LegacyImage> trainingImages =
+                discoverLegacyImages(trainingRoot);
+        if (trainingImages.isEmpty()) {
+            throw new IllegalStateException(
+                    "No JPG, JPEG, PNG or BMP images were found in "
+                            + trainingRoot
+            );
+        }
+        List<PendingEmbedding> generatedEmbeddings =
+                new ArrayList<>();
+        Set<String> trainedStudents =
+                new HashSet<>();
+        int rejectedImages = 0;
+        for (int index = 0;
+             index < trainingImages.size();
+             index++) {
+            checkFolderTrainingCancellation(task);
+            LegacyImage item =
+                    trainingImages.get(index);
+            task.reportMessage(
+                    "Processing "
+                            + item.edNo()
+                            + " : "
+                            + item.path().getFileName()
+            );
+            task.reportProgress(
+                    index,
+                    trainingImages.size()
+            );
+            Mat loadedImage = Imgcodecs.imread(
+                    item.path().toString(),
+                    Imgcodecs.IMREAD_UNCHANGED
+            );
+            if (loadedImage.empty()) {
+                loadedImage.release();
+                rejectedImages++;
+                continue;
+            }
+            Mat bgrImage = null;
+            try {
+                bgrImage = ensureBgr(loadedImage);
+                float[] embedding =
+                        extractLegacyEmbedding(bgrImage);
+                if (embedding == null) {
+                    rejectedImages++;
+                    System.err.println(
+                            "No usable face found in: "
+                                    + item.path()
+                    );
+                    continue;
+                }
+                generatedEmbeddings.add(
+                        new PendingEmbedding(
+                                item.edNo(),
+                                item.captureMode(),
+                                embedding
+                        )
+                );
+                trainedStudents.add(
+                        item.edNo()
+                );
+            } catch (Exception exception) {
+                rejectedImages++;
+                System.err.println(
+                        "Rejected training image: "
+                                + item.path()
+                );
+                exception.printStackTrace();
+            } finally {
+                if (bgrImage != null) {
+                    bgrImage.release();
+                }
+                loadedImage.release();
+            }
+        }
+        checkFolderTrainingCancellation(task);
+        if (generatedEmbeddings.isEmpty()) {
+            throw new IllegalStateException(
+                    "None of the training photographs "
+                            + "produced valid SFace embeddings. "
+                            + "Existing embeddings were not changed."
+            );
+        }
+        task.reportMessage(
+                "Saving "
+                        + generatedEmbeddings.size()
+                        + " face embeddings..."
+        );
+        task.reportProgress(
+                trainingImages.size(),
+                trainingImages.size()
+        );
+        replaceAllEmbeddings(
+                generatedEmbeddings,
+                task
+        );
+        reloadEmbeddings();
+        return new TrainingSummary(
+                trainedStudents.size(),
+                generatedEmbeddings.size(),
+                rejectedImages
+        );
+    }
+
+    private List<LegacyImage> discoverLegacyImages(
+            Path trainingRoot
+    ) throws IOException {
+        List<LegacyImage> results =
+                new ArrayList<>();
+        try (var studentFolders =
+                     Files.list(trainingRoot)) {
+            List<Path> folders = studentFolders
+                    .filter(Files::isDirectory)
+                    .sorted()
+                    .toList();
+            for (Path studentFolder : folders) {
+                String edNo =
+                        studentFolder
+                                .getFileName()
+                                .toString()
+                                .trim();
+                if (!mainController
+                        .gradedDataLoader
+                        .getStudentData()
+                        .containsKey(edNo)) {
+                    System.err.println(
+                            "Ignoring unknown student folder: "
+                                    + studentFolder
+                    );
+                    continue;
+                }
+                try (var imagePaths =
+                             Files.walk(studentFolder)) {
+                    List<Path> images = imagePaths
+                            .filter(Files::isRegularFile)
+                            .filter(this::isSupportedTrainingImage)
+                            .sorted()
+                            .toList();
+                    for (Path image : images) {
+                        Path relativePath =
+                                studentFolder.relativize(image);
+                        String captureMode =
+                                relativePath.getNameCount() > 1
+                                        ? relativePath
+                                        .getName(0)
+                                        .toString()
+                                        : "legacy";
+                        results.add(
+                                new LegacyImage(
+                                        edNo,
+                                        captureMode,
+                                        image
+                                )
+                        );
+                    }
+                }
+            }
+        }
+        return results;
+    }
+
+    private boolean isSupportedTrainingImage(
+            Path imagePath
+    ) {
+        String filename = imagePath
+                .getFileName()
+                .toString()
+                .toLowerCase(Locale.ROOT);
+        return filename.endsWith(".jpg")
+                || filename.endsWith(".jpeg")
+                || filename.endsWith(".png")
+                || filename.endsWith(".bmp");
+    }
+
+    private Mat ensureBgr(Mat source) {
+        if (source == null || source.empty()) {
+            throw new IllegalArgumentException(
+                    "Training image is empty."
+            );
+        }
+        Mat result = new Mat();
+        if (source.channels() == 3) {
+            source.copyTo(result);
+        } else if (source.channels() == 1) {
+            Imgproc.cvtColor(
+                    source,
+                    result,
+                    Imgproc.COLOR_GRAY2BGR
+            );
+        } else if (source.channels() == 4) {
+            Imgproc.cvtColor(
+                    source,
+                    result,
+                    Imgproc.COLOR_BGRA2BGR
+            );
+        } else {
+            result.release();
+            throw new IllegalArgumentException(
+                    "Unsupported image channel count: "
+                            + source.channels()
+            );
+        }
+        return result;
+    }
+
+    private float[] extractLegacyEmbedding(
+            Mat bgrImage
+    ) {
+        float[] directEmbedding =
+                extractEmbedding(
+                        bgrImage,
+                        true
+                );
+        if (directEmbedding != null) {
+            return directEmbedding;
+        }
+        int horizontalPadding =
+                Math.max(
+                        24,
+                        bgrImage.cols() / 4
+                );
+        int verticalPadding =
+                Math.max(
+                        24,
+                        bgrImage.rows() / 4
+                );
+        Mat paddedImage = new Mat();
+        try {
+            Core.copyMakeBorder(
+                    bgrImage,
+                    paddedImage,
+                    verticalPadding,
+                    verticalPadding,
+                    horizontalPadding,
+                    horizontalPadding,
+                    Core.BORDER_REPLICATE
+            );
+            return extractEmbedding(
+                    paddedImage,
+                    true
+            );
+        } finally {
+            paddedImage.release();
+        }
+    }
+
+    private void replaceAllEmbeddings(
+            List<PendingEmbedding> embeddings,
+            FolderTrainingTask task
+    ) throws SQLException {
+        Connection databaseConnection =
+                connection();
+        boolean previousAutoCommit =
+                databaseConnection.getAutoCommit();
+        String insertSql = """
+                INSERT INTO FaceEmbedding (
+                ed_no,
+                capture_mode,
+                embedding,
+                embedding_length
+                )
+                VALUES (?, ?, ?, ?)
+                """;
+        try {
+            databaseConnection.setAutoCommit(false);
+            try (Statement deleteStatement =
+                         databaseConnection.createStatement()) {
+                deleteStatement.executeUpdate(
+                        "DELETE FROM FaceEmbedding"
+                );
+            }
+            try (PreparedStatement insertStatement =
+                         databaseConnection.prepareStatement(
+                                 insertSql
+                         )) {
+                int batchCount = 0;
+                for (PendingEmbedding item : embeddings) {
+                    checkFolderTrainingCancellation(task);
+                    insertStatement.setString(
+                            1,
+                            item.edNo()
+                    );
+                    insertStatement.setString(
+                            2,
+                            item.captureMode()
+                    );
+                    insertStatement.setBytes(
+                            3,
+                            floatsToBytes(
+                                    item.embedding()
+                            )
+                    );
+                    insertStatement.setInt(
+                            4,
+                            item.embedding().length
+                    );
+                    insertStatement.addBatch();
+                    batchCount++;
+                    if (batchCount % 250 == 0) {
+                        insertStatement.executeBatch();
+                    }
+                }
+                insertStatement.executeBatch();
+            }
+            databaseConnection.commit();
+        } catch (Exception exception) {
+            databaseConnection.rollback();
+            if (exception
+                    instanceof CancellationException cancellation) {
+                throw cancellation;
+            }
+            if (exception
+                    instanceof SQLException sqlException) {
+                throw sqlException;
+            }
+            throw new SQLException(
+                    "Unable to replace all face embeddings.",
+                    exception
+            );
+        } finally {
+            databaseConnection.setAutoCommit(
+                    previousAutoCommit
+            );
+        }
+    }
+
+    private void checkFolderTrainingCancellation(
+            FolderTrainingTask task
+    ) {
+        if (task.isCancelled()
+                || Thread.currentThread().isInterrupted()) {
+            throw new CancellationException(
+                    "Folder training was cancelled."
+            );
+        }
+    }
+
+    private record LegacyImage(
+            String edNo,
+            String captureMode,
+            Path path
+    ) {
+    }
+
+    private record PendingEmbedding(
+            String edNo,
+            String captureMode,
+            float[] embedding
+    ) {
+    }
+
+    private record TrainingSummary(
+            int students,
+            int embeddings,
+            int rejected
+    ) {
+    }
+
+    private void saveEnrollmentImage(
+            Mat frame,
+            String mode,
+            String enrollmentImagePath
+    ) throws IOException {
+        if (enrollmentImagePath == null
+                || enrollmentImagePath.isBlank()) {
+            throw new IOException(
+                    "Enrollment image directory is unavailable."
+            );
+        }
+
+        File directory =
+                new File(
+                        enrollmentImagePath,
+                        mode
+                );
+
+        if (!directory.exists()
+                && !directory.mkdirs()) {
+            throw new IOException(
+                    "Cannot create " + directory
+            );
+        }
+
+        File output =
+                new File(
+                        directory,
+                        System.nanoTime() + ".jpg"
+                );
+
+        if (!Imgcodecs.imwrite(
+                output.getAbsolutePath(),
+                frame
+        )) {
+            throw new IOException(
+                    "OpenCV could not save the enrollment image."
+            );
+        }
+    }
+
+    private void saveEmbedding(String edNo, String mode, float[] vector) throws SQLException {
+        String sql = "INSERT INTO FaceEmbedding(ed_no,capture_mode,embedding,embedding_length) VALUES(?,?,?,?)";
+        try (PreparedStatement st = connection().prepareStatement(sql)) {
+            st.setString(1, edNo);
+            st.setString(2, mode);
+            st.setBytes(3, floatsToBytes(vector));
+            st.setInt(4, vector.length);
+            st.executeUpdate();
+        }
+    }
+
+    private float[] extractEmbedding(Mat bgrFrame, boolean demandSingleFace) {
+        Detection detection = detectBestFace(bgrFrame, demandSingleFace);
+        if (detection == null) return null;
+        Mat aligned = new Mat();
+        Mat feature = new Mat();
+        try {
+            synchronized (modelLock) {
+                recognizer.alignCrop(bgrFrame, detection.originalScaleFaceRow(), aligned);
+                recognizer.feature(aligned, feature);
+            }
+            int length = (int) feature.total() * feature.channels();
+            if (length <= 0) return null;
+            float[] values = new float[length];
+            feature.get(0, 0, values);
+            normalize(values);
+            return values;
+        } finally {
+            detection.close();
+            aligned.release();
+            feature.release();
+        }
+    }
+
+    private Detection detectBestFace(Mat original, boolean demandSingleFace) {
+        if (!modelsReady.get() || original.empty()) return null;
+        Mat small = new Mat();
+        Mat faces = new Mat();
+        try {
+            Imgproc.resize(original, small, new Size(DETECTION_WIDTH, DETECTION_HEIGHT));
+            synchronized (modelLock) {
+                detector.setInputSize(small.size());
+                detector.detect(small, faces);
+            }
+            if (faces.empty() || faces.rows() == 0) return null;
+            if (demandSingleFace && faces.rows() != 1) return null;
+            int best = 0;
+            double bestArea = -1;
+            float[] row = new float[15];
+            for (int i = 0; i < faces.rows(); i++) {
+                faces.get(i, 0, row);
+                double area = row[2] * row[3];
+                if (area > bestArea) {
+                    bestArea = area;
+                    best = i;
+                }
+            }
+            faces.get(best, 0, row);
+            double sx = original.cols() / (double) DETECTION_WIDTH;
+            double sy = original.rows() / (double) DETECTION_HEIGHT;
+            float[] scaled = row.clone();
+            for (int i = 0; i <= 12; i += 2) {
+                scaled[i] *= (float) sx;
+                scaled[i + 1] *= (float) sy;
+            }
+            Mat faceRow = new Mat(1, 15, CvType.CV_32F);
+            faceRow.put(0, 0, scaled);
+            Rect rect = new Rect(
+                    Math.max(0, Math.round(row[0] * (float) sx)),
+                    Math.max(0, Math.round(row[1] * (float) sy)),
+                    Math.max(1, Math.round(row[2] * (float) sx)),
+                    Math.max(1, Math.round(row[3] * (float) sy)));
+            rect.width = Math.min(rect.width, original.cols() - rect.x);
+            rect.height = Math.min(rect.height, original.rows() - rect.y);
+            return new Detection(faceRow, rect, row[14]);
+        } finally {
+            small.release();
+            faces.release();
+        }
+    }
+
+    private FaceMatch findBestMatch(float[] query) {
+        String bestEd = null, secondEd = null;
+        double best = -1.0, second = -1.0;
+        for (var entry : knownEmbeddings.entrySet()) {
+            double identityBest = -1.0;
+            for (float[] candidate : entry.getValue()) {
+                if (candidate.length == query.length) identityBest = Math.max(identityBest, dot(query, candidate));
+            }
+            if (identityBest > best) {
+                second = best;
+                secondEd = bestEd;
+                best = identityBest;
+                bestEd = entry.getKey();
+            } else if (identityBest > second) {
+                second = identityBest;
+                secondEd = entry.getKey();
+            }
+        }
+        if (bestEd == null) return null;
+        return new FaceMatch(bestEd, best, secondEd, second);
+    }
+
+    private void requestRecognition() {
+        if (folderTraining.get()) {
+            return;
+        }
+        if (!recognitionMode.get() || !modelsReady.get() || knownEmbeddings.isEmpty()) return;
+        long now = System.nanoTime();
+        if (now - lastRecognitionTime < RECOGNITION_INTERVAL_NS) return;
+        if (!processing.compareAndSet(false, true)) return;
+        lastRecognitionTime = now;
+        Mat copy;
+        synchronized (frameLock) {
+            if (cleanFrame.empty()) {
+                processing.set(false);
+                return;
+            }
+            copy = cleanFrame.clone();
+        }
+        try {
+            recognitionWorker.submit(() -> {try {
+                recognitionWorker.submit(() -> {
+                    try {
+                        float[] query =
+                                extractEmbedding(
+                                        copy,
+                                        false
+                                );
+
+                        FaceMatch match =
+                                query == null
+                                        ? null
+                                        : findBestMatch(query);
+
+                        runFx(() ->
+                                processRecognitionResult(match)
+                        );
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    } finally {
+                        copy.release();
+                        processing.set(false);
+                    }
+                });
+            } catch (RejectedExecutionException exception) {
+                copy.release();
+                processing.set(false);
+            }});
+        } catch (RejectedExecutionException e) {
+            copy.release();
+            processing.set(false);
+        }
+    }
+
+    private void processRecognitionResult(FaceMatch match) {
+        if (match == null || match.bestScore() < similarityThreshold ||
+                match.bestScore() - match.secondScore() < scoreMargin) {
+            resetRecognition();
+            return;
+        }
+        if (Objects.equals(currentCandidate, match.edNo())) {
+            consecutiveMatches++;
+            scoreSum += match.bestScore();
+        } else {
+            currentCandidate = match.edNo();
+            consecutiveMatches = 1;
+            scoreSum = match.bestScore();
+        }
+        if (consecutiveMatches < requiredRecognitionCount) return;
+        String accepted = currentCandidate;
+        double average = scoreSum / consecutiveMatches;
+        resetRecognition();
+        if (average >= similarityThreshold && tryAcceptRecognition(accepted)) processAcceptedStudent(accepted, average);
+    }
+
+    private synchronized boolean tryAcceptRecognition(String edNo) {
+        long now = System.currentTimeMillis();
+        if (acceptedFaceMustLeave && Objects.equals(edNo, lastAcceptedEdNo)) return false;
+        if (Objects.equals(edNo, lastAcceptedEdNo) && now - lastAcceptedAt < RECOGNITION_COOLDOWN_MS) return false;
+        lastAcceptedEdNo = edNo;
+        lastAcceptedAt = now;
+        acceptedFaceMustLeave = true;
+        consecutiveNoFaceFrames = 0;
+        return true;
+    }
+
+    private void processAcceptedStudent(String studentKey, double score) {
+        var studentMap = homeController.studentAttendance.mainController.gradedDataLoader.getStudentData();
+        var student = studentMap.get(studentKey);
+        if (student == null) {
+            showRecognitionMessage("Recognized enrollment was not found: " + studentKey);
+            return;
+        }
+        var attendanceMap = homeController.studentAttendance.attendanceMap;
+        if (!attendanceMap.containsKey(studentKey)) {
+            String now = LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH));
+            homeController.studentAttendance.updateCheckIn(studentKey, now);
+            showRecognitionMessage(studentKey + " " + student.name() + " you are marked as present");
+            return;
+        }
+        var attendance = attendanceMap.get(studentKey);
+        if (attendance == null) {
+            showRecognitionMessage("Attendance information is unavailable for " + studentKey);
+            return;
+        }
+        if (attendance.getCheck_out() != null) {
+            showRecognitionMessage(studentKey + " attendance is already completed.");
+            return;
+        }
+        processCheckout(studentKey, attendance.getCheck_in());
+    }
+
+    private void processCheckout(String edNo, String checkInText) {
+        if (checkInText == null || checkInText.isBlank()) {
+            showRecognitionMessage("Check-in time is unavailable for " + edNo);
+            return;
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH);
+        try {
+            LocalTime checkIn = LocalTime.parse(checkInText.trim().toUpperCase(Locale.ENGLISH), formatter);
+            Duration duration = Duration.between(checkIn, LocalTime.now());
+            if (duration.isNegative()) duration = duration.plusDays(1);
+            long minutes = duration.toMinutes();
+            if (minutes < 45) {
+                showRecognitionMessage("Cannot checkout before 45 minutes. Spent " + minutes + " minutes.");
+                return;
+            }
+            homeController.studentAttendance.updateCheckOut(edNo);
+            showRecognitionMessage(edNo + " checkout done");
+        } catch (Exception e) {
+            showRecognitionMessage("Invalid check-in time for " + edNo);
+        }
+    }
+
+    private void startCamera(int index) {
+        if (disposed.get()) {
             return;
         }
 
-        camera.set(
-                CAP_PROP_FRAME_WIDTH,
-                1280
-        );
+        synchronized (cameraLock) {
+            if (camera != null
+                    && camera.isOpened()
+                    && currentCameraIndex == index) {
+                cameraStarted.set(true);
+                return;
+            }
+        }
 
-        camera.set(
-                CAP_PROP_FRAME_HEIGHT,
-                720
-        );
+        stopCameraOnly();
 
-        timer = Executors
-                .newSingleThreadScheduledExecutor();
+        if (disposed.get()) {
+            return;
+        }
 
-        timer.scheduleAtFixedRate(
-                this::grabFrame,
+        VideoCapture opened =
+                openCameraDevice(index);
+
+        if (disposed.get()) {
+            opened.release();
+            return;
+        }
+
+        synchronized (cameraLock) {
+            if (disposed.get()) {
+                opened.release();
+                return;
+            }
+
+            camera = opened;
+            currentCameraIndex = index;
+        }
+
+        cameraStarted.set(true);
+        consecutiveReadFailures = 0;
+
+        ScheduledExecutorService newTimer =
+                Executors.newSingleThreadScheduledExecutor(
+                        runnable -> {
+                            Thread thread =
+                                    new Thread(
+                                            runnable,
+                                            "attendance-camera-capture"
+                                    );
+
+                            thread.setDaemon(true);
+                            return thread;
+                        }
+                );
+
+        cameraTimer = newTimer;
+
+        newTimer.scheduleWithFixedDelay(
+                this::grabFrameSafely,
                 0,
-                100,
+                FRAME_DELAY_MS,
                 TimeUnit.MILLISECONDS
         );
     }
 
-    private void grabFrame() {
-        Mat localFrame = new Mat();
-        Mat localGray = new Mat();
-
+    private void grabFrameSafely() {
+        if (disposed.get()) return;
         try {
-            VideoCapture currentCamera = camera;
+            grabFrame();
+        } catch (Throwable t) {
+            t.printStackTrace();
+            scheduleRestart();
+        }
+    }
 
-            if (currentCamera == null ||
-                    !currentCamera.isOpened() ||
-                    !currentCamera.read(localFrame) ||
-                    localFrame.empty()) {
-
-                System.out.println("Camera frame lost.");
-                restartCameraAsync();
+    private void grabFrame() {
+        Mat frame = new Mat();
+        try {
+            boolean read;
+            synchronized (cameraLock) {
+                read = camera != null && camera.isOpened() && camera.read(frame);
+            }
+            if (!read || frame.empty()) {
+                if (++consecutiveReadFailures >= MAX_READ_FAILURES) scheduleRestart();
                 return;
             }
-
-            flip(localFrame, localFrame, 1);
-            cvtColor(localFrame, localGray, COLOR_BGR2GRAY);
-
-            RectVector faces = new RectVector();
-
-            try {
-                faceDetector.detectMultiScale(
-                        localGray,
-                        faces,
-                        1.1,
-                        5,
-                        0,
-                        new Size(50, 50),
-                        new Size()
-                );
-
-                Rect detectedFace = findLargestFace(faces);
-
-                */
-/*
-                 * Publish the clean frame and detected rectangle quickly.
-                 * Do not perform expensive processing while holding the lock.
-                 *//*
-
-                synchronized (frameLock) {
-                    localFrame.copyTo(cleanFrame);
-
-                    lastFace = detectedFace == null
-                            ? null
-                            : new Rect(
-                            detectedFace.x(),
-                            detectedFace.y(),
-                            detectedFace.width(),
-                            detectedFace.height()
-                    );
-                }
-
-                if (detectedFace != null) {
-                    // Use localGray/localFrame instead of shared gray/frame.
-                   */
-/* faceMovementDetection(
-                            localFrame,
-                            localGray,
-                            detectedFace
-                    );*//*
-
-
-                    rectangle(
-                            localFrame,
-                            new Point(
-                                    detectedFace.x(),
-                                    detectedFace.y()
-                            ),
-                            new Point(detectedFace.x() + detectedFace.width(), detectedFace.y() + detectedFace.height()),
-                            new Scalar(0, 255, 0, 0),
-                            2,
-                            LINE_8,
-                            0
-                    );
-                }
-
-                Image image = matToImage(localFrame);
-                boolean faceDetected = detectedFace != null;
-
-                Platform.runLater(() -> {
-                    cameraView.setPhoto(image);
-
-                    if (cameraView.getStyleClass().size() > 1) {
-                        if (faceDetected)
-                            if (((ToggleButton) modes.getSelectedToggle()).getText().equals("Face Detector") && (System.currentTimeMillis() - recognitionTime) > 10_000)
-                                tryIdentifying();
-                        cameraView.getStyleClass().set(
-                                1,
-                                faceDetected ? "border-circle-green" : "border-circle-red"
-                        );
-                        if (studentCameraView != null)
-                            studentCameraView.getStyleClass().set(
-                                    1,
-                                    faceDetected ? "border-circle-green" : "border-circle-red"
-                            );
-                    }
-                    if (studentCameraView != null) {
-                        studentCameraView.setPhoto(image);
-                    }
-                });
-            } finally {
-                faces.close();
+            consecutiveReadFailures = 0;
+            Core.flip(frame, frame, 1);
+            Detection detection = modelsReady.get() ? detectBestFace(frame, false) : null;
+            boolean facePresent = detection != null;
+            synchronized (frameLock) {
+                frame.copyTo(cleanFrame);
+                if (lastFaceRow != null) lastFaceRow.release();
+                lastFaceRow = detection == null ? null : detection.originalScaleFaceRow().clone();
             }
-        } catch (Exception exception) {
-            exception.printStackTrace();
+            if (detection != null) {
+                Imgproc.rectangle(frame, detection.rect(), new Scalar(0, 255, 0), 2);
+                detection.close();
+            }
+            updateFacePresence(facePresent);
+            if (facePresent) requestRecognition();
+            publishFrame(frame, facePresent);
         } finally {
-            localFrame.close();
-            localGray.close();
+            frame.release();
         }
     }
 
-    private void faceMovementDetection(
-            Mat outputFrame,
-            Mat grayFrame,
-            Rect largestFace
-    ) {
-        try (RectVector faceVector = new RectVector(1)) {
-            faceVector.put(0, largestFace);
-
-            try (Point2fVectorVector landmarks =
-                         new Point2fVectorVector()) {
-
-                boolean success = facemark.fit(
-                        grayFrame,
-                        faceVector,
-                        landmarks
-                );
-
-                if (success && landmarks.size() > 0) {
-                    Point2fVector points = landmarks.get(0);
-
-                    // Remaining pose calculation...
-
-                    for (long i = 0; i < points.size(); i++) {
-                        Point2f point = points.get(i);
-
-                        circle(
-                                outputFrame,
-                                new Point(
-                                        Math.round(point.x()),
-                                        Math.round(point.y())
-                                ),
-                                4,
-                                new Scalar(0, 255, 0, 0),
-                                FILLED,
-                                LINE_8,
-                                0
-                        );
-                    }
-                }
-            }
-        }
-    }
-
-    private Rect findLargestFace(RectVector faces) {
-        if (faces == null || faces.size() == 0) {
-            Platform.runLater(() -> {
-                if (studentMessage != null)
-                    studentMessage.setText("Please stand in front of the camera");
-            });
-            return null;
-        }
-
-        Rect first = faces.get(0);
-
-        Rect largest = new Rect(
-                first.x(),
-                first.y(),
-                first.width(),
-                first.height()
-        );
-
-        for (long i = 1; i < faces.size(); i++) {
-            Rect current = faces.get(i);
-
-            if (current.area() > largest.area()) {
-                largest.close();
-
-                largest = new Rect(
-                        current.x(),
-                        current.y(),
-                        current.width(),
-                        current.height()
-                );
-            }
-        }
-
-        return largest;
-    }
-
-    private final AtomicBoolean restartingCamera =
-            new AtomicBoolean(false);
-
-    private void restartCameraAsync() {
-        if (!restartingCamera.compareAndSet(false, true)) {
+    private synchronized void updateFacePresence(boolean present) {
+        if (present) {
+            consecutiveNoFaceFrames = 0;
             return;
         }
-
-        executor.submit(() -> {
-            try {
-                restartCamera();
-            } finally {
-                restartingCamera.set(false);
-            }
-        });
-    }
-
-    private void create3DModel() {
-        DoubleIndexer obj;
-        objectPoints = new Mat(6, 3, CV_64FC1);
-        obj = objectPoints.createIndexer();
-
-
-        obj.put(0, 0, 0.0);
-        obj.put(0, 1, 0.0);
-        obj.put(0, 2, 0.0);      // Nose
-        obj.put(1, 0, 0.0);
-        obj.put(1, 1, -330.0);
-        obj.put(1, 2, -65.0);    // Chin
-        obj.put(2, 0, -225.0);
-        obj.put(2, 1, 170.0);
-        obj.put(2, 2, -135.0);   // Left eye
-        obj.put(3, 0, 225.0);
-        obj.put(3, 1, 170.0);
-        obj.put(3, 2, -135.0);   // Right eye
-        obj.put(4, 0, -150.0);
-        obj.put(4, 1, -150.0);
-        obj.put(4, 2, -125.0);   // Left mouth
-        obj.put(5, 0, 150.0);
-        obj.put(5, 1, -150.0);
-        obj.put(5, 2, -125.0);   // Right mouth
-    }
-
-
-    private Image matToImage(Mat mat) {
-
-        try (BytePointer buffer =
-                     new BytePointer()) {
-
-            imencode(
-                    ".jpg",
-                    mat,
-                    buffer
-            );
-
-            byte[] bytes =
-                    new byte[(int)
-                            buffer.limit()];
-
-            buffer.get(bytes);
-
-            return new Image(
-                    new ByteArrayInputStream(
-                            bytes
-                    )
-            );
-        }
-    }
-
-
-    public void stopCamera() {
-
-        if (timer != null) {
-
-            timer.shutdownNow();
-
-            timer = null;
-        }
-
-        if (camera != null) {
-
-            camera.release();
-
-            camera.close();
-
-            camera = null;
-        }
-    }
-
-    public ObservableList<String> getAvailableCameras() {
-
-        ObservableList<String> cameras =
-                FXCollections.observableArrayList();
-
-        for (int i = 0; i < 2; i++) {
-
-            try (VideoCapture cap =
-                         new VideoCapture(
-                                 i,
-                                 CAP_DSHOW
-                         )) {
-
-                if (cap.isOpened()) {
-
-                    cameras.add(
-                            "Camera " + i
-                    );
-
-                    cap.release();
-                }
-            } catch (Exception ignored) {
-            }
-        }
-
-        return cameras;
-    }
-
-    private int currentCameraIndex = 0;
-
-    private void restartCamera() {
-
-        try {
-
-            if (camera != null) {
-                camera.release();
-                camera.close();
-            }
-
-            Thread.sleep(1000);
-
-            camera = new VideoCapture(
-                    currentCameraIndex,
-                    CAP_DSHOW
-            );
-
-            camera.set(
-                    CAP_PROP_FRAME_WIDTH,
-                    1280
-            );
-
-            camera.set(
-                    CAP_PROP_FRAME_HEIGHT,
-                    720
-            );
-
-            System.out.println(
-                    "Camera restarted."
-            );
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-        }
-    }
-
-    private void startTraining(Task<?> task) {
-
-        String dataPath = System.getProperty("user.home") +
-                "/gardeEdAttendanceData";
-
-        File root = new File(dataPath);
-
-        if (!root.exists()) {
-            System.out.println(dataPath);
-            System.out.println("Data folder not found");
-            return;
-        }
-
-        List<Mat> imageList = new ArrayList<>();
-        List<Integer> labelList = new ArrayList<>();
-
-        File[] studentFolders = root.listFiles(File::isDirectory);
-
-        if (studentFolders == null ||
-                studentFolders.length == 0) {
-
-            System.out.println("No student folders found");
-            return;
-        }
-
-        int totalImages = 0;
-        System.out.println(studentFolders.length);
-        for (File studentFolder : studentFolders) {
-
-            int label;
-
-            try {
-                label = Integer.parseInt(
-                        studentFolder.getName().replace("ED", "")
-                );
-            } catch (NumberFormatException e) {
-                continue;
-            }
-            List<File> images = findTrainingImages(studentFolder);
-
-            for (File imageFile : images) {
-
-                Mat image = imread(
-                        imageFile.getAbsolutePath(),
-                        0
-                );
-
-                if (image.empty()) {
-                    continue;
-                }
-
-                resize(
-                        image,
-                        image,
-                        new Size(200, 200)
-                );
-
-                equalizeHist(
-                        image,
-                        image
-                );
-
-                imageList.add(image);
-                labelList.add(label);
-
-                totalImages++;
-            }
-        }
-
-        if (imageList.isEmpty()) {
-
-            System.out.println(
-                    "No valid training images found"
-            );
-            return;
-        }
-
-        MatVector images =
-                new MatVector(imageList.size());
-
-        for (int i = 0; i < imageList.size(); i++) {
-
-            images.put(
-                    i,
-                    imageList.get(i)
-            );
-        }
-
-        Mat labels = new Mat(
-                labelList.size(),
-                1,
-                CV_32SC1
-        );
-
-        IntBuffer buffer =
-                labels.createBuffer();
-
-        for (int i = 0; i < labelList.size(); i++) {
-
-            buffer.put(
-                    i,
-                    labelList.get(i)
-            );
-        }
-        try (
-                LBPHFaceRecognizer recognizer =
-                        LBPHFaceRecognizer.create(
-                                1,      // radius
-                                8,      // neighbors
-                                8,      // gridX
-                                8,      // gridY
-                                80      // threshold
-                        )
-        ) {
-
-            recognizer.train(
-                    images,
-                    labels
-            );
-
-            recognizer.save(
-                    System.getProperty("user.home") + "/attendance_model.yml"
-            );
-
-            System.out.println(
-                    "Training completed successfully"
-            );
-
-            System.out.println(
-                    "Students : "
-                            + studentFolders.length
-            );
-
-            System.out.println(
-                    "Images : "
-                            + totalImages
-            );
-
-            System.out.println(
-                    "Model : attendance_model.yml"
-            );
-            loadRecognizer();
+        if (++consecutiveNoFaceFrames >= REQUIRED_NO_FACE_FRAMES) {
+            acceptedFaceMustLeave = false;
+            consecutiveNoFaceFrames = 0;
             resetRecognition();
         }
     }
 
-    private List<File> findTrainingImages(File directory) {
-        List<File> images = new ArrayList<>();
+    private void publishFrame(Mat bgr, boolean present) {
+        long now = System.nanoTime();
+        if (now - lastUiFrameTime < UI_INTERVAL_NS || !uiFramePending.compareAndSet(false, true)) return;
+        lastUiFrameTime = now;
+        Image image;
+        try {
+            image = matToImage(bgr);
+        } catch (Exception e) {
+            uiFramePending.set(false);
+            return;
+        }
+        runFx(() -> {
+            try {
+                if (cameraView != null) {
+                    cameraView.setPhoto(image);
+                    applyFaceBorder(cameraView, present, true);
+                }
+                if (studentCameraView != null && studentStage != null && studentStage.isShowing()) {
+                    studentCameraView.setPhoto(image);
+                    applyFaceBorder(studentCameraView, present, false);
+                }
+            } finally {
+                uiFramePending.set(false);
+            }
+        });
+    }
 
-        File[] files = directory.listFiles();
-
-        if (files == null) {
-            return images;
+    private Image matToImage(Mat bgr) {
+        Mat rgb = new Mat();
+        Mat resized = new Mat();
+        try {
+            Imgproc.resize(bgr, resized, new Size(DETECTION_WIDTH, DETECTION_HEIGHT));
+            Imgproc.cvtColor(resized, rgb, Imgproc.COLOR_BGR2RGB);
+            byte[] data = new byte[(int) (rgb.total() * rgb.channels())];
+            rgb.get(0, 0, data);
+            WritableImage image = new WritableImage(rgb.cols(), rgb.rows());
+            image.getPixelWriter().setPixels(0, 0, rgb.cols(), rgb.rows(),
+                    PixelFormat.getByteRgbInstance(), data, 0, rgb.cols() * 3);
+            return image;
+        } finally {
+            rgb.release();
+            resized.release();
+        }
+    }
+    @FXML
+    private void refreshCameraList() {
+        if (disposed.get()
+                || cameraSwitching.get()
+                || folderTraining.get()) {
+            return;
         }
 
-        for (File file : files) {
-            if (file.isDirectory()) {
-                images.addAll(findTrainingImages(file));
-            } else if (isSupportedImage(file)) {
-                images.add(file);
+        if (!cameraSwitching.compareAndSet(
+                false,
+                true
+        )) {
+            return;
+        }
+
+        cameraList.setDisable(true);
+
+        int previousIndex =
+                currentCameraIndex;
+
+        try {
+            cameraWorker.submit(() -> {
+                List<CameraDevice> devices =
+                        List.of();
+
+                try {
+                    */
+/*
+                     * Stop the active camera before probing Windows devices.
+                     *//*
+
+                    stopCameraOnly();
+
+                    devices =
+                            scanCameras();
+
+                    int indexToOpen =
+                            devices.stream()
+                                    .anyMatch(device ->
+                                            device.index()
+                                                    == previousIndex)
+                                    ? previousIndex
+                                    : devices.isEmpty()
+                                    ? -1
+                                    : devices.get(0).index();
+
+                    if (indexToOpen >= 0) {
+                        startCamera(indexToOpen);
+                    }
+
+                    List<CameraDevice> finalDevices =
+                            devices;
+
+                    int finalIndex =
+                            indexToOpen;
+
+                    runFx(() -> {
+                        cameraList.setItems(
+                                FXCollections.observableArrayList(
+                                        finalDevices
+                                )
+                        );
+
+                        finalDevices.stream()
+                                .filter(device ->
+                                        device.index()
+                                                == finalIndex)
+                                .findFirst()
+                                .ifPresent(device ->
+                                        cameraList
+                                                .getSelectionModel()
+                                                .select(device)
+                                );
+
+                        if (finalDevices.isEmpty()) {
+                            showRecognitionMessage(
+                                    "No accessible camera was found."
+                            );
+                        } else {
+                            showRecognitionMessage(
+                                    "Camera list refreshed."
+                            );
+                        }
+                    });
+                } catch (Exception exception) {
+                    runFx(() -> showError(
+                            "Unable to refresh cameras",
+                            rootMessage(exception)
+                    ));
+                } finally {
+                    cameraSwitching.set(false);
+
+                    runFx(() ->
+                            cameraList.setDisable(false)
+                    );
+                }
+            });
+        } catch (RejectedExecutionException exception) {
+            cameraSwitching.set(false);
+            cameraList.setDisable(false);
+        }
+    }
+    private List<CameraDevice> scanCameras() {
+        List<CameraDevice> found =
+                new ArrayList<>();
+
+        int activeIndex = -1;
+
+        synchronized (cameraLock) {
+            if (camera != null && camera.isOpened()) {
+                activeIndex = currentCameraIndex;
+
+                found.add(
+                        new CameraDevice(
+                                activeIndex,
+                                "Camera " + activeIndex
+                        )
+                );
             }
         }
 
-        return images;
+        for (int index = 0;
+             index < MAX_CAMERA_INDEX;
+             index++) {
+
+            if (disposed.get()
+                    || Thread.currentThread().isInterrupted()) {
+                break;
+            }
+
+            */
+/*
+             * Never open the active device for testing.
+             *//*
+
+            if (index == activeIndex) {
+                continue;
+            }
+
+            VideoCapture test =
+                    null;
+
+            try {
+                test = openCameraDevice(index);
+
+                found.add(
+                        new CameraDevice(
+                                index,
+                                "Camera " + index
+                        )
+                );
+            } catch (CancellationException exception) {
+                break;
+            } catch (Exception ignored) {
+                */
+/*
+                 * This index does not contain an accessible camera.
+                 *//*
+
+            } finally {
+                if (test != null) {
+                    test.release();
+                }
+            }
+        }
+
+        found.sort(
+                Comparator.comparingInt(
+                        CameraDevice::index
+                )
+        );
+
+        return found;
     }
 
-    private boolean isSupportedImage(File file) {
-        String name = file.getName().toLowerCase();
+    private void configureCameraList(
+            List<CameraDevice> devices
+    ) {
+        installCameraSelectionListener();
 
-        return name.endsWith(".jpg")
-                || name.endsWith(".jpeg")
-                || name.endsWith(".png")
-                || name.endsWith(".bmp");
+        if (devices == null || devices.isEmpty()) {
+            cameraList.setDisable(true);
+            startCapture.setDisable(true);
+            showRecognitionMessage(
+                    "No camera found."
+            );
+            return;
+        }
+
+        int selectedIndex =
+                currentCameraIndex;
+
+        cameraList.setItems(
+                FXCollections.observableArrayList(
+                        devices
+                )
+        );
+
+        CameraDevice selected =
+                devices.stream()
+                        .filter(device ->
+                                device.index()
+                                        == selectedIndex
+                        )
+                        .findFirst()
+                        .orElse(devices.get(0));
+
+        cameraList.getSelectionModel()
+                .select(selected);
+
+        cameraList.setDisable(false);
+        startCapture.setDisable(
+                recognitionMode.get()
+        );
+    }
+
+    private void switchCamera(int index) {
+        if (disposed.get()) {
+            return;
+        }
+
+        synchronized (cameraLock) {
+            if (camera != null
+                    && camera.isOpened()
+                    && currentCameraIndex == index) {
+                return;
+            }
+        }
+
+        if (!cameraSwitching.compareAndSet(
+                false,
+                true
+        )) {
+            return;
+        }
+
+        cameraList.setDisable(true);
+
+        try {
+            cameraWorker.submit(() -> {
+                try {
+                    startCamera(index);
+
+                    runFx(() -> {
+                        showRecognitionMessage(
+                                modelsReady.get()
+                                        ? "Camera and face recognition are ready."
+                                        : "Camera started. Loading face models..."
+                        );
+                    });
+                } catch (Exception exception) {
+                    runFx(() -> showError(
+                            "Unable to start camera",
+                            rootMessage(exception)
+                    ));
+                } finally {
+                    cameraSwitching.set(false);
+
+                    runFx(() -> {
+                        if (cameraList != null) {
+                            cameraList.setDisable(false);
+                        }
+                    });
+                }
+            });
+        } catch (RejectedExecutionException exception) {
+            cameraSwitching.set(false);
+
+            if (cameraList != null) {
+                cameraList.setDisable(false);
+            }
+        }
+    }
+
+    private void scheduleRestart() {
+        if (disposed.get()
+                || !restartingCamera.compareAndSet(
+                false,
+                true
+        )) {
+            return;
+        }
+
+        try {
+            cameraWorker.submit(() -> {
+                try {
+                    Thread.sleep(1_000);
+
+                    if (!disposed.get()) {
+                        startCamera(
+                                currentCameraIndex
+                        );
+
+                        runFx(() ->
+                                showRecognitionMessage(
+                                        modelsReady.get()
+                                                ? "Camera restarted successfully."
+                                                : "Camera restarted. Loading face models..."
+                                )
+                        );
+                    }
+                } catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
+                } catch (Exception exception) {
+                    System.err.println(
+                            "Camera restart failed: "
+                                    + rootMessage(exception)
+                    );
+                } finally {
+                    restartingCamera.set(false);
+                }
+            });
+        } catch (RejectedExecutionException exception) {
+            restartingCamera.set(false);
+        }
+    }
+
+    public void stopCamera() {
+        stopCameraOnly();
+        runFx(() -> {
+            if (cameraView != null) cameraView.setPhoto(null);
+            if (studentCameraView != null) studentCameraView.setPhoto(null);
+        });
+    }
+
+    private void stopCameraOnly() {
+        ScheduledExecutorService timer =
+                cameraTimer;
+
+        cameraTimer = null;
+
+        if (timer != null) {
+            timer.shutdownNow();
+
+            if (!Thread.currentThread()
+                    .getName()
+                    .equals("attendance-camera-capture")) {
+                try {
+                    timer.awaitTermination(
+                            300,
+                            TimeUnit.MILLISECONDS
+                    );
+                } catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+
+        VideoCapture oldCamera;
+
+        synchronized (cameraLock) {
+            oldCamera = camera;
+            camera = null;
+        }
+
+        if (oldCamera != null) {
+            oldCamera.release();
+        }
+
+        cameraStarted.set(false);
+        consecutiveReadFailures = 0;
+
+        synchronized (frameLock) {
+            */
+/*
+             * Do not release cleanFrame here because it is a final Mat
+             * that must be reusable when another camera starts.
+             *//*
+
+            cleanFrame.setTo(
+                    new Scalar(0)
+            );
+
+            if (lastFaceRow != null) {
+                lastFaceRow.release();
+                lastFaceRow = null;
+            }
+        }
+
+        processing.set(false);
+        resetRecognitionSession();
+    }
+
+    public void dispose() {
+        if (!disposed.compareAndSet(
+                false,
+                true
+        )) {
+            return;
+        }
+
+        folderTraining.set(false);
+        recognitionMode.set(false);
+        processing.set(false);
+
+        stopCameraOnly();
+
+        cameraWorker.shutdownNow();
+        initializationWorker.shutdownNow();
+        recognitionWorker.shutdownNow();
+        maintenanceWorker.shutdownNow();
+
+        synchronized (modelLock) {
+            */
+/*
+             * Java OpenCV FaceDetectorYN and FaceRecognizerSF wrappers
+             * do not consistently expose a public release method across
+             * OpenCV Java versions. Removing references permits cleanup.
+             *//*
+
+            detector = null;
+            recognizer = null;
+            modelsReady.set(false);
+        }
+
+        synchronized (frameLock) {
+            cleanFrame.release();
+
+            if (lastFaceRow != null) {
+                lastFaceRow.release();
+                lastFaceRow = null;
+            }
+        }
+
+        knownEmbeddings.clear();
+
+        if (studentStage != null) {
+            studentStage.close();
+        }
+
+        studentStage = null;
+        studentCameraView = null;
+        studentMessage = null;
+    }
+
+    @FXML
+    private void openStudentDisplay() {
+        if (studentStage != null && studentStage.isShowing()) {
+            studentStage.toFront();
+            return;
+        }
+        studentCameraView = new PhotoView();
+        studentCameraView.setEditable(false);
+        studentCameraView.setMinSize(512, 512);
+        studentMessage = new Label("Please stand in front of the camera");
+        studentMessage.setStyle("-fx-font-size:22px;-fx-font-weight:bold;");
+        VBox content = new VBox(20, studentCameraView, studentMessage);
+        content.setAlignment(Pos.CENTER);
+        SVGImageView logo = new SVGImageView();
+        logo.setFitHeight(48);
+        logo.setSvgUrl(GradedResourceLoader.load("icons/my-logo.svg"));
+        var logoView=new HBox(logo);
+        logoView.setAlignment(Pos.CENTER);
+        VBox root = new VBox(content, logoView);
+        VBox.setVgrow(content, Priority.ALWAYS);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new Insets(12));
+        Scene scene = new Scene(root, 1280, 720);
+        scene.getStylesheets().add(GradedResourceLoader.load("css/camera-style.css"));
+        studentStage = new Stage();
+        studentStage.setTitle("Student Display");
+        studentStage.setScene(scene);
+        studentStage.setOnHidden(e -> {
+            studentCameraView = null;
+            studentMessage = null;
+            studentStage = null;
+        });
+        studentStage.show();
+    }
+
+    @FXML
+    void onClicked(ActionEvent event) {
+        CheckBox box = (CheckBox) event.getSource();
+        if ("Glasses".equals(box.getText())) glasses.setDisable(!box.isSelected());
+        if ("Hijab".equals(box.getText())) hijab.setDisable(!box.isSelected());
+    }
+
+    @FXML
+    void onSetting() {
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Face Recognition Settings");
+        Slider threshold = new Slider(0.30, 0.80, similarityThreshold);
+        Slider margin = new Slider(0.01, 0.20, scoreMargin);
+        Spinner<Integer> checks = new Spinner<>(1, 10, requiredRecognitionCount);
+        Label t = new Label();
+        Label m = new Label();
+        Runnable labels = () -> {
+            t.setText(String.format(Locale.ROOT, "Similarity threshold: %.2f", threshold.getValue()));
+            m.setText(String.format(Locale.ROOT, "Second-best margin: %.2f", margin.getValue()));
+        };
+        labels.run();
+        threshold.valueProperty().addListener((o, a, b) -> labels.run());
+        margin.valueProperty().addListener((o, a, b) -> labels.run());
+        dialog.getDialogPane().setContent(new VBox(12, t, threshold, m, margin, new Label("Required consecutive matches"), checks));
+        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
+        dialog.showAndWait().filter(ButtonType.OK::equals).ifPresent(x -> {
+            similarityThreshold = threshold.getValue();
+            scoreMargin = margin.getValue();
+            requiredRecognitionCount = checks.getValue();
+            saveCameraSettings();
+        });
+    }
+
+    private void loadCameraSettings() {
+        try (Statement st = connection().createStatement(); ResultSet rs = st.executeQuery("SELECT confidence_threshold, required_checks FROM camera_data WHERE id=1")) {
+            if (rs.next()) {
+                double old = rs.getDouble(1);
+                if (old >= 0.0 && old <= 1.0) similarityThreshold = old;
+                requiredRecognitionCount = Math.max(1, rs.getInt(2));
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void saveCameraSettings() {
+        try (PreparedStatement st = connection().prepareStatement("UPDATE camera_data SET confidence_threshold=?, required_checks=? WHERE id=1")) {
+            st.setDouble(1, similarityThreshold);
+            st.setInt(2, requiredRecognitionCount);
+            st.executeUpdate();
+        } catch (SQLException e) {
+            showError("Could not save settings", e.getMessage());
+        }
+    }
+
+    private void initializeStudentSearch() {
+        studentData.setAll(mainController.gradedDataLoader.getStudentData().values().stream()
+                .map(s -> s.ed_no() + " " + s.name()).toList());
+        searchBox.setSuggestionProvider(request -> {
+            String q = request.getUserText();
+            if (q == null || q.isBlank()) return List.of();
+            String normalized = q.toLowerCase(Locale.ROOT).trim();
+            return studentData.stream().filter(s -> s.toLowerCase(Locale.ROOT).contains(normalized)).collect(Collectors.toList());
+        });
+        FontIcon search = new FontIcon("mdmz-search");
+        FontIcon clear = new FontIcon("mdal-close");
+        searchBox.setGraphic(search);
+        searchBox.textProperty().addListener((o, a, b) -> searchBox.setGraphic(b == null || b.isBlank() ? search : clear));
+        clear.setOnMouseClicked(e -> {
+            searchBox.setText("");
+            selectedStudent = null;
+            scrollAtt.setVisible(false);
+        });
+    }
+
+    private void initializeGraphics() {
+        background.setSvgUrl(GradedResourceLoader.load("icons/new-back1.svg"));
+        background.setOpacity(0.3);
+        myLogo.setSvgUrl(GradedResourceLoader.load("icons/my-logo.svg"));
+    }
+
+    @FXML
+    void play(ActionEvent event) {
+    }
+
+    private void applyFaceBorder(PhotoView view, boolean detected, boolean main) {
+        Boolean previous = main ? mainViewFaceState : studentViewFaceState;
+        if (previous != null && previous == detected) return;
+        if (main) mainViewFaceState = detected;
+        else studentViewFaceState = detected;
+        view.getStyleClass().removeAll("border-circle-green", "border-circle-red");
+        view.getStyleClass().add(detected ? "border-circle-green" : "border-circle-red");
+    }
+
+    private Result parseSelectedStudent(String value) {
+        if (value == null) return null;
+        int space = value.indexOf(' ');
+        if (space <= 0 || space == value.length() - 1) return null;
+        String ed = value.substring(0, space).trim();
+        String name = value.substring(space + 1).trim();
+        return mainController.gradedDataLoader.getStudentData().containsKey(ed) ? new Result(ed, name) : null;
+    }
+
+    private void resetRecognition() {
+        currentCandidate = null;
+        consecutiveMatches = 0;
+        scoreSum = 0.0;
+    }
+
+    private synchronized void resetRecognitionSession() {
+        resetRecognition();
+        lastAcceptedEdNo = null;
+        lastAcceptedAt = 0L;
+        acceptedFaceMustLeave = false;
+        consecutiveNoFaceFrames = 0;
+        lastRecognitionTime = 0L;
+    }
+
+    private void showRecognitionMessage(String message) {
+        if (outputMessage != null) outputMessage.setText(message);
+        if (studentMessage != null) studentMessage.setText(message);
+    }
+
+    private void showError(String header, String message) {
+        Alert a = new Alert(Alert.AlertType.ERROR);
+        a.setTitle("Camera Error");
+        a.setHeaderText(header);
+        a.setContentText(message);
+        a.show();
+    }
+
+    private void runFx(Runnable action) {
+        if (!disposed.get()) Platform.runLater(() -> {
+            if (!disposed.get()) action.run();
+        });
+    }
+
+    private static String rootMessage(Throwable t) {
+        while (t.getCause() != null) t = t.getCause();
+        return t.getMessage() == null ? t.getClass().getSimpleName() : t.getMessage();
+    }
+
+    private static int countLabel(Label label) {
+        String s = label.getText();
+        int p = s.lastIndexOf(' ');
+        if (p < 0) return 0;
+        try {
+            return Integer.parseInt(s.substring(p + 1));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private static String baseLabel(Label label) {
+        String s = label.getText();
+        int p = s.lastIndexOf(' ');
+        if (p > 0) try {
+            Integer.parseInt(s.substring(p + 1));
+            return s.substring(0, p);
+        } catch (NumberFormatException ignored) {
+        }
+        return s;
+    }
+
+    private static double dot(float[] a, float[] b) {
+        double value = 0;
+        for (int i = 0; i < a.length; i++) value += a[i] * b[i];
+        return value;
+    }
+
+    private static void normalize(float[] v) {
+        double n = 0;
+        for (float x : v) n += x * x;
+        n = Math.sqrt(n);
+        if (n > 0) for (int i = 0; i < v.length; i++) v[i] /= (float) n;
+    }
+
+    private static byte[] floatsToBytes(float[] values) {
+        ByteBuffer b = ByteBuffer.allocate(values.length * 4).order(ByteOrder.LITTLE_ENDIAN);
+        for (float v : values) b.putFloat(v);
+        return b.array();
+    }
+
+    private static float[] bytesToFloats(byte[] bytes) {
+        ByteBuffer b = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+        float[] v = new float[bytes.length / 4];
+        for (int i = 0; i < v.length; i++) v[i] = b.getFloat();
+        return v;
+    }
+
+    private record Result(String ed, String name) {
+    }
+
+    private record CameraDevice(int index, String name) {
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    private record FaceMatch(String edNo, double bestScore, String secondEdNo, double secondScore) {
+    }
+
+    private record Detection(Mat originalScaleFaceRow, Rect rect, float score) implements AutoCloseable {
+        @Override
+        public void close() {
+            originalScaleFaceRow.release();
+        }
     }
 }*/

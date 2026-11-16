@@ -1,6 +1,7 @@
 package org.graded_classes.graded_attendance.controller.quiz;
 
 import atlantafx.base.controls.ModalPane;
+import atlantafx.base.controls.RingProgressIndicator;
 import javafx.animation.AnimationTimer;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.Scene;
@@ -45,11 +46,12 @@ public class ExamLogin {
     ModalPane modalPane;
     private final List<Particle> particles = new ArrayList<>(PARTICLE_COUNT);
     Stage stage = new Stage();
-    StackPane root;
+    StackPane root, loadingScreen;
 
     public void showLoginScreen() {
         modalPane = new ModalPane();
         StackPane login;
+        loadingScreen=getLoadingScreen();
         login = (StackPane)
                 mainController.gradedFxmlLoader.
                         createView(R.exam_login,
@@ -105,6 +107,22 @@ public class ExamLogin {
             System.exit(0);
         });
 
+    }
+
+     StackPane getLoadingScreen() {
+        var loading = new RingProgressIndicator();
+        loading.setPrefSize(50,50);
+        loading.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
+        StackPane stackPane = new StackPane();
+        stackPane.setMaxSize(100, 100);
+        stackPane.setStyle("""
+                    -fx-background-color: rgb(0, 0, 0);
+                    -fx-border-color: transparent;
+                    -fx-opacity: 0.75;
+                    -fx-background-radius: 10;
+                """);
+        stackPane.getChildren().add(loading);
+        return stackPane;
     }
 
     private void initParticles(double w, double h) {

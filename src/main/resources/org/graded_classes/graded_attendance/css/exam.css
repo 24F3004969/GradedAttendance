@@ -1,0 +1,71 @@
+.start-btn {
+    -fx-background-color: #16a34a;
+    -fx-text-fill: white;
+}
+
+.start-btn:hover {
+    -fx-background-color: #15803d;
+}
+
+.result-btn {
+    -fx-background-color: #0891b2;
+    -fx-text-fill: white;
+}
+
+.result-btn:hover {
+    -fx-background-color: #0e7490;
+}
+
+.pdf-btn {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+}
+
+.pdf-btn:hover {
+    -fx-background-color: #1d4ed8;
+}
+
+.omr-btn {
+    -fx-background-color: #eab308;
+    -fx-text-fill: white;
+}
+
+.omr-btn:hover {
+    -fx-background-color: #ca8a04;
+}
+
+
+.share-btn {
+    -fx-background-color: #0284c7;
+    -fx-text-fill: white;
+}
+
+.share-btn:hover {
+    -fx-background-color: #0369a1;
+}
+
+.bulk-delete-btn {
+    -fx-background-color: #dc2626;
+    -fx-text-fill: white;
+}
+
+.bulk-delete-btn:hover {
+    -fx-background-color: #b91c1c;
+}
+.diagnostic-btn {
+    -fx-background-color: #059669;
+    -fx-text-fill: white;
+}
+
+.diagnostic-btn:hover {
+    -fx-background-color: #047857;
+}
+
+.add-exam-btn {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+}
+
+.add-exam-btn:hover {
+    -fx-background-color: #1d4ed8;
+}

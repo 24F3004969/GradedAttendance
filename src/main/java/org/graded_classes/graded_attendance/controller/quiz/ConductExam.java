@@ -1,7 +1,11 @@
 package org.graded_classes.graded_attendance.controller.quiz;
 
 import atlantafx.base.theme.Styles;
+import com.dlsc.gemsfx.*;
+import com.dlsc.gemsfx.daterange.DateRange;
+import com.dlsc.gemsfx.daterange.DateRangePicker;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -11,15 +15,15 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import org.graded_classes.graded_attendance.Main;
@@ -29,26 +33,18 @@ import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.data.ExamData;
 import org.graded_classes.graded_attendance.data.OptionData;
 import org.graded_classes.graded_attendance.data.QuestionData;
+import org.jetbrains.annotations.NotNull;
+import org.kordamp.ikonli.feather.Feather;
+import org.kordamp.ikonli.javafx.FontIcon;
 
-import java.awt.Desktop;
+import java.awt.*;
 import java.io.File;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.ResourceBundle;
-import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
 public class ConductExam implements Initializable {
@@ -57,20 +53,39 @@ public class ConductExam implements Initializable {
     private final ArrayList<ExamData> examSchedular;
     private final ExamAnswerReviewGenerator reviewGenerator;
     private final ExamReviewSender reviewSender;
+    @FXML
+    public Button deleteSelectedBtn;
 
-    @FXML private TableColumn<ExamData, HBox> action;
-    @FXML private TableColumn<ExamData, Button> generate;
-    @FXML private TableColumn<ExamData, Button> add;
-    @FXML private TableColumn<ExamData, String> classes;
-    @FXML private TableColumn<ExamData, String> doe;
-    @FXML private TableColumn<ExamData, String> id;
-    @FXML private TableColumn<ExamData, String> room;
-    @FXML private TableColumn<ExamData, String> subject;
-    @FXML private TableColumn<ExamData, String> time;
-    @FXML private TableColumn<ExamData, String> topic;
-    @FXML private TableColumn<ExamData, Button> share;
-    @FXML private TableView<ExamData> scheduleTable;
-    @FXML private Label today;
+    @FXML
+    private SimpleFilterView filters;
+    @FXML
+    private TableColumn<ExamData, HBox> action;
+    @FXML
+    private TableColumn<ExamData, HBox> generate;
+    @FXML
+    private TableColumn<ExamData, HBox> add;
+    @FXML
+    private TableColumn<ExamData, String> classes;
+    @FXML
+    private TableColumn<ExamData, String> doe;
+    @FXML
+    private TableColumn<ExamData, String> id;
+    @FXML
+    private TableColumn<ExamData, String> room;
+    @FXML
+    private TableColumn<ExamData, String> subject;
+    @FXML
+    private TableColumn<ExamData, String> time;
+    @FXML
+    private TableColumn<ExamData, String> topic;
+    @FXML
+    private TableColumn<ExamData, HBox> share;
+    @FXML
+    private TableColumn<ExamData, CheckBox> checkboxes;
+    @FXML
+    private TableView<ExamData> scheduleTable;
+    @FXML
+    private Label today;
 
     final ObservableList<ExamData> items = FXCollections.observableArrayList();
 
@@ -88,6 +103,18 @@ public class ConductExam implements Initializable {
         );
         this.reviewGenerator = new ExamAnswerReviewGenerator();
         this.reviewSender = new ExamReviewSender(mainController);
+    }
+
+    private void updateDeleteButton() {
+
+        long count = 8;
+
+        deleteSelectedBtn.setVisible(count > 0);
+        deleteSelectedBtn.setManaged(count > 0);
+
+        deleteSelectedBtn.setText(
+                "Delete (" + count + ")"
+        );
     }
 
     @FXML
@@ -126,9 +153,52 @@ public class ConductExam implements Initializable {
         configureShareColumn();
         configureOmrColumn();
         configureExamPdfColumn();
-
+        configureCheckboxColumn();
+        configureContextMenu();
+        configureFilterView();
         items.setAll(examSchedular);
         scheduleTable.setItems(items);
+
+    }
+
+    private void configureFilterView() {
+        CustomTextField search = filters.addSearchTextField("Search");
+        SelectionBox<LoadingPane.Status> status = filters.addSelectionBox("Filter", LoadingPane.Status.class);
+        status.setGraphic(new FontIcon(Feather.FILTER));
+
+        DateRangePicker range = filters.addDateRangePicker("Date Range");
+        ChipsViewContainer chips = new ChipsViewContainer();
+        chips.chipsProperty().bind(filters.chipsProperty());
+        chips.setOnClear(filters::clear);
+        filters.setOnChange(() -> reload(status.getSelectionModel().getSelectedItems(),
+                range.getValue(), search.getText()));
+    }
+    public static <T> void autoResizeColumns(TableView<T> table) {
+        for (TableColumn<T, ?> column : table.getColumns()) {
+
+            Text text = new Text(column.getText());
+            double max = text.getLayoutBounds().getWidth();
+
+            for (int i = 0; i < table.getItems().size(); i++) {
+
+                Object cellData = column.getCellData(i);
+
+                if (cellData != null) {
+                    text = new Text(cellData.toString());
+
+                    double width = text.getLayoutBounds().getWidth();
+
+                    if (width > max) {
+                        max = width;
+                    }
+                }
+            }
+
+            column.setPrefWidth(max + 30);
+        }
+    }
+    private void reload(ObservableList<LoadingPane.Status> selectedItems, DateRange value, String text) {
+
     }
 
     private void configureTextColumns() {
@@ -156,11 +226,17 @@ public class ConductExam implements Initializable {
 
             Button startButton = new Button("Start Exam");
             Button resultButton = new Button("Generate Result");
-
+            startButton.getStyleClass().addAll(
+                    "exam-action-btn",
+                    "start-btn"
+            );
+            resultButton.getStyleClass().addAll(
+                    "exam-action-btn",
+                    "result-btn"
+            );
             startButton.setPadding(new Insets(5));
             resultButton.setPadding(new Insets(5));
-            startButton.getStyleClass().add(Styles.SUCCESS);
-            resultButton.getStyleClass().add(Styles.SUCCESS);
+
 
             startButton.setOnAction(event ->
                     mainController.modalPane.show(
@@ -186,6 +262,7 @@ public class ConductExam implements Initializable {
                 }
             });
 
+
             HBox box = new HBox(5, startButton, resultButton);
             box.setAlignment(Pos.CENTER);
             return new SimpleObjectProperty<>(box);
@@ -207,24 +284,229 @@ public class ConductExam implements Initializable {
         mainController.modalPane.show(node);
     }
 
+    private void configureContextMenu() {
+
+        scheduleTable.setRowFactory(tv -> {
+
+            TableRow<ExamData> row = new TableRow<>();
+            ContextMenu menu = new ContextMenu();
+            MenuItem startExam = new MenuItem("Start Exam");
+            startExam.setGraphic(icon(Feather.PLAY));
+
+            startExam.setOnAction(e -> {
+                ExamData exam = row.getItem();
+
+                if (exam != null) {
+                    System.out.println("Start Exam : "
+                            + exam.topicNamesForDisplay());
+
+                    // startExam(exam);
+                }
+            });
+            MenuItem generateResult = new MenuItem("Generate Result");
+            generateResult.setGraphic(icon(Feather.BAR_CHART_2));
+
+            generateResult.setOnAction(e -> {
+                ExamData exam = row.getItem();
+
+                if (exam != null) {
+                    System.out.println("Generate Result : "
+                            + exam.topicNamesForDisplay());
+
+                    // generateResult(exam);
+                }
+            });
+            MenuItem info = new MenuItem("Info");
+            info.setGraphic(icon(Feather.INFO));
+
+            info.setOnAction(e -> {
+                ExamData exam = row.getItem();
+
+                if (exam != null) {
+                    System.out.println("Generate PDF : "
+                            + exam.topicNamesForDisplay());
+
+                    // info(exam);
+                }
+            });
+
+            MenuItem preview = new MenuItem("Preview");
+            preview.setGraphic(icon(Feather.EYE));
+
+            preview.setOnAction(e -> {
+                ExamData exam = row.getItem();
+
+                if (exam != null) {
+                    System.out.println("Preview : "
+                            + exam.topicNamesForDisplay());
+                }
+            });
+            MenuItem edit = new MenuItem("Edit");
+            edit.setGraphic(icon(Feather.EDIT_2));
+
+            edit.setOnAction(e -> {
+                ExamData exam = row.getItem();
+
+                if (exam != null) {
+                    System.out.println("Edit : "
+                            + exam.topicNamesForDisplay());
+
+                    // editExam(exam);
+                }
+            });
+
+            MenuItem duplicate = new MenuItem("Duplicate");
+            duplicate.setGraphic(icon(Feather.COPY));
+
+            duplicate.setOnAction(e -> {
+                ExamData exam = row.getItem();
+
+                if (exam != null) {
+                    System.out.println("Duplicate : "
+                            + exam.topicNamesForDisplay());
+                }
+            });
+            FontIcon deleteIcon = icon(Feather.TRASH_2);
+            MenuItem delete = createDelete(deleteIcon, row);
+            Menu exportMenu = new Menu("Export");
+            exportMenu.setGraphic(icon(Feather.DOWNLOAD));
+
+            MenuItem exportPdf = new MenuItem("PDF");
+            exportPdf.setGraphic(icon(Feather.FILE_TEXT));
+
+            MenuItem exportExcel = new MenuItem("Excel");
+            exportExcel.setGraphic(icon(Feather.GRID));
+
+            exportMenu.getItems().addAll(
+                    exportPdf,
+                    exportExcel
+            );
+
+            menu.getItems().addAll(
+                    startExam,
+                    generateResult,
+                    new SeparatorMenuItem(),
+
+                    preview,
+                    info,
+                    exportMenu,
+                    new SeparatorMenuItem(),
+
+                    edit,
+                    duplicate,
+                    new SeparatorMenuItem(),
+
+                    delete
+            );
+
+            // AtlantaFX
+            menu.getStyleClass().add(Styles.ACCENT);
+
+            // Select row when right-clicked
+            row.setOnContextMenuRequested(event -> {
+                if (!row.isEmpty()) {
+                    scheduleTable.getSelectionModel()
+                            .select(row.getIndex());
+                }
+            });
+
+            // Hide context menu for empty rows
+            row.contextMenuProperty().bind(
+                    Bindings.when(row.emptyProperty())
+                            .then((ContextMenu) null)
+                            .otherwise(menu)
+            );
+
+            return row;
+        });
+    }
+
+    @NotNull
+    private MenuItem createDelete(FontIcon deleteIcon, TableRow<ExamData> row) {
+        MenuItem delete = new MenuItem("Delete");
+        delete.setGraphic(deleteIcon);
+
+        delete.setOnAction(e -> {
+
+            ExamData exam = row.getItem();
+
+            if (exam == null) {
+                return;
+            }
+
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Delete Exam");
+            alert.setHeaderText("Delete Selected Exam");
+            alert.setContentText(
+                    "Are you sure you want to delete\n\n"
+                            + exam.topicNamesForDisplay()
+            );
+
+            alert.showAndWait()
+                    .filter(ButtonType.OK::equals)
+                    .ifPresent(btn ->
+                            scheduleTable.getItems().remove(exam));
+        });
+        return delete;
+    }
+
+    private FontIcon icon(Feather feather) {
+        FontIcon icon = new FontIcon(feather);
+        icon.setIconSize(16);
+        return icon;
+    }
+
+    private void configureCheckboxColumn() {
+        checkboxes.setCellValueFactory(cell -> {
+            CheckBox box = new CheckBox();
+            ExamData exam = cell.getValue();
+            box.selectedProperty().setValue(exam.active().getValue());
+            box.selectedProperty().addListener((ov, old_val, new_val) -> {
+                exam.active().setValue(true);
+                updateDeleteButton();
+                if (box.isSelected()) {
+
+                } else {
+
+
+                }
+            });
+            return new SimpleObjectProperty<>(box);
+        });
+
+    }
+
     private void configureShareColumn() {
         share.setCellValueFactory(cell -> {
             ExamData exam = cell.getValue();
             Button button = new Button("Send Review PDFs");
-            button.getStyleClass().add(Styles.ACCENT);
+            button.getStyleClass().addAll(
+                    "exam-action-btn",
+                    "share-btn"
+            );
             button.setPadding(new Insets(8));
             button.setMaxWidth(Double.MAX_VALUE);
             button.setOnAction(event -> sendAllReviewReports(exam, button));
-            return new SimpleObjectProperty<>(button);
+            HBox hBox = new HBox(button);
+            hBox.setAlignment(Pos.CENTER);
+          button.setPadding(new Insets(5));
+            return new SimpleObjectProperty<>(hBox);
         });
     }
 
     private void configureOmrColumn() {
         add.setCellValueFactory(cell -> {
             ExamData exam = cell.getValue();
-            Button button = new Button("Add exam OMR");
-            button.setOnAction(event -> importOmr(exam));
-            return new SimpleObjectProperty<>(button);
+            Button button = new Button("Add OMR");
+            button.getStyleClass().addAll(
+                    "exam-action-btn",
+                    "omr-btn"
+            );
+            button.setOnAction(event -> mainController.modalPane.show(mainController.gradedFxmlLoader.createView(R.omr_checker)));
+            HBox hBox = new HBox(button);
+            button.setPadding(new Insets(5));
+            hBox.setAlignment(Pos.CENTER);
+            return new SimpleObjectProperty<>(hBox);
         });
     }
 
@@ -232,10 +514,16 @@ public class ConductExam implements Initializable {
         generate.setCellValueFactory(cell -> {
             ExamData exam = cell.getValue();
             Button button = new Button("Exam Pdf");
-            button.getStyleClass().add(Styles.ACCENT);
+            button.getStyleClass().addAll(
+                    "exam-action-btn",
+                    "pdf-btn"
+            );
             button.setPadding(new Insets(8));
             button.setOnAction(event -> generateExamPdf(exam, button));
-            return new SimpleObjectProperty<>(button);
+            HBox hBox = new HBox(button);
+            hBox.setAlignment(Pos.CENTER);
+          button.setPadding(new Insets(5));
+            return new SimpleObjectProperty<>(hBox);
         });
     }
 
@@ -350,38 +638,87 @@ public class ConductExam implements Initializable {
         }
 
         TreeMap<String, QuestionData> questions = loadQuestion(examInfo);
+
         if (questions.isEmpty()) {
             throw new IllegalStateException(
                     "No questions found for exam " + examId
             );
         }
 
-        int marksPerQuestion = 4;
-        int totalMarks = questions.size() * marksPerQuestion;
+        final int marksPerQuestion = 4;
+        final int totalMarks = questions.size() * marksPerQuestion;
 
         var students = mainController.gradedDataLoader
                 .getStudentData()
                 .sequencedValues()
                 .stream()
                 .filter(student ->
-                        Objects.equals(student._class(), examInfo.classes()))
+                        Objects.equals(
+                                student._class(),
+                                examInfo.classes()
+                        ))
                 .filter(student ->
                         student.getBoard() != null
                                 && examInfo.board() != null
-                                && (student.getBoard().equalsIgnoreCase(examInfo.board())
-                                || examInfo.board().equalsIgnoreCase("Both")))
+                                && (
+                                student.getBoard().equalsIgnoreCase(
+                                        examInfo.board()
+                                )
+                                        || examInfo.board().equalsIgnoreCase(
+                                        "Both"
+                                )
+                        ))
                 .toList();
 
-        String sql = """
+        String overallScoreSql = """
                 INSERT INTO ScoreCard
-                (exam_id, ed_no, subject, topic_name, marks_obtain, total_marks, remark)
+                (
+                    exam_id,
+                    ed_no,
+                    subject,
+                    topic_name,
+                    marks_obtain,
+                    total_marks,
+                    remark
+                )
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(exam_id, ed_no) DO UPDATE SET
-                  subject=excluded.subject,
-                  topic_name=excluded.topic_name,
-                  marks_obtain=excluded.marks_obtain,
-                  total_marks=excluded.total_marks,
-                  remark=excluded.remark
+                    subject = excluded.subject,
+                    topic_name = excluded.topic_name,
+                    marks_obtain = excluded.marks_obtain,
+                    total_marks = excluded.total_marks,
+                    remark = excluded.remark
+                """;
+
+        String topicScoreSql = """
+                INSERT INTO TopicWiseScoreCard
+                (
+                    exam_id,
+                    ed_no,
+                    topic_id,
+                    subject,
+                    topic_name,
+                    total_questions,
+                    attempted_questions,
+                    correct_answers,
+                    wrong_answers,
+                    marks_obtain,
+                    total_marks,
+                    remark,
+                    generated_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(exam_id, ed_no, topic_id) DO UPDATE SET
+                    subject = excluded.subject,
+                    topic_name = excluded.topic_name,
+                    total_questions = excluded.total_questions,
+                    attempted_questions = excluded.attempted_questions,
+                    correct_answers = excluded.correct_answers,
+                    wrong_answers = excluded.wrong_answers,
+                    marks_obtain = excluded.marks_obtain,
+                    total_marks = excluded.total_marks,
+                    remark = excluded.remark,
+                    generated_at = CURRENT_TIMESTAMP
                 """;
 
         Connection connection = mainController
@@ -390,6 +727,7 @@ public class ConductExam implements Initializable {
                 .getConnection();
 
         boolean oldAutoCommit;
+
         try {
             oldAutoCommit = connection.getAutoCommit();
         } catch (SQLException exception) {
@@ -402,9 +740,23 @@ public class ConductExam implements Initializable {
         try {
             connection.setAutoCommit(false);
 
-            try (PreparedStatement statement =
-                         connection.prepareStatement(sql)) {
+            // Ensures older databases also receive the table.
+            createTopicWiseScoreCardTable(connection);
 
+            /*
+             * Load topic names once, instead of executing a query separately
+             * for every question and every student.
+             */
+            TreeMap<Integer, String> topicNames =
+                    loadTopicNames(connection, questions);
+
+            try (
+                    PreparedStatement overallStatement =
+                            connection.prepareStatement(overallScoreSql);
+
+                    PreparedStatement topicStatement =
+                            connection.prepareStatement(topicScoreSql)
+            ) {
                 for (var student : students) {
                     TreeMap<Integer, Integer> answers = getAnswers(
                             examId,
@@ -415,11 +767,16 @@ public class ConductExam implements Initializable {
                             questions,
                             answers
                     );
+
                     int score = correctAnswers * marksPerQuestion;
-                    String remark = answers.isEmpty()
+
+                    String overallRemark = answers.isEmpty()
                             ? "Absent or not eligible"
                             : "Present";
 
+                    /*
+                     * Generate the existing answer-review PDF.
+                     */
                     reviewGenerator.generate(
                             examInfo,
                             student.ed_no(),
@@ -428,26 +785,91 @@ public class ConductExam implements Initializable {
                             answers
                     );
 
-                    statement.setInt(1, examId);
-                    statement.setString(2, student.ed_no());
-                    statement.setString(3, examInfo.subject());
-                    statement.setString(
+                    /*
+                     * Add overall result to ScoreCard batch.
+                     */
+                    overallStatement.setInt(1, examId);
+                    overallStatement.setString(2, student.ed_no());
+                    overallStatement.setString(3, examInfo.subject());
+                    overallStatement.setString(
                             4,
                             examInfo.topicNamesForDisplay()
                     );
-                    statement.setInt(5, score);
-                    statement.setInt(6, totalMarks);
-                    statement.setString(7, remark);
-                    statement.addBatch();
-                }
+                    overallStatement.setInt(5, score);
+                    overallStatement.setInt(6, totalMarks);
+                    overallStatement.setString(7, overallRemark);
+                    overallStatement.addBatch();
 
-                for (int result : statement.executeBatch()) {
-                    if (result == Statement.EXECUTE_FAILED) {
-                        throw new SQLException(
-                                "One or more ScoreCard records failed."
+                    /*
+                     * Calculate this student's topic-wise results.
+                     */
+                    List<TopicScore> topicScores =
+                            calculateTopicWiseScores(
+                                    questions,
+                                    answers,
+                                    topicNames,
+                                    marksPerQuestion
+                            );
+
+                    /*
+                     * Add one row per topic to the topic result batch.
+                     */
+                    for (TopicScore topicScore : topicScores) {
+                        topicStatement.setInt(1, examId);
+                        topicStatement.setString(2, student.ed_no());
+                        topicStatement.setInt(
+                                3,
+                                topicScore.topicId()
                         );
+                        topicStatement.setString(
+                                4,
+                                examInfo.subject()
+                        );
+                        topicStatement.setString(
+                                5,
+                                topicScore.topicName()
+                        );
+                        topicStatement.setInt(
+                                6,
+                                topicScore.totalQuestions()
+                        );
+                        topicStatement.setInt(
+                                7,
+                                topicScore.attemptedQuestions()
+                        );
+                        topicStatement.setInt(
+                                8,
+                                topicScore.correctAnswers()
+                        );
+                        topicStatement.setInt(
+                                9,
+                                topicScore.wrongAnswers()
+                        );
+                        topicStatement.setInt(
+                                10,
+                                topicScore.marksObtained()
+                        );
+                        topicStatement.setInt(
+                                11,
+                                topicScore.totalMarks()
+                        );
+                        topicStatement.setString(
+                                12,
+                                topicScore.remark()
+                        );
+                        topicStatement.addBatch();
                     }
                 }
+
+                validateBatchResults(
+                        overallStatement.executeBatch(),
+                        "ScoreCard"
+                );
+
+                validateBatchResults(
+                        topicStatement.executeBatch(),
+                        "TopicWiseScoreCard"
+                );
             }
 
             connection.commit();
@@ -471,6 +893,68 @@ public class ConductExam implements Initializable {
             } catch (SQLException exception) {
                 exception.printStackTrace();
             }
+        }
+    }
+
+    private void createTopicWiseScoreCardTable(
+            Connection connection
+    ) throws SQLException {
+
+        String sql = """
+                CREATE TABLE IF NOT EXISTS TopicWiseScoreCard (
+                    topic_score_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                
+                    exam_id INTEGER NOT NULL,
+                    ed_no TEXT NOT NULL,
+                    topic_id INTEGER NOT NULL,
+                
+                    subject TEXT NOT NULL,
+                    topic_name TEXT NOT NULL,
+                
+                    total_questions INTEGER NOT NULL DEFAULT 0,
+                    attempted_questions INTEGER NOT NULL DEFAULT 0,
+                    correct_answers INTEGER NOT NULL DEFAULT 0,
+                    wrong_answers INTEGER NOT NULL DEFAULT 0,
+                
+                    marks_obtain INTEGER NOT NULL DEFAULT 0,
+                    total_marks INTEGER NOT NULL DEFAULT 0,
+                
+                    remark TEXT,
+                    generated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                
+                    UNIQUE (exam_id, ed_no, topic_id),
+                
+                    FOREIGN KEY (exam_id)
+                        REFERENCES ExamScheduler(exam_id)
+                        ON DELETE CASCADE,
+                
+                    FOREIGN KEY (ed_no)
+                        REFERENCES StudentData(ed_no)
+                        ON DELETE CASCADE,
+                
+                    FOREIGN KEY (topic_id)
+                        REFERENCES Topics(topic_id)
+                        ON DELETE CASCADE
+                )
+                """;
+
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(sql);
+
+            statement.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_topic_score_student
+                    ON TopicWiseScoreCard(ed_no)
+                    """);
+
+            statement.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_topic_score_exam
+                    ON TopicWiseScoreCard(exam_id)
+                    """);
+
+            statement.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_topic_score_topic
+                    ON TopicWiseScoreCard(topic_id)
+                    """);
         }
     }
 
@@ -777,6 +1261,240 @@ public class ConductExam implements Initializable {
         }
     }
 
+    private TreeMap<Integer, String> loadTopicNames(
+            Connection connection,
+            TreeMap<String, QuestionData> questions
+    ) throws SQLException {
+
+        TreeMap<Integer, String> topicNames = new TreeMap<>();
+
+        String sql = """
+                SELECT topic_id, topic_name
+                FROM Topics
+                WHERE topic_id = ?
+                """;
+
+        try (PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            for (QuestionData question : questions.values()) {
+                int topicId = parseTopicId(question);
+
+                if (topicNames.containsKey(topicId)) {
+                    continue;
+                }
+
+                statement.setInt(1, topicId);
+
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        String topicName = resultSet.getString(
+                                "topic_name"
+                        );
+
+                        topicNames.put(
+                                topicId,
+                                topicName == null || topicName.isBlank()
+                                        ? "Topic " + topicId
+                                        : topicName.trim()
+                        );
+                    } else {
+                        topicNames.put(
+                                topicId,
+                                "Topic " + topicId
+                        );
+                    }
+                }
+            }
+        }
+
+        return topicNames;
+    }
+
+    private int parseTopicId(QuestionData question) {
+        if (question == null) {
+            throw new IllegalArgumentException(
+                    "Question cannot be null."
+            );
+        }
+
+        String topicIdValue = question.topic_id();
+
+        if (topicIdValue == null || topicIdValue.isBlank()) {
+            throw new IllegalStateException(
+                    "Question "
+                            + question.question_id()
+                            + " does not have a topic ID."
+            );
+        }
+
+        try {
+            int topicId = Integer.parseInt(topicIdValue.trim());
+
+            if (topicId <= 0) {
+                throw new IllegalStateException(
+                        "Question "
+                                + question.question_id()
+                                + " has an invalid topic ID: "
+                                + topicIdValue
+                );
+            }
+
+            return topicId;
+
+        } catch (NumberFormatException exception) {
+            throw new IllegalStateException(
+                    "Question "
+                            + question.question_id()
+                            + " has a non-numeric topic ID: "
+                            + topicIdValue,
+                    exception
+            );
+        }
+    }
+
+    private List<TopicScore> calculateTopicWiseScores(
+            TreeMap<String, QuestionData> questions,
+            TreeMap<Integer, Integer> answers,
+            TreeMap<Integer, String> topicNames,
+            int marksPerQuestion
+    ) {
+        class MutableTopicScore {
+            private final int topicId;
+            private final String topicName;
+
+            private int totalQuestions;
+            private int attemptedQuestions;
+            private int correctAnswers;
+            private int wrongAnswers;
+
+            private MutableTopicScore(
+                    int topicId,
+                    String topicName
+            ) {
+                this.topicId = topicId;
+                this.topicName = topicName;
+            }
+        }
+
+        TreeMap<Integer, MutableTopicScore> groupedScores =
+                new TreeMap<>();
+
+        /*
+         * Iterate over every exam question.
+         *
+         * Do not iterate only over answers, because unanswered questions
+         * must still be counted in totalQuestions and totalMarks.
+         */
+        for (QuestionData question : questions.values()) {
+            int topicId = parseTopicId(question);
+
+            String topicName = topicNames.getOrDefault(
+                    topicId,
+                    "Topic " + topicId
+            );
+
+            MutableTopicScore topicScore =
+                    groupedScores.computeIfAbsent(
+                            topicId,
+                            ignored -> new MutableTopicScore(
+                                    topicId,
+                                    topicName
+                            )
+                    );
+
+            topicScore.totalQuestions++;
+
+            int questionId;
+
+            try {
+                questionId = Integer.parseInt(
+                        question.question_id()
+                );
+            } catch (NumberFormatException exception) {
+                throw new IllegalStateException(
+                        "Invalid question ID: "
+                                + question.question_id(),
+                        exception
+                );
+            }
+
+            Integer selectedOption = answers.get(questionId);
+
+            /*
+             * No answer means the question is unattempted.
+             */
+            if (selectedOption == null) {
+                continue;
+            }
+
+            topicScore.attemptedQuestions++;
+
+            boolean isCorrect =
+                    question.option_data() != null
+                            && question.option_data().option_index()
+                            == selectedOption;
+
+            if (isCorrect) {
+                topicScore.correctAnswers++;
+            } else {
+                topicScore.wrongAnswers++;
+            }
+        }
+
+        List<TopicScore> topicScores = new ArrayList<>();
+
+        for (MutableTopicScore grouped : groupedScores.values()) {
+            int marksObtained =
+                    grouped.correctAnswers * marksPerQuestion;
+
+            int totalMarks =
+                    grouped.totalQuestions * marksPerQuestion;
+
+            String remark;
+
+            if (answers.isEmpty()) {
+                remark = "Absent or not eligible";
+            } else if (grouped.attemptedQuestions == 0) {
+                remark = "Not attempted";
+            } else {
+                remark = "Present";
+            }
+
+            topicScores.add(
+                    new TopicScore(
+                            grouped.topicId,
+                            grouped.topicName,
+                            grouped.totalQuestions,
+                            grouped.attemptedQuestions,
+                            grouped.correctAnswers,
+                            grouped.wrongAnswers,
+                            marksObtained,
+                            totalMarks,
+                            remark
+                    )
+            );
+        }
+
+        return topicScores;
+    }
+
+    private void validateBatchResults(
+            int[] results,
+            String tableName
+    ) throws SQLException {
+
+        for (int result : results) {
+            if (result == Statement.EXECUTE_FAILED) {
+                throw new SQLException(
+                        "One or more "
+                                + tableName
+                                + " records failed."
+                );
+            }
+        }
+    }
+
     public static TreeMap<Integer, Integer> getAnswers(
             int examId,
             String studentEd
@@ -1058,5 +1776,18 @@ public class ConductExam implements Initializable {
                 || cause.getMessage().isBlank()
                 ? cause.getClass().getSimpleName()
                 : cause.getMessage();
+    }
+
+    private record TopicScore(
+            int topicId,
+            String topicName,
+            int totalQuestions,
+            int attemptedQuestions,
+            int correctAnswers,
+            int wrongAnswers,
+            int marksObtained,
+            int totalMarks,
+            String remark
+    ) {
     }
 }

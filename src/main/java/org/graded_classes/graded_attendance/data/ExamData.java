@@ -1,9 +1,12 @@
 package org.graded_classes.graded_attendance.data;
 
+import javafx.beans.property.BooleanProperty;
+
 import java.util.List;
 
 public record ExamData(
         String id,
+        BooleanProperty active,
         String classes,
         String doe,
         String room,
@@ -18,6 +21,7 @@ public record ExamData(
         topicIds = topicIds == null ? List.of() : List.copyOf(topicIds);
         topicNames = topicNames == null ? List.of() : List.copyOf(topicNames);
     }
+
 
     /**
      * Useful when displaying all topic names in a TableView column.

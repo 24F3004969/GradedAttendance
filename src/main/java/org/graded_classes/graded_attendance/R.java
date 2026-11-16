@@ -58,7 +58,8 @@ public enum R {
     camera("fxml/camera.fxml"),
     exam_report("fxml/exam-report.fxml"),
     diagnostic_exam_report("fxml/diagnostic_exam_report.fxml"),
-    diagnostic_test("fxml/diagnostic-exam-create.fxml");
+    diagnostic_test("fxml/diagnostic-exam-create.fxml"),
+    omr_checker("fxml/omr-checker.fxml");
     private final String path;
 
     R(String path) {

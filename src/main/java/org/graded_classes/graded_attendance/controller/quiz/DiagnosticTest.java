@@ -3,6 +3,7 @@ package org.graded_classes.graded_attendance.controller.quiz;
 import com.dlsc.gemsfx.SearchField;
 import com.dlsc.gemsfx.TimePicker;
 import impl.com.calendarfx.view.NumericTextField;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -52,7 +53,7 @@ public class DiagnosticTest implements Initializable {
     ObservableList<String> observableListTopics = FXCollections.observableArrayList(List.of());
     ObservableList<String> observableListClasses = FXCollections.observableArrayList(List.of());
     ObservableList<String> observableListBoard = FXCollections.observableArrayList(List.of(
-            "CBSE", "ICSE", "Other"
+            "CBSE", "ICSE", "Both"
 
     ));
     ObservableList<String> observableListRoom = FXCollections.observableArrayList(List.of(
@@ -323,6 +324,7 @@ public class DiagnosticTest implements Initializable {
 
             return new ExamData(
                     String.valueOf(generatedExamId),
+                    new SimpleBooleanProperty(false),
                     classValue,
                     examDate,
                     roomValue,
