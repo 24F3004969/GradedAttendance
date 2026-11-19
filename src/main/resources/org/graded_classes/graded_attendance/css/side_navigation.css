@@ -46,6 +46,11 @@
     -fx-icon-size: 24;
     -fx-icon-color: #1C75BC;
 }
+#syllabus .ikonli-font-icon {
+    -fx-icon-code: "mdi2b-book-education";
+    -fx-icon-size: 24;
+    -fx-icon-color: #1C75BC;
+}
 #dashboard .ikonli-font-icon {
     -fx-icon-code: "mdsal-dashboard";
     -fx-icon-size: 24;

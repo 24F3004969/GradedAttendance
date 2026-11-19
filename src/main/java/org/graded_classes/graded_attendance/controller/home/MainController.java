@@ -5,6 +5,7 @@ import atlantafx.base.controls.Notification;
 import atlantafx.base.theme.Styles;
 import atlantafx.base.util.Animations;
 import com.dlsc.gemsfx.DialogPane;
+import com.dlsc.gemsfx.SVGImageView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -20,6 +21,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.graded_classes.graded_attendance.GradedFxmlLoader;
+import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.calender.CalendarApp;
 import org.graded_classes.graded_attendance.controller.chat.ChatController;
@@ -50,6 +52,8 @@ import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
 public class MainController implements Initializable {
+    @FXML
+    private SVGImageView background,edIcon;
     VBox notificationsVBox, notificationBox;
     ScrollPane notificationsScrollPane;
     @FXML
@@ -81,9 +85,10 @@ public class MainController implements Initializable {
         this.stage = stage;
 
     }
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        background.setSvgUrl(GradedResourceLoader.load("icons/new-back1.svg"));
+        edIcon.setSvgUrl(GradedResourceLoader.load("icons/ed_logo.svg"));
         home = gradedFxmlLoader.createView(R.home_layout, new HomeController(modalPane,
                 gradedDataLoader, this));
         chat = gradedFxmlLoader.createView(R.chat_layout, new ChatController(this));

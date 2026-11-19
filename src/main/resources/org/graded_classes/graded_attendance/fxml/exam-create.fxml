@@ -17,7 +17,7 @@
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="600.0" style="-fx-background-radius: 5; -fx-background-color: #fafafa;" stylesheets="@../css/atlantafx.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.ExamCreator">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="520.0" prefWidth="600.0" style="-fx-background-radius: 5; -fx-background-color: #fafafa;" stylesheets="@../css/atlantafx.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.ExamCreator">
    <children>
       <HBox>
          <children>
@@ -84,12 +84,6 @@
                               <SearchField fx:id="subject" />
                            </children>
                         </VBox>
-                        <VBox>
-                           <children>
-                              <Label text="Question Count" />
-                              <NumericTextField fx:id="questionCount" />
-                           </children>
-                        </VBox>
                      </children>
                   </HBox>
                   <ScrollPane fitToHeight="true" fitToWidth="true" minHeight="40.0" vbarPolicy="NEVER" VBox.vgrow="NEVER">
@@ -101,6 +95,34 @@
                         </HBox>
                      </content>
                   </ScrollPane>
+                  <HBox spacing="8.0">
+                     <children>
+                        <VBox>
+                           <children>
+                              <Label text="Question Count" />
+                              <NumericTextField fx:id="questionCount" />
+                           </children>
+                        </VBox>
+                        <VBox>
+                           <children>
+                              <Label text="Easy Count" />
+                              <NumericTextField fx:id="easy" />
+                           </children>
+                        </VBox>
+                        <VBox>
+                           <children>
+                              <Label text="Medium Count" />
+                              <NumericTextField fx:id="medium" />
+                           </children>
+                        </VBox>
+                        <VBox>
+                           <children>
+                              <Label text="Hard Count" />
+                              <NumericTextField fx:id="hard" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
                   <HBox spacing="20.0">
                      <children>
                         <VBox>

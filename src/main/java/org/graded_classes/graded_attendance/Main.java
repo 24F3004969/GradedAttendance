@@ -22,6 +22,7 @@ public class Main extends Application {
     }
     @Override
     public void start(Stage stage) throws IOException {
+
         FXMLLoader fxmlLoader = new FXMLLoader(GradedResourceLoader.loadURL("fxml/main_layout.fxml"));
         fxmlLoader.setControllerFactory(_ -> new MainController(stage));
         Parent root = fxmlLoader.load();

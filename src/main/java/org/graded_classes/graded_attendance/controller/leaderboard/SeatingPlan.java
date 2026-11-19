@@ -29,15 +29,15 @@ public class SeatingPlan implements Initializable {
     @FXML
     private VBox timing;
     private final LinkedHashMap<String, ArrayList<DailyTimeTable>> seatingMap;
-    private Map<String, String> colorMap = Map.of(
-            "03:30 PM", "#FCE4EC",
-            "04:15 PM", "#E8F5E9",
-            "05:00 PM", "#FFF3E0",
-            "05:45 PM", "#E3F2FD",
-            "06:30 PM", "#F3E5F5"
-
+    private final Map<String, String> colorMap = Map.of(
+            "10:00 AM", "#FCE4EC",
+            "11:00 AM", "#E8F5E9",
+            "4:00 PM",  "#FFF3E0",
+            "4:45 PM",  "#E3F2FD",
+            "5:30 PM",  "#F3E5F5",
+            "6:15 PM",  "#E0F7FA",
+            "6:45 PM",  "#FFF9C4"
     );
-
     public SeatingPlan(LinkedHashMap<String, ArrayList<DailyTimeTable>> seatingMap) {
         this.seatingMap = seatingMap;
     }

@@ -172,54 +172,8 @@ public final class Omr {
      */
     private static final double MINIMUM_PAGE_BLUE_COVERAGE = 0.00008;
 
-    private Omr() {
+    public Omr() {
     }
-
-    // =========================================================
-    // Test entry point
-    // =========================================================
-
-    public static void main(String[] args) {
-        File[] files = new File("C:\\Users\\hilal\\GradedAttendance\\omr").listFiles();
-        List<OmrResult> omrResults = new ArrayList<>();
-         Omr omr = new Omr();
-        if (files != null) {
-            for (File file : files) {
-                String inputPath = file.getAbsolutePath();
-
-                try (OmrResult result = read(inputPath, true)) {
-
-                    System.out.printf(
-                            "Roll/Enrollment No: %s (%s)%n",
-                            result.rollNumber().value(),
-                            result.rollNumber().valid() ? "VALID" : "INVALID"
-                    );
-
-                    for (QuestionResult question : result.questions()) {
-                        double[] scores = question.scores();
-                        System.out.printf(
-                                Locale.US,
-                                "Q%02d -> %s [A=%.3f B=%.3f C=%.3f D=%.3f, "
-                                        + "threshold=%.3f, confidence=%.3f, status=%s]%n",
-                                question.questionNumber(),
-                                question.answer(),
-                                scores[0], scores[1], scores[2], scores[3],
-                                question.threshold(),
-                                question.confidence(),
-                                confidenceStatus(question.answer(), question.confidence(),question.faintRecovery())
-                        );
-                    }
-                    omrResults.add(result);
-                }
-            }
-
-        }
-        omr.writeJsonFile(omrResults, new ArrayList<>(),new File("result.json").toPath());
-    }
-
-    // =========================================================
-    // Main scanning method
-    // =========================================================
     public void writeJsonFile(
             List<OmrResult> scanResults,
             List<String> notes,
@@ -406,7 +360,31 @@ public final class Omr {
                     }
 
                     if (saveDebugImages) {
-                        imwrite("C:\\Users\\hilal\\GradedAttendance\\debugOmr\\" + new File(imagePath).getName() + "special_normalized_debug.png", debug);
+                        Path imageFile = Path.of(imagePath).toAbsolutePath();
+                        Path parentDirectory = imageFile.getParent();
+
+                        if (parentDirectory == null) {
+                            throw new IllegalArgumentException(
+                                    "Image path has no parent directory: " + imagePath
+                            );
+                        }
+
+                        Path debugDirectory = parentDirectory.resolve("debugOmr");
+                        Files.createDirectories(debugDirectory);
+
+                        Path outputFile = debugDirectory.resolve(
+                                rollNumber.value() + ".png"
+                        );
+
+                        System.out.println(outputFile);
+
+                        boolean saved = imwrite(outputFile.toString(), debug);
+
+                        if (!saved) {
+                            throw new IOException(
+                                    "Failed to save debug image: " + outputFile
+                            );
+                        }
                     }
                     /*
                      * NormalizedImages closes its own Mats when its
@@ -424,6 +402,8 @@ public final class Omr {
                 } catch (RuntimeException exception) {
                     debug.close();
                     throw exception;
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
 
@@ -2619,7 +2599,7 @@ public final class Omr {
             throw exception;
         }
     }
-    private static String confidenceStatus(
+    public static String confidenceStatus(
             char result,
             double confidence,
             boolean faintRecovery

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.dlsc.gemsfx.SVGImageView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.geometry.Rectangle2D?>
 <?import javafx.scene.control.Button?>
@@ -19,17 +20,7 @@
                <children>
                   <HBox alignment="CENTER" HBox.hgrow="ALWAYS">
                      <children>
-                        <ImageView fitHeight="100.0" fitWidth="300.0" preserveRatio="true" style="-fx-page-fill: transparent;" HBox.hgrow="ALWAYS">
-                           <HBox.margin>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </HBox.margin>
-                           <viewport>
-                              <Rectangle2D />
-                           </viewport>
-                           <image>
-                              <Image url="@../icons/my-logo.svg" />
-                           </image>
-                        </ImageView>
+                        <SVGImageView fx:id="logo" fitWidth="300"/>
                      </children>
                   </HBox>
                </children>

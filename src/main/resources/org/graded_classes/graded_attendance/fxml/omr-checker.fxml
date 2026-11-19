@@ -4,6 +4,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToggleGroup?>
@@ -13,73 +14,82 @@
 <?import javafx.scene.layout.VBox?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="679.0" prefWidth="863.0" spacing="5.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.OmrChecker">
+<StackPane xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.OmrChecker">
    <children>
-      <StackPane>
+      <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="744.0" prefWidth="863.0" spacing="5.0" style="-fx-background-color: #fafafa; -fx-background-radius: 5; -fx-border-radius: 5;">
          <children>
-            <Label text="OMR Checker" StackPane.alignment="CENTER" />
-            <Button fx:id="close" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" text="Button" StackPane.alignment="TOP_RIGHT">
-               <graphic>
-                  <FontIcon iconLiteral="mdal-close" styleClass="button" />
-               </graphic>
-               <padding>
-                  <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-               </padding>
-               <styleClass>
-                  <String fx:value="danger" />
-                  <String fx:value="flat" />
-               </styleClass>
-               <StackPane.margin>
-                  <Insets bottom="2.0" left="2.0" right="5.0" top="2.0" />
-               </StackPane.margin>
-            </Button>
-         </children>
-      </StackPane>
-      <HBox alignment="CENTER_RIGHT">
-         <children>
-            <ToggleButton mnemonicParsing="false" selected="true" styleClass="left-pill" text="OMR Image">
-               <toggleGroup>
-                  <ToggleGroup fx:id="typeType" />
-               </toggleGroup>
-               <graphic>
-                  <FontIcon style="-fx-icon-code: fth-book;" />
-               </graphic>
-            </ToggleButton>
-            <ToggleButton mnemonicParsing="false" styleClass="right-pill" text="Debug Image" toggleGroup="$typeType">
-               <graphic>
-                  <FontIcon style="-fx-icon-code: fth-file-text;" />
-               </graphic>
-            </ToggleButton>
-         </children>
-         <VBox.margin>
-            <Insets right="5.0" />
-         </VBox.margin>
-      </HBox>
-      <SplitPane fx:id="omrView" VBox.vgrow="ALWAYS">
-         <VBox.margin>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </VBox.margin>
-         <items>
-            <TilePane alignment="CENTER" style="-fx-background-color: #1C75BC20; -fx-border-style: dashed; -fx-border-radius: 5; -fx-background-radius: 5;">
+            <StackPane>
                <children>
-                  <Button mnemonicParsing="false" style="-fx-icon-code: fth-image;" text="Add Images">
+                  <Label text="OMR Checker" StackPane.alignment="CENTER" />
+                  <Button contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#onClose" text="Button" StackPane.alignment="TOP_RIGHT">
                      <graphic>
-                        <FontIcon style="-fx-icon-code: fth-image;" />
+                        <FontIcon iconLiteral="mdal-close" styleClass="button" />
                      </graphic>
+                     <padding>
+                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                     </padding>
+                     <styleClass>
+                        <String fx:value="danger" />
+                        <String fx:value="flat" />
+                     </styleClass>
+                     <StackPane.margin>
+                        <Insets bottom="2.0" left="2.0" right="5.0" top="2.0" />
+                     </StackPane.margin>
                   </Button>
                </children>
-            </TilePane>
-         </items>
-      </SplitPane>
-      <HBox alignment="CENTER_RIGHT" spacing="5.0">
-         <children>
-            <Button mnemonicParsing="false" text="Unselect All" />
-            <Button mnemonicParsing="false" styleClass="accent" text="Select All" />
-            <Button mnemonicParsing="false" styleClass="success" text="Check All Selected" />
+            </StackPane>
+            <HBox alignment="CENTER_RIGHT">
+               <children>
+                  <ToggleButton mnemonicParsing="false" onAction="#changeType" selected="true" styleClass="left-pill" text="OMR Image">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="typeType" />
+                     </toggleGroup>
+                     <graphic>
+                        <FontIcon style="-fx-icon-code: fth-book;" />
+                     </graphic>
+                  </ToggleButton>
+                  <ToggleButton mnemonicParsing="false" onAction="#changeType" styleClass="right-pill" text="Debug Image" toggleGroup="$typeType">
+                     <graphic>
+                        <FontIcon style="-fx-icon-code: fth-file-text;" />
+                     </graphic>
+                  </ToggleButton>
+               </children>
+               <VBox.margin>
+                  <Insets right="5.0" />
+               </VBox.margin>
+            </HBox>
+            <SplitPane fx:id="omrView" VBox.vgrow="ALWAYS">
+               <VBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </VBox.margin>
+               <items>
+                  <ScrollPane fx:id="rawImageView" fitToHeight="true" fitToWidth="true">
+                     <content>
+                        <TilePane fx:id="tilePane" alignment="CENTER" hgap="10.0" style="-fx-background-color: #1C75BC20; -fx-border-style: dashed; -fx-border-radius: 5; -fx-background-radius: 5;" vgap="10.0">
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#addOmrImage" style="-fx-icon-code: fth-image;" text="Add Images">
+                                 <graphic>
+                                    <FontIcon style="-fx-icon-code: fth-image;" />
+                                 </graphic>
+                              </Button>
+                           </children>
+                        </TilePane>
+                     </content>
+                  </ScrollPane>
+               </items>
+            </SplitPane>
+            <HBox alignment="CENTER_RIGHT" spacing="5.0">
+               <children>
+                  <Button mnemonicParsing="false" text="Unselect All" />
+                  <Button mnemonicParsing="false" styleClass="accent" text="Select All" />
+                  <Button mnemonicParsing="false" onAction="#checkAllQuestion" styleClass="success" text="Check All Selected" />
+               </children>
+               <VBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" />
+               </VBox.margin>
+            </HBox>
          </children>
-         <VBox.margin>
-            <Insets bottom="10.0" left="10.0" right="10.0" />
-         </VBox.margin>
-      </HBox>
+      </VBox>
+      <StackPane fx:id="loadingPane" maxHeight="200.0" maxWidth="200.0" prefHeight="200.0" prefWidth="200.0" visible="false" />
    </children>
-</VBox>
+</StackPane>

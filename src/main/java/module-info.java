@@ -35,6 +35,7 @@ module org.graded_classes.graded_attendance {
     requires sherpa.onnx.java.api;
     requires com.fasterxml.jackson.databind;
     requires org.kordamp.ikonli.feather;
+    requires atlantafx.spins;
 
     opens org.graded_classes.graded_attendance.controller.leaderboard to javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc, java.sql;
 

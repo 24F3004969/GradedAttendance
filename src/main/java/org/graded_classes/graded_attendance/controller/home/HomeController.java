@@ -1,6 +1,7 @@
 package org.graded_classes.graded_attendance.controller.home;
 
 import atlantafx.base.controls.ModalPane;
+import com.dlsc.gemsfx.SVGImageView;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -35,6 +36,8 @@ import static org.graded_classes.graded_attendance.GradedResourceLoader.loadStre
 import static org.graded_classes.graded_attendance.GradedResourceLoader.loadURL;
 
 public class HomeController implements Initializable {
+    @FXML
+    private SVGImageView logo;
     @FXML
     AnchorPane searchBarHolder;
     @FXML
@@ -114,6 +117,7 @@ public class HomeController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        logo.setSvgUrl(GradedResourceLoader.load("icons/my-logo.svg"));
         selectedItem = stu_atten;
         studentAttendance= new StudentAttendance(mainController, gradedFxmlLoader, outer_main_box, "stu_atten");
         VBox studentAttendanceLayout = (VBox) mainController.gradedFxmlLoader.createView(R.student_attendance_layout,

@@ -5,8 +5,11 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
@@ -15,22 +18,43 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.kordamp.ikonli.feather.Feather;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 
-public class ImageCropperApp extends Application {
+public class ImageCropperAndPreviewApp {
 
-    private ImageView imageView;
-    private Rectangle cropBox;
+    public ImageView getImageView() {
+        return imageView;
+    }
+
+    private final ImageView imageView;
+    private final Rectangle cropBox;
 
     private double startX;
     private double startY;
+    private double lastX;
+    private double lastY;
+    private final Button leftButton = new Button(), rightButton = new Button();
 
-    @Override
-    public void start(Stage stage) {
+    public Button getLeftButton() {
+        return leftButton;
+    }
 
+    public Button getRightButton() {
+        return rightButton;
+    }
+
+    public BorderPane getRoot() {
+        return root;
+    }
+
+    private final BorderPane root = new BorderPane();
+
+    public ImageCropperAndPreviewApp() {
         imageView = new ImageView();
         imageView.setPreserveRatio(true);
         cropBox = new Rectangle();
@@ -38,34 +62,38 @@ public class ImageCropperApp extends Application {
         cropBox.setStroke(Color.WHITE);
         cropBox.setStrokeWidth(2);
         cropBox.setVisible(false);
-
         Pane overlayPane = new Pane();
         overlayPane.getChildren().add(cropBox);
-
         StackPane imageContainer = new StackPane();
-        imageContainer.setStyle("-fx-background-color:#222;");
+        leftButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        rightButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        leftButton.setGraphic(new FontIcon(Feather.ARROW_LEFT));
+        rightButton.setGraphic(new FontIcon(Feather.ARROW_RIGHT));
+        BorderPane.setMargin(leftButton,new Insets(5,5,5,5));
+        BorderPane.setMargin(rightButton,new Insets(5,5,5,5));
+        root.setStyle("""
+                -fx-background-color:#E3F2FD;
+                -fx-background-radius: 12;
+                """);
         imageContainer.getChildren().addAll(
                 imageView,
                 overlayPane
         );
-        setupCropEvents(overlayPane);
+        //setupCropEvents(overlayPane);
 
-        Button openBtn = new Button("Open");
+    /*    Button openBtn = new Button("Open");
         Button cropBtn = new Button("Crop");
-        Button saveBtn = new Button("Save");
+        Button saveBtn = new Button("Save");*/
 
-        openBtn.setOnAction(e -> openImage(stage));
+       /* openBtn.setOnAction(e -> openImage(stage));
         cropBtn.setOnAction(e -> cropImage());
-        saveBtn.setOnAction(e -> saveImage(stage));
+        saveBtn.setOnAction(e -> saveImage(stage));*/
 
-        HBox toolbar = new HBox(10, openBtn, cropBtn, saveBtn);
-        toolbar.setStyle("-fx-padding:10;");
-
-        BorderPane root = new BorderPane();
-        root.setTop(toolbar);
+        /*  HBox toolbar = new HBox(10, openBtn, cropBtn, saveBtn);*/
+      /*  toolbar.setStyle("-fx-padding:10;");
+        root.setTop(toolbar);*/
         root.setCenter(imageContainer);
-
-        Scene scene = new Scene(root, 1000, 800);
+        // Scene scene = new Scene(root, 1000, 800);
         imageView.fitHeightProperty().bind(root.heightProperty());
         imageView.fitWidthProperty().bind(root.widthProperty());
 
@@ -75,6 +103,25 @@ public class ImageCropperApp extends Application {
         imageView.scaleXProperty().bind(zoom);
         imageView.scaleYProperty().bind(zoom);
 
+        imageContainer.setOnMousePressed(e -> {
+            if (e.isPrimaryButtonDown()) {
+                lastX = e.getSceneX();
+                lastY = e.getSceneY();
+            }
+        });
+        imageContainer.setOnMouseDragged(e -> {
+            if (e.isPrimaryButtonDown()) {
+
+                double dx = e.getSceneX() - lastX;
+                double dy = e.getSceneY() - lastY;
+
+                imageView.setTranslateX(imageView.getTranslateX() + dx);
+                imageView.setTranslateY(imageView.getTranslateY() + dy);
+
+                lastX = e.getSceneX();
+                lastY = e.getSceneY();
+            }
+        });
         imageContainer.setOnScroll(e -> {
 
             if (e.getDeltaY() > 0) {
@@ -83,9 +130,13 @@ public class ImageCropperApp extends Application {
                 zoom.set(zoom.get() / 1.1);
             }
         });
-        stage.setTitle("JavaFX StackPane Cropper");
+        root.setLeft(leftButton);
+        root.setRight(rightButton);
+        BorderPane.setAlignment(leftButton, Pos.CENTER_LEFT);
+        BorderPane.setAlignment(rightButton,Pos.CENTER_RIGHT);
+    /*    stage.setTitle("JavaFX StackPane Cropper");
         stage.setScene(scene);
-        stage.show();
+        stage.show();*/
     }
 
     private void openImage(Stage stage) {
@@ -234,9 +285,5 @@ public class ImageCropperApp extends Application {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }

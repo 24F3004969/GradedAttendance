@@ -23,7 +23,7 @@
          <children>
             <Label text="Diagnostic Exam" textFill="#0eb902">
                <font>
-                  <Font name="AvenirNextLTPro-Bold" size="46.0" />
+                  <Font name="☞Gilroy-Bold" size="45.0" />
                </font>
             </Label>
             <HBox alignment="TOP_RIGHT" HBox.hgrow="ALWAYS">
@@ -91,6 +91,24 @@
                            <children>
                               <Label text="Question Count" />
                               <NumericTextField fx:id="questionCount" />
+                           </children>
+                        </VBox>
+                        <VBox>
+                           <children>
+                              <Label text="Easy Count" />
+                              <NumericTextField fx:id="easy" />
+                           </children>
+                        </VBox>
+                        <VBox>
+                           <children>
+                              <Label text="Medium Count" />
+                              <NumericTextField fx:id="medium" />
+                           </children>
+                        </VBox>
+                        <VBox>
+                           <children>
+                              <Label text="Hard Count" />
+                              <NumericTextField fx:id="hard" />
                            </children>
                         </VBox>
                      </children>

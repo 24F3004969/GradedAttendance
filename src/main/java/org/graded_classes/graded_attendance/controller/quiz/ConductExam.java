@@ -22,9 +22,8 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
 import org.graded_classes.graded_attendance.Main;
 import org.graded_classes.graded_attendance.R;
@@ -49,7 +48,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class ConductExam implements Initializable {
 
-    private final MainController mainController;
+     final MainController mainController;
     private final ArrayList<ExamData> examSchedular;
     private final ExamAnswerReviewGenerator reviewGenerator;
     private final ExamReviewSender reviewSender;
@@ -161,9 +160,25 @@ public class ConductExam implements Initializable {
 
     }
 
+    public record Status(int id, String name) {
+        @NotNull
+        @Override
+        public String toString() {
+            return this.name;
+        }
+    }
+
     private void configureFilterView() {
         CustomTextField search = filters.addSearchTextField("Search");
-        SelectionBox<LoadingPane.Status> status = filters.addSelectionBox("Filter", LoadingPane.Status.class);
+        SelectionBox<Status> status =
+                filters.addSelectionBox("Filter");
+
+        status.getItems().addAll(
+                new Status(1, "Topics"),
+                new Status(2, "Subject"),
+                new Status(3, "Class"),
+                new Status(3, "Room No.")
+        );
         status.setGraphic(new FontIcon(Feather.FILTER));
 
         DateRangePicker range = filters.addDateRangePicker("Date Range");
@@ -173,6 +188,7 @@ public class ConductExam implements Initializable {
         filters.setOnChange(() -> reload(status.getSelectionModel().getSelectedItems(),
                 range.getValue(), search.getText()));
     }
+
     public static <T> void autoResizeColumns(TableView<T> table) {
         for (TableColumn<T, ?> column : table.getColumns()) {
 
@@ -197,7 +213,8 @@ public class ConductExam implements Initializable {
             column.setPrefWidth(max + 30);
         }
     }
-    private void reload(ObservableList<LoadingPane.Status> selectedItems, DateRange value, String text) {
+
+    private void reload(ObservableList<Status> selectedItems, DateRange value, String text) {
 
     }
 
@@ -335,11 +352,9 @@ public class ConductExam implements Initializable {
 
             preview.setOnAction(e -> {
                 ExamData exam = row.getItem();
+                var node = mainController.gradedFxmlLoader.createView(R.exam_preview);
+                mainController.modalPane.show(node);
 
-                if (exam != null) {
-                    System.out.println("Preview : "
-                            + exam.topicNamesForDisplay());
-                }
             });
             MenuItem edit = new MenuItem("Edit");
             edit.setGraphic(icon(Feather.EDIT_2));
@@ -489,7 +504,7 @@ public class ConductExam implements Initializable {
             button.setOnAction(event -> sendAllReviewReports(exam, button));
             HBox hBox = new HBox(button);
             hBox.setAlignment(Pos.CENTER);
-          button.setPadding(new Insets(5));
+            button.setPadding(new Insets(5));
             return new SimpleObjectProperty<>(hBox);
         });
     }
@@ -502,7 +517,9 @@ public class ConductExam implements Initializable {
                     "exam-action-btn",
                     "omr-btn"
             );
-            button.setOnAction(event -> mainController.modalPane.show(mainController.gradedFxmlLoader.createView(R.omr_checker)));
+            button.setOnAction(_ -> mainController.modalPane.show(mainController.gradedFxmlLoader.
+                    createView(R.omr_checker, new OmrChecker(this, exam)))
+            );
             HBox hBox = new HBox(button);
             button.setPadding(new Insets(5));
             hBox.setAlignment(Pos.CENTER);
@@ -522,13 +539,13 @@ public class ConductExam implements Initializable {
             button.setOnAction(event -> generateExamPdf(exam, button));
             HBox hBox = new HBox(button);
             hBox.setAlignment(Pos.CENTER);
-          button.setPadding(new Insets(5));
+            button.setPadding(new Insets(5));
             return new SimpleObjectProperty<>(hBox);
         });
     }
 
-    private void importOmr(ExamData examInfo) {
-        File generatedFile = fileChooser();
+    void importOmr(ExamData examInfo) {
+        File generatedFile = folderChooser();
         if (generatedFile == null) {
             return;
         }
@@ -1692,16 +1709,10 @@ public class ConductExam implements Initializable {
                 + value.substring(1).toLowerCase(Locale.ROOT);
     }
 
-    public File fileChooser() {
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("OMR JSON Selector");
-        chooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter(
-                        "JSON Files",
-                        "*.json"
-                )
-        );
-        return chooser.showOpenDialog(mainController.getStage());
+    public File folderChooser() {
+        DirectoryChooser chooser = new DirectoryChooser();
+        chooser.setTitle("OMR Image folder Selector");
+        return chooser.showDialog(mainController.getStage());
     }
 
     private void openPdfDirectory(File directory) {

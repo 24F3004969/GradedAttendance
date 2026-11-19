@@ -40,7 +40,13 @@
             <artifactId>javafx-media</artifactId>
             <version>26</version>
         </dependency>
-
+        <!-- Source: https://mvnrepository.com/artifact/io.github.mkpaz/atlantafx-spins -->
+        <dependency>
+            <groupId>io.github.mkpaz</groupId>
+            <artifactId>atlantafx-spins</artifactId>
+            <version>3.0.0</version>
+            <scope>compile</scope>
+        </dependency>
         <!-- Source: https://mvnrepository.com/artifact/com.lottie4j/fxplayer -->
         <dependency>
             <groupId>com.lottie4j</groupId>

@@ -1,6 +1,7 @@
 package org.graded_classes.graded_attendance.controller.database;
 
 import atlantafx.base.theme.Styles;
+import com.dlsc.gemsfx.SVGImageView;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,6 +12,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.VBox;
+import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.data.Student;
 import org.graded_classes.graded_attendance.data.StudentInfo;
@@ -27,6 +29,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class DataBaseController implements Initializable {
+    @FXML
+    private SVGImageView logo;
     @FXML
     Button reload, delete;
     MainController mainController;
@@ -58,6 +62,7 @@ public class DataBaseController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        logo.setSvgUrl(GradedResourceLoader.load("icons/my-logo.svg"));
         studentsMap = mainController.gradedDataLoader.getStudentData();
         reload.getStyleClass().addAll(Styles.SUCCESS, Styles.FLAT, Styles.BUTTON_CIRCLE);
         delete.getStyleClass().addAll(Styles.DANGER, Styles.FLAT, Styles.BUTTON_CIRCLE);

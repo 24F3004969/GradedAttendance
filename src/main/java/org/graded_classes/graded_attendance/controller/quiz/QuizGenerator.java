@@ -1,5 +1,6 @@
 package org.graded_classes.graded_attendance.controller.quiz;
 
+import com.dlsc.gemsfx.SVGImageView;
 import com.lottie4j.core.file.LottieFileLoader;
 import com.lottie4j.core.model.animation.Animation;
 import com.lottie4j.fxplayer.LottiePlayer;
@@ -16,6 +17,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
+import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.components.BasicParser;
 import org.graded_classes.graded_attendance.controller.home.MainController;
@@ -38,6 +40,8 @@ import static org.graded_classes.graded_attendance.controller.quiz.QuizTaker.ext
 public class QuizGenerator implements Initializable {
     @FXML
     private ComboBox<String> classList;
+    @FXML
+    private SVGImageView logo;
     @FXML
     public TreeView<String> quizTree;
     @FXML
@@ -78,6 +82,7 @@ public class QuizGenerator implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        logo.setSvgUrl(GradedResourceLoader.load("icons/ed_short.svg"));
         CompletableFuture.runAsync(this::initialPhase);
         CompletableFuture.runAsync(this::initTreeMapUi);
     }
