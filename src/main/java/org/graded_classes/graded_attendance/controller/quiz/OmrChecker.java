@@ -38,8 +38,7 @@ import static org.graded_classes.graded_attendance.components.Omr.read;
 public class OmrChecker implements Initializable {
 
     public StackPane loadingPane;
-    @FXML
-    private Button close;
+
 
     @FXML
     private SplitPane omrView;

@@ -1,28 +1,179 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
-<VBox id="about_page" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" stylesheets="@../../css/leaderboard/main_style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <ImageView fitHeight="233.0" fitWidth="233.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@../../icons/leaderboard/about_image.png" />
-         </image>
-         <VBox.margin>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </VBox.margin>
-      </ImageView>
-      <Text id="title" fill="#fafafa" strokeType="OUTSIDE" strokeWidth="0.0" text="About" />
-      <Text id="info" fill="#fafafa" strokeType="OUTSIDE" strokeWidth="0.0" text="Hi, I'm Helal Anwar, a self-taught Java developer with a deep passion for coding and problem-solving. My journey into programming began with curiosity and has grown into a commitment to building efficient and impactful software solutions. I'm currently pursuing a Bachelor of Science in Data Science and Applications at IIT Madras, and I hold a Diploma in Mechanical Engineering from Al-Kabir Polytechnic.&#10;&#10;Over the years, I've developed and contributed to several standalone projects, including desktop and mobile apps, ASCII-based games, and utility tools—all available on my GitHub. I enjoy teaching, cooking, and continuously learning new technologies.&#10;&#10;My core skills include Java, Python, C/C++, Kotlin, and various development tools. Whether it's building applications or exploring data, I strive to create meaningful experiences through code.&#10;&#10;Let’s connect:&#10;📧 hilal560anwar@gmail.com&#10;🔗 www.linkedin.com/in/helal-anwar-94571016b" textAlignment="CENTER" wrappingWidth="549.23046875">
-         <font>
-            <Font size="13.0" />
-         </font>
-         <VBox.margin>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </VBox.margin>
-      </Text>
-   </children>
-</VBox>
+<ScrollPane id="about_page" fitToHeight="true" maxWidth="800.0" pannable="true" stylesheets="@../../css/leaderboard/main_style.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+
+   <content>
+      <VBox alignment="CENTER" maxWidth="800.0" spacing="20.0" styleClass="about-container">
+
+         <padding>
+            <Insets bottom="35.0" left="45.0" right="45.0" top="35.0" />
+         </padding>
+
+         <!-- Profile section -->
+         <VBox alignment="CENTER" spacing="12.0" styleClass="profile-header">
+
+            <HBox alignment="CENTER" styleClass="profile-image-container">
+
+               <ImageView fitHeight="175.0" fitWidth="175.0" pickOnBounds="true" preserveRatio="true" styleClass="profile-image">
+
+                  <image>
+                     <Image url="@../../icons/leaderboard/about_image.png" />
+                  </image>
+               </ImageView>
+            </HBox>
+
+            <Label styleClass="profile-name" text="Helal Anwar" />
+
+            <Label styleClass="profile-role" text="Java Developer · Data Science Student" />
+
+            <Label alignment="CENTER" maxWidth="520.0" styleClass="profile-tagline" text="Developer, educator, and continuous learner." textAlignment="CENTER" wrapText="true" />
+         </VBox>
+
+
+         <VBox xmlns="http://javafx.com/javafx/26"
+               xmlns:fx="http://javafx.com/fxml/1"
+               alignment="TOP_LEFT"
+               fillWidth="true"
+               maxHeight="Infinity"
+               maxWidth="Infinity"
+               minHeight="-Infinity"
+               prefHeight="-1.0"
+               spacing="14.0"
+               styleClass="about-card">
+
+            <padding>
+               <Insets top="22.0"
+                       right="25.0"
+                       bottom="22.0"
+                       left="25.0"/>
+            </padding>
+
+            <children>
+
+               <Label text="About Me"
+                      maxWidth="Infinity"
+                      styleClass="section-title"/>
+
+               <Region minHeight="2.0"
+                       prefHeight="2.0"
+                       maxHeight="2.0"
+                       minWidth="42.0"
+                       prefWidth="42.0"
+                       maxWidth="42.0"
+                       styleClass="title-accent"/>
+
+               <Label maxWidth="Infinity"
+                      minHeight="-Infinity"
+                      prefHeight="-1.0"
+                      textOverrun="CLIP"
+                      wrapText="true"
+                      styleClass="about-description"
+                      text="Hi, I'm Helal Anwar, a self-taught Java developer with a strong passion for coding and problem-solving. My programming journey began with curiosity and gradually developed into a commitment to building efficient and meaningful software solutions."/>
+
+               <Label maxWidth="Infinity"
+                      minHeight="-Infinity"
+                      prefHeight="-1.0"
+                      textOverrun="CLIP"
+                      wrapText="true"
+                      styleClass="about-description"
+                      text="I'm currently pursuing a Bachelor of Science in Data Science and Applications at IIT Madras. I also hold a Diploma in Mechanical Engineering from Al-Kabir Polytechnic."/>
+
+               <Label maxWidth="Infinity"
+                      minHeight="-Infinity"
+                      prefHeight="-1.0"
+                      textOverrun="CLIP"
+                      wrapText="true"
+                      styleClass="about-description"
+                      text="Over the years, I've developed desktop and mobile applications, ASCII-based games, educational software, and utility tools. Alongside programming, I enjoy teaching, cooking, and continuously exploring new technologies."/>
+
+            </children>
+         </VBox>
+
+         <!-- Skills section -->
+         <VBox maxWidth="Infinity" spacing="13.0" styleClass="about-card">
+
+            <Label styleClass="section-title" text="Core Technologies" />
+
+            <Region maxHeight="2.0" maxWidth="42.0" minHeight="2.0" prefHeight="2.0" prefWidth="42.0" styleClass="title-accent" />
+
+            <FlowPane alignment="CENTER_LEFT" hgap="9.0" maxWidth="Infinity" vgap="9.0">
+
+               <children>
+                  <Label styleClass="skill-badge" text="Java" />
+
+                  <Label styleClass="skill-badge" text="JavaFX" />
+
+                  <Label styleClass="skill-badge" text="Python" />
+
+                  <Label styleClass="skill-badge" text="C / C++" />
+
+                  <Label styleClass="skill-badge" text="Kotlin" />
+
+                  <Label styleClass="skill-badge" text="SQL" />
+
+                  <Label styleClass="skill-badge" text="OpenCV" />
+
+                  <Label styleClass="skill-badge" text="Data Science" />
+               </children>
+            </FlowPane>
+         </VBox>
+
+         <!-- Education section -->
+         <VBox maxWidth="Infinity" spacing="13.0" styleClass="about-card">
+
+            <Label styleClass="section-title" text="Education" />
+
+            <Region maxHeight="2.0" maxWidth="42.0" minHeight="2.0" prefHeight="2.0" prefWidth="42.0" styleClass="title-accent" />
+
+            <VBox maxWidth="Infinity" spacing="5.0" styleClass="education-item">
+
+               <Label styleClass="education-title" text="Bachelor of Science" />
+
+               <Label styleClass="education-course" text="Data Science and Applications" />
+
+               <Label maxWidth="Infinity" styleClass="education-institute" text="Indian Institute of Technology Madras" wrapText="true" />
+            </VBox>
+
+            <VBox maxWidth="Infinity" spacing="5.0" styleClass="education-item">
+
+               <Label maxWidth="Infinity" styleClass="education-title" text="Diploma in Mechanical Engineering" wrapText="true" />
+
+               <Label styleClass="education-institute" text="Al-Kabir Polytechnic" />
+            </VBox>
+         </VBox>
+
+         <!-- Contact section -->
+         <VBox alignment="CENTER" maxWidth="Infinity" spacing="12.0" styleClass="contact-card">
+
+            <Label styleClass="contact-title" text="Let's Connect" />
+
+            <Label maxWidth="500.0" styleClass="contact-description" text="I'm always open to discussing software development, education, and interesting project ideas." textAlignment="CENTER" wrapText="true" />
+
+            <HBox alignment="CENTER" spacing="12.0">
+
+               <children>
+                  <Hyperlink styleClass="contact-link" text="hilal560anwar@gmail.com" />
+
+                  <Label styleClass="contact-separator" text="·" />
+
+                  <Hyperlink styleClass="contact-link" text="LinkedIn" />
+               </children>
+            </HBox>
+         </VBox>
+
+         <Label styleClass="footer-text" text="Designed and developed by Helal Anwar" />
+
+      </VBox>
+   </content>
+</ScrollPane>

@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.dlsc.gemsfx.SearchField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane fx:id="root" minHeight="650.0" minWidth="900.0" prefHeight="800.0" prefWidth="1280.0" style="-fx-background-color: #fafafa;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.syllabus.SyllabusAnalysisController">
+
+    <!-- =========================================================
+         PAGE HEADER
+         ========================================================= -->
+
+    <top>
+        <VBox spacing="15.0">
+
+            <padding>
+                <Insets bottom="15.0" left="24.0" right="24.0" top="20.0" />
+            </padding>
+
+            <HBox alignment="CENTER_LEFT" spacing="12.0">
+
+                <VBox spacing="3.0">
+                    <Label styleClass="title-2" text="Syllabus Analysis">
+                  <font>
+                     <Font size="48.0" />
+                  </font></Label>
+
+                    <Label styleClass="text-muted" text="Track syllabus coverage and individual student progress" />
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <Button onAction="#importSyllabus" styleClass="button-outlined" text="Import Syllabus">
+
+                    <tooltip>
+                        <Tooltip text="Import syllabus topics from a file" />
+                    </tooltip>
+                </Button>
+
+                <Button onAction="#showAddSyllabus" styleClass="accent" text="+ Add Syllabus">
+
+                    <tooltip>
+                        <Tooltip text="Create a syllabus for a school, class and exam term" />
+                    </tooltip>
+                </Button>
+
+            </HBox>
+
+            <!-- Main filters -->
+            <GridPane hgap="12.0" vgap="8.0" VBox.vgrow="NEVER">
+
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="16.66" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="16.66" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="16.66" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="16.66" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="16.66" />
+                    <ColumnConstraints hgrow="SOMETIMES" percentWidth="16.66" />
+                </columnConstraints>
+
+                <Label styleClass="text-muted" text="Academic Session" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+
+                <Label styleClass="text-muted" text="School" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <Label styleClass="text-muted" text="Board" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+
+                <Label styleClass="text-muted" text="Class" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+
+                <Label styleClass="text-muted" text="Exam / Term" GridPane.columnIndex="4" GridPane.rowIndex="0" />
+
+                <Label styleClass="text-muted" text="Subject" GridPane.columnIndex="5" GridPane.rowIndex="0" />
+
+                <ComboBox fx:id="sessionComboBox" maxWidth="Infinity" onAction="#filterChanged" promptText="Select session" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+
+                <ComboBox fx:id="schoolComboBox" maxWidth="Infinity" onAction="#filterChanged" promptText="All schools" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <ComboBox fx:id="boardComboBox" maxWidth="Infinity" onAction="#filterChanged" promptText="CBSE / ICSE" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+
+                <ComboBox fx:id="classComboBox" maxWidth="Infinity" onAction="#filterChanged" promptText="Select class" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+
+                <ComboBox fx:id="termComboBox" maxWidth="Infinity" onAction="#filterChanged" promptText="Term / Exam" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+
+                <ComboBox fx:id="subjectComboBox" maxWidth="Infinity" onAction="#filterChanged" promptText="Select subject" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+            <rowConstraints>
+               <RowConstraints />
+               <RowConstraints />
+            </rowConstraints>
+
+            </GridPane>
+
+            <Separator />
+
+        </VBox>
+    </top>
+
+    <!-- =========================================================
+         MAIN WORK AREA
+         ========================================================= -->
+
+    <center>
+      <ScrollPane>
+         <content>
+              <SplitPane fx:id="mainSplitPane" dividerPositions="0.22, 0.73">
+      
+                  <!-- =================================================
+                       LEFT: STUDENT LIST
+                       ================================================= -->
+      
+                  <items>
+                      <VBox minWidth="220.0" prefWidth="260.0" spacing="12.0">
+      
+                          <padding>
+                              <Insets bottom="18.0" left="20.0" right="12.0" top="5.0" />
+                          </padding>
+      
+                          <HBox alignment="CENTER_LEFT">
+                              <VBox spacing="2.0">
+                                  <Label styleClass="title-4" text="Students" />
+      
+                                  <Label fx:id="studentCountLabel" styleClass="text-muted" text="0 students" />
+                              </VBox>
+      
+                              <Region HBox.hgrow="ALWAYS" />
+      
+                              <Button onAction="#refreshStudents" styleClass="button-icon, flat" text="↻">
+                                  <tooltip>
+                                      <Tooltip text="Refresh students" />
+                                  </tooltip>
+                              </Button>
+                          </HBox>
+      
+                          <SearchField fx:id="studentSearchField" maxWidth="Infinity" promptText="Search name or enrollment number" />
+      
+                          <HBox alignment="CENTER_LEFT" spacing="7.0">
+      
+                              <Button fx:id="allStudentsButton" onAction="#showAllStudents" styleClass="small, left-pill, accent" text="All" />
+      
+                              <Button fx:id="needsAttentionButton" onAction="#showStudentsNeedingAttention" styleClass="small, right-pill" text="Needs attention" />
+                          </HBox>
+      
+                          <ListView fx:id="studentListView" minHeight="300.0" VBox.vgrow="ALWAYS" />
+      
+                          <Separator />
+      
+                          <VBox spacing="8.0">
+      
+                              <Label styleClass="title-4" text="Class summary" />
+      
+                              <HBox alignment="CENTER_LEFT">
+                                  <Label styleClass="text-muted" text="Average completion" />
+      
+                                  <Region HBox.hgrow="ALWAYS" />
+      
+                                  <Label fx:id="classCompletionLabel" styleClass="text-bold" text="0%" />
+                              </HBox>
+      
+                              <ProgressBar fx:id="classCompletionProgress" maxWidth="Infinity" progress="0.0" />
+      
+                              <HBox alignment="CENTER_LEFT">
+                                  <Label styleClass="text-muted" text="Students on track" />
+      
+                                  <Region HBox.hgrow="ALWAYS" />
+      
+                                  <Label fx:id="studentsOnTrackLabel" styleClass="text-bold" text="0 / 0" />
+                              </HBox>
+      
+                          </VBox>
+      
+                      </VBox>
+      
+                      <!-- =================================================
+                           CENTER: STUDENT SYLLABUS ANALYSIS
+                           ================================================= -->
+      
+                      <VBox minWidth="480.0" spacing="13.0">
+      
+                          <padding>
+                              <Insets bottom="18.0" left="15.0" right="15.0" top="5.0" />
+                          </padding>
+      
+                          <!-- Selected student header -->
+                          <HBox alignment="CENTER_LEFT" spacing="13.0">
+      
+                              <StackPane minHeight="50.0" minWidth="50.0" prefHeight="50.0" prefWidth="50.0">
+      
+                                  <Circle radius="24.0" styleClass="accent" />
+      
+                                  <Label fx:id="studentInitialsLabel" styleClass="text-bold" text="ST" />
+                              </StackPane>
+      
+                              <VBox spacing="3.0">
+      
+                                  <Label fx:id="selectedStudentNameLabel" styleClass="title-3" text="Select a student" />
+      
+                                  <HBox spacing="7.0">
+                                      <Label fx:id="selectedStudentEnrollmentLabel" styleClass="text-muted" text="Enrollment: --" />
+      
+                                      <Label styleClass="text-muted" text="•" />
+      
+                                      <Label fx:id="selectedStudentClassLabel" styleClass="text-muted" text="Class: --" />
+      
+                                      <Label styleClass="text-muted" text="•" />
+      
+                                      <Label fx:id="selectedStudentSchoolLabel" styleClass="text-muted" text="School: --" />
+                                  </HBox>
+                              </VBox>
+      
+                              <Region HBox.hgrow="ALWAYS" />
+      
+                              <Button onAction="#openStudentReport" styleClass="button-outlined" text="Student Report" />
+      
+                              <Button onAction="#updateStudentProgress" styleClass="accent" text="Update Progress" />
+      
+                          </HBox>
+      
+                          <!-- Summary cards -->
+                          <GridPane hgap="10.0" vgap="10.0">
+      
+                              <columnConstraints>
+                                  <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
+                                  <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
+                                  <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
+                                  <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
+                              </columnConstraints>
+      
+                              <VBox spacing="5.0" styleClass="card" GridPane.columnIndex="0">
+      
+                                  <padding>
+                                      <Insets bottom="13.0" left="13.0" right="13.0" top="13.0" />
+                                  </padding>
+      
+                                  <Label styleClass="text-muted" text="Completion" />
+      
+                                  <Label fx:id="studentCompletionLabel" styleClass="title-3" text="0%" />
+      
+                                  <ProgressBar fx:id="studentCompletionProgress" maxWidth="Infinity" />
+                              </VBox>
+      
+                              <VBox spacing="5.0" styleClass="card" GridPane.columnIndex="1">
+      
+                                  <padding>
+                                      <Insets bottom="13.0" left="13.0" right="13.0" top="13.0" />
+                                  </padding>
+      
+                                  <Label styleClass="text-muted" text="Topics completed" />
+      
+                                  <Label fx:id="completedTopicsLabel" styleClass="title-3" text="0 / 0" />
+      
+                                  <Label fx:id="remainingTopicsLabel" styleClass="text-muted" text="0 remaining" />
+                              </VBox>
+      
+                              <VBox spacing="5.0" styleClass="card" GridPane.columnIndex="2">
+      
+                                  <padding>
+                                      <Insets bottom="13.0" left="13.0" right="13.0" top="13.0" />
+                                  </padding>
+      
+                                  <Label styleClass="text-muted" text="Assessment average" />
+      
+                                  <Label fx:id="assessmentAverageLabel" styleClass="title-3" text="--" />
+      
+                                  <Label fx:id="assessmentCountLabel" styleClass="text-muted" text="No assessments" />
+                              </VBox>
+      
+                              <VBox spacing="5.0" styleClass="card" GridPane.columnIndex="3">
+      
+                                  <padding>
+                                      <Insets bottom="13.0" left="13.0" right="13.0" top="13.0" />
+                                  </padding>
+      
+                                  <Label styleClass="text-muted" text="Current status" />
+      
+                                  <Label fx:id="studentStatusLabel" styleClass="title-3" text="Not available" />
+      
+                                  <Label fx:id="lastUpdatedLabel" styleClass="text-muted" text="Not updated" />
+                              </VBox>
+                        <rowConstraints>
+                           <RowConstraints />
+                        </rowConstraints>
+      
+                          </GridPane>
+      
+                          <!-- Topic table header -->
+                          <HBox alignment="CENTER_LEFT" spacing="10.0">
+      
+                              <VBox spacing="2.0">
+                                  <Label fx:id="syllabusTitleLabel" styleClass="title-4" text="Syllabus topics" />
+      
+                                  <Label fx:id="syllabusDescriptionLabel" styleClass="text-muted" text="Select the school, class, term and subject" />
+                              </VBox>
+      
+                              <Region HBox.hgrow="ALWAYS" />
+      
+                              <ComboBox fx:id="topicStatusFilterComboBox" onAction="#filterTopics" prefWidth="145.0" promptText="All statuses" />
+      
+                              <TextField fx:id="topicSearchField" onKeyReleased="#filterTopics" prefWidth="170.0" promptText="Find topic" />
+      
+                              <Button onAction="#showAddTopic" styleClass="button-outlined" text="+ Topic" />
+                          </HBox>
+      
+                          <!-- Syllabus topic progress table -->
+                          <TableView fx:id="syllabusTableView" editable="false" VBox.vgrow="ALWAYS">
+      
+                              <placeholder>
+                                  <VBox alignment="CENTER" spacing="8.0">
+      
+                                      <Label styleClass="title-4" text="No syllabus has been selected" />
+      
+                                      <Label styleClass="text-muted" text="Choose the filters above or create a new syllabus." />
+      
+                                      <Button onAction="#showAddSyllabus" styleClass="accent" text="Create Syllabus" />
+                                  </VBox>
+                              </placeholder>
+      
+                              <columns>
+                                  <TableColumn fx:id="chapterColumn" prefWidth="120.0" text="Chapter" />
+      
+                                  <TableColumn fx:id="topicColumn" prefWidth="210.0" text="Topic" />
+      
+                                  <TableColumn fx:id="targetDateColumn" prefWidth="100.0" text="Target Date" />
+      
+                                  <TableColumn fx:id="statusColumn" prefWidth="110.0" text="Status" />
+      
+                                  <TableColumn fx:id="progressColumn" prefWidth="105.0" text="Progress" />
+      
+                                  <TableColumn fx:id="scoreColumn" prefWidth="90.0" text="Last Score" />
+      
+                                  <TableColumn fx:id="actionColumn" prefWidth="70.0" sortable="false" text="" />
+                              </columns>
+                          </TableView>
+      
+                          <HBox alignment="CENTER_LEFT" spacing="15.0">
+      
+                              <Label styleClass="success" text="● Completed" />
+      
+                              <Label styleClass="accent" text="● In progress" />
+      
+                              <Label styleClass="warning" text="● Needs revision" />
+      
+                              <Label styleClass="text-muted" text="● Not started" />
+      
+                              <Region HBox.hgrow="ALWAYS" />
+      
+                              <Label fx:id="topicResultCountLabel" styleClass="text-muted" text="0 topics" />
+                          </HBox>
+      
+                      </VBox>
+      
+                      <!-- =================================================
+                           RIGHT: DETAILS / INSIGHTS
+                           ================================================= -->
+      
+                      <ScrollPane fitToWidth="true" hbarPolicy="NEVER" minWidth="275.0" prefWidth="320.0">
+      
+                          <content>
+                              <VBox spacing="16.0">
+      
+                                  <padding>
+                                      <Insets bottom="20.0" left="15.0" right="20.0" top="5.0" />
+                                  </padding>
+      
+                                  <VBox spacing="3.0">
+                                      <Label styleClass="title-4" text="Student insights" />
+      
+                                      <Label styleClass="text-muted" text="Performance for the selected syllabus" wrapText="true" />
+                                  </VBox>
+      
+                                  <!-- Progress distribution -->
+                                  <VBox spacing="8.0" styleClass="card">
+      
+                                      <padding>
+                                          <Insets bottom="14.0" left="14.0" right="14.0" top="14.0" />
+                                      </padding>
+      
+                                      <Label styleClass="text-bold" text="Topic distribution" />
+      
+                                      <PieChart fx:id="topicDistributionChart" animated="true" labelsVisible="false" legendVisible="true" prefHeight="230.0" />
+                                  </VBox>
+      
+                                  <!-- Focus areas -->
+                                  <VBox spacing="10.0" styleClass="card">
+      
+                                      <padding>
+                                          <Insets bottom="14.0" left="14.0" right="14.0" top="14.0" />
+                                      </padding>
+      
+                                      <HBox alignment="CENTER_LEFT">
+                                          <Label styleClass="text-bold" text="Topics needing attention" />
+      
+                                          <Region HBox.hgrow="ALWAYS" />
+      
+                                          <Label fx:id="attentionTopicCountLabel" styleClass="warning" text="0" />
+                                      </HBox>
+      
+                                      <ListView fx:id="attentionTopicsListView" minHeight="130.0" prefHeight="150.0" />
+                                  </VBox>
+      
+                                  <!-- Comparison -->
+                                  <VBox spacing="10.0" styleClass="card">
+      
+                                      <padding>
+                                          <Insets bottom="14.0" left="14.0" right="14.0" top="14.0" />
+                                      </padding>
+      
+                                      <Label styleClass="text-bold" text="Class comparison" />
+      
+                                      <HBox alignment="CENTER_LEFT">
+                                          <Label styleClass="text-muted" text="Student" />
+      
+                                          <Region HBox.hgrow="ALWAYS" />
+      
+                                          <Label fx:id="studentComparisonLabel" text="0%" />
+                                      </HBox>
+      
+                                      <ProgressBar fx:id="studentComparisonProgress" maxWidth="Infinity" progress="0.0" />
+      
+                                      <HBox alignment="CENTER_LEFT">
+                                          <Label styleClass="text-muted" text="Class average" />
+      
+                                          <Region HBox.hgrow="ALWAYS" />
+      
+                                          <Label fx:id="classAverageLabel" text="0%" />
+                                      </HBox>
+      
+                                      <ProgressBar fx:id="classAverageProgress" maxWidth="Infinity" progress="0.0" />
+                                  </VBox>
+      
+                                  <!-- Notes -->
+                                  <VBox spacing="8.0" styleClass="card">
+      
+                                      <padding>
+                                          <Insets bottom="14.0" left="14.0" right="14.0" top="14.0" />
+                                      </padding>
+      
+                                      <Label styleClass="text-bold" text="Teacher notes" />
+      
+                                      <TextArea fx:id="teacherNotesTextArea" prefRowCount="4" promptText="Add an observation about this student's syllabus progress..." wrapText="true" />
+      
+                                      <HBox alignment="CENTER_RIGHT" spacing="8.0">
+      
+                                          <Label fx:id="notesSavedLabel" styleClass="text-muted" text="" />
+      
+                                          <Button onAction="#saveTeacherNote" styleClass="button-outlined" text="Save Note" />
+                                      </HBox>
+      
+                                  </VBox>
+      
+                                  <!-- Student flags -->
+                                  <VBox spacing="8.0" styleClass="card">
+      
+                                      <padding>
+                                          <Insets bottom="14.0" left="14.0" right="14.0" top="14.0" />
+                                      </padding>
+      
+                                      <Label styleClass="text-bold" text="Tracking" />
+      
+                                      <CheckBox fx:id="revisionRequiredCheckBox" onAction="#updateTrackingFlags" text="Revision required" />
+      
+                                      <CheckBox fx:id="extraPracticeCheckBox" onAction="#updateTrackingFlags" text="Extra practice required" />
+      
+                                      <CheckBox fx:id="parentFollowUpCheckBox" onAction="#updateTrackingFlags" text="Parent follow-up required" />
+                                  </VBox>
+      
+                              </VBox>
+                          </content>
+                      </ScrollPane>
+      
+                  </items>
+              </SplitPane>
+         </content>
+      </ScrollPane>
+    </center>
+
+    <!-- =========================================================
+         FOOTER
+         ========================================================= -->
+
+    <bottom>
+        <VBox>
+            <Separator />
+
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+
+                <padding>
+                    <Insets bottom="9.0" left="24.0" right="24.0" top="9.0" />
+                </padding>
+
+                <Label fx:id="statusMessageLabel" styleClass="text-muted" text="Select a syllabus to begin" />
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <Label fx:id="syllabusProgressLabel" styleClass="text-muted" text="0 of 0 topics completed" />
+
+                <Button onAction="#openSyllabusManager" styleClass="flat" text="Manage Syllabuses" />
+
+                <Button onAction="#exportAnalysis" styleClass="button-outlined" text="Export Analysis" />
+            </HBox>
+        </VBox>
+    </bottom>
+
+</BorderPane>

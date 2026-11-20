@@ -53,7 +53,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class MainController implements Initializable {
     @FXML
-    private SVGImageView background,edIcon;
+    private SVGImageView background, edIcon;
     VBox notificationsVBox, notificationBox;
     ScrollPane notificationsScrollPane;
     @FXML
@@ -69,7 +69,7 @@ public class MainController implements Initializable {
     }
 
     Stage stage;
-    Node home, chat, calendar, lesson, database,quizCreator,leaderboard;
+    Node home, chat, calendar, lesson, database, quizCreator, leaderboard;
     @FXML
     public ModalPane modalPane;
     public GradedFxmlLoader gradedFxmlLoader = new GradedFxmlLoader();
@@ -85,6 +85,7 @@ public class MainController implements Initializable {
         this.stage = stage;
 
     }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         background.setSvgUrl(GradedResourceLoader.load("icons/new-back1.svg"));
@@ -94,7 +95,7 @@ public class MainController implements Initializable {
         chat = gradedFxmlLoader.createView(R.chat_layout, new ChatController(this));
         database = gradedFxmlLoader.createView(R.database_layout, new DataBaseController(this));
         lesson = gradedFxmlLoader.createView(R.lesson_planner, new Planner(gradedDataLoader, modalPane));
-        quizCreator=gradedFxmlLoader.createView(R.quiz_creator, new QuizGenerator(this));
+        quizCreator = gradedFxmlLoader.createView(R.quiz_creator, new QuizGenerator(this));
         calendar = new CalendarApp().createCalenderView();
         main_view.setCenter(navigateView("home"));
         ham.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.ACCENT, Styles.FLAT);
@@ -104,7 +105,7 @@ public class MainController implements Initializable {
         studentDataLoader = new StudentDataLoader(gradedDataLoader.getStudentData());
         l1 = new Leaderboard(studentDataLoader, this);
         l2 = new SeatingPlan(getSeatingPlan());
-        leaderboard=gradedFxmlLoader.createView(R.points_table, new PointsTable(studentDataLoader,
+        leaderboard = gradedFxmlLoader.createView(R.points_table, new PointsTable(studentDataLoader,
                 l1,
                 l2,
                 this));
@@ -202,6 +203,7 @@ public class MainController implements Initializable {
             case "lesson" -> lesson;
             case "quizCreator" -> quizCreator;
             case "leaderboard" -> leaderboard;
+            case "syllabus" -> gradedFxmlLoader.createView(R.syllabus_anyliser);
             /* case "setting" -> gradedFxmlLoader.createView(R.quiz_taker);*/
             default -> null;
         };

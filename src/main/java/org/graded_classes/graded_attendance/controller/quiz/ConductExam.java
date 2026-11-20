@@ -352,6 +352,7 @@ public class ConductExam implements Initializable {
 
             preview.setOnAction(e -> {
                 ExamData exam = row.getItem();
+                var questionData=loadQuestion(exam);
                 var node = mainController.gradedFxmlLoader.createView(R.exam_preview);
                 mainController.modalPane.show(node);
 

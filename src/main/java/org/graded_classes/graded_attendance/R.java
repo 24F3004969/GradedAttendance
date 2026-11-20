@@ -61,7 +61,8 @@ public enum R {
     diagnostic_test("fxml/diagnostic-exam-create.fxml"),
     omr_checker("fxml/omr-checker.fxml"),
     exam_preview("fxml/exam-preview.fxml"),
-    omr_preview("fxml/omr-preview.fxml");
+    omr_preview("fxml/omr-preview.fxml"),
+    syllabus_anyliser("fxml/syllabus_analysis.fxml");
     private final String path;
 
     R(String path) {

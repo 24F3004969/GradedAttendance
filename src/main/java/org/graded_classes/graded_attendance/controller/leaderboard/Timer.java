@@ -10,6 +10,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.R;
 
 import java.io.IOException;
@@ -68,10 +69,10 @@ LeaderboardLoader lb_loader;
         Stage timerStage = new Stage();
         timerStage.setTitle("About");
         try {
-            var layout = new FXMLLoader(LeaderboardResourcesLoader.loadURL("fxml/leadeboard/about.fxml"));
+            var layout = new FXMLLoader(GradedResourceLoader.loadURL("fxml/leaderboard/about.fxml"));
             timerStage.setScene(new Scene(layout.load()));
-            timerStage.getIcons().add(new Image(Objects.requireNonNull(getClass().
-                    getResourceAsStream("icons/__logo.png"))));
+            timerStage.getIcons().add(new Image(GradedResourceLoader.load("icons/app_icon.png")));
+
             timerStage.show();
         } catch (IOException e) {
             throw new RuntimeException(e);

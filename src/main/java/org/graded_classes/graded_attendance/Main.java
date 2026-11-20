@@ -10,6 +10,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.bytedeco.javacpp.Loader;
 import org.bytedeco.opencv.opencv_java;
+import org.graded_classes.graded_attendance.components.LatexView;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 
 import java.io.IOException;
@@ -22,15 +23,16 @@ public class Main extends Application {
     }
     @Override
     public void start(Stage stage) throws IOException {
-
+        LatexView latexView=new LatexView();
+        latexView.setFormula("\\");
         FXMLLoader fxmlLoader = new FXMLLoader(GradedResourceLoader.loadURL("fxml/main_layout.fxml"));
         fxmlLoader.setControllerFactory(_ -> new MainController(stage));
         Parent root = fxmlLoader.load();
         var scene = new Scene(root);
-        stage.setTitle("Graded Management");
+        stage.setTitle("GradeEd Management");
         Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
         stage.setScene(scene);
-        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("icons/app_icon.png"))));
+        stage.getIcons().add(new Image(GradedResourceLoader.load("icons/app_icon.png")));
         stage.setOnCloseRequest(_ -> System.exit(1));
         stage.centerOnScreen();
         stage.show();

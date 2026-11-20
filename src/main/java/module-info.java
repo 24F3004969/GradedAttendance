@@ -52,6 +52,8 @@ module org.graded_classes.graded_attendance {
     opens org.graded_classes.graded_attendance.controller.quiz to
             java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
     opens org.graded_classes.graded_attendance.data to java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
+    opens org.graded_classes.graded_attendance.controller.syllabus to java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
+
     opens org.graded_classes.graded_attendance.controller.chat to java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
     opens org.graded_classes.graded_attendance.controller.dashboard to java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
     opens org.graded_classes.graded_attendance.controller.database to java.sql, javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc;
