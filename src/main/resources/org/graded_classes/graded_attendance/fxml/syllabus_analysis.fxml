@@ -155,7 +155,7 @@
       
                           <SearchField fx:id="studentSearchField" maxWidth="Infinity" promptText="Search name or enrollment number" />
       
-                          <HBox alignment="CENTER_LEFT" spacing="7.0">
+                          <HBox alignment="CENTER_LEFT">
       
                               <Button fx:id="allStudentsButton" onAction="#showAllStudents" styleClass="small, left-pill, accent" text="All" />
       
@@ -436,7 +436,7 @@
                                           <Label fx:id="studentComparisonLabel" text="0%" />
                                       </HBox>
       
-                                      <ProgressBar fx:id="studentComparisonProgress" maxWidth="Infinity" progress="0.0" />
+                                      <ProgressBar fx:id="studentComparisonProgress" maxWidth="Infinity" />
       
                                       <HBox alignment="CENTER_LEFT">
                                           <Label styleClass="text-muted" text="Class average" />
@@ -446,7 +446,7 @@
                                           <Label fx:id="classAverageLabel" text="0%" />
                                       </HBox>
       
-                                      <ProgressBar fx:id="classAverageProgress" maxWidth="Infinity" progress="0.0" />
+                                      <ProgressBar fx:id="classAverageProgress" maxWidth="Infinity" />
                                   </VBox>
       
                                   <!-- Notes -->

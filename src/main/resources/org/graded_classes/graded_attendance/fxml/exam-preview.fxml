@@ -21,7 +21,7 @@
       <StackPane>
          <children>
             <Label text="Test Preview" StackPane.alignment="CENTER" />
-            <Button fx:id="close" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" text="Button" StackPane.alignment="TOP_RIGHT">
+            <Button fx:id="close" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#close" text="Button" StackPane.alignment="TOP_RIGHT">
                <graphic>
                   <FontIcon iconLiteral="mdal-close" styleClass="button" />
                </graphic>
@@ -40,7 +40,7 @@
       </StackPane>
       <HBox alignment="CENTER_RIGHT">
          <children>
-            <Button mnemonicParsing="false" styleClass="success" text="Regenerate">
+            <Button mnemonicParsing="false" onAction="#regenerate" styleClass="success" text="Regenerate">
                <graphic>
                   <FontIcon style="-fx-icon-code: mdi-reload;" />
                </graphic>
@@ -58,6 +58,11 @@
                      <content>
                         <VBox>
                            <children>
+                              <Label fx:id="questionNumber" text="Question 1">
+                                 <font>
+                                    <Font size="28.0" />
+                                 </font>
+                              </Label>
                               <LatexView fx:id="questionText" formula="\\\\text{Question 1.}\\\\\text{For which values of } x \text{ does the power series}\[\sum_{n=1}^{\infty} (-1)^{n+1}n(x-2)^n\] \text{ converge?}" size="28" VBox.vgrow="ALWAYS" />
                            </children>
                         </VBox>
@@ -155,8 +160,8 @@
          <children>
             <HBox prefHeight="26.0" prefWidth="211.0" spacing="10.0" HBox.hgrow="NEVER">
                <children>
-                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Previous" HBox.hgrow="ALWAYS" />
-                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="success" text="Next" HBox.hgrow="ALWAYS" />
+                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#action" text="Previous" HBox.hgrow="ALWAYS" />
+                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#action" styleClass="success" text="Next" HBox.hgrow="ALWAYS" />
                </children>
                <HBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
