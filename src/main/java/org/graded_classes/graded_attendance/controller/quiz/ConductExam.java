@@ -10,6 +10,9 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -17,6 +20,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -30,6 +34,7 @@ import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.components.OMRParser;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.data.ExamData;
+import org.graded_classes.graded_attendance.data.ExamType;
 import org.graded_classes.graded_attendance.data.OptionData;
 import org.graded_classes.graded_attendance.data.QuestionData;
 import org.jetbrains.annotations.NotNull;
@@ -42,19 +47,21 @@ import java.net.URL;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ConductExam implements Initializable {
 
-     final MainController mainController;
+    final MainController mainController;
     private final ArrayList<ExamData> examSchedular;
     private final ExamAnswerReviewGenerator reviewGenerator;
     private final ExamReviewSender reviewSender;
     @FXML
     public Button deleteSelectedBtn;
-
+    public HBox chipsContainer;
+    public ToggleGroup typeOfExam;
     @FXML
     private SimpleFilterView filters;
     @FXML
@@ -87,6 +94,8 @@ public class ConductExam implements Initializable {
     private Label today;
 
     final ObservableList<ExamData> items = FXCollections.observableArrayList();
+    private FilteredList<ExamData> filteredItems;
+    private SortedList<ExamData> sortedItems;
 
     public ConductExam(
             MainController mainController,
@@ -104,10 +113,11 @@ public class ConductExam implements Initializable {
         this.reviewSender = new ExamReviewSender(mainController);
     }
 
-    private void updateDeleteButton() {
+    long count = 0;
 
-        long count = 8;
+    private void updateDeleteButton(int direction) {
 
+        count += direction;
         deleteSelectedBtn.setVisible(count > 0);
         deleteSelectedBtn.setManaged(count > 0);
 
@@ -146,7 +156,7 @@ public class ConductExam implements Initializable {
                         + " "
                         + now.getYear()
         );
-
+        configureTable();
         configureTextColumns();
         configureActionColumn();
         configureShareColumn();
@@ -156,8 +166,40 @@ public class ConductExam implements Initializable {
         configureContextMenu();
         configureFilterView();
         items.setAll(examSchedular);
-        scheduleTable.setItems(items);
+        filteredItems = new FilteredList<>(items, exam -> true);
+        sortedItems = new SortedList<>(filteredItems);
 
+        sortedItems.comparatorProperty()
+                .bind(scheduleTable.comparatorProperty());
+
+        scheduleTable.setItems(sortedItems);
+
+
+
+    }
+
+    private void configureTable() {
+        filteredItems = new FilteredList<>(items, exam -> true);
+        sortedItems = new SortedList<>(filteredItems);
+
+        sortedItems.comparatorProperty()
+                .bind(scheduleTable.comparatorProperty());
+
+        scheduleTable.setItems(sortedItems);
+    }
+
+    public void changeType(ActionEvent actionEvent) {
+            ToggleButton tg= (ToggleButton) actionEvent.getSource();
+            if(tg.getText().equals("Normal(MCQ/MSQ/NAT) Test")){
+                filteredItems.setPredicate(examData -> !examData.topicNamesForDisplay().contains("Diagnostic"));
+            }
+            else if (tg.getText().equals("Diagnostic(MCQ/MSQ/NAT) Test")) {
+                filteredItems.setPredicate(examData -> examData.topicNamesForDisplay().contains("Diagnostic"));
+
+            } else if (tg.getText().equals("Written Test")) {
+                filteredItems.setPredicate(examData -> examData.examType().equals(ExamType.Written));
+
+            }
     }
 
     public record Status(int id, String name) {
@@ -169,7 +211,9 @@ public class ConductExam implements Initializable {
     }
 
     private void configureFilterView() {
-        CustomTextField search = filters.addSearchTextField("Search");
+        CustomTextField search =
+                filters.addSearchTextField("Search");
+
         SelectionBox<Status> status =
                 filters.addSelectionBox("Filter");
 
@@ -177,18 +221,111 @@ public class ConductExam implements Initializable {
                 new Status(1, "Topics"),
                 new Status(2, "Subject"),
                 new Status(3, "Class"),
-                new Status(3, "Room No.")
+                new Status(4, "Room No.")
         );
+
         status.setGraphic(new FontIcon(Feather.FILTER));
 
-        DateRangePicker range = filters.addDateRangePicker("Date Range");
+        DateRangePicker range =
+                filters.addDateRangePicker("Date Range");
+
         ChipsViewContainer chips = new ChipsViewContainer();
+
+        // Connect chips to SimpleFilterView.
         chips.chipsProperty().bind(filters.chipsProperty());
         chips.setOnClear(filters::clear);
-        filters.setOnChange(() -> reload(status.getSelectionModel().getSelectedItems(),
-                range.getValue(), search.getText()));
+        // This was missing: add the chips control to the UI.
+        chipsContainer.getChildren().setAll(chips);
+
+        // Hide the entire row when no filters are active.
+        chipsContainer.visibleProperty().bind(
+                Bindings.isNotEmpty(filters.chipsProperty())
+        );
+
+        chipsContainer.managedProperty().bind(
+                chipsContainer.visibleProperty()
+        );
+    }
+    private void applyFilters(
+            ObservableList<Status> selectedFields,
+            DateRange dateRange,
+            String searchText
+    ) {
+        String search = normalize(searchText);
+
+        filteredItems.setPredicate(exam -> {
+            if (!matchesDateRange(exam, dateRange)) {
+                return false;
+            }
+
+            if (search.isEmpty()) {
+                return true;
+            }
+
+            /*
+             * If no specific field is selected,
+             * search all supported columns.
+             */
+            if (selectedFields == null || selectedFields.isEmpty()) {
+                return contains(exam.topicNames(), search)
+                        || contains(exam.subject(), search)
+                        || contains(exam.classes(), search)
+                        || contains(exam.room(), search);
+            }
+
+            /*
+             * Match any selected search field.
+             */
+            for (Status selectedField : selectedFields) {
+                boolean match = switch (selectedField.id()) {
+                    case 1 -> contains(exam.topicNames(), search);
+                    case 2 -> contains(exam.subject(), search);
+                    case 3 -> contains(exam.classes(), search);
+                    case 4 -> contains(exam.room(), search);
+                    default -> false;
+                };
+
+                if (match) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
+    }
+    private String normalize(String value) {
+        return value == null
+                ? ""
+                : value.trim().toLowerCase(Locale.ROOT);
     }
 
+    private boolean contains(Object value, String search) {
+        return value != null
+                && value.toString()
+                .toLowerCase(Locale.ROOT)
+                .contains(search);
+    }
+
+    private boolean matchesDateRange(
+            ExamData exam,
+            DateRange dateRange
+    ) {
+        if (dateRange == null) {
+            return true;
+        }
+
+        LocalDate examDate = LocalDate.parse(exam.doe());
+
+        if (examDate == null) {
+            return false;
+        }
+
+        LocalDate startDate = dateRange.getStartDate();
+        LocalDate endDate = dateRange.getEndDate();
+
+        return (startDate == null || !examDate.isBefore(startDate))
+                && (endDate == null || !examDate.isAfter(endDate));
+    }
     public static <T> void autoResizeColumns(TableView<T> table) {
         for (TableColumn<T, ?> column : table.getColumns()) {
 
@@ -235,6 +372,183 @@ public class ConductExam implements Initializable {
                 new SimpleStringProperty(
                         value.getValue().topicNamesForDisplay()
                 ));
+    }
+
+    @FXML
+    void onDelete() {
+        if (selectedRow == null || selectedRow.isEmpty()) {
+            showAlert(
+                    Alert.AlertType.INFORMATION,
+                    "No Exam Selected",
+                    "Select at least one exam to delete."
+            );
+            return;
+        }
+
+        int selectedCount = selectedRow.size();
+
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmation.setTitle("Delete Exams");
+        confirmation.setHeaderText(
+                selectedCount == 1
+                        ? "Delete the selected exam?"
+                        : "Delete " + selectedCount + " selected exams?"
+        );
+        confirmation.setContentText(
+                "This will permanently delete the selected exam"
+                        + (selectedCount == 1 ? "" : "s")
+                        + ", including associated topics and questions.\n\n"
+                        + "This action cannot be undone."
+        );
+
+        ButtonType deleteButton = new ButtonType(
+                "Delete",
+                ButtonBar.ButtonData.OK_DONE
+        );
+
+        ButtonType cancelButton = new ButtonType(
+                "Cancel",
+                ButtonBar.ButtonData.CANCEL_CLOSE
+        );
+
+        confirmation.getButtonTypes().setAll(deleteButton, cancelButton);
+
+        DialogPane dialogPane = confirmation.getDialogPane();
+
+        Node deleteNode = dialogPane.lookupButton(deleteButton);
+        deleteNode.getStyleClass().add("danger");
+
+        Optional<ButtonType> result = confirmation.showAndWait();
+
+        if (result.isEmpty() || result.get() != deleteButton) {
+            return;
+        }
+
+        deleteSelectedExams();
+    }
+
+    private void deleteSelectedExams() {
+        String deleteExamQuestionsSql = """
+                DELETE FROM ExamQuestion
+                WHERE exam_id = ?
+                """;
+
+        String deleteExamTopicsSql = """
+                DELETE FROM ExamTopic
+                WHERE exam_id = ?
+                """;
+
+        String deleteExamSql = """
+                DELETE FROM ExamScheduler
+                WHERE exam_id = ?
+                """;
+
+        boolean previousAutoCommit;
+        var conn = mainController.gradedDataLoader.databaseLoader.getConnection();
+        try {
+            previousAutoCommit = conn.getAutoCommit();
+            conn.setAutoCommit(false);
+
+        } catch (SQLException e) {
+            showDatabaseError("Could not start the deletion transaction.", e);
+            return;
+        }
+
+        int deletedExamCount = 0;
+
+        try (
+                PreparedStatement deleteQuestionsStatement =
+                        conn.prepareStatement(deleteExamQuestionsSql);
+
+                PreparedStatement deleteTopicsStatement =
+                        conn.prepareStatement(deleteExamTopicsSql);
+
+                PreparedStatement deleteExamStatement =
+                        conn.prepareStatement(deleteExamSql)
+        ) {
+            for (ExamData exam : selectedRow) {
+                String examId = exam.id();
+
+                deleteQuestionsStatement.setString(1, examId);
+                deleteQuestionsStatement.addBatch();
+
+                deleteTopicsStatement.setString(1, examId);
+                deleteTopicsStatement.addBatch();
+
+                deleteExamStatement.setString(1, examId);
+                deleteExamStatement.addBatch();
+            }
+
+            // Child records must be removed before ExamScheduler.
+            deleteQuestionsStatement.executeBatch();
+            deleteTopicsStatement.executeBatch();
+
+            int[] deletionResults = deleteExamStatement.executeBatch();
+
+            for (int result : deletionResults) {
+                if (result > 0 || result == Statement.SUCCESS_NO_INFO) {
+                    deletedExamCount++;
+                }
+            }
+
+            conn.commit();
+            items.removeAll(selectedRow);
+            selectedRow.clear();
+            updateDeleteButton((int) -count);
+            showAlert(
+                    Alert.AlertType.INFORMATION,
+                    "Exams Deleted",
+                    deletedExamCount == 1
+                            ? "The selected exam was deleted successfully."
+                            : deletedExamCount
+                            + " selected exams were deleted successfully."
+            );
+
+        } catch (SQLException e) {
+            try {
+                conn.rollback();
+            } catch (SQLException rollbackException) {
+                e.addSuppressed(rollbackException);
+            }
+
+            showDatabaseError(
+                    "The selected exams could not be deleted.",
+                    e
+            );
+
+        } finally {
+            try {
+                conn.setAutoCommit(previousAutoCommit);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void showAlert(
+            Alert.AlertType type,
+            String title,
+            String message
+    ) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showDatabaseError(String message, SQLException exception) {
+        exception.printStackTrace();
+
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Database Error");
+        alert.setHeaderText(message);
+        alert.setContentText(
+                exception.getMessage() == null
+                        ? "An unknown database error occurred."
+                        : exception.getMessage()
+        );
+        alert.showAndWait();
     }
 
     private void configureActionColumn() {
@@ -352,8 +666,8 @@ public class ConductExam implements Initializable {
 
             preview.setOnAction(e -> {
                 ExamData exam = row.getItem();
-                var questionData=loadQuestion(exam);
-                var node = mainController.gradedFxmlLoader.createView(R.exam_preview,new TestPreview(questionData));
+                var questionData = loadQuestion(exam);
+                var node = mainController.gradedFxmlLoader.createView(R.exam_preview, new TestPreview(questionData));
                 mainController.modalPane.show(node);
 
             });
@@ -472,18 +786,22 @@ public class ConductExam implements Initializable {
         return icon;
     }
 
+    ArrayList<ExamData> selectedRow = new ArrayList<>();
+
     private void configureCheckboxColumn() {
         checkboxes.setCellValueFactory(cell -> {
             CheckBox box = new CheckBox();
             ExamData exam = cell.getValue();
             box.selectedProperty().setValue(exam.active().getValue());
             box.selectedProperty().addListener((ov, old_val, new_val) -> {
-                exam.active().setValue(true);
-                updateDeleteButton();
                 if (box.isSelected()) {
-
+                    exam.active().setValue(true);
+                    selectedRow.add(exam);
+                    updateDeleteButton(1);
                 } else {
-
+                    selectedRow.remove(exam);
+                    exam.active().setValue(false);
+                    updateDeleteButton(-1);
 
                 }
             });

@@ -64,28 +64,35 @@
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </padding>
             </SimpleFilterView>
-             <Button fx:id="deleteSelectedBtn" managed="false" styleClass="bulk-delete-btn" text="Button" visible="false" />
+             <Button fx:id="deleteSelectedBtn" managed="false" onAction="#onDelete" styleClass="bulk-delete-btn" text="Button" visible="false">
+               <graphic>
+                  <FontIcon style="-fx-icon-code: gmi-delete; -fx-icon-color: #fafafa;" />
+               </graphic></Button>
             <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
                <children>
-                  <ToggleButton mnemonicParsing="false" selected="true" styleClass="left-pill" text="Normal(MCQ/MSQ/NAT) Test">
-                     <toggleGroup>
-                        <ToggleGroup fx:id="typeType" />
-                     </toggleGroup>
+                  <ToggleButton mnemonicParsing="false" selected="true" styleClass="left-pill" text="Normal(MCQ/MSQ/NAT) Test" onAction="#changeType">
                      <graphic>
                         <FontIcon style="-fx-icon-code: fth-book;" />
                      </graphic>
+                     <toggleGroup>
+                        <ToggleGroup fx:id="typeOfExam" />
+                     </toggleGroup>
                   </ToggleButton>
-                  <ToggleButton mnemonicParsing="false" styleClass="center-pill" text="Diagnostic(MCQ/MSQ/NAT) Test" toggleGroup="$typeType">
+                  <ToggleButton mnemonicParsing="false" styleClass="center-pill" text="Diagnostic(MCQ/MSQ/NAT) Test" toggleGroup="$typeOfExam" onAction="#changeType">
                      <graphic>
                         <FontIcon style="-fx-icon-code: fth-bar-chart-2;" />
                      </graphic></ToggleButton>
-                  <ToggleButton mnemonicParsing="false" styleClass="right-pill" text="Written Test" toggleGroup="$typeType">
+                  <ToggleButton mnemonicParsing="false" styleClass="right-pill" text="Written Test" toggleGroup="$typeOfExam" onAction="#changeType">
                      <graphic>
                         <FontIcon style="-fx-icon-code: fth-file-text;" />
                      </graphic></ToggleButton>
                </children>
             </HBox>         </children>
       </HBox>
+        <HBox fx:id="chipsContainer" alignment="CENTER_LEFT" managed="false" spacing="8.0" visible="false">
+         <VBox.margin>
+            <Insets left="12.0" />
+         </VBox.margin></HBox>
         <TableView fx:id="scheduleTable" prefHeight="200.0" prefWidth="200.0" stylesheets="@../css/time_table.css" VBox.vgrow="ALWAYS">
             <columns>
             <TableColumn fx:id="checkboxes" maxWidth="40.0" prefWidth="40.0" />

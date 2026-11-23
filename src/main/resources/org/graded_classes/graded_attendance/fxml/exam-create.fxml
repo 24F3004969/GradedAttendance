@@ -11,6 +11,7 @@
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
@@ -74,14 +75,14 @@
                      <children>
                         <VBox HBox.hgrow="ALWAYS">
                            <children>
-                              <Label text="Topic" />
-                              <SearchField fx:id="topicName" stylesheets="@../css/atlantafx.css" />
+                              <Label text="Subject" />
+                              <SearchField fx:id="subject" />
                            </children>
                         </VBox>
                         <VBox HBox.hgrow="ALWAYS">
                            <children>
-                              <Label text="Subject" />
-                              <SearchField fx:id="subject" />
+                              <Label text="Topic" />
+                              <SearchField fx:id="topicName" stylesheets="@../css/atlantafx.css" />
                            </children>
                         </VBox>
                      </children>
@@ -106,19 +107,19 @@
                         <VBox>
                            <children>
                               <Label text="Easy Count" />
-                              <NumericTextField fx:id="easy" />
+                              <Spinner fx:id="easy" />
                            </children>
                         </VBox>
                         <VBox>
                            <children>
                               <Label text="Medium Count" />
-                              <NumericTextField fx:id="medium" />
+                              <Spinner fx:id="medium" />
                            </children>
                         </VBox>
                         <VBox>
                            <children>
                               <Label text="Hard Count" />
-                              <NumericTextField fx:id="hard" />
+                              <Spinner fx:id="hard" />
                            </children>
                         </VBox>
                      </children>

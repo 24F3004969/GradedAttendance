@@ -22,6 +22,7 @@ import org.graded_classes.graded_attendance.R;
 import org.graded_classes.graded_attendance.components.BasicParser;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.data.ExamData;
+import org.graded_classes.graded_attendance.data.ExamType;
 import org.graded_classes.graded_attendance.data.OptionData;
 import org.graded_classes.graded_attendance.data.QuestionData;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -77,7 +78,7 @@ public class QuizGenerator implements Initializable {
     TreeMap<Integer, TreeMap<Integer, QuestionData>> allQuestions = new TreeMap<>();
     TreeMap<String, Integer> invertedMap;
     private static final List<String> CLASSES =
-            Arrays.asList("IV", "V", "VI", "VII", "VIII", "IX", "X");
+            Arrays.asList("III","IV", "V", "VI", "VII", "VIII", "IX", "X");
     Node examReport, examList, quizTaker;
 
     @Override
@@ -482,7 +483,7 @@ public class QuizGenerator implements Initializable {
                             time,
                             topicIds,
                             topicNames,
-                            board
+                            board, ExamType.Normal
                     );
 
                     examList.add(exam);

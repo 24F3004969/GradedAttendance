@@ -52,6 +52,7 @@
 .bulk-delete-btn:hover {
     -fx-background-color: #b91c1c;
 }
+
 .diagnostic-btn {
     -fx-background-color: #059669;
     -fx-text-fill: white;

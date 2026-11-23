@@ -9,13 +9,11 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import org.graded_classes.graded_attendance.controller.home.MainController;
 import org.graded_classes.graded_attendance.data.ExamData;
+import org.graded_classes.graded_attendance.data.ExamType;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 
@@ -25,7 +23,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class DiagnosticTest implements Initializable {
-
+    public Spinner<Integer> easy;
+    public Spinner<Integer> medium;
+    public Spinner<Integer> hard;
+    private boolean updatingDifficultySpinners;
     @FXML
     private ComboBox<String> classNum;
     @FXML
@@ -88,6 +89,312 @@ public class DiagnosticTest implements Initializable {
                 addSubjectList(event);
             }
         });
+        initializeDifficultyControls();
+    }
+    private void initializeDifficultyControls() {
+        int initialTotal = parseQuestionCount();
+
+        easy.setValueFactory(
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(
+                        0,
+                        Math.max(initialTotal, 0),
+                        0
+                )
+        );
+
+        medium.setValueFactory(
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(
+                        0,
+                        Math.max(initialTotal, 0),
+                        0
+                )
+        );
+
+        hard.setValueFactory(
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(
+                        0,
+                        Math.max(initialTotal, 0),
+                        0
+                )
+        );
+
+        easy.setEditable(true);
+        medium.setEditable(true);
+        hard.setEditable(true);
+
+        /*
+         * Divide the initial question count equally.
+         */
+        distributeQuestionCount();
+
+        /*
+         * Redistribute whenever the total question count changes.
+         */
+        questionCount.textProperty().addListener(
+                (observable, oldValue, newValue) -> distributeQuestionCount()
+        );
+
+        /*
+         * Medium and Hard changes are primarily balanced against Easy.
+         */
+        medium.valueProperty().addListener(
+                (observable, oldValue, newValue) -> {
+                    if (!updatingDifficultySpinners) {
+                        balanceAfterChange(DiagnosticTest.Difficulty.MEDIUM);
+                    }
+                }
+        );
+
+        hard.valueProperty().addListener(
+                (observable, oldValue, newValue) -> {
+                    if (!updatingDifficultySpinners) {
+                        balanceAfterChange(DiagnosticTest.Difficulty.HARD);
+                    }
+                }
+        );
+
+        /*
+         * If Easy is edited directly, balance it against Medium first,
+         * and then Hard if required.
+         */
+        easy.valueProperty().addListener(
+                (observable, oldValue, newValue) -> {
+                    if (!updatingDifficultySpinners) {
+                        balanceAfterChange(DiagnosticTest.Difficulty.EASY);
+                    }
+                }
+        );
+
+        /*
+         * Commit manually typed Spinner values when focus is lost.
+         */
+        addSpinnerCommitOnFocusLost(easy);
+        addSpinnerCommitOnFocusLost(medium);
+        addSpinnerCommitOnFocusLost(hard);
+    }
+    private void distributeQuestionCount() {
+        int total = parseQuestionCount();
+
+        updatingDifficultySpinners = true;
+
+        try {
+            updateSpinnerMaximum(easy, total);
+            updateSpinnerMaximum(medium, total);
+            updateSpinnerMaximum(hard, total);
+
+            if (total <= 0) {
+                setSpinnerValue(easy, 0);
+                setSpinnerValue(medium, 0);
+                setSpinnerValue(hard, 0);
+                return;
+            }
+
+            int baseCount = total / 3;
+            int remainder = total % 3;
+
+            int easyCount = baseCount;
+            int mediumCount = baseCount;
+            int hardCount = baseCount;
+
+            if (remainder >= 1) {
+                easyCount++;
+            }
+
+            if (remainder == 2) {
+                mediumCount++;
+            }
+
+            setSpinnerValue(easy, easyCount);
+            setSpinnerValue(medium, mediumCount);
+            setSpinnerValue(hard, hardCount);
+
+        } finally {
+            updatingDifficultySpinners = false;
+        }
+    }
+    private void balanceAfterChange(DiagnosticTest.Difficulty changedDifficulty) {
+        int total = parseQuestionCount();
+
+        updatingDifficultySpinners = true;
+
+        try {
+            commitSpinnerValue(easy);
+            commitSpinnerValue(medium);
+            commitSpinnerValue(hard);
+
+            int easyCount = getSpinnerValue(easy);
+            int mediumCount = getSpinnerValue(medium);
+            int hardCount = getSpinnerValue(hard);
+
+            switch (changedDifficulty) {
+                case HARD -> {
+                    /*
+                     * Keep Hard and Medium as entered.
+                     * Easy receives the remaining count.
+                     */
+                    easyCount = total - mediumCount - hardCount;
+
+                    if (easyCount < 0) {
+                        /*
+                         * Hard + Medium exceeded the total.
+                         * Keep the newly edited Hard value and reduce Medium.
+                         */
+                        mediumCount = Math.max(0, total - hardCount);
+                        easyCount = Math.max(
+                                0,
+                                total - mediumCount - hardCount
+                        );
+                    }
+                }
+
+                case MEDIUM -> {
+                    /*
+                     * Keep Medium and Hard as entered.
+                     * Easy receives the remaining count.
+                     */
+                    easyCount = total - mediumCount - hardCount;
+
+                    if (easyCount < 0) {
+                        /*
+                         * Keep the newly edited Medium value and reduce Hard.
+                         */
+                        hardCount = Math.max(0, total - mediumCount);
+                        easyCount = Math.max(
+                                0,
+                                total - mediumCount - hardCount
+                        );
+                    }
+                }
+
+                case EASY -> {
+                    /*
+                     * Keep the newly entered Easy value.
+                     * Adjust Medium first.
+                     */
+                    mediumCount = total - easyCount - hardCount;
+
+                    if (mediumCount < 0) {
+                        /*
+                         * Easy + Hard exceeded the total.
+                         * Reduce Hard after Medium reaches zero.
+                         */
+                        mediumCount = 0;
+                        hardCount = Math.max(0, total - easyCount);
+                    }
+                }
+            }
+
+            easyCount = clamp(easyCount, 0, total);
+            mediumCount = clamp(mediumCount, 0, total);
+            hardCount = clamp(hardCount, 0, total);
+
+            setSpinnerValue(easy, easyCount);
+            setSpinnerValue(medium, mediumCount);
+            setSpinnerValue(hard, hardCount);
+
+        } finally {
+            updatingDifficultySpinners = false;
+        }
+    }
+    private int parseQuestionCount() {
+        String text = questionCount.getText();
+
+        if (text == null || text.isBlank()) {
+            return 0;
+        }
+
+        try {
+            return Math.max(0, Integer.parseInt(text.trim()));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+    private int getSpinnerValue(Spinner<Integer> spinner) {
+        Integer value = spinner.getValue();
+        return value == null ? 0 : value;
+    }
+
+    private void setSpinnerValue(
+            Spinner<Integer> spinner,
+            int value
+    ) {
+        SpinnerValueFactory<Integer> valueFactory =
+                spinner.getValueFactory();
+
+        if (valueFactory != null) {
+            valueFactory.setValue(value);
+        }
+    }
+
+    private void updateSpinnerMaximum(
+            Spinner<Integer> spinner,
+            int maximum
+    ) {
+        SpinnerValueFactory<Integer> factory =
+                spinner.getValueFactory();
+
+        if (factory instanceof
+                SpinnerValueFactory.IntegerSpinnerValueFactory integerFactory) {
+
+            integerFactory.setMin(0);
+            integerFactory.setMax(Math.max(0, maximum));
+        }
+    }
+
+    private int clamp(int value, int minimum, int maximum) {
+        return Math.max(minimum, Math.min(value, maximum));
+    }
+
+    private void addSpinnerCommitOnFocusLost(
+            Spinner<Integer> spinner
+    ) {
+        spinner.getEditor().focusedProperty().addListener(
+                (observable, wasFocused, isFocused) -> {
+                    if (!isFocused) {
+                        commitSpinnerValue(spinner);
+                    }
+                }
+        );
+
+        spinner.getEditor().setOnAction(event -> {
+            commitSpinnerValue(spinner);
+            spinner.getParent().requestFocus();
+        });
+    }
+
+    private void commitSpinnerValue(Spinner<Integer> spinner) {
+        if (!spinner.isEditable() || spinner.getValueFactory() == null) {
+            return;
+        }
+
+        String text = spinner.getEditor().getText();
+
+        if (text == null || text.isBlank()) {
+            spinner.getEditor().setText(
+                    String.valueOf(getSpinnerValue(spinner))
+            );
+            return;
+        }
+
+        try {
+            int total = parseQuestionCount();
+            int value = Integer.parseInt(text.trim());
+            value = clamp(value, 0, total);
+
+            spinner.getValueFactory().setValue(value);
+            spinner.getEditor().setText(String.valueOf(value));
+
+        } catch (NumberFormatException e) {
+            spinner.getEditor().setText(
+                    String.valueOf(getSpinnerValue(spinner))
+            );
+        }
+    }
+
+    private enum Difficulty {
+        EASY,
+        MEDIUM,
+        HARD
     }
 
     @FXML
@@ -332,7 +639,7 @@ public class DiagnosticTest implements Initializable {
                     start + " - " + end,
                     topicIds,
                     displayTopicNames,
-                    boardValue
+                    boardValue, ExamType.Normal
             );
 
         } catch (Exception e) {

@@ -14,7 +14,9 @@ public record ExamData(
         String time,
         List<Integer> topicIds,
         List<String> topicNames,
-        String board
+        String board,
+        ExamType examType
+
 ) {
     public ExamData {
         // Prevent callers from modifying the lists stored in this record.

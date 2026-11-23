@@ -74,8 +74,6 @@ public final class CameraController {
             "/org/graded_classes/graded_attendance/opencv/face_recognition_sface_2021dec.onnx";
     private final AtomicBoolean folderTraining =
             new AtomicBoolean(false);
-    private static final int PREFERRED_CAMERA_BACKEND =
-            Videoio.CAP_MSMF;
     private final MainController mainController;
     private final HomeController homeController;
     @FXML
@@ -107,13 +105,7 @@ public final class CameraController {
     private final ObservableList<String> studentData = FXCollections.observableArrayList();
     private final List<Button> completedCaptureButtons = new ArrayList<>();
     private final Map<String, List<float[]>> knownEmbeddings = new ConcurrentHashMap<>();
-    private static final int DEFAULT_CAMERA_INDEX = 0;
 
-    private final AtomicBoolean cameraStarted =
-            new AtomicBoolean(false);
-
-    private final AtomicBoolean cameraListListenerInstalled =
-            new AtomicBoolean(false);
     @FXML
     private void rebuildAllStudents() {
         if (!modelsReady.get()
@@ -249,11 +241,9 @@ public final class CameraController {
                     summary.rejected()
             );
 
-            */
-/*
              * Reset before displaying the completion message because
              * resetTrainingCaptureUi() clears the search and capture UI.
-             *//*
+
 
             resetTrainingCaptureUi();
 
@@ -274,7 +264,7 @@ public final class CameraController {
                     "Rebuild-all operation failed",
                     exception == null
                             ? "Unknown rebuild error."
-                            : rootMessage(excepion)
+                            : rootMessage(exception)
             );
         });
         task.setOnCancelled(event -> {
@@ -290,7 +280,7 @@ public final class CameraController {
         });
         dialog.show();
         try {
-            maintenanceWorker.submit(task);
+            worker.submit(task);
         } catch (RejectedExecutionException exception) {
             cleanupTrainingDialog(
                     dialog,
@@ -343,52 +333,11 @@ public final class CameraController {
         }
     }
 
-    */
-/*
-     * Camera opening, model initialization, recognition and database rebuilding
-     * must not share one executor. A slow camera scan or training operation would
-     * otherwise prevent the camera from opening.
-     *//*
-
-    private final ExecutorService cameraWorker =
-            Executors.newSingleThreadExecutor(runnable -> {
-                Thread thread = new Thread(
-                        runnable,
-                        "attendance-camera-worker"
-                );
-                thread.setDaemon(true);
-                return thread;
-            });
-
-    private final ExecutorService initializationWorker =
-            Executors.newFixedThreadPool(2, runnable -> {
-                Thread thread = new Thread(
-                        runnable,
-                        "attendance-initialization-worker"
-                );
-                thread.setDaemon(true);
-                return thread;
-            });
-
-    private final ExecutorService recognitionWorker =
-            Executors.newSingleThreadExecutor(runnable -> {
-                Thread thread = new Thread(
-                        runnable,
-                        "attendance-recognition-worker"
-                );
-                thread.setDaemon(true);
-                return thread;
-            });
-
-    private final ExecutorService maintenanceWorker =
-            Executors.newSingleThreadExecutor(runnable -> {
-                Thread thread = new Thread(
-                        runnable,
-                        "attendance-maintenance-worker"
-                );
-                thread.setDaemon(true);
-                return thread;
-            });
+    private final ExecutorService worker = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "attendance-face-worker");
+        t.setDaemon(true);
+        return t;
+    });
     private ScheduledExecutorService cameraTimer;
     private final Object cameraLock = new Object();
     private final Object frameLock = new Object();
@@ -443,354 +392,24 @@ public final class CameraController {
     private Connection connection() throws SQLException {
         return mainController.gradedDataLoader.databaseLoader.getConnection();
     }
-    private VideoCapture openCameraDevice(int index) {
-        int[] backends = {
-                Videoio.CAP_MSMF,
-                Videoio.CAP_ANY,
-                Videoio.CAP_DSHOW
-        };
 
-        List<String> failures =
-                new ArrayList<>();
-
-        for (int backend : backends) {
-            if (disposed.get()
-                    || Thread.currentThread().isInterrupted()) {
-                throw new CancellationException(
-                        "Camera opening was cancelled."
-                );
-            }
-
-            VideoCapture candidate =
-                    new VideoCapture();
-
-            try {
-                boolean opened;
-
-                if (backend == Videoio.CAP_ANY) {
-                    opened = candidate.open(index);
-                } else {
-                    opened = candidate.open(index, backend);
-                }
-
-                if (!opened || !candidate.isOpened()) {
-                    failures.add(
-                            backendName(backend)
-                                    + ": device did not open"
-                    );
-
-                    candidate.release();
-                    continue;
-                }
-
-                */
-/*
-                 * Request conservative values first. Some Windows camera
-                 * drivers take significantly longer or fail when 1280x720
-                 * and 30 FPS are forced before the first frame.
-                 *//*
-
-                candidate.set(
-                        Videoio.CAP_PROP_FRAME_WIDTH,
-                        640
-                );
-
-                candidate.set(
-                        Videoio.CAP_PROP_FRAME_HEIGHT,
-                        480
-                );
-
-                candidate.set(
-                        Videoio.CAP_PROP_FPS,
-                        30
-                );
-
-                candidate.set(
-                        Videoio.CAP_PROP_BUFFERSIZE,
-                        1
-                );
-
-                Mat testFrame =
-                        new Mat();
-
-                try {
-                    boolean receivedFrame =
-                            false;
-
-                    */
-/*
-                     * Some webcams need several reads to warm up.
-                     *//*
-
-                    for (int attempt = 0;
-                         attempt < 15;
-                         attempt++) {
-
-                        if (disposed.get()
-                                || Thread.currentThread()
-                                .isInterrupted()) {
-                            candidate.release();
-
-                            throw new CancellationException(
-                                    "Camera opening was cancelled."
-                            );
-                        }
-
-                        if (candidate.read(testFrame)
-                                && !testFrame.empty()) {
-                            receivedFrame = true;
-                            break;
-                        }
-
-                        try {
-                            Thread.sleep(40);
-                        } catch (InterruptedException exception) {
-                            Thread.currentThread().interrupt();
-                            candidate.release();
-
-                            throw new CancellationException(
-                                    "Camera opening was interrupted."
-                            );
-                        }
-                    }
-
-                    if (!receivedFrame) {
-                        failures.add(
-                                backendName(backend)
-                                        + ": opened but returned no frames"
-                        );
-
-                        candidate.release();
-                        continue;
-                    }
-
-                    System.out.println(
-                            "Camera "
-                                    + index
-                                    + " opened using "
-                                    + backendName(backend)
-                    );
-
-                    return candidate;
-                } finally {
-                    testFrame.release();
-                }
-            } catch (CancellationException exception) {
-                candidate.release();
-                throw exception;
-            } catch (Exception exception) {
-                failures.add(
-                        backendName(backend)
-                                + ": "
-                                + rootMessage(exception)
-                );
-                candidate.release();
-            }
-        }
-
-        throw new IllegalStateException(
-                "Unable to open camera "
-                        + index
-                        + ". "
-                        + String.join("; ", failures)
-        );
-    }
-    private static String backendName(int backend) {
-        if (backend == Videoio.CAP_MSMF) {
-            return "Microsoft Media Foundation";
-        }
-
-        if (backend == Videoio.CAP_DSHOW) {
-            return "DirectShow";
-        }
-
-        if (backend == Videoio.CAP_ANY) {
-            return "Automatic backend";
-        }
-
-        return "Backend " + backend;
-    }
     private void initializeAsync() {
         cameraList.setDisable(true);
         startCapture.setDisable(true);
-
-        showRecognitionMessage("Starting camera...");
-
-        CompletableFuture
-                .runAsync(
-                        () -> startCamera(DEFAULT_CAMERA_INDEX),
-                        cameraWorker
-                )
-                .whenComplete((unused, error) ->
-                        runFx(() -> {
-                            if (error != null) {
-                                showError(
-                                        "Unable to start camera",
-                                        rootMessage(error)
-                                );
-                                return;
-                            }
-
-                            cameraStarted.set(true);
-
-                            CameraDevice defaultCamera =
-                                    new CameraDevice(
-                                            DEFAULT_CAMERA_INDEX,
-                                            "Camera 0"
-                                    );
-
-                            installCameraSelectionListener();
-
-                            cameraList.setItems(
-                                    FXCollections.observableArrayList(
-                                            defaultCamera
-                                    )
-                            );
-
-                            cameraList.getSelectionModel()
-                                    .select(defaultCamera);
-
-                            cameraList.setDisable(false);
-
-                            startCapture.setDisable(
-                                    recognitionMode.get()
-                            );
-
-                            showRecognitionMessage(
-                                    modelsReady.get()
-                                            ? "Camera and face recognition are ready."
-                                            : "Camera started. Loading face models..."
-                            );
-                        })
-                );
-
-        CompletableFuture
-                .runAsync(() -> {
-                    initializeSchema();
-                    loadModels();
-                    reloadEmbeddings();
-                }, initializationWorker)
-                .whenComplete((unused, error) ->
-                        runFx(() -> {
-                            if (error != null) {
-                                showError(
-                                        "Face system initialization failed",
-                                        rootMessage(error)
-                                );
-                                return;
-                            }
-
-                            showRecognitionMessage(
-                                    cameraStarted.get()
-                                            ? "Camera and face recognition are ready. "
-                                            + knownEmbeddings.size()
-                                            + " students loaded."
-                                            : "Face recognition is ready. Starting camera..."
-                            );
-
-                            */
-/*
-                             * Do not call scanAndConfigureCamerasAsync() here.
-                             * It can reopen devices while the active camera is
-                             * already using the Windows camera backend.
-                             *//*
-
-                        })
-                );
+        CompletableFuture.supplyAsync(() -> {
+            initializeSchema();
+            loadModels();
+            reloadEmbeddings();
+            return scanCameras();
+        }, worker).whenComplete((devices, error) -> runFx(() -> {
+            if (error != null) {
+                showError("Face system initialization failed", rootMessage(error));
+                return;
+            }
+            configureCameraList(devices);
+        }));
     }
-    private void installCameraSelectionListener() {
-        if (!cameraListListenerInstalled.compareAndSet(
-                false,
-                true
-        )) {
-            return;
-        }
 
-        cameraList.valueProperty().addListener(
-                (observable, oldDevice, newDevice) -> {
-                    if (newDevice == null || disposed.get()) {
-                        return;
-                    }
-
-                    synchronized (cameraLock) {
-                        */
-/*
-                         * Selecting the item representing the already-open
-                         * camera must not close and reopen that camera.
-                         *//*
-
-                        if (camera != null
-                                && camera.isOpened()
-                                && currentCameraIndex
-                                == newDevice.index()) {
-                            return;
-                        }
-                    }
-
-                    switchCamera(newDevice.index());
-                }
-        );
-    }
-    private void scanAndConfigureCamerasAsync() {
-        if (disposed.get()) {
-            return;
-        }
-
-        CompletableFuture
-                .supplyAsync(
-                        this::scanCameras,
-                        initializationWorker
-                )
-                .whenComplete((devices, error) ->
-                        runFx(() -> {
-                            if (error != null
-                                    || devices == null
-                                    || devices.isEmpty()) {
-                                */
-/*
-                                 * Do not clear the list if the default camera
-                                 * is already running.
-                                 *//*
-
-                                if (!cameraStarted.get()) {
-                                    showRecognitionMessage(
-                                            "No usable camera was found."
-                                    );
-                                }
-                                return;
-                            }
-
-                            installCameraSelectionListener();
-
-                            int selectedIndex =
-                                    currentCameraIndex;
-
-                            cameraList.setItems(
-                                    FXCollections.observableArrayList(
-                                            devices
-                                    )
-                            );
-
-                            CameraDevice selectedDevice =
-                                    devices.stream()
-                                            .filter(device ->
-                                                    device.index()
-                                                            == selectedIndex
-                                            )
-                                            .findFirst()
-                                            .orElse(devices.getFirst());
-
-                            cameraList.getSelectionModel()
-                                    .select(selectedDevice);
-
-                            cameraList.setDisable(false);
-
-                            startCapture.setDisable(
-                                    recognitionMode.get()
-                            );
-                        })
-                );
-    }
     private void initializeSchema() {
         String sql = """
                 CREATE TABLE IF NOT EXISTS FaceEmbedding (
@@ -874,11 +493,9 @@ public final class CameraController {
         resetCaptureLabel(hFront);
         resetCaptureLabel(gFront);
 
-        */
-/*
          * Re-enable buttons that were disabled after reaching
          * their required capture count.
-         *//*
+
 
         for (Button button : completedCaptureButtons) {
             if (button != null) {
@@ -945,9 +562,7 @@ public final class CameraController {
     }
     @FXML
     void startCapturing(ActionEvent event) {
-        Button source =
-                (Button) event.getSource();
-
+        Button source = (Button) event.getSource();
         Label label = switch (source.getId()) {
             case "nf" -> nFront;
             case "nd" -> nDown;
@@ -959,125 +574,47 @@ public final class CameraController {
             case "gf" -> gFront;
             default -> null;
         };
-
-        Result student =
-                selectedStudent;
-
-        String enrollmentImagePath =
-                imagePath;
-
-        if (label == null || student == null) {
-            showRecognitionMessage(
-                    "Select a student before capturing."
-            );
+        if (label == null || selectedStudent == null) {
+            showRecognitionMessage("Select a student before capturing.");
             return;
         }
-
         Mat frameCopy;
-
         synchronized (frameLock) {
-            if (cleanFrame.empty()
-                    || lastFaceRow == null) {
-                showRecognitionMessage(
-                        "No usable face detected."
-                );
+            if (cleanFrame.empty() || lastFaceRow == null) {
+                showRecognitionMessage("No usable face detected.");
                 return;
             }
-
             frameCopy = cleanFrame.clone();
         }
-
         source.setDisable(true);
-
-        try {
-            maintenanceWorker.submit(() -> {
-                try {
-                    float[] embedding =
-                            extractEmbedding(
-                                    frameCopy,
-                                    true
-                            );
-
-                    if (embedding == null) {
-                        throw new IllegalStateException(
-                                "Exactly one clear face is required."
-                        );
-                    }
-
-                    saveEmbedding(
-                            student.ed(),
-                            source.getId(),
-                            embedding
-                    );
-
-                    knownEmbeddings
-                            .computeIfAbsent(
-                                    student.ed(),
-                                    key ->
-                                            new CopyOnWriteArrayList<>()
-                            )
-                            .add(embedding);
-
-                    saveEnrollmentImage(
-                            frameCopy,
-                            source.getId(),
-                            enrollmentImagePath
-                    );
-
-                    runFx(() -> {
-                        int count =
-                                countLabel(label) + 1;
-
-                        label.setText(
-                                baseLabel(label)
-                                        + " "
-                                        + count
-                        );
-
-                        source.setDisable(
-                                count >= 10
-                        );
-
-                        if (count >= 10
-                                && !completedCaptureButtons
-                                .contains(source)) {
-                            completedCaptureButtons.add(
-                                    source
-                            );
-                        }
-
-                        showRecognitionMessage(
-                                "Sample saved for "
-                                        + student.ed()
-                        );
-                    });
-                } catch (Exception exception) {
-                    runFx(() -> {
-                        source.setDisable(false);
-
-                        showRecognitionMessage(
-                                "Capture rejected: "
-                                        + rootMessage(exception)
-                        );
-                    });
-                } finally {
-                    frameCopy.release();
-                }
-            });
-        } catch (RejectedExecutionException exception) {
-            frameCopy.release();
-            source.setDisable(false);
-
-            showRecognitionMessage(
-                    "Capture worker is shutting down."
-            );
-        }
+        worker.submit(() -> {
+            try {
+                float[] embedding = extractEmbedding(frameCopy, true);
+                if (embedding == null) throw new IllegalStateException("Exactly one clear face is required.");
+                saveEmbedding(selectedStudent.ed(), source.getId(), embedding);
+                knownEmbeddings.computeIfAbsent(selectedStudent.ed(), k -> new CopyOnWriteArrayList<>()).add(embedding);
+                saveEnrollmentImage(frameCopy, source.getId());
+                runFx(() -> {
+                    int count = countLabel(label) + 1;
+                    label.setText(baseLabel(label) + " " + count);
+                    source.setDisable(count >= 10);
+                    if (count >= 10 && !completedCaptureButtons.contains(source)) completedCaptureButtons.add(source);
+                    showRecognitionMessage("Sample saved for " + selectedStudent.ed());
+                });
+            } catch (Exception e) {
+                runFx(() -> {
+                    source.setDisable(false);
+                    showRecognitionMessage("Capture rejected: " + rootMessage(e));
+                });
+            } finally {
+                frameCopy.release();
+            }
+        });
     }
 
-    */
-/**
+*
      * Compatibility handler: embeddings are created during capture, so no global model training is needed.
-     *//*
+
 
     @FXML
     public void goForTraining() {
@@ -1176,7 +713,7 @@ public final class CameraController {
             );
         });
         try {
-            maintenanceWorker.submit(task);
+            worker.submit(task);
         } catch (RejectedExecutionException exception) {
             folderTraining.set(false);
             showError(
@@ -1763,45 +1300,11 @@ public final class CameraController {
     ) {
     }
 
-    private void saveEnrollmentImage(
-            Mat frame,
-            String mode,
-            String enrollmentImagePath
-    ) throws IOException {
-        if (enrollmentImagePath == null
-                || enrollmentImagePath.isBlank()) {
-            throw new IOException(
-                    "Enrollment image directory is unavailable."
-            );
-        }
-
-        File directory =
-                new File(
-                        enrollmentImagePath,
-                        mode
-                );
-
-        if (!directory.exists()
-                && !directory.mkdirs()) {
-            throw new IOException(
-                    "Cannot create " + directory
-            );
-        }
-
-        File output =
-                new File(
-                        directory,
-                        System.nanoTime() + ".jpg"
-                );
-
-        if (!Imgcodecs.imwrite(
-                output.getAbsolutePath(),
-                frame
-        )) {
-            throw new IOException(
-                    "OpenCV could not save the enrollment image."
-            );
-        }
+    private void saveEnrollmentImage(Mat frame, String mode) throws IOException {
+        File dir = new File(imagePath, mode);
+        if (!dir.exists() && !dir.mkdirs()) throw new IOException("Cannot create " + dir);
+        if (!Imgcodecs.imwrite(new File(dir, System.nanoTime() + ".jpg").getAbsolutePath(), frame))
+            throw new IOException("OpenCV could not save enrollment image.");
     }
 
     private void saveEmbedding(String edNo, String mode, float[] vector) throws SQLException {
@@ -1925,34 +1428,18 @@ public final class CameraController {
             copy = cleanFrame.clone();
         }
         try {
-            recognitionWorker.submit(() -> {try {
-                recognitionWorker.submit(() -> {
-                    try {
-                        float[] query =
-                                extractEmbedding(
-                                        copy,
-                                        false
-                                );
-
-                        FaceMatch match =
-                                query == null
-                                        ? null
-                                        : findBestMatch(query);
-
-                        runFx(() ->
-                                processRecognitionResult(match)
-                        );
-                    } catch (Exception exception) {
-                        exception.printStackTrace();
-                    } finally {
-                        copy.release();
-                        processing.set(false);
-                    }
-                });
-            } catch (RejectedExecutionException exception) {
-                copy.release();
-                processing.set(false);
-            }});
+            worker.submit(() -> {
+                try {
+                    float[] query = extractEmbedding(copy, false);
+                    FaceMatch match = query == null ? null : findBestMatch(query);
+                    runFx(() -> processRecognitionResult(match));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    copy.release();
+                    processing.set(false);
+                }
+            });
         } catch (RejectedExecutionException e) {
             copy.release();
             processing.set(false);
@@ -2040,68 +1527,25 @@ public final class CameraController {
     }
 
     private void startCamera(int index) {
-        if (disposed.get()) {
-            return;
-        }
-
-        synchronized (cameraLock) {
-            if (camera != null
-                    && camera.isOpened()
-                    && currentCameraIndex == index) {
-                cameraStarted.set(true);
-                return;
-            }
-        }
-
         stopCameraOnly();
-
-        if (disposed.get()) {
-            return;
-        }
-
-        VideoCapture opened =
-                openCameraDevice(index);
-
-        if (disposed.get()) {
+        VideoCapture opened = new VideoCapture(index, Videoio.CAP_DSHOW);
+        if (!opened.isOpened()) {
             opened.release();
-            return;
+            throw new IllegalStateException("Cannot open camera " + index);
         }
-
+        opened.set(Videoio.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH);
+        opened.set(Videoio.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT);
+        opened.set(Videoio.CAP_PROP_FPS, CAMERA_FPS);
         synchronized (cameraLock) {
-            if (disposed.get()) {
-                opened.release();
-                return;
-            }
-
             camera = opened;
             currentCameraIndex = index;
         }
-
-        cameraStarted.set(true);
-        consecutiveReadFailures = 0;
-
-        ScheduledExecutorService newTimer =
-                Executors.newSingleThreadScheduledExecutor(
-                        runnable -> {
-                            Thread thread =
-                                    new Thread(
-                                            runnable,
-                                            "attendance-camera-capture"
-                                    );
-
-                            thread.setDaemon(true);
-                            return thread;
-                        }
-                );
-
-        cameraTimer = newTimer;
-
-        newTimer.scheduleWithFixedDelay(
-                this::grabFrameSafely,
-                0,
-                FRAME_DELAY_MS,
-                TimeUnit.MILLISECONDS
-        );
+        cameraTimer = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "attendance-camera-capture");
+            t.setDaemon(true);
+            return t;
+        });
+        cameraTimer.scheduleWithFixedDelay(this::grabFrameSafely, 0, FRAME_DELAY_MS, TimeUnit.MILLISECONDS);
     }
 
     private void grabFrameSafely() {
@@ -2202,321 +1646,63 @@ public final class CameraController {
             resized.release();
         }
     }
-    @FXML
-    private void refreshCameraList() {
-        if (disposed.get()
-                || cameraSwitching.get()
-                || folderTraining.get()) {
-            return;
-        }
 
-        if (!cameraSwitching.compareAndSet(
-                false,
-                true
-        )) {
-            return;
-        }
-
-        cameraList.setDisable(true);
-
-        int previousIndex =
-                currentCameraIndex;
-
-        try {
-            cameraWorker.submit(() -> {
-                List<CameraDevice> devices =
-                        List.of();
-
-                try {
-                    */
-/*
-                     * Stop the active camera before probing Windows devices.
-                     *//*
-
-                    stopCameraOnly();
-
-                    devices =
-                            scanCameras();
-
-                    int indexToOpen =
-                            devices.stream()
-                                    .anyMatch(device ->
-                                            device.index()
-                                                    == previousIndex)
-                                    ? previousIndex
-                                    : devices.isEmpty()
-                                    ? -1
-                                    : devices.get(0).index();
-
-                    if (indexToOpen >= 0) {
-                        startCamera(indexToOpen);
-                    }
-
-                    List<CameraDevice> finalDevices =
-                            devices;
-
-                    int finalIndex =
-                            indexToOpen;
-
-                    runFx(() -> {
-                        cameraList.setItems(
-                                FXCollections.observableArrayList(
-                                        finalDevices
-                                )
-                        );
-
-                        finalDevices.stream()
-                                .filter(device ->
-                                        device.index()
-                                                == finalIndex)
-                                .findFirst()
-                                .ifPresent(device ->
-                                        cameraList
-                                                .getSelectionModel()
-                                                .select(device)
-                                );
-
-                        if (finalDevices.isEmpty()) {
-                            showRecognitionMessage(
-                                    "No accessible camera was found."
-                            );
-                        } else {
-                            showRecognitionMessage(
-                                    "Camera list refreshed."
-                            );
-                        }
-                    });
-                } catch (Exception exception) {
-                    runFx(() -> showError(
-                            "Unable to refresh cameras",
-                            rootMessage(exception)
-                    ));
-                } finally {
-                    cameraSwitching.set(false);
-
-                    runFx(() ->
-                            cameraList.setDisable(false)
-                    );
-                }
-            });
-        } catch (RejectedExecutionException exception) {
-            cameraSwitching.set(false);
-            cameraList.setDisable(false);
-        }
-    }
     private List<CameraDevice> scanCameras() {
-        List<CameraDevice> found =
-                new ArrayList<>();
-
-        int activeIndex = -1;
-
-        synchronized (cameraLock) {
-            if (camera != null && camera.isOpened()) {
-                activeIndex = currentCameraIndex;
-
-                found.add(
-                        new CameraDevice(
-                                activeIndex,
-                                "Camera " + activeIndex
-                        )
-                );
-            }
-        }
-
-        for (int index = 0;
-             index < MAX_CAMERA_INDEX;
-             index++) {
-
-            if (disposed.get()
-                    || Thread.currentThread().isInterrupted()) {
-                break;
-            }
-
-            */
-/*
-             * Never open the active device for testing.
-             *//*
-
-            if (index == activeIndex) {
-                continue;
-            }
-
-            VideoCapture test =
-                    null;
-
+        List<CameraDevice> found = new ArrayList<>();
+        for (int i = 0; i < MAX_CAMERA_INDEX; i++) {
+            VideoCapture test = new VideoCapture(i, Videoio.CAP_DSHOW);
             try {
-                test = openCameraDevice(index);
-
-                found.add(
-                        new CameraDevice(
-                                index,
-                                "Camera " + index
-                        )
-                );
-            } catch (CancellationException exception) {
-                break;
-            } catch (Exception ignored) {
-                */
-/*
-                 * This index does not contain an accessible camera.
-                 *//*
-
+                if (test.isOpened()) found.add(new CameraDevice(i, "Camera " + i));
             } finally {
-                if (test != null) {
-                    test.release();
-                }
+                test.release();
             }
         }
-
-        found.sort(
-                Comparator.comparingInt(
-                        CameraDevice::index
-                )
-        );
-
         return found;
     }
 
-    private void configureCameraList(
-            List<CameraDevice> devices
-    ) {
-        installCameraSelectionListener();
-
-        if (devices == null || devices.isEmpty()) {
-            cameraList.setDisable(true);
-            startCapture.setDisable(true);
-            showRecognitionMessage(
-                    "No camera found."
-            );
+    private void configureCameraList(List<CameraDevice> devices) {
+        cameraList.setItems(FXCollections.observableArrayList(devices));
+        if (devices.isEmpty()) {
+            showRecognitionMessage("No camera found.");
             return;
         }
-
-        int selectedIndex =
-                currentCameraIndex;
-
-        cameraList.setItems(
-                FXCollections.observableArrayList(
-                        devices
-                )
-        );
-
-        CameraDevice selected =
-                devices.stream()
-                        .filter(device ->
-                                device.index()
-                                        == selectedIndex
-                        )
-                        .findFirst()
-                        .orElse(devices.get(0));
-
-        cameraList.getSelectionModel()
-                .select(selected);
-
+        cameraList.valueProperty().addListener((obs, old, value) -> {
+            if (value != null) switchCamera(value.index());
+        });
         cameraList.setDisable(false);
-        startCapture.setDisable(
-                recognitionMode.get()
-        );
+        startCapture.setDisable(false);
+        cameraList.getSelectionModel().select(devices.size() > 1 ? 1 : 0);
     }
 
     private void switchCamera(int index) {
-        if (disposed.get()) {
-            return;
-        }
-
-        synchronized (cameraLock) {
-            if (camera != null
-                    && camera.isOpened()
-                    && currentCameraIndex == index) {
-                return;
-            }
-        }
-
-        if (!cameraSwitching.compareAndSet(
-                false,
-                true
-        )) {
-            return;
-        }
-
+        if (!cameraSwitching.compareAndSet(false, true) || disposed.get()) return;
         cameraList.setDisable(true);
-
-        try {
-            cameraWorker.submit(() -> {
-                try {
-                    startCamera(index);
-
-                    runFx(() -> {
-                        showRecognitionMessage(
-                                modelsReady.get()
-                                        ? "Camera and face recognition are ready."
-                                        : "Camera started. Loading face models..."
-                        );
-                    });
-                } catch (Exception exception) {
-                    runFx(() -> showError(
-                            "Unable to start camera",
-                            rootMessage(exception)
-                    ));
-                } finally {
-                    cameraSwitching.set(false);
-
-                    runFx(() -> {
-                        if (cameraList != null) {
-                            cameraList.setDisable(false);
-                        }
-                    });
-                }
-            });
-        } catch (RejectedExecutionException exception) {
-            cameraSwitching.set(false);
-
-            if (cameraList != null) {
-                cameraList.setDisable(false);
+        worker.submit(() -> {
+            try {
+                startCamera(index);
+            } catch (Exception e) {
+                runFx(() -> showError("Unable to start camera", rootMessage(e)));
+            } finally {
+                cameraSwitching.set(false);
+                runFx(() -> cameraList.setDisable(false));
             }
-        }
+        });
     }
 
     private void scheduleRestart() {
-        if (disposed.get()
-                || !restartingCamera.compareAndSet(
-                false,
-                true
-        )) {
-            return;
-        }
-
-        try {
-            cameraWorker.submit(() -> {
-                try {
-                    Thread.sleep(1_000);
-
-                    if (!disposed.get()) {
-                        startCamera(
-                                currentCameraIndex
-                        );
-
-                        runFx(() ->
-                                showRecognitionMessage(
-                                        modelsReady.get()
-                                                ? "Camera restarted successfully."
-                                                : "Camera restarted. Loading face models..."
-                                )
-                        );
-                    }
-                } catch (InterruptedException exception) {
-                    Thread.currentThread().interrupt();
-                } catch (Exception exception) {
-                    System.err.println(
-                            "Camera restart failed: "
-                                    + rootMessage(exception)
-                    );
-                } finally {
-                    restartingCamera.set(false);
-                }
-            });
-        } catch (RejectedExecutionException exception) {
-            restartingCamera.set(false);
-        }
+        if (!restartingCamera.compareAndSet(false, true) || disposed.get()) return;
+        worker.submit(() -> {
+            try {
+                Thread.sleep(1000);
+                if (!disposed.get()) startCamera(currentCameraIndex);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                restartingCamera.set(false);
+            }
+        });
     }
 
     public void stopCamera() {
@@ -2528,113 +1714,42 @@ public final class CameraController {
     }
 
     private void stopCameraOnly() {
-        ScheduledExecutorService timer =
-                cameraTimer;
-
+        ScheduledExecutorService timer = cameraTimer;
         cameraTimer = null;
-
-        if (timer != null) {
-            timer.shutdownNow();
-
-            if (!Thread.currentThread()
-                    .getName()
-                    .equals("attendance-camera-capture")) {
-                try {
-                    timer.awaitTermination(
-                            300,
-                            TimeUnit.MILLISECONDS
-                    );
-                } catch (InterruptedException exception) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        }
-
-        VideoCapture oldCamera;
-
+        if (timer != null) timer.shutdownNow();
+        VideoCapture old;
         synchronized (cameraLock) {
-            oldCamera = camera;
+            old = camera;
             camera = null;
         }
-
-        if (oldCamera != null) {
-            oldCamera.release();
-        }
-
-        cameraStarted.set(false);
-        consecutiveReadFailures = 0;
-
+        if (old != null) old.release();
         synchronized (frameLock) {
-            */
-/*
-             * Do not release cleanFrame here because it is a final Mat
-             * that must be reusable when another camera starts.
-             *//*
-
-            cleanFrame.setTo(
-                    new Scalar(0)
-            );
-
+            cleanFrame.release();
             if (lastFaceRow != null) {
                 lastFaceRow.release();
                 lastFaceRow = null;
             }
         }
-
         processing.set(false);
         resetRecognitionSession();
     }
 
     public void dispose() {
-        if (!disposed.compareAndSet(
-                false,
-                true
-        )) {
-            return;
-        }
-
-        folderTraining.set(false);
-        recognitionMode.set(false);
-        processing.set(false);
-
+        if (!disposed.compareAndSet(false, true)) return;
         stopCameraOnly();
-
-        cameraWorker.shutdownNow();
-        initializationWorker.shutdownNow();
-        recognitionWorker.shutdownNow();
-        maintenanceWorker.shutdownNow();
-
+        worker.shutdownNow();
         synchronized (modelLock) {
-            */
-/*
-             * Java OpenCV FaceDetectorYN and FaceRecognizerSF wrappers
-             * do not consistently expose a public release method across
-             * OpenCV Java versions. Removing references permits cleanup.
-             *//*
-
-            detector = null;
-            recognizer = null;
-            modelsReady.set(false);
-        }
-
-        synchronized (frameLock) {
-            cleanFrame.release();
-
-            if (lastFaceRow != null) {
-                lastFaceRow.release();
-                lastFaceRow = null;
+            if (detector != null) {
+//detector.clear();
+                detector = null;
+            }
+            if (recognizer != null) {
+//recognizer.clear();
+                recognizer = null;
             }
         }
-
-        knownEmbeddings.clear();
-
-        if (studentStage != null) {
-            studentStage.close();
-        }
-
-        studentStage = null;
-        studentCameraView = null;
-        studentMessage = null;
+        cleanFrame.release();
+        if (studentStage != null) studentStage.close();
     }
 
     @FXML
@@ -2880,4 +1995,5 @@ public final class CameraController {
             originalScaleFaceRow.release();
         }
     }
-}*/
+}
+*/

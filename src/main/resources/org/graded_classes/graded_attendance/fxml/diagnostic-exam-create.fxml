@@ -17,6 +17,7 @@
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
+<?import javafx.scene.control.Spinner?>
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="600.0" style="-fx-background-radius: 5; -fx-background-color: #fafafa;" stylesheets="@../css/atlantafx.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.quiz.DiagnosticTest">
    <children>
       <HBox>
@@ -96,19 +97,19 @@
                         <VBox>
                            <children>
                               <Label text="Easy Count" />
-                              <NumericTextField fx:id="easy" />
+                              <Spinner fx:id="easy" />
                            </children>
                         </VBox>
                         <VBox>
                            <children>
                               <Label text="Medium Count" />
-                              <NumericTextField fx:id="medium" />
+                              <Spinner fx:id="medium" />
                            </children>
                         </VBox>
                         <VBox>
                            <children>
                               <Label text="Hard Count" />
-                              <NumericTextField fx:id="hard" />
+                              <Spinner fx:id="hard" />
                            </children>
                         </VBox>
                      </children>
