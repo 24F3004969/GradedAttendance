@@ -12,6 +12,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.10.2</junit.version>
+        <javacv.version>1.5.14</javacv.version>
+        <opencv.version>4.14.0-1.5.14</opencv.version>
+        <openblas.version>0.3.34-1.5.14</openblas.version>
     </properties>
 
     <dependencies>
@@ -24,6 +27,12 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
             <version>26</version>
+        </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/com.dlsc.atlantafx/themes -->
+        <dependency>
+            <groupId>com.dlsc.atlantafx</groupId>
+            <artifactId>themes</artifactId>
+            <version>1.9.0</version>
         </dependency>
         <dependency>
             <groupId>org.kordamp.ikonli</groupId>
@@ -133,19 +142,41 @@
             <artifactId>fxgraphics2d</artifactId>
             <version>1.7</version>
         </dependency>
-        <!-- Source: https://mvnrepository.com/artifact/org.bytedeco/javacv -->
+        <!-- JavaCV classes -->
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>javacv</artifactId>
-            <version>1.5.14</version>
-            <scope>compile</scope>
+            <version>${javacv.version}</version>
         </dependency>
-        <!-- Source: https://mvnrepository.com/artifact/org.bytedeco/opencv-platform -->
+
+        <!-- OpenCV Java classes -->
         <dependency>
             <groupId>org.bytedeco</groupId>
-            <artifactId>opencv-platform</artifactId>
-            <version>4.14.0-1.5.14</version>
-            <scope>compile</scope>
+            <artifactId>opencv</artifactId>
+            <version>${opencv.version}</version>
+        </dependency>
+
+        <!-- OpenCV native libraries: Windows 64-bit only -->
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>opencv</artifactId>
+            <version>${opencv.version}</version>
+            <classifier>windows-x86_64</classifier>
+        </dependency>
+
+        <!-- OpenBLAS Java classes -->
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>openblas</artifactId>
+            <version>${openblas.version}</version>
+        </dependency>
+
+        <!-- OpenBLAS native libraries: Windows 64-bit only -->
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>openblas</artifactId>
+            <version>${openblas.version}</version>
+            <classifier>windows-x86_64</classifier>
         </dependency>
         <dependency>
             <groupId>org.scilab.forge</groupId>

@@ -2,6 +2,8 @@ package org.graded_classes.graded_attendance;
 
 import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
+import com.dlsc.atlantafx.themes.WinterDark;
+import com.dlsc.atlantafx.themes.WinterLight;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

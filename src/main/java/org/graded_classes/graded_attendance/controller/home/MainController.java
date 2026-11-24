@@ -89,6 +89,7 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         background.setSvgUrl(GradedResourceLoader.load("icons/new-back1.svg"));
+        background.setOpacity(0.5);
         edIcon.setSvgUrl(GradedResourceLoader.load("icons/ed_logo.svg"));
         home = gradedFxmlLoader.createView(R.home_layout, new HomeController(modalPane,
                 gradedDataLoader, this));

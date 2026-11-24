@@ -36,6 +36,7 @@ module org.graded_classes.graded_attendance {
     requires com.fasterxml.jackson.databind;
     requires org.kordamp.ikonli.feather;
     requires atlantafx.spins;
+    requires com.dlsc.atlantafx.themes;
 
     opens org.graded_classes.graded_attendance.controller.leaderboard to javafx.fxml, javafx.graphics, org.xerial.sqlitejdbc, java.sql;
 

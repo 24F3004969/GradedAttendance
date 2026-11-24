@@ -608,7 +608,7 @@ public class DiagnosticTest implements Initializable {
             // Create diagnostic exam questions
             // -----------------------------------------------------
 
-            createExamQuestion(conn, generatedExamId);
+            createExamQuestion(conn, generatedExamId,topicIds,easy.getValue(),medium.getValue(),hard.getValue());
 
             /*
              * If createExamQuestion accepts topic IDs, prefer:
@@ -710,7 +710,7 @@ public class DiagnosticTest implements Initializable {
         return topicIds;
     }
 
-    private void createExamQuestion(Connection conn, int generatedId) {
+   /* private void createExamQuestion(Connection conn, int generatedId) {
 
         if (subjectList == null || subjectList.isEmpty()) {
             System.out.println("No subjects found.");
@@ -780,5 +780,201 @@ public class DiagnosticTest implements Initializable {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
+    }*/
+   private void createExamQuestion(
+           Connection conn,
+           int generatedId,
+           List<Integer> topicIds,
+           int easyCount,
+           int mediumCount,
+           int hardCount
+   ) {
+       if (topicIds == null || topicIds.isEmpty()) {
+           System.out.println("No topics selected. Exam questions were not created.");
+           return;
+       }
+
+       final int totalQuestions;
+
+       try {
+           totalQuestions = Integer.parseInt(questionCount.getText().trim());
+       } catch (NumberFormatException e) {
+           System.err.println("Invalid total question count: " + questionCount.getText());
+           return;
+       }
+
+       if (totalQuestions <= 0) {
+           System.err.println("Question count must be greater than zero.");
+           return;
+       }
+
+       if (easyCount < 0 || mediumCount < 0 || hardCount < 0) {
+           System.err.println("Difficulty counts cannot be negative.");
+           return;
+       }
+
+       if (easyCount + mediumCount + hardCount != totalQuestions) {
+           System.err.printf(
+                   "Difficulty distribution must total %d. Current total: %d%n",
+                   totalQuestions,
+                   easyCount + mediumCount + hardCount
+           );
+           return;
+       }
+
+       String placeholders = String.join(
+               ", ",
+               Collections.nCopies(topicIds.size(), "?")
+       );
+
+       String selectSql = """
+                WITH RankedByLevel AS (
+                    SELECT
+                        q.question_id,
+                        q.level,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY LOWER(TRIM(q.level))
+                            ORDER BY RANDOM()
+                        ) AS level_rank
+                    FROM Questions AS q
+                    WHERE q.topic_id IN (%s)
+                      AND LOWER(TRIM(q.level)) IN (
+                          'easy',
+                          'medium',
+                          'hard'
+                      )
+                ),
+                
+                PreferredQuestions AS (
+                    SELECT
+                        question_id,
+                        level
+                    FROM RankedByLevel
+                    WHERE level_rank <= CASE LOWER(TRIM(level))
+                        WHEN 'easy'   THEN ?
+                        WHEN 'medium' THEN ?
+                        WHEN 'hard'   THEN ?
+                        ELSE 0
+                    END
+                ),
+                
+                FallbackQuestions AS (
+                    SELECT
+                        r.question_id,
+                        r.level
+                    FROM RankedByLevel AS r
+                    WHERE NOT EXISTS (
+                        SELECT 1
+                        FROM PreferredQuestions AS p
+                        WHERE p.question_id = r.question_id
+                    )
+                    ORDER BY RANDOM()
+                    LIMIT (
+                        SELECT MAX(0, ? - COUNT(*))
+                        FROM PreferredQuestions
+                    )
+                ),
+                
+                FinalQuestions AS (
+                    SELECT question_id
+                    FROM PreferredQuestions
+                
+                    UNION ALL
+                
+                    SELECT question_id
+                    FROM FallbackQuestions
+                )
+                
+                SELECT question_id
+                FROM FinalQuestions
+                ORDER BY RANDOM()
+                """.formatted(placeholders);
+
+       String insertSql = """
+                INSERT INTO ExamQuestion (exam_id, question_id)
+                VALUES (?, ?)
+                """;
+
+       List<Integer> selectedQuestionIds = new ArrayList<>();
+
+       try (PreparedStatement selectStatement =
+                    conn.prepareStatement(selectSql)) {
+
+           int parameterIndex = 1;
+
+           // Dynamic topic IDs
+           for (Integer topicId : topicIds) {
+               if (topicId == null) {
+                   System.err.println("Topic IDs cannot contain null.");
+                   return;
+               }
+
+               selectStatement.setInt(parameterIndex++, topicId);
+           }
+
+           // Requested distribution
+           selectStatement.setInt(parameterIndex++, easyCount);
+           selectStatement.setInt(parameterIndex++, mediumCount);
+           selectStatement.setInt(parameterIndex++, hardCount);
+
+           // Final required count
+           selectStatement.setInt(parameterIndex, totalQuestions);
+
+           try (ResultSet resultSet = selectStatement.executeQuery()) {
+               while (resultSet.next()) {
+                   selectedQuestionIds.add(
+                           resultSet.getInt("question_id")
+                   );
+               }
+           }
+
+       } catch (SQLException e) {
+           System.err.println("Could not select questions for the exam.");
+           e.printStackTrace();
+           return;
+       }
+
+       if (selectedQuestionIds.isEmpty()) {
+           System.out.println("No questions found for the selected topics.");
+           return;
+       }
+
+       if (selectedQuestionIds.size() < totalQuestions) {
+           System.out.printf(
+                   "Requested %d questions, but only %d matching questions are available.%n",
+                   totalQuestions,
+                   selectedQuestionIds.size()
+           );
+       }
+
+       try (PreparedStatement insertStatement =
+                    conn.prepareStatement(insertSql)) {
+
+           for (Integer questionId : selectedQuestionIds) {
+               insertStatement.setInt(1, generatedId);
+               insertStatement.setInt(2, questionId);
+               insertStatement.addBatch();
+
+               System.out.printf(
+                       "Exam ID: %d, Question ID: %d%n",
+                       generatedId,
+                       questionId
+               );
+           }
+
+           int[] insertedRows = insertStatement.executeBatch();
+
+           System.out.printf(
+                   "%d questions added to exam %d.%n",
+                   insertedRows.length,
+                   generatedId
+           );
+
+       } catch (SQLException e) {
+           System.err.println(
+                   "Could not insert selected questions into ExamQuestion."
+           );
+           e.printStackTrace();
+       }
+   }
 }

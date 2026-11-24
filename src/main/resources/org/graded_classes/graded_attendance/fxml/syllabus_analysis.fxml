@@ -28,7 +28,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="root" minHeight="650.0" minWidth="900.0" prefHeight="800.0" prefWidth="1280.0" style="-fx-background-color: #fafafa;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.syllabus.SyllabusAnalysisController">
+<BorderPane fx:id="root" minHeight="650.0" minWidth="900.0" prefHeight="800.0" prefWidth="1280.0"  xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.graded_classes.graded_attendance.controller.syllabus.SyllabusAnalysisController">
 
     <!-- =========================================================
          PAGE HEADER

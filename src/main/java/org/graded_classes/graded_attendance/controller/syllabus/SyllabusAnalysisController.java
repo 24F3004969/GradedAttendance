@@ -107,7 +107,6 @@ public class SyllabusAnalysisController {
     }
 
     private void configureComboBoxes() {
-        sessionComboBox.setItems(FXCollections.observableArrayList("2025-2026", "2026-2027"));
         schoolComboBox.setItems(FXCollections.observableArrayList("All Schools", "Delhi Public School", "St. Xavier's School", "DAV Public School", "Loyola School"));
         boardComboBox.setItems(FXCollections.observableArrayList("All Boards", "CBSE", "ICSE"));
         classComboBox.setItems(FXCollections.observableArrayList("All Classes", "VI", "VII", "VIII", "IX", "X"));
@@ -120,7 +119,8 @@ public class SyllabusAnalysisController {
         classComboBox.getSelectionModel().select("All Classes");
         termComboBox.getSelectionModel().select("All Terms");
         subjectComboBox.getSelectionModel().select("All Subjects");
-        topicStatusFilterComboBox.getSelectionModel().select("All Statuses");
+        topicStatusFilterComboBox.getSelectionModel().select("All Statuses"); sessionComboBox.setItems(FXCollections.observableArrayList("2025-2026", "2026-2027"));
+
     }
 
     private void configureStudentList() {
