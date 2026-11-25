@@ -8,6 +8,7 @@ import com.dlsc.gemsfx.SimpleFilterView;
 import com.dlsc.gemsfx.daterange.DateRange;
 import com.dlsc.gemsfx.daterange.DateRangePicker;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -28,7 +29,6 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
-import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
 import org.graded_classes.graded_attendance.Main;
@@ -45,13 +45,17 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 public class ConductExam implements Initializable {
 
@@ -146,9 +150,7 @@ public class ConductExam implements Initializable {
         else if (tg.getText().equals("Written Test")) { filteredItems.setPredicate(examData -> examData.examType().equals(ExamType.Written)); }
     }
 
-    public record Status(int id, String name) {
-        @NotNull @Override public String toString() { return this.name; }
-    }
+    public record Status(int id, String name) { @NotNull @Override public String toString() { return this.name; } }
 
     private void configureFilterView() {
         CustomTextField search = filters.addSearchTextField("Search");
@@ -157,14 +159,20 @@ public class ConductExam implements Initializable {
         status.setGraphic(new FontIcon(Feather.FILTER));
         DateRangePicker range = filters.addDateRangePicker("Date Range");
         ChipsViewContainer chips = new ChipsViewContainer();
-        // Connect chips to SimpleFilterView.
         chips.chipsProperty().bind(filters.chipsProperty());
         chips.setOnClear(filters::clear);
-        // This was missing: add the chips control to the UI.
         chipsContainer.getChildren().setAll(chips);
-        // Hide the entire row when no filters are active.
         chipsContainer.visibleProperty().bind(Bindings.isNotEmpty(filters.chipsProperty()));
         chipsContainer.managedProperty().bind(chipsContainer.visibleProperty());
+        InvalidationListener filterListener = observable -> {
+            Status selectedStatus = status.getSelectionModel().getSelectedItem();
+            applyFilters(status.getItems(), range.getDateRangeView().getValue(), search.getText());
+        };
+        search.textProperty().addListener(filterListener);
+        status.getSelectionModel().selectedItemProperty().addListener(filterListener);
+        range.getDateRangeView().valueProperty().addListener(filterListener);
+        // Apply initial filter
+        filterListener.invalidated(null);
     }
 
     private void applyFilters(ObservableList<Status> selectedFields, DateRange dateRange, String searchText) {
@@ -197,32 +205,14 @@ public class ConductExam implements Initializable {
     }
 
     private String normalize(String value) { return value == null ? "" : value.trim().toLowerCase(Locale.ROOT); }
-
     private boolean contains(Object value, String search) { return value != null && value.toString().toLowerCase(Locale.ROOT).contains(search); }
 
     private boolean matchesDateRange(ExamData exam, DateRange dateRange) {
         if (dateRange == null) { return true; }
         LocalDate examDate = LocalDate.parse(exam.doe());
-        if (examDate == null) { return false; }
         LocalDate startDate = dateRange.getStartDate();
         LocalDate endDate = dateRange.getEndDate();
         return (startDate == null || !examDate.isBefore(startDate)) && (endDate == null || !examDate.isAfter(endDate));
-    }
-
-    public static <T> void autoResizeColumns(TableView<T> table) {
-        for (TableColumn<T, ?> column : table.getColumns()) {
-            Text text = new Text(column.getText());
-            double max = text.getLayoutBounds().getWidth();
-            for (int i = 0; i < table.getItems().size(); i++) {
-                Object cellData = column.getCellData(i);
-                if (cellData != null) {
-                    text = new Text(cellData.toString());
-                    double width = text.getLayoutBounds().getWidth();
-                    if (width > max) { max = width; }
-                }
-            }
-            column.setPrefWidth(max + 30);
-        }
     }
 
     private void reload(ObservableList<Status> selectedItems, DateRange value, String text) { }
@@ -268,12 +258,9 @@ public class ConductExam implements Initializable {
         try (PreparedStatement deleteQuestionsStatement = conn.prepareStatement(deleteExamQuestionsSql); PreparedStatement deleteTopicsStatement = conn.prepareStatement(deleteExamTopicsSql); PreparedStatement deleteExamStatement = conn.prepareStatement(deleteExamSql)) {
             for (ExamData exam : selectedRow) {
                 String examId = exam.id();
-                deleteQuestionsStatement.setString(1, examId);
-                deleteQuestionsStatement.addBatch();
-                deleteTopicsStatement.setString(1, examId);
-                deleteTopicsStatement.addBatch();
-                deleteExamStatement.setString(1, examId);
-                deleteExamStatement.addBatch();
+                deleteQuestionsStatement.setString(1, examId); deleteQuestionsStatement.addBatch();
+                deleteTopicsStatement.setString(1, examId); deleteTopicsStatement.addBatch();
+                deleteExamStatement.setString(1, examId); deleteExamStatement.addBatch();
             }
             // Child records must be removed before ExamScheduler.
             deleteQuestionsStatement.executeBatch();
@@ -288,9 +275,7 @@ public class ConductExam implements Initializable {
         } catch (SQLException e) {
             try { conn.rollback(); } catch (SQLException rollbackException) { e.addSuppressed(rollbackException); }
             showDatabaseError("The selected exams could not be deleted.", e);
-        } finally {
-            try { conn.setAutoCommit(previousAutoCommit); } catch (SQLException e) { e.printStackTrace(); }
-        }
+        } finally { try { conn.setAutoCommit(previousAutoCommit); } catch (SQLException e) { e.printStackTrace(); } }
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {
@@ -321,9 +306,7 @@ public class ConductExam implements Initializable {
             resultButton.setPadding(new Insets(5));
             startButton.setOnAction(event -> mainController.modalPane.show(mainController.gradedFxmlLoader.createView(R.exam_entry_login, new LoginBeforeEntry(mainController, exam, containsMoreThanOneSubject(exam.subject()) ? "Diagnostic" : "Normal"))));
             resultButton.setOnAction(event -> {
-                if (containsMoreThanOneSubject(exam.subject())) {
-                    generateDiagnosticResultAsync(exam, resultButton);
-                    showDiagnosticReport(); }
+                if (containsMoreThanOneSubject(exam.subject())) { generateDiagnosticResultAsync(exam, resultButton); showDiagnosticReport(); }
                 else { generateNormalResultAsync(exam, resultButton); }
             });
             HBox box = new HBox(5, startButton, resultButton);
@@ -345,42 +328,22 @@ public class ConductExam implements Initializable {
             ContextMenu menu = new ContextMenu();
             MenuItem startExam = new MenuItem("Start Exam");
             startExam.setGraphic(icon(Feather.PLAY));
-            startExam.setOnAction(e -> {
-                ExamData exam = row.getItem();
-                if (exam != null) { System.out.println("Start Exam : " + exam.topicNamesForDisplay()); /* startExam(exam); */ }
-            });
+            startExam.setOnAction(e -> { ExamData exam = row.getItem(); if (exam != null) { System.out.println("Start Exam : " + exam.topicNamesForDisplay()); /* startExam(exam); */ } });
             MenuItem generateResult = new MenuItem("Generate Result");
             generateResult.setGraphic(icon(Feather.BAR_CHART_2));
-            generateResult.setOnAction(e -> {
-                ExamData exam = row.getItem();
-                if (exam != null) { System.out.println("Generate Result : " + exam.topicNamesForDisplay()); /* generateResult(exam); */ }
-            });
+            generateResult.setOnAction(e -> { ExamData exam = row.getItem(); if (exam != null) { System.out.println("Generate Result : " + exam.topicNamesForDisplay()); /* generateResult(exam); */ } });
             MenuItem info = new MenuItem("Info");
             info.setGraphic(icon(Feather.INFO));
-            info.setOnAction(e -> {
-                ExamData exam = row.getItem();
-                if (exam != null) { System.out.println("Generate PDF : " + exam.topicNamesForDisplay()); /* info(exam); */ }
-            });
+            info.setOnAction(e -> { ExamData exam = row.getItem(); if (exam != null) { System.out.println("Generate PDF : " + exam.topicNamesForDisplay()); /* info(exam); */ } });
             MenuItem preview = new MenuItem("Preview");
             preview.setGraphic(icon(Feather.EYE));
-            preview.setOnAction(e -> {
-                ExamData exam = row.getItem();
-                var questionData = loadQuestion(exam);
-                var node = mainController.gradedFxmlLoader.createView(R.exam_preview, new TestPreview(questionData));
-                mainController.modalPane.show(node);
-            });
+            preview.setOnAction(e -> { ExamData exam = row.getItem(); var questionData = loadQuestion(exam); var node = mainController.gradedFxmlLoader.createView(R.exam_preview, new TestPreview(questionData)); mainController.modalPane.show(node); });
             MenuItem edit = new MenuItem("Edit");
             edit.setGraphic(icon(Feather.EDIT_2));
-            edit.setOnAction(e -> {
-                ExamData exam = row.getItem();
-                if (exam != null) { System.out.println("Edit : " + exam.topicNamesForDisplay()); /* editExam(exam); */ }
-            });
+            edit.setOnAction(e -> { ExamData exam = row.getItem(); if (exam != null) { System.out.println("Edit : " + exam.topicNamesForDisplay()); /* editExam(exam); */ } });
             MenuItem duplicate = new MenuItem("Duplicate");
             duplicate.setGraphic(icon(Feather.COPY));
-            duplicate.setOnAction(e -> {
-                ExamData exam = row.getItem();
-                if (exam != null) { System.out.println("Duplicate : " + exam.topicNamesForDisplay()); }
-            });
+            duplicate.setOnAction(e -> { ExamData exam = row.getItem(); if (exam != null) { System.out.println("Duplicate : " + exam.topicNamesForDisplay()); } });
             FontIcon deleteIcon = icon(Feather.TRASH_2);
             MenuItem delete = createDelete(deleteIcon, row);
             Menu exportMenu = new Menu("Export");
@@ -417,11 +380,7 @@ public class ConductExam implements Initializable {
         return delete;
     }
 
-    private FontIcon icon(Feather feather) {
-        FontIcon icon = new FontIcon(feather);
-        icon.setIconSize(16);
-        return icon;
-    }
+    private FontIcon icon(Feather feather) { FontIcon icon = new FontIcon(feather); icon.setIconSize(16); return icon; }
 
     ArrayList<ExamData> selectedRow = new ArrayList<>();
 
@@ -583,16 +542,11 @@ public class ConductExam implements Initializable {
         catch (SQLException exception) { throw new RuntimeException("Could not read the database transaction state.", exception); }
         try {
             connection.setAutoCommit(false);
-            // Ensures older databases also receive the table.
             createTopicWiseScoreCardTable(connection);
-            /*
-             * Load topic names once, instead of executing a query separately
-             * for every question and every student.
-             */
             TreeMap<Integer, String> topicNames = loadTopicNames(connection, questions);
             try (PreparedStatement overallStatement = connection.prepareStatement(overallScoreSql); PreparedStatement topicStatement = connection.prepareStatement(topicScoreSql)) {
                 for (var student : students) {
-                    TreeMap<Integer, Integer> answers = getAnswers(examId, student.ed_no());
+                    TreeMap<Integer, Integer> answers = getAnswers(examId, student.ed_no(), ExamType.Normal);
                     int correctAnswers = calculateCorrectAnswers(questions, answers);
                     int score = correctAnswers * marksPerQuestion;
                     String overallRemark = answers.isEmpty() ? "Absent or not eligible" : "Present";
@@ -642,9 +596,7 @@ public class ConductExam implements Initializable {
         } catch (Exception exception) {
             try { connection.rollback(); } catch (SQLException rollbackException) { exception.addSuppressed(rollbackException); }
             throw new RuntimeException("Failed to generate results for exam ID: " + examId, exception);
-        } finally {
-            try { connection.setAutoCommit(oldAutoCommit); } catch (SQLException exception) { exception.printStackTrace(); }
-        }
+        } finally { try { connection.setAutoCommit(oldAutoCommit); } catch (SQLException exception) { exception.printStackTrace(); } }
     }
 
     private void createTopicWiseScoreCardTable(Connection connection) throws SQLException {
@@ -733,7 +685,197 @@ public class ConductExam implements Initializable {
     }
 
     private String generateDiagnosticResult(ExamData examInfo) {
-        return "Exam ID: " + examInfo.id() + "\nDiagnostic generation is handled by the existing diagnostic workflow.";
+        Objects.requireNonNull(examInfo, "Exam information cannot be null.");
+        int examId = parseExamId(examInfo);
+        int marksPerQuestion = 4;
+        File diagnosisDirectory = new File(Main.getRootPath(), "diagnosis");
+        if (!diagnosisDirectory.isDirectory()) { throw new IllegalStateException("Diagnosis directory was not found:\n" + diagnosisDirectory.getAbsolutePath()); }
+        /*
+         * Example subject value:
+         * ["Math", "Basic Science"]
+         *
+         * The method also accepts:
+         * ['Math', 'Basic Science']
+         */
+        List<String> subjects = parseDiagnosticSubjects(examInfo.subject());
+        if (subjects.isEmpty()) { throw new IllegalStateException("No diagnostic subjects were found for exam " + examId); }
+        TreeMap<String, QuestionData> allQuestions = loadQuestion(examInfo);
+        if (allQuestions.isEmpty()) { throw new IllegalStateException("No questions were found for diagnostic exam " + examId); }
+        List<String> studentNames = getDiagnosticStudentNames(diagnosisDirectory);
+        if (studentNames.isEmpty()) { throw new IllegalStateException("No student diagnostic databases were found in:\n" + diagnosisDirectory.getAbsolutePath()); }
+        File reviewDirectory = new File(Main.getRootPath(), "ExamAnswerReviews/Exam_" + examId);
+        if (!reviewDirectory.exists() && !reviewDirectory.mkdirs()) { throw new IllegalStateException("Could not create PDF directory: " + reviewDirectory.getAbsolutePath()); }
+
+        String upsertSql = """
+            INSERT INTO DiagnosticScoreCard
+            (
+                exam_id,
+                student_name,
+                subject,
+                topic_name,
+                marks_obtain,
+                total_marks,
+                total_attempted,
+                correct_answers,
+                wrong_answers,
+                remark,
+                generated_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(exam_id, student_name, subject) DO UPDATE SET
+                topic_name = excluded.topic_name,
+                marks_obtain = excluded.marks_obtain,
+                total_marks = excluded.total_marks,
+                total_attempted = excluded.total_attempted,
+                correct_answers = excluded.correct_answers,
+                wrong_answers = excluded.wrong_answers,
+                remark = excluded.remark,
+                generated_at = CURRENT_TIMESTAMP
+            """;
+        Connection connection = mainController.gradedDataLoader.databaseLoader.getConnection();
+        boolean previousAutoCommit;
+        try { previousAutoCommit = connection.getAutoCommit(); }
+        catch (SQLException exception) { throw new RuntimeException("Could not read the database transaction state.", exception); }
+        int generatedRows = 0;
+        int generatedPdfs = 0;
+        int studentsWithAnswers = 0;
+        int studentsWithoutAnswers = 0;
+
+        try {
+            connection.setAutoCommit(false);
+
+            Map<Integer, DiagnosticQuestionInfo> questionInfo =
+                    loadDiagnosticQuestionInfo(
+                            connection,
+                            allQuestions
+                    );
+
+            try (PreparedStatement statement =
+                         connection.prepareStatement(upsertSql)) {
+
+                for (String studentName : studentNames) {
+                    TreeMap<Integer, Integer> studentAnswers =
+                            getAnswers(
+                                    examId,
+                                    studentName,
+                                    ExamType.Diagnosis
+                            );
+
+                    if (studentAnswers.isEmpty()) {
+                        studentsWithoutAnswers++;
+                    } else {
+                        studentsWithAnswers++;
+                    }
+
+                    /*
+                     * One review PDF per diagnostic student.
+                     */
+                    reviewGenerator.generate(
+                            examInfo,
+                            studentName,
+                            studentName,
+                            allQuestions,
+                            studentAnswers
+                    );
+
+                    generatedPdfs++;
+
+                    /*
+                     * One result row for each subject.
+                     */
+                    for (String subject : subjects) {
+                        DiagnosticSubjectScore score =
+                                calculateDiagnosticSubjectScore(
+                                        subject,
+                                        allQuestions,
+                                        questionInfo,
+                                        studentAnswers,
+                                        marksPerQuestion
+                                );
+
+                        if (score.totalQuestions() == 0) {
+                            continue;
+                        }
+
+                        statement.setInt(1, examId);
+                        statement.setString(2, studentName);
+                        statement.setString(3, subject);
+                        statement.setString(4, "Diagnosis");
+                        statement.setInt(5, score.marksObtained());
+                        statement.setInt(6, score.totalMarks());
+                        statement.setInt(7, score.attempted());
+                        statement.setInt(8, score.correct());
+                        statement.setInt(9, score.wrong());
+                        statement.setString(10, score.remark());
+                        statement.addBatch();
+
+                        generatedRows++;
+                    }
+                }
+
+                validateBatchResults(
+                        statement.executeBatch(),
+                        "DiagnosticScoreCard"
+                );
+            }
+
+            connection.commit();
+
+            return """
+            Exam ID: %d
+            Students found: %d
+            Students with answers: %d
+            Students without answers: %d
+            Subjects: %s
+            Diagnostic rows generated: %d
+            Answer-review PDFs generated: %d
+            PDF directory: %s
+            """
+                    .formatted(
+                            examId,
+                            studentNames.size(),
+                            studentsWithAnswers,
+                            studentsWithoutAnswers,
+                            String.join(", ", subjects),
+                            generatedRows,
+                            generatedPdfs,
+                            reviewDirectory.getAbsolutePath()
+                    )
+                    .trim();
+
+        } catch (Exception exception) {
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackException) {
+                exception.addSuppressed(rollbackException);
+            }
+
+            throw new RuntimeException(
+                    "Failed to generate diagnostic results for exam ID: "
+                            + examId,
+                    exception
+            );
+
+        } finally {
+            try {
+                connection.setAutoCommit(previousAutoCommit);
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+            }
+        }
+    }
+
+    private List<String> parseDiagnosticSubjects(String subjectValue) {
+        if (subjectValue == null || subjectValue.isBlank()) { return List.of(); }
+        String cleaned = subjectValue.trim();
+        if (cleaned.startsWith("[") && cleaned.endsWith("]")) { cleaned = cleaned.substring(1, cleaned.length() - 1); }
+        LinkedHashSet<String> subjects = new LinkedHashSet<>();
+        for (String value : cleaned.split(",")) {
+            String subject = value.trim();
+            if ((subject.startsWith("\"") && subject.endsWith("\"")) || (subject.startsWith("'") && subject.endsWith("'"))) { subject = subject.substring(1, subject.length() - 1).trim(); }
+            if (!subject.isBlank()) { subjects.add(subject); }
+        }
+        return List.copyOf(subjects);
     }
 
     private void generateExamPdf(ExamData exam, Button button) {
@@ -828,12 +970,6 @@ public class ConductExam implements Initializable {
             private MutableTopicScore(int topicId, String topicName) { this.topicId = topicId; this.topicName = topicName; }
         }
         TreeMap<Integer, MutableTopicScore> groupedScores = new TreeMap<>();
-        /*
-         * Iterate over every exam question.
-         *
-         * Do not iterate only over answers, because unanswered questions
-         * must still be counted in totalQuestions and totalMarks.
-         */
         for (QuestionData question : questions.values()) {
             int topicId = parseTopicId(question);
             String topicName = topicNames.getOrDefault(topicId, "Topic " + topicId);
@@ -869,10 +1005,10 @@ public class ConductExam implements Initializable {
         for (int result : results) { if (result == Statement.EXECUTE_FAILED) { throw new SQLException("One or more " + tableName + " records failed."); } }
     }
 
-    public static TreeMap<Integer, Integer> getAnswers(int examId, String studentEd) {
+    public static TreeMap<Integer, Integer> getAnswers(int examId, String studentEd, ExamType examType) {
         TreeMap<Integer, Integer> answers = new TreeMap<>();
         if (examId <= 0 || studentEd == null || studentEd.isBlank()) { return answers; }
-        File database = new File(Main.getRootPath(), "GradeEd_Exam_2026/" + studentEd.trim() + ".db");
+        File database = examType.equals(ExamType.Normal) ? new File(Main.getRootPath(), "GradeEd_Exam_2026/" + studentEd.trim() + ".db") : new File(Main.getRootPath(), "diagnosis/" + studentEd.trim() + ".db");
         if (!database.isFile()) { return answers; }
         String sql = "SELECT question_id, selected_option_id FROM answers WHERE exam_id=? ORDER BY question_id";
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:" + database.getAbsolutePath()); PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -955,7 +1091,6 @@ public class ConductExam implements Initializable {
     }
 
     private boolean containsMoreThanOneSubject(String value) { return value != null && value.contains("[") && value.contains("]"); }
-
     private String format(String value) { return value.charAt(0) + value.substring(1).toLowerCase(Locale.ROOT); }
 
     public File folderChooser() {
@@ -997,4 +1132,74 @@ public class ConductExam implements Initializable {
     }
 
     private record TopicScore(int topicId, String topicName, int totalQuestions, int attemptedQuestions, int correctAnswers, int wrongAnswers, int marksObtained, int totalMarks, String remark) { }
+
+    private List<String> getDiagnosticStudentNames(File diagnosisDirectory) {
+        try (Stream<Path> paths = Files.list(diagnosisDirectory.toPath())) {
+            return paths.filter(Files::isRegularFile).map(Path::getFileName).map(Path::toString).filter(fileName -> fileName.toLowerCase(Locale.ROOT).endsWith(".db")).filter(fileName -> {
+                String lower = fileName.toLowerCase(Locale.ROOT);
+                return !lower.endsWith(".db-wal") && !lower.endsWith(".db-shm") && !lower.endsWith(".db-journal");
+            }).map(fileName -> fileName.substring(0, fileName.length() - 3)).map(String::trim).filter(name -> !name.isBlank()).distinct().sorted(String.CASE_INSENSITIVE_ORDER).toList();
+        } catch (IOException exception) { throw new RuntimeException("Could not read diagnostic student databases.", exception); }
+    }
+
+    private Map<Integer, DiagnosticQuestionInfo> loadDiagnosticQuestionInfo(Connection connection, TreeMap<String, QuestionData> questions) throws SQLException {
+        Map<Integer, DiagnosticQuestionInfo> result = new HashMap<>();
+        String sql = """
+            SELECT topic_id, subject, topic_name
+            FROM Topics
+            WHERE topic_id = ?
+            """;
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            for (QuestionData question : questions.values()) {
+                int questionId;
+                try { questionId = Integer.parseInt(question.question_id().trim()); }
+                catch (NumberFormatException exception) { throw new IllegalStateException("Invalid question ID: " + question.question_id(), exception); }
+                int topicId = parseTopicId(question);
+                statement.setInt(1, topicId);
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    if (!resultSet.next()) { throw new IllegalStateException("Topic " + topicId + " was not found for question " + questionId); }
+                    String subject = normalizeDisplayValue(resultSet.getString("subject"), "Unknown Subject");
+                    String topicName = normalizeDisplayValue(resultSet.getString("topic_name"), "Topic " + topicId);
+                    result.put(questionId, new DiagnosticQuestionInfo(questionId, topicId, subject, topicName));
+                }
+            }
+        }
+        return result;
+    }
+
+    private String normalizeDisplayValue(String value, String fallback) { return value == null || value.isBlank() ? fallback : value.trim(); }
+
+    private DiagnosticSubjectScore calculateDiagnosticSubjectScore(String requestedSubject, TreeMap<String, QuestionData> allQuestions, Map<Integer, DiagnosticQuestionInfo> questionInfo, TreeMap<Integer, Integer> studentAnswers, int marksPerQuestion) {
+        int totalQuestions = 0;
+        int attempted = 0;
+        int correct = 0;
+        int wrong = 0;
+        LinkedHashSet<String> topicNames = new LinkedHashSet<>();
+        for (QuestionData question : allQuestions.values()) {
+            int questionId;
+            try { questionId = Integer.parseInt(question.question_id().trim()); }
+            catch (NumberFormatException exception) { throw new IllegalStateException("Invalid question ID: " + question.question_id(), exception); }
+            DiagnosticQuestionInfo info = questionInfo.get(questionId);
+            if (info == null) { continue; }
+            if (!info.subject().equalsIgnoreCase(requestedSubject)) { continue; }
+            totalQuestions++;
+            topicNames.add(info.topicName());
+            Integer selectedOption = studentAnswers.get(questionId);
+            if (selectedOption == null) { continue; }
+            attempted++;
+            boolean answerIsCorrect = question.option_data() != null && question.option_data().option_index() == selectedOption;
+            if (answerIsCorrect) { correct++; }
+            else { wrong++; }
+        }
+        int marksObtained = correct * marksPerQuestion;
+        int totalMarks = totalQuestions * marksPerQuestion;
+        String remark;
+        if (studentAnswers.isEmpty()) { remark = "Not attempted"; }
+        else if (attempted == 0) { remark = "Subject not attempted"; }
+        else { remark = "Present"; }
+        return new DiagnosticSubjectScore(requestedSubject, String.join(", ", topicNames), totalQuestions, attempted, correct, wrong, marksObtained, totalMarks, remark);
+    }
+
+    private record DiagnosticQuestionInfo(int questionId, int topicId, String subject, String topicName) { }
+    private record DiagnosticSubjectScore(String subject, String topicNames, int totalQuestions, int attempted, int correct, int wrong, int marksObtained, int totalMarks, String remark) { }
 }

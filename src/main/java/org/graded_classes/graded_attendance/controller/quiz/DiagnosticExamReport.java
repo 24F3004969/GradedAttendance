@@ -7,42 +7,49 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import org.graded_classes.graded_attendance.GradedResourceLoader;
-import org.graded_classes.graded_attendance.Main;
-import org.graded_classes.graded_attendance.controller.home.MainController;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.SnapshotParameters;
-import javafx.scene.image.WritableImage;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.scene.transform.Scale;
-
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.graded_classes.graded_attendance.GradedResourceLoader;
+import org.graded_classes.graded_attendance.Main;
+import org.graded_classes.graded_attendance.controller.home.MainController;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.File;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class DiagnosticExamReport implements Initializable {
+
+    private static final int SNAPSHOT_SCALE = 3;
 
     private final MainController mainController;
 
@@ -92,16 +99,7 @@ public class DiagnosticExamReport implements Initializable {
     private VBox mathResult;
 
     @FXML
-    private VBox physicsResult;
-
-    @FXML
-    private VBox biologyResult;
-
-    @FXML
-    private VBox chemistryResult;
-
-    @FXML
-    private VBox englishResult;
+    private VBox basicScienceResult;
 
     @FXML
     private HBox performanceLayer;
@@ -113,11 +111,12 @@ public class DiagnosticExamReport implements Initializable {
             FXCollections.observableArrayList();
 
     /*
-     * These are the original subject boxes from the FXML.
-     * They are needed because removing a subject box from performanceLayer
-     * would otherwise remove it permanently when another student is selected.
+     * The diagnostic report currently supports exactly two subject boxes:
+     *
+     * 1. Math
+     * 2. Basic Science
      */
-    private List<VBox> allSubjectBoxes;
+    private List<VBox> allSubjectBoxes = List.of();
 
     public DiagnosticExamReport(MainController mainController) {
         this.mainController = mainController;
@@ -134,15 +133,10 @@ public class DiagnosticExamReport implements Initializable {
 
         allSubjectBoxes = List.of(
                 mathResult,
-                physicsResult,
-                chemistryResult,
-                biologyResult,
-                englishResult
+                basicScienceResult
         );
 
-        report.setVisible(false);
-        report.setManaged(false);
-
+        hideReport();
         loadDiagnosticStudentNames();
 
         search.setSuggestionProvider(request -> {
@@ -153,11 +147,11 @@ public class DiagnosticExamReport implements Initializable {
                 return new ArrayList<>(diagnosticStudents);
             }
 
-            String normalizedSearch =
-                    searchText.trim().toLowerCase(Locale.ROOT);
+            String normalizedSearch = searchText
+                    .trim()
+                    .toLowerCase(Locale.ROOT);
 
-            return diagnosticStudents
-                    .stream()
+            return diagnosticStudents.stream()
                     .filter(name -> name
                             .toLowerCase(Locale.ROOT)
                             .contains(normalizedSearch))
@@ -167,66 +161,100 @@ public class DiagnosticExamReport implements Initializable {
         search.setOnCommit(this::generateDiagnosticReport);
     }
 
+    /**
+     * Loads distinct diagnostic candidate names from DiagnosticScoreCard.
+     *
+     * Diagnostic candidates do not need to exist in StudentData.
+     */
     private void loadDiagnosticStudentNames() {
 
         diagnosticStudents.clear();
 
         String sql = """
-                SELECT DISTINCT student_name
+                SELECT DISTINCT TRIM(student_name) AS student_name
                 FROM DiagnosticScoreCard
                 WHERE student_name IS NOT NULL
                   AND TRIM(student_name) <> ''
                 ORDER BY student_name COLLATE NOCASE
                 """;
 
-        var connection = mainController
-                .gradedDataLoader
-                .databaseLoader
-                .getConnection();
+        var connection =
+                mainController
+                        .gradedDataLoader
+                        .databaseLoader
+                        .getConnection();
 
-        try (
-                var statement = connection.prepareStatement(sql);
-                var resultSet = statement.executeQuery()
-        ) {
+        /*
+         * Removes case-insensitive duplicate names.
+         *
+         * Example:
+         *
+         * Aman Kumar
+         * aman kumar
+         *
+         * will be displayed as only one candidate.
+         */
+        Map<String, String> uniqueNames =
+                new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+        try (var statement = connection.prepareStatement(sql);
+             var resultSet = statement.executeQuery()) {
+
             while (resultSet.next()) {
 
-                String studentName =
-                        resultSet.getString("student_name");
+                String studentName = normalizeStudentName(
+                        resultSet.getString("student_name")
+                );
 
-                if (studentName != null
-                        && !studentName.isBlank()) {
-
-                    diagnosticStudents.add(
-                            normalizeStudentName(studentName)
+                if (!studentName.isBlank()) {
+                    uniqueNames.putIfAbsent(
+                            studentName,
+                            studentName
                     );
                 }
             }
 
+            diagnosticStudents.setAll(
+                    uniqueNames.values()
+            );
+
         } catch (SQLException exception) {
+
             exception.printStackTrace();
 
             showAlert(
                     Alert.AlertType.ERROR,
                     "Diagnostic Report",
                     "Unable to load diagnostic students",
-                    exception.getMessage()
+                    getExceptionMessage(exception)
             );
         }
     }
 
-    private String normalizeStudentName(String name) {
-
-        if (name == null) {
-            return "";
-        }
-
-        return name
-                .trim()
-                .replaceAll("\\s+", " ");
+    /**
+     * Called by the SearchField when a candidate is selected.
+     */
+    private int generateDiagnosticReport(String selectedName) {
+        return generateDiagnosticReport(
+                selectedName,
+                true
+        );
     }
 
-    private int generateDiagnosticReport(String selectedName) {
-
+    /**
+     * Generates and displays one diagnostic candidate's report.
+     *
+     * @param selectedName candidate name
+     * @param showMessages true to display information and error alerts
+     *
+     * @return 1 if generated successfully
+     *         0 if no attempted result exists
+     *        -1 if an error occurred
+     */
+    private int generateDiagnosticReport(
+            String selectedName,
+            boolean showMessages
+    ) {
         if (selectedName == null || selectedName.isBlank()) {
             hideReport();
             return -1;
@@ -235,27 +263,121 @@ public class DiagnosticExamReport implements Initializable {
         String studentName =
                 normalizeStudentName(selectedName);
 
+        /*
+         * Subject normalization:
+         *
+         * Math, Maths and Mathematics become Math.
+         *
+         * Basic Science, Science, General Science, Physics, Chemistry
+         * and Biology become Basic Science.
+         *
+         * The Physics, Chemistry and Biology aliases allow older database
+         * records to remain compatible.
+         */
         String sql = """
                 SELECT
-                    subject,
+                    CASE
+                        WHEN LOWER(TRIM(subject)) IN
+                             (
+                                 'math',
+                                 'maths',
+                                 'mathematics'
+                             )
+                            THEN 'Math'
+
+                        WHEN LOWER(TRIM(subject)) IN
+                             (
+                                 'basic science',
+                                 'basic sciences',
+                                 'basicscience',
+                                 'basic_science',
+                                 'science',
+                                 'general science',
+                                 'general sciences',
+                                 'physics',
+                                 'chemistry',
+                                 'biology'
+                             )
+                            THEN 'Basic Science'
+
+                        ELSE TRIM(subject)
+                    END AS normalized_subject,
+
                     COUNT(DISTINCT exam_id) AS exam_count,
-                    COALESCE(SUM(marks_obtain), 0) AS total_obtained,
-                    COALESCE(SUM(total_marks), 0) AS total_possible,
-                    COALESCE(SUM(correct_answers), 0) AS correct_answers,
-                    COALESCE(SUM(wrong_answers), 0) AS wrong_answers
+
+                    COALESCE(
+                        SUM(marks_obtain),
+                        0
+                    ) AS total_obtained,
+
+                    COALESCE(
+                        SUM(total_marks),
+                        0
+                    ) AS total_possible,
+
+                    COALESCE(
+                        SUM(total_attempted),
+                        0
+                    ) AS attempted_answers,
+
+                    COALESCE(
+                        SUM(correct_answers),
+                        0
+                    ) AS correct_answers,
+
+                    COALESCE(
+                        SUM(wrong_answers),
+                        0
+                    ) AS wrong_answers
+
                 FROM DiagnosticScoreCard
+
                 WHERE student_name = ? COLLATE NOCASE
-                GROUP BY subject
-                ORDER BY subject COLLATE NOCASE
+                  AND LOWER(
+                          TRIM(
+                              COALESCE(remark, '')
+                          )
+                      ) <> 'not attempted'
+
+                GROUP BY
+                    CASE
+                        WHEN LOWER(TRIM(subject)) IN
+                             (
+                                 'math',
+                                 'maths',
+                                 'mathematics'
+                             )
+                            THEN 'Math'
+
+                        WHEN LOWER(TRIM(subject)) IN
+                             (
+                                 'basic science',
+                                 'basic sciences',
+                                 'basicscience',
+                                 'basic_science',
+                                 'science',
+                                 'general science',
+                                 'general sciences',
+                                 'physics',
+                                 'chemistry',
+                                 'biology'
+                             )
+                            THEN 'Basic Science'
+
+                        ELSE TRIM(subject)
+                    END
+
+                ORDER BY normalized_subject COLLATE NOCASE
                 """;
 
         Map<String, DiagnosticSubjectSummary> subjectWiseResult =
                 new LinkedHashMap<>();
 
-        var connection = mainController
-                .gradedDataLoader
-                .databaseLoader
-                .getConnection();
+        var connection =
+                mainController
+                        .gradedDataLoader
+                        .databaseLoader
+                        .getConnection();
 
         try (var statement = connection.prepareStatement(sql)) {
 
@@ -265,10 +387,25 @@ public class DiagnosticExamReport implements Initializable {
 
                 while (resultSet.next()) {
 
-                    String subject =
-                            normalizeSubject(
-                                    resultSet.getString("subject")
-                            );
+                    String subject = normalizeSubject(
+                            resultSet.getString(
+                                    "normalized_subject"
+                            )
+                    );
+
+                    if (subject.isBlank()) {
+                        continue;
+                    }
+
+                    /*
+                     * The report has only Math and Basic Science boxes.
+                     *
+                     * Ignore unsupported database subjects instead of adding
+                     * them to the overall total without displaying them.
+                     */
+                    if (!isSupportedSubject(subject)) {
+                        continue;
+                    }
 
                     int examCount =
                             resultSet.getInt("exam_count");
@@ -279,15 +416,20 @@ public class DiagnosticExamReport implements Initializable {
                     int totalPossible =
                             resultSet.getInt("total_possible");
 
+                    int attemptedAnswers =
+                            resultSet.getInt("attempted_answers");
+
                     int correctAnswers =
                             resultSet.getInt("correct_answers");
 
                     int wrongAnswers =
                             resultSet.getInt("wrong_answers");
 
-                    double percentage = totalPossible == 0
-                            ? 0
-                            : totalObtained * 100.0 / totalPossible;
+                    double percentage =
+                            calculatePercentage(
+                                    totalObtained,
+                                    totalPossible
+                            );
 
                     DiagnosticSubjectSummary summary =
                             new DiagnosticSubjectSummary(
@@ -295,46 +437,66 @@ public class DiagnosticExamReport implements Initializable {
                                     examCount,
                                     totalObtained,
                                     totalPossible,
+                                    attemptedAnswers,
                                     correctAnswers,
                                     wrongAnswers,
                                     percentage
                             );
 
-                    subjectWiseResult.put(subject, summary);
+                    subjectWiseResult.put(
+                            subject,
+                            summary
+                    );
                 }
             }
 
         } catch (SQLException exception) {
+
             exception.printStackTrace();
             hideReport();
 
-            showAlert(
-                    Alert.AlertType.ERROR,
-                    "Diagnostic Report",
-                    "Unable to generate diagnostic report",
-                    exception.getMessage()
-            );
+            if (showMessages) {
+                showAlert(
+                        Alert.AlertType.ERROR,
+                        "Diagnostic Report",
+                        "Unable to generate diagnostic report",
+                        getExceptionMessage(exception)
+                );
+            }
 
             return -1;
         }
 
         if (subjectWiseResult.isEmpty()) {
+
             hideReport();
 
-            showAlert(
-                    Alert.AlertType.INFORMATION,
-                    "Diagnostic Report",
-                    "No diagnostic result found",
-                    "No result was found for " + studentName
-            );
+            if (showMessages) {
+                showAlert(
+                        Alert.AlertType.INFORMATION,
+                        "Diagnostic Report",
+                        "No attempted diagnostic result found",
+                        "No attempted Math or Basic Science "
+                                + "diagnostic result was found for "
+                                + studentName
+                                + "."
+                );
+            }
 
-            return -1;
+            return 0;
         }
 
         resetSubjectBoxes();
 
         int overallObtained = 0;
         int overallPossible = 0;
+        int overallAttempted = 0;
+        int overallCorrect = 0;
+        int overallWrong = 0;
+        int totalExams = 0;
+
+        Set<VBox> availableSubjectBoxes =
+                new HashSet<>();
 
         for (DiagnosticSubjectSummary summary
                 : subjectWiseResult.values()) {
@@ -342,30 +504,54 @@ public class DiagnosticExamReport implements Initializable {
             VBox subjectBox =
                     getSubjectBox(summary.subject());
 
-            if (subjectBox != null) {
-
-                plotData(
-                        subjectBox,
-                        summary.percentage() / 100.0,
-                        summary.totalObtained()
-                                + "/"
-                                + summary.totalPossible(),
-                        getGrade(summary.percentage()).grade()
-                );
-
-                subjectBox.setVisible(true);
-                subjectBox.setManaged(true);
+            if (subjectBox == null) {
+                continue;
             }
 
-            overallObtained += summary.totalObtained();
-            overallPossible += summary.totalPossible();
+            plotData(
+                    subjectBox,
+                    summary.percentage() / 100.0,
+                    summary.totalObtained()
+                            + "/"
+                            + summary.totalPossible(),
+                    getGrade(
+                            summary.percentage()
+                    ).grade()
+            );
+
+            subjectBox.setVisible(true);
+            subjectBox.setManaged(true);
+
+            availableSubjectBoxes.add(subjectBox);
+
+            overallObtained +=
+                    summary.totalObtained();
+
+            overallPossible +=
+                    summary.totalPossible();
+
+            overallAttempted +=
+                    summary.attemptedAnswers();
+
+            overallCorrect +=
+                    summary.correctAnswers();
+
+            overallWrong +=
+                    summary.wrongAnswers();
+
+            totalExams +=
+                    summary.examCount();
         }
 
-        hideUnusedSubjectBoxes(subjectWiseResult.keySet());
+        hideUnusedSubjectBoxes(
+                availableSubjectBoxes
+        );
 
-        double overallPercentage = overallPossible == 0
-                ? 0
-                : overallObtained * 100.0 / overallPossible;
+        double overallPercentage =
+                calculatePercentage(
+                        overallObtained,
+                        overallPossible
+                );
 
         GradeResult gradeResult =
                 getGrade(overallPercentage);
@@ -377,13 +563,15 @@ public class DiagnosticExamReport implements Initializable {
         name_class.setText(studentName);
 
         /*
-         * A diagnostic candidate does not have a registered class or ED number.
+         * Diagnostic candidates are not required to be registered students.
          */
         class_of.setText("Diagnostic Test");
         roll_no.setText("Unregistered Candidate");
 
         allSubjectPercentage.setProgress(
-                overallPercentage / 100.0
+                clampProgress(
+                        overallPercentage / 100.0
+                )
         );
 
         marks_obtain.setText(
@@ -407,173 +595,37 @@ public class DiagnosticExamReport implements Initializable {
         );
 
         remarks.setText(
-                gradeResult.teacherRemark()
+                buildTeacherRemark(
+                        gradeResult,
+                        totalExams,
+                        overallAttempted,
+                        overallCorrect,
+                        overallWrong
+                )
         );
 
         /*
-         * Diagnostic candidates are normally not ranked against registered
-         * students. You can implement diagnostic ranking separately if needed.
+         * Diagnostic candidates are not ranked against enrolled students.
          */
         rank.setText("N/A");
 
         report.setManaged(true);
         report.setVisible(true);
 
+        /*
+         * Ensure the report has been styled and laid out before a PDF
+         * snapshot is requested.
+         */
+        report.applyCss();
+        report.layout();
+
         return 1;
     }
 
-    public record DiagnosticSubjectSummary(
-            String subject,
-            int examCount,
-            int totalObtained,
-            int totalPossible,
-            int correctAnswers,
-            int wrongAnswers,
-            double percentage
-    ) {
-    }
-
-    private VBox getSubjectBox(String subject) {
-
-        return switch (normalizeSubject(subject)) {
-
-            case "Math" -> mathResult;
-
-            case "Physics" -> physicsResult;
-
-            case "Chemistry" -> chemistryResult;
-
-            case "Biology" -> biologyResult;
-
-            case "English" -> englishResult;
-
-            default -> null;
-        };
-    }
-
-    private void resetSubjectBoxes() {
-
-        if (!performanceLayer.getChildren()
-                .containsAll(allSubjectBoxes)) {
-
-            performanceLayer
-                    .getChildren()
-                    .setAll(allSubjectBoxes);
-        }
-
-        for (VBox subjectBox : allSubjectBoxes) {
-            subjectBox.setVisible(true);
-            subjectBox.setManaged(true);
-        }
-    }
-
-    private void hideUnusedSubjectBoxes(
-            Set<String> availableSubjects
-    ) {
-        Set<String> normalizedSubjects =
-                availableSubjects
-                        .stream()
-                        .map(this::normalizeSubject)
-                        .collect(Collectors.toSet());
-
-        for (VBox subjectBox : allSubjectBoxes) {
-
-            boolean available =
-                    normalizedSubjects.contains(
-                            subjectBox.getId()
-                    );
-
-            subjectBox.setVisible(available);
-            subjectBox.setManaged(available);
-        }
-    }
-
-    private void plotData(
-            VBox box,
-            double percentage,
-            String marks,
-            String gradeText
-    ) {
-        RingProgressIndicator progressIndicator =
-                (RingProgressIndicator) box.lookup("#percentage");
-
-        Label marksLabel =
-                (Label) box.lookup("#marks");
-
-        Label gradeLabel =
-                (Label) box.lookup("#garde");
-
-        if (progressIndicator != null) {
-            progressIndicator.setProgress(percentage);
-        }
-
-        if (marksLabel != null) {
-            marksLabel.setText(marks);
-        }
-
-        if (gradeLabel != null) {
-            gradeLabel.setText(gradeText);
-        }
-    }
-
-    public record GradeResult(
-            String grade,
-            String remark,
-            String teacherRemark
-    ) {
-    }
-
-    private String getNameAbbreviation(String name) {
-
-        if (name == null || name.isBlank()) {
-            return "NA";
-        }
-
-        String[] parts = name
-                .trim()
-                .split("\\s+");
-
-        if (parts.length == 1) {
-            return parts[0]
-                    .substring(
-                            0,
-                            Math.min(2, parts[0].length())
-                    )
-                    .toUpperCase(Locale.ROOT);
-        }
-
-        return (
-                String.valueOf(parts[0].charAt(0))
-                        + parts[parts.length - 1].charAt(0)
-        ).toUpperCase(Locale.ROOT);
-    }
-
-    private void hideReport() {
-        report.setVisible(false);
-        report.setManaged(false);
-    }
-
-    private void showAlert(
-            Alert.AlertType type,
-            String title,
-            String header,
-            String content
-    ) {
-        Alert alert = new Alert(type);
-
-        alert.setTitle(title);
-        alert.setHeaderText(header);
-        alert.setContentText(content);
-
-        if (report.getScene() != null) {
-            alert.initOwner(
-                    report.getScene().getWindow()
-            );
-        }
-
-        alert.show();
-    }
-
+    /**
+     * Generates PDF reports for every diagnostic candidate currently stored
+     * in DiagnosticScoreCard.
+     */
     @FXML
     void generateReport(ActionEvent event) {
 
@@ -595,91 +647,207 @@ public class DiagnosticExamReport implements Initializable {
             return;
         }
 
+        if (diagnosticStudents.isEmpty()) {
+
+            showAlert(
+                    Alert.AlertType.INFORMATION,
+                    "Diagnostic Reports",
+                    "No diagnostic candidates found",
+                    "Generate the diagnostic results before "
+                            + "creating the reports."
+            );
+
+            return;
+        }
+
         Button button = (Button) event.getSource();
         button.setDisable(true);
 
         List<String> students =
                 new ArrayList<>(diagnosticStudents);
 
-        Task<Void> reportTask = new Task<>() {
+        Task<BatchReportResult> reportTask =
+                new Task<>() {
 
-            @Override
-            protected Void call() throws Exception {
+                    @Override
+                    protected BatchReportResult call() {
 
-                int total = students.size();
+                        int generated = 0;
+                        int skipped = 0;
+                        int failed = 0;
 
-                for (int index = 0;
-                     index < students.size();
-                     index++) {
+                        List<String> errors =
+                                new ArrayList<>();
 
-                    String studentName =
-                            students.get(index);
+                        int total = students.size();
 
-                    /*
-                     * A snapshot and all JavaFX control changes must happen
-                     * on the JavaFX Application Thread.
-                     */
-                    CompletableFuture<Void> reportFuture =
-                            new CompletableFuture<>();
+                        for (int index = 0;
+                             index < students.size();
+                             index++) {
 
-                    Platform.runLater(() -> {
+                            if (isCancelled()) {
+                                break;
+                            }
 
-                        try {
-                            int result =
-                                    generateDiagnosticReport(
-                                            studentName
+                            String studentName =
+                                    students.get(index);
+
+                            CompletableFuture<Integer> reportFuture =
+                                    new CompletableFuture<>();
+
+                            /*
+                             * JavaFX controls, CSS, layout and snapshot
+                             * operations must happen on the JavaFX
+                             * Application Thread.
+                             */
+                            Platform.runLater(() -> {
+
+                                try {
+                                    int result =
+                                            generateDiagnosticReport(
+                                                    studentName,
+                                                    false
+                                            );
+
+                                    if (result == 1) {
+
+                                        File outputFile =
+                                                new File(
+                                                        reportFolder,
+                                                        createSafeFileName(
+                                                                studentName
+                                                        )
+                                                                + "_diagnostic_report.pdf"
+                                                );
+
+                                        savePaneAsPdf(
+                                                report,
+                                                outputFile.getAbsolutePath()
+                                        );
+                                    }
+
+                                    reportFuture.complete(result);
+
+                                } catch (Exception exception) {
+
+                                    reportFuture.completeExceptionally(
+                                            exception
                                     );
+                                }
+                            });
 
-                            if (result == 1) {
+                            try {
+                                int result =
+                                        reportFuture.join();
 
-                                File outputFile = new File(
-                                        reportFolder,
-                                        createSafeFileName(studentName)
-                                                + "_diagnostic_report.pdf"
-                                );
+                                if (result == 1) {
+                                    generated++;
+                                } else {
+                                    skipped++;
+                                }
 
-                                savePaneAsPdf(
-                                        report,
-                                        outputFile.getAbsolutePath()
+                            } catch (Exception exception) {
+
+                                failed++;
+
+                                Throwable actualException =
+                                        unwrapException(exception);
+
+                                errors.add(
+                                        studentName
+                                                + ": "
+                                                + getExceptionMessage(
+                                                actualException
+                                        )
                                 );
                             }
 
-                            reportFuture.complete(null);
+                            updateProgress(
+                                    index + 1,
+                                    total
+                            );
 
-                        } catch (Exception exception) {
-                            reportFuture.completeExceptionally(
-                                    exception
+                            updateMessage(
+                                    (index + 1)
+                                            + " / "
+                                            + total
+                                            + " : "
+                                            + studentName
                             );
                         }
-                    });
 
-                    reportFuture.join();
-
-                    updateProgress(index + 1, total);
-
-                    updateMessage(
-                            (index + 1)
-                                    + " / "
-                                    + total
-                                    + " : "
-                                    + studentName
-                    );
-                }
-
-                return null;
-            }
-        };
+                        return new BatchReportResult(
+                                generated,
+                                skipped,
+                                failed,
+                                List.copyOf(errors)
+                        );
+                    }
+                };
 
         reportTask.setOnSucceeded(workerStateEvent -> {
 
             button.setDisable(false);
 
+            BatchReportResult result =
+                    reportTask.getValue();
+
+            StringBuilder message =
+                    new StringBuilder()
+                            .append("Generated: ")
+                            .append(result.generated())
+                            .append("\nSkipped: ")
+                            .append(result.skipped())
+                            .append("\nFailed: ")
+                            .append(result.failed())
+                            .append("\n\nReports were saved to:\n")
+                            .append(
+                                    reportFolder.getAbsolutePath()
+                            );
+
+            if (!result.errors().isEmpty()) {
+
+                message.append("\n\nErrors:\n");
+
+                int maximumShown =
+                        Math.min(
+                                10,
+                                result.errors().size()
+                        );
+
+                for (int index = 0;
+                     index < maximumShown;
+                     index++) {
+
+                    message.append("• ")
+                            .append(
+                                    result.errors().get(index)
+                            )
+                            .append('\n');
+                }
+
+                if (result.errors().size()
+                        > maximumShown) {
+
+                    message.append("• ...and ")
+                            .append(
+                                    result.errors().size()
+                                            - maximumShown
+                            )
+                            .append(" more.");
+                }
+            }
+
+            Alert.AlertType alertType =
+                    result.failed() == 0
+                            ? Alert.AlertType.INFORMATION
+                            : Alert.AlertType.WARNING;
+
             showAlert(
-                    Alert.AlertType.INFORMATION,
+                    alertType,
                     "Diagnostic Reports",
                     "Report generation completed",
-                    "Reports were saved to:\n"
-                            + reportFolder.getAbsolutePath()
+                    message.toString()
             );
         });
 
@@ -698,11 +866,13 @@ public class DiagnosticExamReport implements Initializable {
                     Alert.AlertType.ERROR,
                     "Diagnostic Reports",
                     "Report generation failed",
-                    exception == null
-                            ? "Unknown error"
-                            : exception.getMessage()
+                    getExceptionMessage(exception)
             );
         });
+
+        reportTask.setOnCancelled(workerStateEvent ->
+                button.setDisable(false)
+        );
 
         Thread thread = new Thread(
                 reportTask,
@@ -713,55 +883,363 @@ public class DiagnosticExamReport implements Initializable {
         thread.start();
     }
 
-    private String createSafeFileName(String studentName) {
+    /**
+     * Restores and clears both subject boxes before displaying another
+     * candidate.
+     */
+    private void resetSubjectBoxes() {
 
-        String safeName = normalizeStudentName(studentName)
-                .replaceAll("[\\\\/:*?\"<>|]", "_");
+        for (VBox subjectBox : allSubjectBoxes) {
 
-        return safeName.isBlank()
-                ? "diagnostic_student"
-                : safeName;
+            clearSubjectBox(subjectBox);
+
+            subjectBox.setVisible(true);
+            subjectBox.setManaged(true);
+        }
     }
 
+    /**
+     * Clears old marks, grades and progress from one subject box.
+     */
+    private void clearSubjectBox(VBox subjectBox) {
+
+        if (subjectBox == null) {
+            return;
+        }
+
+        RingProgressIndicator progressIndicator =
+                findProgressIndicator(subjectBox);
+
+        Label marksLabel =
+                findLabel(subjectBox, "#marks");
+
+        Label gradeLabel =
+                findGradeLabel(subjectBox);
+
+        if (progressIndicator != null) {
+            progressIndicator.setProgress(0);
+        }
+
+        if (marksLabel != null) {
+            marksLabel.setText("0/0");
+        }
+
+        if (gradeLabel != null) {
+            gradeLabel.setText("-");
+        }
+    }
+
+    /**
+     * Hides Math or Basic Science when the candidate has no attempted result
+     * for that subject.
+     */
+    private void hideUnusedSubjectBoxes(
+            Set<VBox> availableSubjectBoxes
+    ) {
+        for (VBox subjectBox : allSubjectBoxes) {
+
+            boolean available =
+                    availableSubjectBoxes.contains(subjectBox);
+
+            subjectBox.setVisible(available);
+            subjectBox.setManaged(available);
+        }
+    }
+
+    /**
+     * Returns the FXML box matching the normalized subject.
+     */
+    private VBox getSubjectBox(String subject) {
+
+        return switch (normalizeSubject(subject)) {
+
+            case "Math" ->
+                    mathResult;
+
+            case "Basic Science" ->
+                    basicScienceResult;
+
+            default ->
+                    null;
+        };
+    }
+
+    /**
+     * Returns true only for the two subjects supported by this report.
+     */
+    private boolean isSupportedSubject(String subject) {
+
+        String normalized =
+                normalizeSubject(subject);
+
+        return "Math".equals(normalized)
+                || "Basic Science".equals(normalized);
+    }
+
+    /**
+     * Displays a subject's percentage, marks and grade.
+     */
+    private void plotData(
+            VBox box,
+            double progress,
+            String marks,
+            String gradeText
+    ) {
+        if (box == null) {
+            return;
+        }
+
+        RingProgressIndicator progressIndicator =
+                findProgressIndicator(box);
+
+        Label marksLabel =
+                findLabel(box, "#marks");
+
+        Label gradeLabel =
+                findGradeLabel(box);
+
+        if (progressIndicator != null) {
+            progressIndicator.setProgress(
+                    clampProgress(progress)
+            );
+        }
+
+        if (marksLabel != null) {
+            marksLabel.setText(marks);
+        }
+
+        if (gradeLabel != null) {
+            gradeLabel.setText(gradeText);
+        }
+    }
+
+    /**
+     * Finds the nested progress indicator.
+     *
+     * The existing FXML is expected to use fx:id="percentage".
+     */
+    private RingProgressIndicator findProgressIndicator(
+            VBox subjectBox
+    ) {
+        var node = subjectBox.lookup("#percentage");
+
+        if (node instanceof RingProgressIndicator indicator) {
+            return indicator;
+        }
+
+        return null;
+    }
+
+    /**
+     * Finds a nested label safely without a direct unsafe cast.
+     */
+    private Label findLabel(
+            VBox subjectBox,
+            String selector
+    ) {
+        var node = subjectBox.lookup(selector);
+
+        if (node instanceof Label label) {
+            return label;
+        }
+
+        return null;
+    }
+
+    /**
+     * Supports both the old misspelled FXML ID "garde" and the corrected
+     * FXML ID "subjectGrade".
+     */
+    private Label findGradeLabel(VBox subjectBox) {
+
+        Label label =
+                findLabel(subjectBox, "#subjectGrade");
+
+        if (label != null) {
+            return label;
+        }
+
+        label = findLabel(
+                subjectBox,
+                "#garde"
+        );
+
+        if (label != null) {
+            return label;
+        }
+
+        return findLabel(
+                subjectBox,
+                "#grade"
+        );
+    }
+
+    private double calculatePercentage(
+            int obtained,
+            int possible
+    ) {
+        if (possible <= 0) {
+            return 0;
+        }
+
+        double percentage =
+                obtained * 100.0 / possible;
+
+        if (!Double.isFinite(percentage)) {
+            return 0;
+        }
+
+        return Math.max(
+                0,
+                Math.min(100, percentage)
+        );
+    }
+
+    private double clampProgress(double progress) {
+
+        if (!Double.isFinite(progress)) {
+            return 0;
+        }
+
+        return Math.max(
+                0,
+                Math.min(1, progress)
+        );
+    }
+
+    private String buildTeacherRemark(
+            GradeResult gradeResult,
+            int examCount,
+            int attemptedAnswers,
+            int correctAnswers,
+            int wrongAnswers
+    ) {
+        String examText = examCount == 1
+                ? "1 diagnostic exam"
+                : examCount + " diagnostic exams";
+
+        return gradeResult.teacherRemark()
+                + " Summary: "
+                + examText
+                + ", "
+                + attemptedAnswers
+                + " attempted, "
+                + correctAnswers
+                + " correct and "
+                + wrongAnswers
+                + " incorrect.";
+    }
+
+    private String normalizeStudentName(String name) {
+
+        if (name == null) {
+            return "";
+        }
+
+        return name
+                .trim()
+                .replaceAll("\\s+", " ");
+    }
+
+    /**
+     * Normalizes every accepted Math and Basic Science alias.
+     */
     private String normalizeSubject(String subject) {
 
         if (subject == null) {
             return "";
         }
 
-        return switch (subject.trim().toLowerCase()) {
+        String normalized =
+                subject.trim();
 
-            case "math":
-            case "maths":
-            case "mathematics":
-                yield "Math";
+        return switch (
+                normalized.toLowerCase(Locale.ROOT)
+                ) {
+            case "math",
+                 "maths",
+                 "mathematics" ->
+                    "Math";
 
-            case "physics":
-                yield "Physics";
+            case "basic science",
+                 "basic sciences",
+                 "basicscience",
+                 "basic_science",
+                 "science",
+                 "general science",
+                 "general sciences",
+                 "physics",
+                 "chemistry",
+                 "biology" ->
+                    "Basic Science";
 
-            case "chemistry":
-                yield "Chemistry";
-
-            case "biology":
-                yield "Biology";
-
-            case "english":
-                yield "English";
-
-            default:
-                yield subject.trim();
+            default ->
+                    normalized;
         };
+    }
+
+    private String getNameAbbreviation(String name) {
+
+        if (name == null || name.isBlank()) {
+            return "NA";
+        }
+
+        String[] parts =
+                name.trim().split("\\s+");
+
+        if (parts.length == 1) {
+
+            return parts[0]
+                    .substring(
+                            0,
+                            Math.min(
+                                    2,
+                                    parts[0].length()
+                            )
+                    )
+                    .toUpperCase(Locale.ROOT);
+        }
+
+        return (
+                String.valueOf(
+                        parts[0].charAt(0)
+                )
+                        + parts[
+                        parts.length - 1
+                        ].charAt(0)
+        ).toUpperCase(Locale.ROOT);
+    }
+
+    /**
+     * Creates a filename that is valid on Windows.
+     */
+    private String createSafeFileName(
+            String studentName
+    ) {
+        String safeName =
+                normalizeStudentName(studentName)
+                        .replaceAll(
+                                "[\\\\/:*?\"<>|]",
+                                "_"
+                        )
+                        .replaceAll("[. ]+$", "")
+                        .trim();
+
+        return safeName.isBlank()
+                ? "diagnostic_student"
+                : safeName;
     }
 
     public GradeResult getGrade(double percentage) {
 
-        if (Double.isNaN(percentage)
-                || Double.isInfinite(percentage)) {
+        if (!Double.isFinite(percentage)) {
             percentage = 0;
         }
 
-        // Prevent values outside the valid range.
-        percentage = Math.max(0, Math.min(100, percentage));
+        percentage = Math.max(
+                0,
+                Math.min(100, percentage)
+        );
 
         if (percentage >= 90) {
             return new GradeResult(
@@ -825,105 +1303,137 @@ public class DiagnosticExamReport implements Initializable {
                 "You need significant improvement. Please seek guidance and work consistently."
         );
     }
+
+    /**
+     * Saves the visible report as a single A4 PDF.
+     *
+     * This method must run on the JavaFX Application Thread because CSS,
+     * layout and snapshot operations access JavaFX controls.
+     */
     private void savePaneAsPdf(
             VBox pane,
             String outputFile
     ) {
-        try {
-            // Ensure the destination directory exists.
-            File destination = new File(outputFile);
-            File parentDirectory = destination.getParentFile();
-
-            if (parentDirectory != null && !parentDirectory.exists()) {
-                parentDirectory.mkdirs();
-            }
-
-            // Force CSS and layout before taking the snapshot.
-            pane.applyCss();
-            pane.layout();
-
-            SnapshotParameters parameters = new SnapshotParameters();
-            parameters.setTransform(new Scale(3, 3));
-            parameters.setFill(Color.WHITE);
-
-            WritableImage snapshot = pane.snapshot(
-                    parameters,
-                    null
+        if (!Platform.isFxApplicationThread()) {
+            throw new IllegalStateException(
+                    "savePaneAsPdf must run on the "
+                            + "JavaFX Application Thread."
             );
+        }
 
-            if (snapshot.getWidth() <= 0
-                    || snapshot.getHeight() <= 0) {
-                throw new IllegalStateException(
-                        "The diagnostic report has no visible content."
-                );
-            }
+        File destination =
+                new File(outputFile);
 
-            try (PDDocument document = new PDDocument()) {
+        File parentDirectory =
+                destination.getParentFile();
 
-                PDRectangle pageSize = new PDRectangle(
-                        (float) snapshot.getWidth(),
-                        (float) snapshot.getHeight()
-                );
+        if (parentDirectory != null
+                && !parentDirectory.exists()
+                && !parentDirectory.mkdirs()) {
 
-                PDPage page = new PDPage(pageSize);
-                document.addPage(page);
+            throw new IllegalStateException(
+                    "Could not create report directory: "
+                            + parentDirectory.getAbsolutePath()
+            );
+        }
 
-                PDImageXObject pdfImage =
-                        LosslessFactory.createFromImage(
-                                document,
-                                SwingFXUtils.fromFXImage(
-                                        snapshot,
-                                        null
-                                )
-                        );
+        pane.applyCss();
+        pane.layout();
 
-                float pageWidth =
-                        page.getMediaBox().getWidth();
+        SnapshotParameters parameters =
+                new SnapshotParameters();
 
-                float pageHeight =
-                        page.getMediaBox().getHeight();
+        parameters.setTransform(
+                new Scale(
+                        SNAPSHOT_SCALE,
+                        SNAPSHOT_SCALE
+                )
+        );
 
-                float imageWidth =
-                        pdfImage.getWidth();
+        parameters.setFill(Color.WHITE);
 
-                float imageHeight =
-                        pdfImage.getHeight();
+        WritableImage snapshot =
+                pane.snapshot(parameters, null);
 
-                float scale = Math.min(
-                        pageWidth / imageWidth,
-                        pageHeight / imageHeight
-                );
+        if (snapshot.getWidth() <= 0
+                || snapshot.getHeight() <= 0) {
 
-                float drawWidth =
-                        imageWidth * scale;
+            throw new IllegalStateException(
+                    "The diagnostic report has "
+                            + "no visible content."
+            );
+        }
 
-                float drawHeight =
-                        imageHeight * scale;
+        try (PDDocument document = new PDDocument()) {
 
-                float x =
-                        (pageWidth - drawWidth) / 2f;
+            PDPage page =
+                    new PDPage(PDRectangle.A4);
 
-                float y =
-                        (pageHeight - drawHeight) / 2f;
+            document.addPage(page);
 
-                try (
-                        PDPageContentStream contentStream =
-                                new PDPageContentStream(
-                                        document,
-                                        page
-                                )
-                ) {
-                    contentStream.drawImage(
-                            pdfImage,
-                            x,
-                            y,
-                            drawWidth,
-                            drawHeight
+            PDImageXObject pdfImage =
+                    LosslessFactory.createFromImage(
+                            document,
+                            SwingFXUtils.fromFXImage(
+                                    snapshot,
+                                    null
+                            )
                     );
-                }
 
-                document.save(destination);
+            float margin = 24f;
+
+            float pageWidth =
+                    page.getMediaBox().getWidth();
+
+            float pageHeight =
+                    page.getMediaBox().getHeight();
+
+            float availableWidth =
+                    pageWidth - (margin * 2);
+
+            float availableHeight =
+                    pageHeight - (margin * 2);
+
+            float imageWidth =
+                    pdfImage.getWidth();
+
+            float imageHeight =
+                    pdfImage.getHeight();
+
+            float imageScale =
+                    Math.min(
+                            availableWidth / imageWidth,
+                            availableHeight / imageHeight
+                    );
+
+            float drawWidth =
+                    imageWidth * imageScale;
+
+            float drawHeight =
+                    imageHeight * imageScale;
+
+            float x =
+                    (pageWidth - drawWidth) / 2f;
+
+            float y =
+                    (pageHeight - drawHeight) / 2f;
+
+            try (PDPageContentStream contentStream =
+                         new PDPageContentStream(
+                                 document,
+                                 page
+                         )) {
+
+                contentStream.drawImage(
+                        pdfImage,
+                        x,
+                        y,
+                        drawWidth,
+                        drawHeight
+                );
             }
+
+            document.save(destination);
 
             System.out.println(
                     "Diagnostic PDF saved: "
@@ -931,11 +1441,109 @@ public class DiagnosticExamReport implements Initializable {
             );
 
         } catch (IOException exception) {
+
             throw new RuntimeException(
                     "Failed to save diagnostic report PDF: "
                             + outputFile,
                     exception
             );
         }
+    }
+
+    private void hideReport() {
+
+        if (report != null) {
+            report.setVisible(false);
+            report.setManaged(false);
+        }
+    }
+
+    private void showAlert(
+            Alert.AlertType type,
+            String title,
+            String header,
+            String content
+    ) {
+        Alert alert = new Alert(type);
+
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+
+        alert.setContentText(
+                content == null
+                        ? ""
+                        : content
+        );
+
+        if (report != null
+                && report.getScene() != null
+                && report.getScene().getWindow() != null) {
+
+            alert.initOwner(
+                    report.getScene().getWindow()
+            );
+        }
+
+        alert.show();
+    }
+
+    private Throwable unwrapException(
+            Throwable exception
+    ) {
+        Throwable current = exception;
+
+        while (current.getCause() != null
+                && current.getCause() != current) {
+
+            current = current.getCause();
+        }
+
+        return current;
+    }
+
+    private String getExceptionMessage(
+            Throwable exception
+    ) {
+        if (exception == null) {
+            return "Unknown error";
+        }
+
+        String message =
+                exception.getMessage();
+
+        if (message == null || message.isBlank()) {
+            return exception
+                    .getClass()
+                    .getSimpleName();
+        }
+
+        return message;
+    }
+
+    public record DiagnosticSubjectSummary(
+            String subject,
+            int examCount,
+            int totalObtained,
+            int totalPossible,
+            int attemptedAnswers,
+            int correctAnswers,
+            int wrongAnswers,
+            double percentage
+    ) {
+    }
+
+    public record GradeResult(
+            String grade,
+            String remark,
+            String teacherRemark
+    ) {
+    }
+
+    private record BatchReportResult(
+            int generated,
+            int skipped,
+            int failed,
+            List<String> errors
+    ) {
     }
 }
