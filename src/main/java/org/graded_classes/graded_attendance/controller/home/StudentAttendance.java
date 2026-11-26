@@ -19,6 +19,7 @@ import org.graded_classes.graded_attendance.GradedFxmlLoader;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.data.Attendance;
 import org.graded_classes.graded_attendance.data.DailyTopics;
+import org.kordamp.ikonli.feather.Feather;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 
@@ -38,7 +39,7 @@ import static org.graded_classes.graded_attendance.GradedResourceLoader.loadURL;
 
 public class StudentAttendance implements Initializable {
     @FXML
-    public ImageView searchCrossIcon;
+    public FontIcon searchCrossIcon;
     @FXML
     TextField inputField;
     @FXML
@@ -129,9 +130,9 @@ public class StudentAttendance implements Initializable {
         show_search();
         String filter = inputField.getText();
         if (filter.isEmpty()) {
-            searchCrossIcon.setImage(new Image(GradedResourceLoader.load("icons/search.svg")));
+            searchCrossIcon.setIconCode(Feather.SEARCH);
         } else {
-            searchCrossIcon.setImage(new Image(GradedResourceLoader.load("icons/close.svg")));
+            searchCrossIcon.setIconCode(Feather.X);
         }
         if (filter.isEmpty()) {
             filteredData.setPredicate(s -> true);
@@ -147,6 +148,7 @@ public class StudentAttendance implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        searchCrossIcon.setIconCode(Feather.SEARCH);
         try {
             if (choiceBox != null) {
                 choiceBox.setItems(FXCollections.observableArrayList(List.of(
@@ -337,7 +339,7 @@ public class StudentAttendance implements Initializable {
 
     @FXML
     public void onCutOrSearch(MouseEvent mouseEvent) {
-        searchCrossIcon.setImage(new Image(GradedResourceLoader.load("icons/search.svg")));
+        searchCrossIcon.setIconCode(Feather.SEARCH);
         inputField.setText("");
     }
 

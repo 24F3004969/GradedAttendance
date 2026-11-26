@@ -12,9 +12,7 @@ import java.time.LocalTime;
 public class CalendarApp  {
 
     public CalendarView createCalenderView() {
-
         CalendarView calendarView = new CalendarView(); // (1)
-
         Calendar<String> birthdays = new Calendar<>("Birthdays"); // (2)
         Calendar<String> holidays = new Calendar<>("Holidays");
 
@@ -25,9 +23,10 @@ public class CalendarApp  {
         calendarView.getCalendarSources().addAll(myCalendarSource); // (5)
 
         calendarView.setRequestedTime(LocalTime.now());
-        calendarView.getStylesheets().clear();
+
         Thread updateTimeThread = getThread(calendarView);
         updateTimeThread.start();
+        calendarView.getStylesheets().add(GradedResourceLoader.load("css/calender.css"));
         return calendarView;
     }
 

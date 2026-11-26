@@ -439,8 +439,7 @@ public class ConductExam implements Initializable {
         });
     }
 
-    void importOmr(ExamData examInfo) {
-        File generatedFile = folderChooser();
+    void importOmr(ExamData examInfo,File generatedFile) {
         if (generatedFile == null) { return; }
         TreeMap<String, QuestionData> questionMap = loadQuestion(examInfo);
         var omrData = OMRParser.parse(generatedFile.getAbsolutePath());

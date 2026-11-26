@@ -9,6 +9,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.graded_classes.graded_attendance.GradedResourceLoader;
 import org.graded_classes.graded_attendance.R;
+import org.kordamp.ikonli.feather.Feather;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -38,7 +39,7 @@ public class ListViewStudents implements Initializable {
                         ed = id.substring(0, id.indexOf(" "));
                         name = id.substring(id.indexOf(" ") + 1);
                         studentAttendance.inputField.setText(name);
-                        studentAttendance.searchCrossIcon.setImage(new Image(GradedResourceLoader.load("icons/close.svg")));
+                        studentAttendance.searchCrossIcon.setIconCode(Feather.X);
                         createCustomDataView(ed);
                         studentAttendance.hide_search();
                     }

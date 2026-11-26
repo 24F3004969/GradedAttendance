@@ -20,6 +20,7 @@ import org.graded_classes.graded_attendance.controller.fee.FeeReport;
 import org.graded_classes.graded_attendance.data.Attendance;
 import org.graded_classes.graded_attendance.data.Student;
 import org.graded_classes.graded_attendance.report.AttendanceReport;
+import org.kordamp.ikonli.feather.Feather;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2OutlinedMZ;
 
@@ -222,8 +223,7 @@ public class AttendanceDataView implements Initializable {
     void onCancel() {
         studentAttendance.outer_main_box.getChildren().removeLast();
         studentAttendance.inputField.setText("");
-        studentAttendance.searchCrossIcon.setImage(new Image(GradedResourceLoader.
-                load("icons/search.svg")));
+        studentAttendance.searchCrossIcon.setIconCode(Feather.SEARCH);
 
     }
 

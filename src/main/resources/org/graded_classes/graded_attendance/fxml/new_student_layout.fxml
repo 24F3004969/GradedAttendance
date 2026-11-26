@@ -27,7 +27,7 @@
                         <HBox alignment="CENTER_LEFT" spacing="20.0">
                             <children>
                                 <TextField fx:id="ed_no" editable="false" prefHeight="36.0" prefWidth="132.0" promptText="ED No." />
-                        <CalendarPicker fx:id="dob" promptText="Date of Birth" stylesheets="@../css/atlantafx.css" />
+                        <CalendarPicker fx:id="dob" promptText="Date of Birth"  />
                                 <ComboBox fx:id="gender" onMouseClicked="#onClicked" prefHeight="36.0" prefWidth="138.0" promptText="Gender" />
                                 <ComboBox fx:id="blood_group" onMouseClicked="#onClicked" prefHeight="36.0" prefWidth="157.0" promptText="Blood Group" />
                             </children>

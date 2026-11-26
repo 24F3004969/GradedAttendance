@@ -80,9 +80,19 @@
             </SplitPane>
             <HBox alignment="CENTER_RIGHT" spacing="5.0">
                <children>
-                  <Button mnemonicParsing="false" text="Unselect All" />
-                  <Button mnemonicParsing="false" styleClass="accent" text="Select All" />
-                  <Button mnemonicParsing="false" onAction="#checkAllQuestion" styleClass="success" text="Check All Selected" />
+                  <HBox fx:id="debugBox" spacing="5.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Button mnemonicParsing="false" onAction="#editOMR" text="Edit the OMR" />
+                        <Button mnemonicParsing="false" onAction="#saveToDB" text="Save to DB" />
+                     </children>
+                  </HBox>
+                  <HBox fx:id="omrBox" spacing="5.0">
+                     <children>
+                        <Button mnemonicParsing="false" text="Unselect All" />
+                        <Button mnemonicParsing="false" styleClass="accent" text="Select All" />
+                        <Button mnemonicParsing="false" onAction="#checkAllQuestion" styleClass="success" text="Check All Selected" />
+                     </children>
+                  </HBox>
                </children>
                <VBox.margin>
                   <Insets bottom="10.0" left="10.0" right="10.0" />

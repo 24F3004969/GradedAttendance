@@ -4,6 +4,7 @@ import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
 import com.dlsc.atlantafx.themes.WinterDark;
 import com.dlsc.atlantafx.themes.WinterLight;
+import com.dlsc.gemsfx.util.GemsFXAtlantaFX;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -22,6 +23,7 @@ public class Main extends Application {
     public static AppMode appMode = AppMode.DEV;
     static {
         Loader.load(opencv_java.class);
+        System.setProperty("atlantafx", "true");
     }
     @Override
     public void start(Stage stage) throws IOException {
@@ -33,6 +35,7 @@ public class Main extends Application {
         var scene = new Scene(root);
         stage.setTitle("GradeEd Management");
         Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+        GemsFXAtlantaFX.applyTo(root);
         stage.setScene(scene);
         stage.getIcons().add(new Image(GradedResourceLoader.load("icons/app_icon.png")));
         stage.setOnCloseRequest(_ -> System.exit(1));

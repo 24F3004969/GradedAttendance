@@ -3,6 +3,8 @@ package org.graded_classes.graded_attendance.controller.quiz;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
@@ -15,6 +17,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
@@ -30,6 +33,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
 import static org.graded_classes.graded_attendance.components.Omr.confidenceStatus;
@@ -38,6 +42,8 @@ import static org.graded_classes.graded_attendance.components.Omr.read;
 public class OmrChecker implements Initializable {
 
     public StackPane loadingPane;
+    public HBox debugBox;
+    public HBox omrBox;
 
 
     @FXML
@@ -116,7 +122,7 @@ public class OmrChecker implements Initializable {
             }
 
         }
-        omr.writeJsonFile(omrResults, new ArrayList<>(), new File("result.json").toPath());
+        omr.writeJsonFile(omrResults, new ArrayList<>(), new File(path + "/result.json").toPath());
     }
 
     ConductExam conductExam;
@@ -124,11 +130,13 @@ public class OmrChecker implements Initializable {
     private ParallelTransition rawImageAnimation;
     int debugImageIndex = 0;
     Task<JsonNode> omrTask;
+    ObjectMapper mapper = new ObjectMapper();
 
     @FXML
     void onClose(ActionEvent event) {
         conductExam.mainController.modalPane.hide();
     }
+
     public OmrChecker(ConductExam conductExam, ExamData exam) {
         this.conductExam = conductExam;
         this.exam = exam;
@@ -136,14 +144,10 @@ public class OmrChecker implements Initializable {
 
     @FXML
     void checkAllQuestion(ActionEvent event) {
-
-        // Must be a StackPane for the ring to appear above the content
         ProgressIndicator progressRing = new ProgressIndicator();
         progressRing.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
         progressRing.setPrefSize(55, 55);
         progressRing.setMaxSize(55, 55);
-
-        // Prevent multiple clicks while processing
         Node source = event == null ? null : (Node) event.getSource();
         if (source != null) {
             source.setDisable(true);
@@ -157,15 +161,8 @@ public class OmrChecker implements Initializable {
         omrTask = new Task<>() {
             @Override
             protected JsonNode call() throws Exception {
-
-                // Heavy OMR process runs in background
                 runOmr(path.getAbsolutePath());
-
-                ObjectMapper mapper = new ObjectMapper();
-
-                // Wait until runOmr has produced result.json
-
-                return mapper.readTree(new File("result.json"));
+                return mapper.readTree(new File(path.getAbsolutePath() + "/result.json"));
             }
         };
         omrTask.setOnSucceeded(workerStateEvent -> {
@@ -271,19 +268,20 @@ public class OmrChecker implements Initializable {
         try {
             String replace = new File(debugImageList.get(debugImageIndex)).getName();
             replace = replace.substring(0, replace.indexOf('.')).replace("-", "");
-            debugTextArea.setText(getStudentByRollNumber(omrTask.getValue(), replace));
-        } catch (JsonProcessingException e) {
+            var obj = mapper.readTree(new File(path.getAbsolutePath() + "/result.json"));
+            debugTextArea.setText(getStudentByRollNumber(obj, replace));
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
         imageCropperAndPreviewApp.getLeftButton().setOnAction(event -> {
-            debugImageIndex=debugImageIndex < debugImageList.size() - 1 ?
+            debugImageIndex = debugImageIndex < debugImageList.size() - 1 ?
                     ++debugImageIndex : 0;
-            someUknownWork();
+            someUnknownWork();
         });
         imageCropperAndPreviewApp.getRightButton().setOnAction(event -> {
-            debugImageIndex=debugImageIndex > 0 ? --debugImageIndex :
-                            debugImageList.size() - 1;
-            someUknownWork();
+            debugImageIndex = debugImageIndex > 0 ? --debugImageIndex :
+                    debugImageList.size() - 1;
+            someUnknownWork();
         });
         Region root = imageCropperAndPreviewApp.getRoot();
 
@@ -294,14 +292,13 @@ public class OmrChecker implements Initializable {
 
         root.setOpacity(0);
         root.setTranslateX(-30);
-        loadingPane.setStyle("-fx-background-color: red");
         debugTextArea.setOpacity(0);
         debugTextArea.setTranslateX(30);
 
         omrView.getItems().setAll(root, debugTextArea);
 
         Platform.runLater(() -> {
-            omrView.setDividerPositions(0.7);
+            omrView.setDividerPositions(0.3);
 
             FadeTransition rootFade = new FadeTransition(
                     Duration.millis(250), root
@@ -346,7 +343,7 @@ public class OmrChecker implements Initializable {
         });
     }
 
-    private void someUknownWork() {
+    private void someUnknownWork() {
         imageCropperAndPreviewApp.getImageView().setImage(
                 new Image(
                         new File(debugImageList.get(debugImageIndex)
@@ -356,8 +353,9 @@ public class OmrChecker implements Initializable {
         String replace = new File(debugImageList.get(debugImageIndex)).getName();
         replace = replace.substring(0, replace.indexOf('.')).replace("-", "");
         try {
-            debugTextArea.setText(getStudentByRollNumber(omrTask.getValue(), replace));
-        } catch (JsonProcessingException e) {
+            var obj = mapper.readTree(new File(path.getAbsolutePath() + "/result.json"));
+            debugTextArea.setText(getStudentByRollNumber(obj, replace));
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -402,7 +400,6 @@ public class OmrChecker implements Initializable {
             JsonNode root,
             String rollNumber
     ) throws JsonProcessingException {
-
         for (JsonNode student : root.path("students")) {
             if (rollNumber.equals(student.path("enrollmentNumber").asText())) {
                 return new ObjectMapper()
@@ -410,7 +407,48 @@ public class OmrChecker implements Initializable {
                         .writeValueAsString(student);
             }
         }
-
         return null;
+    }
+
+    public void updateStudentInFile(
+            String editedStudentJson,
+            File jsonFile
+    ) throws IOException {
+
+        ObjectNode root = (ObjectNode) mapper.readTree(jsonFile);
+        JsonNode editedStudent = mapper.readTree(editedStudentJson);
+
+        String enrollmentNumber =
+                editedStudent.path("enrollmentNumber").asText();
+
+        ArrayNode students = (ArrayNode) root.path("students");
+
+        for (int i = 0; i < students.size(); i++) {
+
+            JsonNode student = students.get(i);
+
+            if (enrollmentNumber.equals(
+                    student.path("enrollmentNumber").asText())) {
+
+                students.set(i, editedStudent);
+                break;
+            }
+        }
+
+        mapper.writerWithDefaultPrettyPrinter()
+                .writeValue(jsonFile, root);
+    }
+
+    @FXML
+    private void editOMR() {
+        try {
+            updateStudentInFile(debugTextArea.getText(), new File(path.getAbsolutePath() + "/result.json"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void saveToDB() {
+        conductExam.importOmr(exam, path);
     }
 }

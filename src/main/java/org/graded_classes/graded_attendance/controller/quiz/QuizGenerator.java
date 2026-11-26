@@ -1,6 +1,7 @@
 package org.graded_classes.graded_attendance.controller.quiz;
 
 import com.dlsc.gemsfx.SVGImageView;
+import com.dlsc.gemsfx.util.GemsFXAtlantaFX;
 import com.lottie4j.core.file.LottieFileLoader;
 import com.lottie4j.core.model.animation.Animation;
 import com.lottie4j.fxplayer.LottiePlayer;
@@ -93,6 +94,7 @@ public class QuizGenerator implements Initializable {
             examReport = mainController.
                     gradedFxmlLoader.
                     createView(R.exam_report, new ExamReport(mainController));
+
             examList = mainController.
                     gradedFxmlLoader.createView(R.exam_conductor, new ConductExam(mainController, initExamSchedule()));
             quizTaker = quiz_gen_layout.getCenter();

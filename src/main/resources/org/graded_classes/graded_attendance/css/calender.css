@@ -1,0 +1,116 @@
+/* Month and year header boxes */
+.year-month-view > .container > .header {
+    -fx-background-color: transparent;
+    -fx-effect: null;
+    -fx-border-color: transparent;
+}
+
+/* Month and year controls */
+.year-month-view > .container > .header > .month-box,
+.year-month-view > .container > .header > .year-box {
+    -fx-background-color: transparent;
+    -fx-effect: null;
+}
+
+/* Calendar header buttons */
+.year-month-view .button {
+    -fx-background-color: transparent;
+    -fx-effect: null;
+    -fx-border-color: transparent;
+}
+/* =========================================================
+   CalendarFX navigation: Previous | Today | Next
+   AtlantaFX Primer-style appearance
+   ========================================================= */
+
+.button-bar > .container {
+    -fx-spacing: 0;
+    -fx-padding: 0;
+
+    -fx-background-color: -color-bg-default;
+    -fx-background-radius: 6px;
+
+    -fx-border-color: -color-border-default;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+
+    -fx-effect: null;
+}
+
+/* All navigation buttons */
+.button-bar > .container > .button {
+    -fx-min-height: 34px;
+    -fx-pref-height: 34px;
+    -fx-padding: 0 13px;
+
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+
+    -fx-border-color: transparent -color-border-default transparent transparent;
+    -fx-border-width: 0 1px 0 0;
+    -fx-border-insets: 7px 0 7px 0;
+
+    -fx-text-fill: -color-fg-default;
+    -fx-font-size: 13px;
+    -fx-font-weight: normal;
+
+    -fx-cursor: hand;
+    -fx-effect: null;
+    -fx-focus-traversable: false;
+}
+
+/* Previous button */
+.button-bar > .container > .button:first-child {
+    -fx-min-width: 38px;
+    -fx-pref-width: 38px;
+    -fx-padding: 0;
+
+    -fx-background-radius: 5px 0 0 5px;
+    -fx-font-size: 16px;
+}
+
+/* Today button */
+.button-bar > .container > .button:nth-child(2) {
+    -fx-min-width: 72px;
+    -fx-pref-width: 72px;
+
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+/* Next button */
+.button-bar > .container > .button:last-child {
+    -fx-min-width: 38px;
+    -fx-pref-width: 38px;
+    -fx-padding: 0;
+
+    -fx-background-radius: 0 5px 5px 0;
+    -fx-border-width: 0;
+
+    -fx-font-size: 16px;
+}
+
+/* Hover */
+.button-bar > .container > .button:hover {
+    -fx-background-color: -color-bg-subtle;
+}
+
+/* Pressed */
+.button-bar > .container > .button:pressed {
+    -fx-background-color: -color-neutral-muted;
+}
+
+/* Focused */
+.button-bar > .container > .button:focused {
+    -fx-background-color: -color-bg-subtle;
+
+    -fx-border-color: -color-accent-emphasis;
+    -fx-border-width: 1px;
+    -fx-border-insets: 1px;
+}
+
+/* Disabled */
+.button-bar > .container > .button:disabled {
+    -fx-opacity: 0.55;
+}

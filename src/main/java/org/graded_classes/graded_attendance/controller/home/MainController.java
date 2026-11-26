@@ -6,6 +6,7 @@ import atlantafx.base.theme.Styles;
 import atlantafx.base.util.Animations;
 import com.dlsc.gemsfx.DialogPane;
 import com.dlsc.gemsfx.SVGImageView;
+import com.dlsc.gemsfx.util.GemsFXAtlantaFX;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
